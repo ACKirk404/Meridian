@@ -9,7 +9,10 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Callable, Mapping, Protocol
+
+from .relay import ModelRole
 
 
 class ModelAdapter(Protocol):
@@ -51,6 +54,50 @@ class FakeModelAdapter:
     def __call__(self, payload: str) -> str:
         self.received_payloads.append(payload)
         return self.response
+
+
+class MissingAdapterError(RuntimeError):
+    """Raised when no adapter is registered for a lane role or model before any call."""
+
+
+class AdapterRegistry:
+    """Provider-neutral registry: register adapters by exact model or role default.
+
+    Each registration method returns a new registry instance (immutable builder).
+    Resolution order: exact model match first, role default second, error if neither.
+    """
+
+    def __init__(
+        self,
+        by_model: Mapping[str, ModelAdapter] | None = None,
+        by_role: Mapping[ModelRole, ModelAdapter] | None = None,
+    ) -> None:
+        self._by_model: Mapping[str, ModelAdapter] = MappingProxyType(dict(by_model or {}))
+        self._by_role: Mapping[ModelRole, ModelAdapter] = MappingProxyType(dict(by_role or {}))
+
+    def register_model(self, model: str, adapter: ModelAdapter) -> AdapterRegistry:
+        """Return new registry with an exact-model adapter registered."""
+        return AdapterRegistry(
+            by_model={**self._by_model, model: adapter},
+            by_role=dict(self._by_role),
+        )
+
+    def register_role_default(self, role: ModelRole, adapter: ModelAdapter) -> AdapterRegistry:
+        """Return new registry with a role-default adapter registered."""
+        return AdapterRegistry(
+            by_model=dict(self._by_model),
+            by_role={**self._by_role, role: adapter},
+        )
+
+    def resolve(self, role: ModelRole, model: str) -> ModelAdapter:
+        """Return the adapter for model (exact) or role (default), or raise MissingAdapterError."""
+        if model in self._by_model:
+            return self._by_model[model]
+        if role in self._by_role:
+            return self._by_role[role]
+        raise MissingAdapterError(
+            f"No adapter registered for model={model!r} or role={role.value!r}"
+        )
 
 
 class EnvConfiguredModelAdapter:

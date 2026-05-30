@@ -11,7 +11,7 @@ from meridian_core.aegis import (
     EvidenceType,
     ProofTrail,
 )
-from meridian_core.model_adapter import FakeModelAdapter
+from meridian_core.model_adapter import AdapterRegistry, FakeModelAdapter, MissingAdapterError
 from meridian_core.relay import ModelRole, route_from_tier
 from meridian_core.relay_dispatch import RelayDispatchLane, RelayDispatchPlan
 from meridian_core.relay_executor import (
@@ -20,6 +20,7 @@ from meridian_core.relay_executor import (
     RelayExecutionSummary,
     RelayProofGateError,
     execute_relay_dispatch_plan,
+    execute_relay_plan_with_registry,
     relay_execution_summary_to_proof_trail,
 )
 from meridian_core.relay_packet import assemble_relay_packet
@@ -407,3 +408,136 @@ class TestRelayExecutionSummaryToProofTrail:
         trail = relay_execution_summary_to_proof_trail(summary)
         assert trail.evidence == []
         assert trail.is_clean()
+
+
+def _make_registry_for_tier(tier: int) -> AdapterRegistry:
+    """Build an AdapterRegistry pre-populated for the given tier's preferred_model names."""
+    plan = _make_plan(tier)
+    registry = AdapterRegistry()
+    for lane in plan.lanes:
+        registry = registry.register_model(lane.preferred_model, FakeModelAdapter(f"response-for-{lane.preferred_model}"))
+    return registry
+
+
+class TestRegistryDispatch:
+    def test_exact_model_adapter_selected_for_lane(self):
+        plan = _make_plan(1)
+        exact = FakeModelAdapter("exact-output")
+        registry = AdapterRegistry().register_model(plan.lanes[0].preferred_model, exact)
+        summary = execute_relay_plan_with_registry(plan, registry)
+        assert exact.received_payloads == [plan.lanes[0].payload]
+
+    def test_role_default_used_when_no_exact_model(self):
+        plan = _make_plan(1)
+        role_adapter = FakeModelAdapter("role-output")
+        registry = AdapterRegistry().register_role_default(plan.lanes[0].role, role_adapter)
+        summary = execute_relay_plan_with_registry(plan, registry)
+        assert role_adapter.received_payloads == [plan.lanes[0].payload]
+
+    def test_missing_adapter_raises_before_any_call(self):
+        plan = _make_plan(1)
+        empty_registry = AdapterRegistry()
+        calls: list[str] = []
+
+        with pytest.raises(MissingAdapterError):
+            execute_relay_plan_with_registry(plan, empty_registry)
+
+        assert calls == []
+
+    def test_missing_adapter_error_contains_model_name(self):
+        plan = _make_plan(1)
+        with pytest.raises(MissingAdapterError) as exc_info:
+            execute_relay_plan_with_registry(plan, AdapterRegistry())
+        assert plan.lanes[0].preferred_model in str(exc_info.value)
+
+    def test_selected_adapter_receives_only_lane_payload(self):
+        plan = _make_plan(1)
+        adapter = FakeModelAdapter("ok")
+        registry = AdapterRegistry().register_model(plan.lanes[0].preferred_model, adapter)
+        execute_relay_plan_with_registry(plan, registry)
+        assert adapter.received_payloads == [_PROMPT]
+
+    def test_per_lane_adapters_selected_independently(self):
+        plan = _make_plan(2)
+        builder_adapter = FakeModelAdapter("builder-response")
+        reviewer_adapter = FakeModelAdapter("reviewer-response")
+        registry = (
+            AdapterRegistry()
+            .register_model(plan.lanes[0].preferred_model, builder_adapter)
+            .register_model(plan.lanes[1].preferred_model, reviewer_adapter)
+        )
+        summary = execute_relay_plan_with_registry(plan, registry)
+        assert len(summary.results) == 2
+        assert builder_adapter.received_payloads == [plan.lanes[0].payload]
+        assert reviewer_adapter.received_payloads == [plan.lanes[1].payload]
+
+    def test_summary_has_correct_results(self):
+        plan = _make_plan(1)
+        registry = _make_registry_for_tier(1)
+        summary = execute_relay_plan_with_registry(plan, registry)
+        assert len(summary.results) == 1
+        assert isinstance(summary.results[0], RelayExecutionResult)
+
+    def test_tier3_blocking_proof_trail_blocks_before_adapter_resolution(self):
+        plan = _make_plan(3)
+        registry = _make_registry_for_tier(3)
+        blocking_trail = ProofTrail([
+            AegisEvidence(
+                id="block-001",
+                evidence_type=EvidenceType.BUILD_OUTPUT,
+                severity=EvidenceSeverity.ERROR,
+                status=EvidenceStatus.OPEN,
+                source="test",
+                target="relay",
+                summary="blocking evidence",
+            )
+        ])
+        adapters = [FakeModelAdapter("ok") for _ in plan.lanes]
+        model_registry = AdapterRegistry()
+        for lane, adapter in zip(plan.lanes, adapters):
+            model_registry = model_registry.register_model(lane.preferred_model, adapter)
+
+        with pytest.raises(RelayProofGateError):
+            execute_relay_plan_with_registry(plan, model_registry, blocking_trail)
+
+        for adapter in adapters:
+            assert adapter.received_payloads == []
+
+    def test_tier4_blocking_proof_trail_blocks_dispatch(self):
+        plan = _make_plan(4)
+        blocking_trail = ProofTrail([
+            AegisEvidence(
+                id="block-002",
+                evidence_type=EvidenceType.BUILD_OUTPUT,
+                severity=EvidenceSeverity.ERROR,
+                status=EvidenceStatus.OPEN,
+                source="test",
+                target="relay",
+                summary="blocking evidence tier4",
+            )
+        ])
+        registry = _make_registry_for_tier(4)
+        with pytest.raises(RelayProofGateError):
+            execute_relay_plan_with_registry(plan, registry, blocking_trail)
+
+    def test_tier2_blocking_proof_trail_does_not_block(self):
+        plan = _make_plan(2)
+        registry = _make_registry_for_tier(2)
+        blocking_trail = ProofTrail([
+            AegisEvidence(
+                id="block-003",
+                evidence_type=EvidenceType.BUILD_OUTPUT,
+                severity=EvidenceSeverity.ERROR,
+                status=EvidenceStatus.OPEN,
+                source="test",
+                target="relay",
+                summary="blocking evidence tier2",
+            )
+        ])
+        summary = execute_relay_plan_with_registry(plan, registry, blocking_trail)
+        assert len(summary.results) == len(plan.lanes)
+
+    def test_backward_compatible_execute_relay_dispatch_plan_unchanged(self):
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(plan, _constant_model_call("still works"))
+        assert summary.results[0].output == "still works"

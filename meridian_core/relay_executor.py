@@ -17,7 +17,7 @@ from .aegis import (
     EvidenceType,
     ProofTrail,
 )
-from .model_adapter import ModelAdapter
+from .model_adapter import AdapterRegistry, MissingAdapterError, ModelAdapter  # noqa: F401
 from .relay import ModelRole
 from .relay_dispatch import RelayDispatchPlan
 
@@ -115,6 +115,53 @@ def execute_relay_dispatch_plan(
     for lane in plan.lanes:
         try:
             output = model_call(lane.payload)
+            results.append(
+                RelayExecutionResult(
+                    role=lane.role,
+                    preferred_model=lane.preferred_model,
+                    output=output,
+                )
+            )
+        except Exception as exc:  # noqa: BLE001
+            errors.append(
+                RelayExecutionError(
+                    role=lane.role,
+                    preferred_model=lane.preferred_model,
+                    error=str(exc),
+                )
+            )
+
+    return RelayExecutionSummary(
+        results=tuple(results),
+        errors=tuple(errors),
+    )
+
+
+def execute_relay_plan_with_registry(
+    plan: RelayDispatchPlan,
+    registry: AdapterRegistry,
+    proof_trail: ProofTrail | None = None,
+) -> RelayExecutionSummary:
+    """
+    Execute a plan with per-lane adapter resolution from the registry.
+
+    Pre-resolves all adapters before any call — raises MissingAdapterError
+    before the first model call if any lane's adapter is missing. The Aegis
+    proof gate is checked first; blocking evidence prevents resolution.
+    Only lane.payload crosses to the adapter; role and metadata are not forwarded.
+    """
+    _assert_proof_gate_clear(plan, proof_trail)
+
+    resolved_adapters = [
+        registry.resolve(lane.role, lane.preferred_model) for lane in plan.lanes
+    ]
+
+    results: list[RelayExecutionResult] = []
+    errors: list[RelayExecutionError] = []
+
+    for lane, adapter in zip(plan.lanes, resolved_adapters):
+        try:
+            output = adapter(lane.payload)
             results.append(
                 RelayExecutionResult(
                     role=lane.role,
