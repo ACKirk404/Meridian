@@ -17,7 +17,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from .review_console import (
+    ReviewConsoleAction,
     ReviewConsoleItem,
+    ReviewConsoleResponse,
     ReviewConsoleSeverity,
     ReviewConsoleQueue,
     make_approval_gate,
@@ -108,6 +110,35 @@ class AegisEvidence:
     def escalate(self) -> None:
         """Escalate this evidence; it will remain proof-blocking until resolved."""
         self.status = EvidenceStatus.ESCALATED
+
+    def apply_console_response(self, response: ReviewConsoleResponse) -> None:
+        """
+        Apply a Review Console response to this evidence record.
+
+        APPROVE resolves the evidence. REJECT and MODIFY escalate it.
+        ACKNOWLEDGE resolves non-blocking evidence, but escalates proof-blocking
+        evidence so serious findings are not cleared by acknowledgement alone.
+        """
+        if self.console_item_id and response.item_id != self.console_item_id:
+            raise ValueError(
+                f"response item {response.item_id!r} does not match evidence console item "
+                f"{self.console_item_id!r}"
+            )
+
+        if response.action is ReviewConsoleAction.APPROVE:
+            self.resolve()
+            return
+        if response.action in {ReviewConsoleAction.REJECT, ReviewConsoleAction.MODIFY}:
+            self.escalate()
+            return
+        if response.action is ReviewConsoleAction.ACKNOWLEDGE:
+            if self.is_proof_blocking():
+                self.escalate()
+            else:
+                self.resolve()
+            return
+
+        raise ValueError(f"Unsupported Review Console action: {response.action.value!r}")
 
     # ------------------------------------------------------------------
     # Review Console bridge

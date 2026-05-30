@@ -13,7 +13,9 @@ from meridian_core.aegis import (
     evidence_from_cross_check,
 )
 from meridian_core.review_console import (
+    ReviewConsoleAction,
     ReviewConsoleItemType,
+    ReviewConsoleResponse,
     ReviewConsoleSeverity,
     ReviewConsoleQueue,
 )
@@ -272,6 +274,83 @@ class TestToConsoleItem:
         item = ev.to_console_item()
         assert "Status: escalated" in item.content
 
+
+# ---------------------------------------------------------------------------
+# Apply Review Console response
+# ---------------------------------------------------------------------------
+
+
+class TestApplyConsoleResponse:
+    def test_approve_resolves_blocking_evidence(self):
+        ev = _blocking()
+        ev.to_console_item()
+        ev.apply_console_response(
+            ReviewConsoleResponse("aegis-ev-block", ReviewConsoleAction.APPROVE)
+        )
+        assert ev.status is EvidenceStatus.RESOLVED
+
+    def test_approve_clears_proof_blocking(self):
+        ev = _blocking()
+        ev.to_console_item()
+        ev.apply_console_response(
+            ReviewConsoleResponse("aegis-ev-block", ReviewConsoleAction.APPROVE)
+        )
+        assert ev.is_proof_blocking() is False
+
+    def test_reject_escalates_evidence(self):
+        ev = _blocking()
+        ev.to_console_item()
+        ev.apply_console_response(
+            ReviewConsoleResponse("aegis-ev-block", ReviewConsoleAction.REJECT, "not enough proof")
+        )
+        assert ev.status is EvidenceStatus.ESCALATED
+
+    def test_modify_escalates_evidence(self):
+        ev = _blocking()
+        ev.to_console_item()
+        ev.apply_console_response(
+            ReviewConsoleResponse("aegis-ev-block", ReviewConsoleAction.MODIFY, "fix then rerun")
+        )
+        assert ev.status is EvidenceStatus.ESCALATED
+
+    def test_acknowledge_resolves_nonblocking_evidence(self):
+        ev = _cc(severity=EvidenceSeverity.INFO)
+        ev.to_console_item()
+        ev.apply_console_response(
+            ReviewConsoleResponse("aegis-ev-1", ReviewConsoleAction.ACKNOWLEDGE)
+        )
+        assert ev.status is EvidenceStatus.RESOLVED
+
+    def test_acknowledge_escalates_blocking_evidence(self):
+        ev = _blocking()
+        ev.to_console_item()
+        ev.apply_console_response(
+            ReviewConsoleResponse("aegis-ev-block", ReviewConsoleAction.ACKNOWLEDGE)
+        )
+        assert ev.status is EvidenceStatus.ESCALATED
+
+    def test_mismatched_console_item_id_raises(self):
+        ev = _blocking()
+        ev.to_console_item()
+        with pytest.raises(ValueError, match="does not match"):
+            ev.apply_console_response(
+                ReviewConsoleResponse("different-item", ReviewConsoleAction.APPROVE)
+            )
+
+    def test_response_can_apply_before_console_item_created(self):
+        ev = _blocking()
+        ev.apply_console_response(
+            ReviewConsoleResponse("external-gate", ReviewConsoleAction.APPROVE)
+        )
+        assert ev.status is EvidenceStatus.RESOLVED
+
+    def test_apply_console_response_does_not_waive_without_reason(self):
+        ev = _blocking()
+        ev.to_console_item()
+        ev.apply_console_response(
+            ReviewConsoleResponse("aegis-ev-block", ReviewConsoleAction.APPROVE)
+        )
+        assert ev.waiver_reason == ""
 
 
 # ---------------------------------------------------------------------------
