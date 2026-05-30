@@ -199,6 +199,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-01 03:35 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B2; awaiting next assignment
 2026-06-01 04:11 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B2; awaiting next assignment
 2026-06-01 04:12 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B2; awaiting next assignment
+2026-06-01 04:27 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B2; awaiting next assignment
 ```
 
 ## Write/Completion Log
@@ -306,6 +307,11 @@ Completion:
 Coordinator write log:
 
 - 2026-05-30 15:51 -06:00 - Assigned FileMap refresh for Build 1 model adapter contract `653488b`; commit pending; tests pending.
+- 2026-05-30 16:01 -06:00 - Completed FileMap refresh for Model Harness adapter contract; commit pending; files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/live-build-3.md; tests pending; Ready for Codex Review after commit.
+
+Ready for Codex Review:
+
+- FileMap refresh for Model Harness adapter contract; commit pending; tests pending.
 
 Stale prior completed FileMap task follows.
 
