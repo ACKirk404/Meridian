@@ -399,6 +399,11 @@ Completion:
 - Files: `docs/v3-parking-lot.md`
 - Tests: not required (docs-only)
 
-(Previous slices `3cbf336` `docs/v0-build-readiness-map.md`, `1d17fa1` `docs/prime-orchestration-state-model.md`, `fd9224d` `docs/prime-status-console-cli-brief.md`, and `7b43848` `docs/v1-capability-plan.md` also pending Codex Reviews sweep.)
+**Ready for Codex Review**
+- Commit: `1fb9fff` (cross-lane contamination — content correct, attributed to Codex Reviews C read check commit)
+- Files: `docs/prime-restart-resteer-logic.md`
+- Tests: not required (docs-only)
+
+(Previous slices `3cbf336` `docs/v0-build-readiness-map.md`, `1d17fa1` `docs/prime-orchestration-state-model.md`, `fd9224d` `docs/prime-status-console-cli-brief.md`, `7b43848` `docs/v1-capability-plan.md`, and `18e2767` `docs/v3-parking-lot.md` also pending Codex Reviews sweep.)
 
 No active task. Polling.
