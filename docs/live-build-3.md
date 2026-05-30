@@ -218,6 +218,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-01 04:12 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B2; awaiting next assignment
 2026-06-01 04:27 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B2; awaiting next assignment
 2026-05-30 16:40 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 1/3 since Round B3; awaiting next task assignment
+2026-05-30 16:42 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 1/3 since Round B3; awaiting next task assignment
 ```
 
 ## Write/Completion Log
@@ -291,11 +292,14 @@ Poll every 30 seconds. When a new task is written here, begin immediately.
 
 Last completed: FileMap refresh (v1-capability-plan, v1-bifrost-cockpit-implementation-brief, v2-horizon-plan, v3-parking-lot); 2026-05-31 21:05 -06:00; commit 330f200; tests 46/46 filemap; cadence 2/3 since Round B2; Ready for Codex Review.
 
-Prior completions:
+## Completed Task Archive
 
+Historical record for reference. Authoritative detail is in the Write/Completion Log above.
+
+- **COMPLETED 2026-05-31 21:05 -06:00** — FileMap refresh (v1-capability-plan, v1-bifrost-cockpit-implementation-brief, v2-horizon-plan, v3-parking-lot); commit 330f200; tests 46/46 filemap; cadence 2/3 since Round B2; Ready for Codex Review.
 - **COMPLETED 2026-05-31 16:05 -06:00** — FileMap hygiene (v0-v1-progress-tracker.md + relay_executor stale text); commit 774695f; tests 46/46 filemap; cadence 1/3 since Round B2; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/v0-v1-progress-tracker.md, docs/v0-build-readiness-map.md.
 - **COMPLETED 2026-05-31 11:20 -06:00** — FileMap repair Round B2 (live-codex-reviews-2.md + A-lane label + prose-divergence); work present in Build 1 commit 45497b1; no new commit; task closed.
 - **COMPLETED 2026-05-31 00:35 -06:00** — FileMap refresh (4 uncatalogued docs from Round B1: v0-build-readiness-map.md, prime-orchestration-state-model.md, bifrost-v0-cockpit-layout-brief.md, bifrost-harness-dashboard-brief.md); commit 1378bda; tests 46/46 filemap, 785/785 full suite; Ready for Codex Review.
 - **COMPLETED 2026-05-30 17:20 -06:00** — FileMap refresh (relay_dispatch, live-codex-reviews, prime-orchestration prototype); commit 4075ef4; tests 46/46 filemap, 785/785 full suite; Ready for Codex Review.
 - **COMPLETED 2026-05-30 16:07 -06:00** — FileMap repair (Round B3 — prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md); commit 5e0facb; tests 46/46 filemap; cadence 1/3 since Round B3; Ready for Codex Review.
-- **COMPLETED 2026-05-30 16:03 -06:00** — FileMap refresh (model_adapter.py); commit be34fea; tests 46/46 filemap; Ready for Codex Review. **CODEX REVIEW CLEARED 2026-05-30 16:11 -06:00** (Reviews B; no findings; cadence window 774695f, 330f200, be34fea clear).
+- **COMPLETED 2026-05-30 16:03 -06:00** — FileMap refresh (model_adapter.py); commit be34fea; tests 46/46 filemap; Ready for Codex Review. Codex review cleared 2026-05-30 16:11 -06:00 (Reviews B; no findings; cadence window 774695f, 330f200, be34fea clear).
