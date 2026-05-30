@@ -188,6 +188,8 @@ YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; files changed: <l
 2026-05-30 16:55 -06:00 - Build 2 completed Relay package API policy note; commit 46e4eb3; files changed: docs/relay-package-api-policy-note.md, docs/package-api-surface-note.md; tests none required (docs-only); Ready for Codex Review
 2026-05-31 02:45 -06:00 - Build 2 completed Relay executor API policy note; commit d821106; files changed: docs/relay-executor-api-policy.md; tests none required (docs-only); Ready for Codex Review
 2026-05-31 05:55 -06:00 - Build 2 completed V0 prime_wake CLI surface; commit e800c03; files changed: meridian_core/cli.py, tests/test_cli.py; tests 819 passed; boundary note: docs/v1-capability-plan.md swept in from prior staged state (not owned by Build 2); Ready for Codex Review
+2026-05-31 07:35 -06:00 - Build 2 completed V0 prime_status and prime_console CLI surface; commit 989366f; files changed: meridian_core/cli.py, tests/test_cli.py; Ready for Codex Review
+2026-06-01 08:00 -06:00 - Cross-check repair: added missing 989366f completion entry to Write/Completion Log; Active Task section and Codex Cadence entries were already correct at time of repair
 ```
 
 ## Cross-Check Activity
