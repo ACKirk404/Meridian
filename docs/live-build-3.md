@@ -50,6 +50,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-05-30 13:35 -06:00 - Build 3 checked queue; status: idle; Active Task still stale; awaiting new task assignment
 2026-05-30 13:50 -06:00 - Build 3 checked queue; status: idle; Active Task still stale; awaiting new task assignment
 2026-05-30 14:05 -06:00 - Build 3 checked queue; status: active task found (repair stale FileMap Relay maturity claims); starting work
+2026-05-30 14:35 -06:00 - Build 3 checked queue; status: idle; Active Task stale (Relay maturity repair done at ef934b1); awaiting Codex review result and new task
 ```
 
 ## Write/Completion Log
