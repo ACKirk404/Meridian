@@ -119,6 +119,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-30 20:47 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; Round B3 pending (Build 5); Build 4 slices 3cbf336, 1d17fa1, fd9224d still pending Codex Reviews sweep; origin/main at df9db69
 2026-05-30 20:52 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; Build 4 slices 3cbf336, 1d17fa1, fd9224d still pending Codex Reviews sweep; origin/main at ee7e8a4
 2026-05-30 21:17 -06:00 - Build 4 checked queue; status: idle; no new Active Task; Build 1 idle polling (ba50f1b); Build 4 slices 3cbf336, 1d17fa1, fd9224d still pending Codex Reviews sweep; origin/main at ba50f1b
+2026-05-30 21:29 -06:00 - Build 4 checked queue; status: running; new Active Task = Meridian V1 capability plan (docs/v1-capability-plan.md); origin/main at 9965720
 ```
 
 ## Write/Completion Log
@@ -190,7 +191,8 @@ Goal: draft the Meridian V1 capability plan.
 Context:
 
 - Scott is leaving soon and wants V1 planned enough that builders can keep moving.
-- `docs/v0-v1-progress-tracker.md` now defines the initial V1 capability list.
+- Scott clarified that V1 is cockpit UI: "V1 is primarily just building a UI and plugging everything we've built into it."
+- `docs/v0-v1-progress-tracker.md` now defines V1 as a cockpit UI release, not a memory/federation/model-adapter release.
 - This is Build 4's high-level architecture lane.
 
 Allowed files only:
@@ -200,15 +202,16 @@ Allowed files only:
 
 Task:
 
-- Write a concise V1 plan that turns the 12 tracker items into a coherent build sequence.
+- Write a concise V1 plan that turns the cockpit UI scope into a coherent build sequence.
 - Cover:
-  - V1 definition and success test
-  - what must wait until V0 is complete
+  - V1 definition and success test: Scott can see Prime, queues, reviews, proof, status, and harness state in the cockpit
+  - what must wait until V0 is complete before it can be wired into the UI
   - what can be designed in parallel now
-  - capability dependency order
+  - cockpit capability dependency order
   - recommended builder lane ownership
-  - risk areas: model weakness, prompt drag, account-based automation constraints, memory correctness, UI sprawl
-  - the first 10 commit-sized V1 slices
+  - risk areas: UI sprawl, stale status, noisy progress surfaces, prompt drag through the UI, and confusing human gates
+  - the first 10 commit-sized V1 UI/integration slices
+- Explicitly mark Echo, Atlas, multi-user/federation, and public/account adapter strategy as out of V1 scope.
 - Keep it candid and implementation-guiding, not marketing copy.
 - Do not edit runtime code.
 - Do not edit FileMap.

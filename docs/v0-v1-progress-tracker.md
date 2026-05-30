@@ -35,14 +35,16 @@
 
 ## V1 Planning Tracker
 
-**V1 definition draft:** V1 begins after Prime can wake, report status, dispatch one worker through Relay, show review/gate items, and enforce proof gates. V1 turns that CLI-capable Prime into a cockpit-backed, memory-backed, multi-lane orchestrator.
+**V1 definition:** V1 is the cockpit UI release. It turns the V0 CLI/domain capabilities into something Scott can see, steer, and operate. V1 is primarily Bifrost cockpit UI plus wiring existing Meridian capabilities into that UI.
+
+**Explicitly out of V1:** Echo memory engine, Atlas/RAG engine, multi-user/multi-Meridian federation, and public/account adapter strategy. Those remain future capability tracks after the cockpit exists.
 
 | Status | Count | Percent |
 |---|---:|---:|
 | Built | 0 | 0% |
-| Planned / designed | 5 | 42% |
-| Needs planning | 7 | 58% |
-| Total V1 capability items | 12 | 100% |
+| Planned / designed | 4 | 67% |
+| Needs planning | 2 | 33% |
+| Total V1 cockpit items | 6 | 100% |
 
 ### Planned / Designed
 
@@ -50,17 +52,11 @@
 - [ ] Configurable progress/proof surface - brief built in `a412e90`.
 - [ ] Harness dashboard - brief built in `7c34566`.
 - [ ] Prime status / review console CLI bridge - brief built in `fd9224d`.
-- [ ] Prime orchestration state model - brief built in `1d17fa1`.
 
 ### Needs Planning
 
-- [ ] Echo memory store - persistent memory behind Prime's effective memory.
-- [ ] Atlas retrieval / RAG harness - ranked query over FileMap, docs, history, and memory.
-- [ ] Bifrost live UI implementation - cockpit, queue panel, review console, progress surface.
-- [ ] Session lifecycle harness - spawn, steer, wait, stop, transfer, archive.
-- [ ] Dynamic Risk-Tiered Dual-Structured Gated Cognition - runtime decision engine, not just docs.
-- [ ] Multi-user / multi-Meridian federation - connect Meridian instances safely.
-- [ ] Model harness adapters - API-first public path plus compartmentalized account-based automation path.
+- [ ] Bifrost live UI implementation - cockpit shell, Prime conversation, queue panel, review console, progress surface.
+- [ ] UI integration wiring - plug V0 Mission/Wake, Review Console, Beacon status, Relay session state, and Aegis proof/gate state into the cockpit.
 
 ## Reporting Format
 
