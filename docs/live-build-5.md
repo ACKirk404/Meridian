@@ -35,6 +35,7 @@ Append entries here when this file is checked while idle.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Build 5 checked queue; status: idle/running/blocked
+2026-05-30 11:33 -06:00 - Build 5 checked queue; status: running; Active Task = create docs/bifrost-session-queue-activation-brief.md; origin/main up to date
 ```
 
 ## Write/Completion Log
@@ -44,6 +45,7 @@ Append entries here when this file is modified or an active task is completed.
 ```text
 YYYY-MM-DD HH:MM TZ - Build 5 completed <task>; commit <hash>; tests <result>
 2026-05-30 11:30 -06:00 - Codex created Build 5 Bifrost/session-harness queue and assigned queue activation brief; commit pending; tests not required
+2026-05-30 11:33 -06:00 - Build 5 completed Bifrost session queue activation brief at docs/bifrost-session-queue-activation-brief.md; commit pending; tests not required
 ```
 
 ## Cross-Check Activity
