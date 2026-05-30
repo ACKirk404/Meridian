@@ -63,6 +63,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-05-30 17:05 -06:00 - Build 3 checked queue; status: active task found (FileMap refresh for relay_dispatch, live-codex-reviews, prime-orchestration prototype, diagrams); starting work
 2026-05-30 17:35 -06:00 - Build 3 checked queue; status: idle; Active Task stale (relay_dispatch/codex-reviews refresh done at 4075ef4); awaiting new task
 2026-05-30 17:50 -06:00 - Build 3 checked queue; status: idle; Active Task still stale; awaiting new task
+2026-05-30 18:05 -06:00 - Build 3 checked queue; status: idle; Active Task cleared by orchestrator; awaiting next assignment
 ```
 
 ## Write/Completion Log
@@ -120,80 +121,8 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Current Active Task (supersedes any stale text below):
+**No active task. Build 3 is idle.**
 
-Goal: refresh FileMap for RelayDispatchPlan and Codex Reviews queue.
+Last completed: FileMap refresh (relay_dispatch, live-codex-reviews, prime-orchestration prototype); commit 4075ef4; 2026-05-30 17:20 -06:00. Ready for Codex Review.
 
-Allowed files only:
-
-- `docs/FileMap.md`
-- `meridian_core/filemap.py`
-- `tests/test_filemap.py`
-
-Task:
-
-- Codex Reviews Round 1 observed that Build 1 introduced `meridian_core/relay_dispatch.py` after the last FileMap refresh.
-- Add FileMap coverage for:
-  - `meridian_core/relay_dispatch.py`
-  - `tests/test_relay_dispatch.py`
-  - `docs/live-codex-reviews.md`
-  - `docs/prime-orchestration-harness-prototype.md`
-  - the new Meridian engineering diagrams in `docs/assets/diagrams/02-*.png` through `06-*.png` if the human FileMap should mention canonical visual assets
-- Keep entries concise and memory-injection useful.
-- Update required-path coverage only for truly core source/process files.
-- Do not edit runtime code.
-- Do not edit package exports.
-- Do not edit other live queues.
-
-Tests:
-
-```text
-python -m pytest tests/test_filemap.py -q
-python -m pytest -q
-```
-
-Completion:
-
-- Commit only this FileMap slice.
-- Push to `origin/main`.
-- Update Obsidian.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and test count.
-
-Stale prior text:
-
-Goal: repair stale FileMap Relay maturity claims.
-
-Allowed files only:
-
-- `docs/FileMap.md`
-- `meridian_core/filemap.py`
-- `tests/test_filemap.py`
-
-Task:
-
-- Codex reviewed Build 3 commit `7ec16ac`.
-- Repair stale FileMap claims:
-  - `docs/FileMap.md` currently says PromptBudget has no Relay integration and RelayRoute will carry PromptBudgetPlan in the future.
-  - Current `meridian_core/relay.py` already carries `prompt_budget: PromptBudgetPlan`.
-  - Current Build 1 also added `meridian_core/relay_packet.py`.
-- Update both the human FileMap and `make_default_map()` so memory injection does not teach stale architecture.
-- Add `meridian_core/relay_packet.py` and `tests/test_relay_packet.py` to FileMap if missing.
-- Add `docs/bifrost-cockpit-queue-status-brief.md` to the human FileMap if missing.
-- Update required-path coverage if you add a core source file that should be guaranteed present.
-- Do not edit runtime code.
-- Do not edit package exports.
-- Do not edit other live queues.
-
-Tests:
-
-```text
-python -m pytest tests/test_filemap.py -q
-python -m pytest -q
-```
-
-Completion:
-
-- Commit only this FileMap slice.
-- Push to `origin/main`.
-- Update Obsidian.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and test count.
+Poll every 30 seconds. When a new task is written here, begin immediately.
