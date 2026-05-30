@@ -100,39 +100,9 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: create the V0 build readiness map.
+**Ready for Codex Review**
+- Commit: `3cbf336`
+- Files: `docs/v0-build-readiness-map.md`
+- Tests: not required (docs-only)
 
-Allowed files only:
-
-- `docs/v0-build-readiness-map.md`
-
-Task:
-
-- Create a strategic V0 readiness map that names the minimum Meridian capabilities needed before Scott can meaningfully "wake Prime" and let it coordinate work.
-- Organize by capability, not by file:
-  - Mission boot
-  - Compass / progress intention
-  - Relay route + prompt packet + dispatch plan
-  - Review Console
-  - Beacon / queue liveness
-  - Bifrost cockpit
-  - Aegis proof gates
-  - FileMap / memory injection
-  - Build queues / worker session harness
-- For each capability, include: current maturity, what exists today, what is still missing for V0, and the next smallest build slice.
-- Keep it candid and concise. This is a coordinator map, not marketing copy.
-- Do not edit runtime code.
-- Do not edit FileMap.
-- Do not edit package exports.
-- Do not edit other live queues.
-
-Tests:
-
-- No tests required. This is docs-only.
-
-Completion:
-
-- Commit only this docs slice.
-- Push to `origin/main`.
-- Update Obsidian.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+No active task. Polling.
