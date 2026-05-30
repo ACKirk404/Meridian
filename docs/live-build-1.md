@@ -100,26 +100,32 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: create the Relay PromptPacket integration plan.
+Goal: add a small token counting utility for future Relay PromptPacket construction.
 
 Allowed files only:
 
-- `docs/relay-prompt-packet-integration-plan.md`
+- `meridian_core/tokens.py`
+- `tests/test_tokens.py`
 
 Task:
 
-- Build 1 completed PromptPacket domain, validation, dispatch boundary, and Codex review repair.
-- Before editing Relay runtime, write a short implementation plan for how Relay should build/use PromptPacket.
-- Cover:
-  - what Relay should pass into `build_prompt_packet(...)`
-  - where prompt token counting belongs
-  - how source lineage should be calculated
-  - how `model_payload()` should be the only model-facing string
-  - how Prompt Metrics should observe packet construction without bloating worker prompts
-  - what tests should be written before runtime integration
-  - what must not happen yet
-- Keep it practical and build-ready.
-- Do not edit runtime code.
+- Build 1 completed `docs/relay-prompt-packet-integration-plan.md`.
+- That plan calls for a future `meridian_core/tokens.py` slice before Relay runtime integration.
+- Add a small deterministic token counting utility:
+  - `count_tokens(text: str) -> int`
+  - raise a clear `TypeError` for non-string input
+  - return `0` for an empty string
+  - be deterministic and dependency-free
+  - prefer a conservative approximation over vendor-specific tokenization
+- Add focused tests for:
+  - empty string
+  - whitespace-only string
+  - simple words
+  - punctuation/code-ish text
+  - deterministic repeated calls
+  - non-string input raises `TypeError`
+- Keep this utility small and clearly documented as an approximation until provider-specific tokenizers exist.
+- Do not edit Relay runtime yet.
 - Do not edit package exports; Build 2 owns package API.
 - Do not edit FileMap; Build 3 owns FileMap.
 - No UI.
@@ -128,7 +134,10 @@ Task:
 
 Tests:
 
-- No tests required. This is docs-only.
+```text
+python -m pytest tests/test_tokens.py -q
+python -m pytest -q
+```
 
 Completion:
 
