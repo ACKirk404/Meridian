@@ -41,6 +41,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-05-30 12:00 -06:00 - Build 3 checked queue; status: idle; no new Active Task assigned; polling
 2026-05-30 12:15 -06:00 - Build 3 checked queue; status: idle; Active Task section stale (FileMap done at 73c9628); awaiting new task assignment
 2026-05-30 12:30 -06:00 - Build 3 checked queue; status: active task found (live queue hygiene note); starting work
+2026-05-30 12:35 -06:00 - Build 3 checked queue; status: active task found (queue hygiene repair — add live-build-5.md); starting work
 ```
 
 ## Write/Completion Log
@@ -59,6 +60,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-05-30 11:18 -06:00 - Build 3 completed Prompt Packet Codex review checklist; commit d84bb0f; tests 644 passing; Obsidian updated; polling resumed
 2026-05-30 11:28 -06:00 - Build 3 completed FileMap update (prompt_packet.py + capabilities architecture map); commit 73c9628; tests 46 passing (test_filemap.py); Obsidian updated; polling resumed
 2026-05-30 12:32 -06:00 - Build 3 completed live queue hygiene note; commit 26dc597; tests not required (docs-only); Obsidian updated; 3 commits completed (d84bb0f, 73c9628, 26dc597) — Codex review required before next task
+2026-05-30 12:37 -06:00 - Build 3 completed queue hygiene repair (add live-build-5.md to lane set); commit ecc9fdf; tests not required (docs-only); Obsidian updated; polling resumed
 ```
 
 ## Cross-Check Activity
@@ -68,6 +70,9 @@ Append entries here when you check or act on cross-check activity.
 ```text
 YYYY-MM-DD HH:MM TZ - Build 3 cross-check: none/finding/fix; details: <short note>
 2026-05-30 10:51 -06:00 - Build 3 cross-check: no blocking findings in commit 34792fb; brief is acceptable as design planning.
+2026-05-30 12:32 -06:00 - Build 3 cross-check: Codex review finding LOW — lane set in queue hygiene note omitted live-build-5.md; repaired in ecc9fdf
+2026-05-30 12:32 -06:00 - Build 3 cross-check: Codex review finding LOW — PromptPacketError should be PromptPacketValidationError in implementation-checklist and codex-review-checklist; deferred (not in this task's allowed files)
+2026-05-30 12:32 -06:00 - Build 3 cross-check: Codex review finding LOW — test count 13 vs 14 in codex-review-checklist; deferred (not in this task's allowed files)
 ```
 
 ## Codex Review Cadence
@@ -81,6 +86,11 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review repair: commit <hash>; tests <result>
 YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/fixed; details: <short note>
 2026-05-30 11:10 -06:00 - Build 3 Codex review requested after commits 34792fb, 7b67c41, a996abc
 2026-05-30 12:32 -06:00 - Build 3 Codex review requested after commits d84bb0f, 73c9628, 26dc597
+2026-05-30 12:32 -06:00 - Build 3 Codex review finding: LOW; details: lane set omitted live-build-5.md in queue hygiene note Summary
+2026-05-30 12:32 -06:00 - Build 3 Codex review finding: LOW; details: PromptPacketError → PromptPacketValidationError mismatch in implementation-checklist.md and codex-review-checklist.md (deferred — not in task scope)
+2026-05-30 12:32 -06:00 - Build 3 Codex review finding: LOW; details: test count stated as 13, enumerated as 14 in codex-review-checklist.md (deferred — not in task scope)
+2026-05-30 12:37 -06:00 - Build 3 Codex review repair: commit ecc9fdf; tests not required; details: added live-build-5.md to lane set in queue hygiene note
+2026-05-30 12:37 -06:00 - Build 3 Codex review result: fixed (lane set); 2 LOW findings deferred pending future task assignment to allowed files
 ```
 
 ## Active Task
