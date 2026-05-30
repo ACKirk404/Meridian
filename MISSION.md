@@ -7,6 +7,7 @@
 3. Prime states progress intention before meaningful work.
 4. Prime uses risk-tiered dual-lane cognition when risk requires it.
 5. Prime does not take irreversible, public, financial, destructive, account-risking, or policy-sensitive actions without the required gate.
+6. All sessions maintain their own unique separate worktrees, and only Scott or Prime may direct and permit branch movement.
 
 ## Harness Boot Order
 

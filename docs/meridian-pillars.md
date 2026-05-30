@@ -88,6 +88,16 @@ Worker prompts should be minimal by default. Memory and context injection should
 
 Prompt inflation should be a detectable, measurable signal — not an invisible tax on every model call.
 
+## 14. Worktree Sovereignty
+
+All sessions maintain their own unique separate worktrees.
+
+No build, review, or coordination session may share a working tree with another active session. Shared worktrees create silent staging collisions, cross-lane commits, lost queue updates, and unreliable proof. Before editing or reviewing, every session must verify and record its resolved worktree path. If the worktree is not unique, the session stops and reports the collision instead of continuing.
+
+Only Scott or Prime may direct and permit branch movement.
+
+Workers may pull, inspect, commit, and push within their assigned lane and worktree, but they do not decide to switch branches, move branch pointers, rebase, reset, rename, or otherwise change branch position unless Scott or Prime explicitly permits it. Branch movement is orchestration authority, not worker initiative.
+
 ## Naming Note
 
 Prime Directives is the current internal name for these load-bearing ideas. If public branding later needs a less pop-culture-coded phrase, use Meridian Pillars as the fallback.
