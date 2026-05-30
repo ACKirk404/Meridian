@@ -54,6 +54,10 @@ class RelayExecutionSummary:
     errors: tuple[RelayExecutionError, ...]
 
 
+class RelayProofGateError(RuntimeError):
+    """Raised when Aegis proof blocks a high-risk Relay dispatch."""
+
+
 def relay_execution_summary_to_proof_trail(
     summary: RelayExecutionSummary,
 ) -> ProofTrail:
@@ -96,6 +100,7 @@ def relay_execution_summary_to_proof_trail(
 def execute_relay_dispatch_plan(
     plan: RelayDispatchPlan,
     model_call: ModelCallFn,
+    proof_trail: ProofTrail | None = None,
 ) -> RelayExecutionSummary:
     """
     Execute every lane in *plan* by calling model_call(lane.payload).
@@ -105,6 +110,8 @@ def execute_relay_dispatch_plan(
     RelayExecutionError entries; successful outputs become RelayExecutionResult
     entries. Lane order matches plan.lanes.
     """
+    _assert_proof_gate_clear(plan, proof_trail)
+
     results: list[RelayExecutionResult] = []
     errors: list[RelayExecutionError] = []
 
@@ -130,4 +137,19 @@ def execute_relay_dispatch_plan(
     return RelayExecutionSummary(
         results=tuple(results),
         errors=tuple(errors),
+    )
+
+
+def _assert_proof_gate_clear(
+    plan: RelayDispatchPlan,
+    proof_trail: ProofTrail | None,
+) -> None:
+    if proof_trail is None or plan.route.risk_tier < 3:
+        return
+    blocking = proof_trail.blocking()
+    if not blocking:
+        return
+    evidence_ids = ", ".join(evidence.id for evidence in blocking)
+    raise RelayProofGateError(
+        f"Relay dispatch blocked by Aegis proof evidence: {evidence_ids}"
     )

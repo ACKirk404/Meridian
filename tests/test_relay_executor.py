@@ -4,12 +4,20 @@ from __future__ import annotations
 
 import pytest
 
+from meridian_core.aegis import (
+    AegisEvidence,
+    EvidenceSeverity,
+    EvidenceStatus,
+    EvidenceType,
+    ProofTrail,
+)
 from meridian_core.relay import ModelRole, route_from_tier
 from meridian_core.relay_dispatch import RelayDispatchLane, RelayDispatchPlan
 from meridian_core.relay_executor import (
     RelayExecutionError,
     RelayExecutionResult,
     RelayExecutionSummary,
+    RelayProofGateError,
     execute_relay_dispatch_plan,
     relay_execution_summary_to_proof_trail,
 )
@@ -281,6 +289,59 @@ class TestImmutability:
         summary = execute_relay_dispatch_plan(plan, _constant_model_call("ok"))
         with pytest.raises(TypeError):
             summary.results[0] = None  # type: ignore[index]
+
+
+class TestAegisProofGate:
+    def _blocking_trail(self) -> ProofTrail:
+        return ProofTrail([
+            AegisEvidence(
+                id="proof-001",
+                evidence_type=EvidenceType.BUILD_OUTPUT,
+                severity=EvidenceSeverity.ERROR,
+                status=EvidenceStatus.OPEN,
+                source="test",
+                target="relay",
+                summary="blocking evidence",
+            )
+        ])
+
+    def test_tier3_blocking_proof_trail_blocks_dispatch(self):
+        plan = _make_plan(3)
+
+        with pytest.raises(RelayProofGateError):
+            execute_relay_dispatch_plan(plan, _constant_model_call("ok"), self._blocking_trail())
+
+    def test_blocked_dispatch_does_not_call_model(self):
+        plan = _make_plan(3)
+        calls: list[str] = []
+
+        def recording_call(payload: str) -> str:
+            calls.append(payload)
+            return "ok"
+
+        with pytest.raises(RelayProofGateError):
+            execute_relay_dispatch_plan(plan, recording_call, self._blocking_trail())
+
+        assert calls == []
+
+    def test_tier3_clean_proof_trail_allows_dispatch(self):
+        plan = _make_plan(3)
+        summary = execute_relay_dispatch_plan(plan, _constant_model_call("ok"), ProofTrail())
+        assert len(summary.results) == len(plan.lanes)
+
+    def test_tier2_blocking_proof_trail_does_not_block_dispatch(self):
+        plan = _make_plan(2)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            self._blocking_trail(),
+        )
+        assert len(summary.results) == len(plan.lanes)
+
+    def test_gate_error_names_blocking_evidence(self):
+        plan = _make_plan(3)
+        with pytest.raises(RelayProofGateError, match="proof-001"):
+            execute_relay_dispatch_plan(plan, _constant_model_call("ok"), self._blocking_trail())
 
 
 class TestRelayExecutionSummaryToProofTrail:
