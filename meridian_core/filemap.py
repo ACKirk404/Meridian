@@ -35,6 +35,7 @@ class FileArea:
     COUNCIL          = "Council cognition"
     RELAY_ROUTING    = "Relay routing"
     PROMPT_BUDGET    = "Relay prompt budget"
+    PROMPT_METRICS   = "Relay prompt metrics"
     AEGIS            = "Aegis / Proof harness"
     REVIEW_CONSOLE   = "Review Console"
     BUILD_MATURITY   = "Build/maturity registry"
@@ -284,6 +285,20 @@ def make_default_map() -> FileMap:
             purpose="Deterministic prompt token budget per risk tier. Prevents Relay prompt drag by bounding context sources and token limits per dispatch.",
             related_tests=["tests/test_prompt_budget.py"],
             notes="Tiers 0-1 minimal; Tier 2 focused; Tier 3 bounded proof/review; Tier 4 explained for human gate.",
+        ),
+        FileMapEntry(
+            path="meridian_core/prompt_metrics.py",
+            area=FileArea.PROMPT_METRICS,
+            purpose="Per-sample and summary metrics for Relay prompt performance. Token count, construction time, TTFT, overhead delta vs. baseline. Status: HEALTHY/WATCH/DEGRADED.",
+            related_tests=["tests/test_prompt_metrics.py"],
+            notes="Domain-only. Measures Relay overhead vs. vendor baseline. See docs/relay-prompt-metrics-integration-brief.md.",
+        ),
+        FileMapEntry(
+            path="docs/relay-prompt-metrics-integration-brief.md",
+            area=FileArea.PROMPT_METRICS,
+            purpose="Architectural plan for wiring PromptMetricSample collection into the Relay dispatch path and surfacing status in Compass.",
+            related_tests=[],
+            notes="Planning only; no runtime changes yet.",
         ),
         FileMapEntry(
             path="meridian_core/aegis.py",

@@ -98,6 +98,12 @@ from .prompt_budget import (
     PromptBudgetPlan,
     prompt_budget_for_risk_tier,
 )
+from .prompt_metrics import (
+    PromptMetricSample,
+    PromptMetricSummary,
+    PromptPerformanceStatus,
+    summarize_prompt_metrics,
+)
 
 __all__ = [
     # -- Core domain models --------------------------------------------------
@@ -204,4 +210,9 @@ __all__ = [
     "PromptBudget",
     "PromptBudgetPlan",
     "prompt_budget_for_risk_tier",
+    # -- Relay prompt metrics -------------------------------------------------
+    "PromptMetricSample",
+    "PromptMetricSummary",
+    "PromptPerformanceStatus",
+    "summarize_prompt_metrics",
 ]

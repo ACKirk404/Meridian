@@ -97,6 +97,16 @@ def test_prompt_budget_exports():
     assert prompt_budget_for_risk_tier
 
 
+def test_prompt_metrics_exports():
+    from meridian_core import PromptMetricSample, PromptMetricSummary, PromptPerformanceStatus
+    from meridian_core import summarize_prompt_metrics
+
+    assert PromptMetricSample
+    assert PromptMetricSummary
+    assert PromptPerformanceStatus
+    assert summarize_prompt_metrics
+
+
 def test_internal_helpers_are_not_root_exports():
     assert "_TIER_SEMANTICS" not in meridian_core.__all__
     assert "_ROUTING_TABLE" not in meridian_core.__all__
