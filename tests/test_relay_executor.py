@@ -11,6 +11,7 @@ from meridian_core.relay_executor import (
     RelayExecutionResult,
     RelayExecutionSummary,
     execute_relay_dispatch_plan,
+    relay_execution_summary_to_proof_trail,
 )
 from meridian_core.relay_packet import assemble_relay_packet
 
@@ -280,3 +281,52 @@ class TestImmutability:
         summary = execute_relay_dispatch_plan(plan, _constant_model_call("ok"))
         with pytest.raises(TypeError):
             summary.results[0] = None  # type: ignore[index]
+
+
+class TestRelayExecutionSummaryToProofTrail:
+    def test_clean_execution_summary_produces_clean_proof_trail(self):
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(plan, _constant_model_call("clean output"))
+        trail = relay_execution_summary_to_proof_trail(summary)
+        assert trail.is_clean()
+
+    def test_successful_lane_output_becomes_build_output_evidence(self):
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(plan, _constant_model_call("clean output"))
+        trail = relay_execution_summary_to_proof_trail(summary)
+        assert trail.evidence[0].evidence_type.value == "build_output"
+        assert trail.evidence[0].severity.value == "info"
+
+    def test_execution_errors_produce_blocking_evidence(self):
+        def raising_call(payload: str) -> str:
+            raise RuntimeError("vendor timeout")
+
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(plan, raising_call)
+        trail = relay_execution_summary_to_proof_trail(summary)
+        assert not trail.is_clean()
+        assert trail.blocking()[0].severity.value == "error"
+
+    def test_evidence_records_include_lane_role_and_model_target(self):
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(plan, _constant_model_call("clean output"))
+        trail = relay_execution_summary_to_proof_trail(summary)
+        evidence = trail.evidence[0]
+        assert plan.lanes[0].role.value in evidence.target
+        assert plan.lanes[0].preferred_model in evidence.target
+
+    def test_evidence_records_do_not_leak_prompt_payloads(self):
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(plan, _constant_model_call("clean output"))
+        trail = relay_execution_summary_to_proof_trail(summary)
+        evidence_text = " ".join(
+            f"{ev.id} {ev.source} {ev.target} {ev.summary}" for ev in trail.evidence
+        )
+        assert _PROMPT not in evidence_text
+        assert _PACKET_ID not in evidence_text
+
+    def test_empty_execution_summary_produces_clean_empty_proof_trail(self):
+        summary = RelayExecutionSummary(results=(), errors=())
+        trail = relay_execution_summary_to_proof_trail(summary)
+        assert trail.evidence == []
+        assert trail.is_clean()

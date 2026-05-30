@@ -11,6 +11,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol
 
+from .aegis import (
+    AegisEvidence,
+    EvidenceSeverity,
+    EvidenceStatus,
+    EvidenceType,
+    ProofTrail,
+)
 from .relay import ModelRole
 from .relay_dispatch import RelayDispatchPlan
 
@@ -45,6 +52,45 @@ class RelayExecutionSummary:
 
     results: tuple[RelayExecutionResult, ...]
     errors: tuple[RelayExecutionError, ...]
+
+
+def relay_execution_summary_to_proof_trail(
+    summary: RelayExecutionSummary,
+) -> ProofTrail:
+    """Convert Relay execution output into Aegis evidence.
+
+    Successful lane outputs become non-blocking BUILD_OUTPUT evidence. Lane
+    errors become proof-blocking BUILD_OUTPUT evidence with ERROR severity.
+    Prompt payloads and packet metadata are intentionally not represented here.
+    """
+    trail = ProofTrail()
+    for index, result in enumerate(summary.results):
+        role = result.role.value
+        trail.add(
+            AegisEvidence(
+                id=f"relay-result-{index}-{role}",
+                evidence_type=EvidenceType.BUILD_OUTPUT,
+                severity=EvidenceSeverity.INFO,
+                status=EvidenceStatus.OPEN,
+                source="relay_executor",
+                target=f"{role}:{result.preferred_model}",
+                summary=f"{role} lane completed; output length {len(result.output)} characters",
+            )
+        )
+    for index, error in enumerate(summary.errors):
+        role = error.role.value
+        trail.add(
+            AegisEvidence(
+                id=f"relay-error-{index}-{role}",
+                evidence_type=EvidenceType.BUILD_OUTPUT,
+                severity=EvidenceSeverity.ERROR,
+                status=EvidenceStatus.OPEN,
+                source="relay_executor",
+                target=f"{role}:{error.preferred_model}",
+                summary=f"{role} lane failed: {error.error}",
+            )
+        )
+    return trail
 
 
 def execute_relay_dispatch_plan(
