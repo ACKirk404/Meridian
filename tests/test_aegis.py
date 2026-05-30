@@ -313,21 +313,29 @@ class TestApplyConsoleResponse:
         )
         assert ev.status is EvidenceStatus.ESCALATED
 
-    def test_acknowledge_resolves_nonblocking_evidence(self):
+    def test_acknowledge_does_not_change_nonblocking_status(self):
         ev = _cc(severity=EvidenceSeverity.INFO)
         ev.to_console_item()
         ev.apply_console_response(
             ReviewConsoleResponse("aegis-ev-1", ReviewConsoleAction.ACKNOWLEDGE)
         )
-        assert ev.status is EvidenceStatus.RESOLVED
+        assert ev.status is EvidenceStatus.OPEN
 
-    def test_acknowledge_escalates_blocking_evidence(self):
+    def test_acknowledge_does_not_change_blocking_status(self):
         ev = _blocking()
         ev.to_console_item()
         ev.apply_console_response(
             ReviewConsoleResponse("aegis-ev-block", ReviewConsoleAction.ACKNOWLEDGE)
         )
-        assert ev.status is EvidenceStatus.ESCALATED
+        assert ev.status is EvidenceStatus.OPEN
+
+    def test_acknowledge_leaves_proof_blocking_unchanged(self):
+        ev = _blocking()
+        ev.to_console_item()
+        ev.apply_console_response(
+            ReviewConsoleResponse("aegis-ev-block", ReviewConsoleAction.ACKNOWLEDGE)
+        )
+        assert ev.is_proof_blocking() is True
 
     def test_mismatched_console_item_id_raises(self):
         ev = _blocking()
@@ -337,12 +345,12 @@ class TestApplyConsoleResponse:
                 ReviewConsoleResponse("different-item", ReviewConsoleAction.APPROVE)
             )
 
-    def test_response_can_apply_before_console_item_created(self):
+    def test_response_before_console_item_raises(self):
         ev = _blocking()
-        ev.apply_console_response(
-            ReviewConsoleResponse("external-gate", ReviewConsoleAction.APPROVE)
-        )
-        assert ev.status is EvidenceStatus.RESOLVED
+        with pytest.raises(ValueError, match="no console item"):
+            ev.apply_console_response(
+                ReviewConsoleResponse("external-gate", ReviewConsoleAction.APPROVE)
+            )
 
     def test_apply_console_response_does_not_waive_without_reason(self):
         ev = _blocking()

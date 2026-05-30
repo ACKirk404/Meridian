@@ -115,11 +115,21 @@ class AegisEvidence:
         """
         Apply a Review Console response to this evidence record.
 
-        APPROVE resolves the evidence. REJECT and MODIFY escalate it.
-        ACKNOWLEDGE resolves non-blocking evidence, but escalates proof-blocking
-        evidence so serious findings are not cleared by acknowledgement alone.
+        APPROVE resolves the evidence.
+        REJECT and MODIFY escalate it — finding is unacceptable, needs rework.
+        ACKNOWLEDGE is a visibility-only action; evidence status is unchanged.
+          The Review Console item transitions to ACKNOWLEDGED on its own;
+          Aegis evidence must be explicitly resolved or waived by Prime.
+
+        Raises ValueError if no console item has been created for this evidence
+        (call to_console_item() first) or if the response targets a different item.
         """
-        if self.console_item_id and response.item_id != self.console_item_id:
+        if self.console_item_id is None:
+            raise ValueError(
+                "cannot apply a console response: this evidence has no console item yet; "
+                "call to_console_item() first"
+            )
+        if response.item_id != self.console_item_id:
             raise ValueError(
                 f"response item {response.item_id!r} does not match evidence console item "
                 f"{self.console_item_id!r}"
@@ -132,11 +142,7 @@ class AegisEvidence:
             self.escalate()
             return
         if response.action is ReviewConsoleAction.ACKNOWLEDGE:
-            if self.is_proof_blocking():
-                self.escalate()
-            else:
-                self.resolve()
-            return
+            return  # visibility only; evidence status is unchanged
 
         raise ValueError(f"Unsupported Review Console action: {response.action.value!r}")
 
