@@ -185,6 +185,49 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 
 Current Active Task (supersedes any stale text below):
 
+Goal: draft the Meridian V1 capability plan.
+
+Context:
+
+- Scott is leaving soon and wants V1 planned enough that builders can keep moving.
+- `docs/v0-v1-progress-tracker.md` now defines the initial V1 capability list.
+- This is Build 4's high-level architecture lane.
+
+Allowed files only:
+
+- `docs/v1-capability-plan.md`
+- `docs/live-build-4.md`
+
+Task:
+
+- Write a concise V1 plan that turns the 12 tracker items into a coherent build sequence.
+- Cover:
+  - V1 definition and success test
+  - what must wait until V0 is complete
+  - what can be designed in parallel now
+  - capability dependency order
+  - recommended builder lane ownership
+  - risk areas: model weakness, prompt drag, account-based automation constraints, memory correctness, UI sprawl
+  - the first 10 commit-sized V1 slices
+- Keep it candid and implementation-guiding, not marketing copy.
+- Do not edit runtime code.
+- Do not edit FileMap.
+- Do not edit package exports.
+- Do not edit other live queues.
+
+Tests:
+
+- No tests required. This is docs-only.
+
+Completion:
+
+- Commit only this docs slice.
+- Push to `origin/main`.
+- Update Obsidian.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+Stale prior text follows.
+
 Goal: define the Prime status console and Review Console CLI bridge.
 
 Context:

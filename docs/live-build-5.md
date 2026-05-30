@@ -148,6 +148,52 @@ YYYY-MM-DD HH:MM TZ - Build 5 Codex review result: pass/no actionable findings/f
 
 Current Active Task (supersedes any stale text below):
 
+Goal: draft the V1 Bifrost cockpit implementation brief.
+
+Context:
+
+- V0 is CLI-first, but V1 should turn Prime into the cockpit-backed orchestrator experience.
+- Build 5 owns Bifrost/product-surface thinking.
+- Use existing Bifrost briefs as source material, but do not edit them in this slice.
+
+Allowed files only:
+
+- `docs/v1-bifrost-cockpit-implementation-brief.md`
+- `docs/live-build-5.md`
+
+Task:
+
+- Write a concise implementation brief for the first real Bifrost cockpit.
+- Cover:
+  - page/screen layout
+  - Prime main conversation surface
+  - non-orchestrator/review/system prompt surface
+  - progress/proof right-side surface
+  - harness dashboard entry point
+  - queue state and worker/session visibility
+  - how Q polling becomes Prime-owned rather than human-owned
+  - what should be configurable
+  - what V1 should intentionally leave out
+  - first five UI slices to build
+- Keep it product/implementation-oriented.
+- Do not edit runtime code.
+- Do not edit FileMap.
+- Do not edit package exports.
+- Do not edit other live queues.
+
+Tests:
+
+- No tests required. This is docs-only.
+
+Completion:
+
+- Commit only this docs slice.
+- Push to `origin/main`.
+- Update Obsidian.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+Stale prior text follows.
+
 Goal: design the configurable Bifrost progress and proof surface.
 
 Context:

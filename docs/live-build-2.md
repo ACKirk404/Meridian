@@ -216,6 +216,51 @@ YYYY-MM-DD HH:MM TZ - Build 2 Codex review result: pass/no actionable findings/f
 
 Current Active Task (supersedes any stale idle text below):
 
+Goal: implement the V0 `prime_wake` CLI surface.
+
+Context:
+
+- `docs/v0-build-readiness-map.md` names `prime_wake()` as V0 gate item #1.
+- Domain pieces already exist: `meridian_core/mission.py`, `meridian_core/wake.py`, portfolio/heartbeat models, and Review Console item types.
+- Keep this slice narrow: make Prime visibly wake through CLI/stdout. Do not build the whole cockpit.
+
+Allowed files only:
+
+- `meridian_core/cli.py`
+- `tests/test_cli.py` or a new focused CLI test file if that is the local pattern
+- `docs/live-build-2.md`
+
+Task:
+
+- Add a CLI-accessible `prime_wake` command or function using the existing CLI pattern.
+- It should:
+  - load mission data through the existing mission loader
+  - build a wake brief using existing wake/domain helpers
+  - print human-readable Go/degraded/blocked lines suitable for the non-orchestrator/system surface
+  - surface `MissionLoadError` clearly instead of failing silently
+- If real portfolio/heartbeat state is not yet available, use the existing sample/default state pattern already present in tests or domain helpers.
+- Do not create persistence.
+- Do not edit Review Console runtime behavior unless the existing CLI pattern requires a tiny integration.
+- Do not edit FileMap.
+
+Tests:
+
+- Add focused tests for:
+  - successful wake output includes mission identity and harness statuses
+  - missing/corrupt mission surfaces a readable failure
+  - command returns/prints deterministically
+- Run the focused CLI tests.
+- Run any existing mission/wake tests that are directly affected.
+
+Completion:
+
+- Commit only this slice.
+- Push to `origin/main`.
+- Update Obsidian.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+Stale prior text follows.
+
 Goal: define the package/API exposure policy for the Relay executor and Prime-facing runtime helpers.
 
 Context:

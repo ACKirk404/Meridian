@@ -212,6 +212,45 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 Current Active Task (supersedes stale completed FileMap task below):
 
+Goal: FileMap and tracker hygiene for the new progress tracker.
+
+Context:
+
+- `docs/v0-v1-progress-tracker.md` was added in `aee11af`.
+- It is now the canonical count-first progress tracker and should be discoverable by future sessions.
+- Previous FileMap repair appears closed via `45497b1`; do not re-open that repair unless tests show it is still missing.
+
+Allowed files:
+
+- `docs/FileMap.md`
+- `meridian_core/filemap.py`
+- `tests/test_filemap.py`
+- `docs/v0-build-readiness-map.md`
+- `docs/live-build-3.md`
+
+Task:
+
+- Register `docs/v0-v1-progress-tracker.md` in FileMap if it is not already registered.
+- Add it to `_REQUIRED_PATHS` if appropriate under the existing test convention.
+- Update stale `docs/v0-build-readiness-map.md` text that still says `relay_executor.py` is missing, because `190e527` built the executor skeleton.
+- Keep wording precise: executor skeleton exists; real vendor/model API dispatch may still be future work.
+- Do not edit runtime behavior outside FileMap metadata.
+- Do not edit other live queues except this queue's read/completion log.
+
+Tests:
+
+- Run `python -m pytest tests/test_filemap.py -q`.
+- If V0 readiness wording tests exist, run them; otherwise docs-only inspection is enough.
+
+Completion:
+
+- Commit only this hygiene slice.
+- Push to `origin/main`.
+- Update Obsidian.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+Stale prior text follows.
+
 Goal: FileMap follow-up repair from Codex Reviews B Round B2.
 
 Background:
