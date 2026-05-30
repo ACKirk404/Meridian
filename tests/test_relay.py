@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from meridian_core.council import CouncilPlan, CouncilRole
 from meridian_core.relay import (
     ContextStrategy,
     CostPosture,
@@ -256,3 +257,54 @@ class TestShape:
 
     def test_cost_posture_is_enum(self):
         assert isinstance(route_from_tier(1).cost_posture, CostPosture)
+
+
+# ---------------------------------------------------------------------------
+# Council awareness -- RelayRoute exposes council_plan per tier
+# ---------------------------------------------------------------------------
+
+
+class TestCouncilAwareness:
+    def test_council_plan_is_council_plan_instance(self):
+        for tier in range(5):
+            assert isinstance(route_from_tier(tier).council_plan, CouncilPlan)
+
+    def test_tier0_includes_chairman_only(self):
+        plan = route_from_tier(0).council_plan
+        assert plan.roles == [CouncilRole.CHAIRMAN]
+
+    def test_tier1_includes_pragmatist_and_chairman(self):
+        plan = route_from_tier(1).council_plan
+        assert CouncilRole.PRAGMATIST in plan.roles
+        assert CouncilRole.CHAIRMAN in plan.roles
+        assert len(plan.roles) == 2
+
+    def test_tier2_includes_analyst_devils_advocate_pragmatist_chairman(self):
+        plan = route_from_tier(2).council_plan
+        assert CouncilRole.ANALYST in plan.roles
+        assert CouncilRole.DEVILS_ADVOCATE in plan.roles
+        assert CouncilRole.PRAGMATIST in plan.roles
+        assert CouncilRole.CHAIRMAN in plan.roles
+        assert len(plan.roles) == 4
+
+    def test_tier3_requires_full_council(self):
+        plan = route_from_tier(3).council_plan
+        assert plan.requires_full_council is True
+        assert len(plan.roles) == len(CouncilRole)
+
+    def test_tier4_requires_full_council(self):
+        plan = route_from_tier(4).council_plan
+        assert plan.requires_full_council is True
+        assert len(plan.roles) == len(CouncilRole)
+
+    def test_council_risk_tier_matches_route_risk_tier(self):
+        for tier in range(5):
+            route = route_from_tier(tier)
+            assert route.council_plan.risk_tier == route.risk_tier
+
+    def test_council_plan_populated_via_assessment(self):
+        from meridian_core.risk import assess_tier
+        assessment = assess_tier(2)
+        route = route_from_assessment(assessment)
+        assert isinstance(route.council_plan, CouncilPlan)
+        assert CouncilRole.ANALYST in route.council_plan.roles

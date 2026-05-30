@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
+from .council import CouncilPlan, council_plan_for_tier
 from .risk import RiskAssessment, RiskTier, assess_tier
 
 
@@ -58,6 +59,7 @@ class RelayRoute:
     requires_independence: bool
     requires_human_gate: bool
     risk_tier: int
+    council_plan: CouncilPlan = None  # type: ignore[assignment]
 
 
 # ---------------------------------------------------------------------------
@@ -143,6 +145,7 @@ def route_from_assessment(
         requires_independence=row["requires_independence"],
         requires_human_gate=row["requires_human_gate"],
         risk_tier=assessment.tier,
+        council_plan=council_plan_for_tier(assessment),
     )
 
 
