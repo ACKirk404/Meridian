@@ -152,8 +152,10 @@ Completion:
 Stale prior text:
 
 **Ready for Codex Review**
-- Commit: `3cbf336`
-- Files: `docs/v0-build-readiness-map.md`
+- Commit: `1d17fa1`
+- Files: `docs/prime-orchestration-state-model.md`
 - Tests: not required (docs-only)
+
+(Previous slice `3cbf336` `docs/v0-build-readiness-map.md` also pending Codex Reviews sweep.)
 
 No active task. Polling.
