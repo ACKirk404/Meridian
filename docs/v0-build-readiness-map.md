@@ -61,7 +61,7 @@ Each capability section uses this shape:
 
 ## 3. Relay Route + Prompt Packet + Dispatch Plan
 
-**Maturity:** `domain slice` (most complete; dispatch plan ready, executor not built)
+**Maturity:** `V0 core built` (provider-neutral dispatch path)
 
 **What exists today:**
 - `meridian_core/relay.py` â€” `RelayRoute` carrying `prompt_budget`, context strategy, `CouncilPlan`, `ModelRole`, `SteeringCapability`
@@ -70,13 +70,15 @@ Each capability section uses this shape:
 - `meridian_core/prompt_metrics.py` â€” `PromptMetricSample`, `PromptMetricSummary` domain types
 - `meridian_core/relay_packet.py` â€” `assemble_relay_packet()` builds a validated packet from a route
 - `meridian_core/relay_dispatch.py` â€” `RelayDispatchPlan`, `RelayDispatchLane`, `build_relay_dispatch_plan()` maps route + packet to per-lane work specs; tests passing (Build 1, `0282b3a`)
+- `meridian_core/relay_executor.py` â€” provider-neutral executor skeleton, Aegis proof gate, adapter registry dispatch bridge, and payload-only lane execution
+- `meridian_core/model_adapter.py` â€” provider-neutral adapter contract, adapter registry, and env-gated HTTP JSON transport using standard-library HTTP only
 
 **Missing for V0:**
-- The executor skeleton exists (`meridian_core/relay_executor.py` built in `190e527`) but does not yet make real Claude API calls â€” `build_relay_dispatch_plan()` returns a plan object and the executor accepts it, but no live vendor/model API dispatch happens yet.
+- Vendor-specific endpoint presets and richer provider response parsing are not built. The V0 path is provider-neutral HTTP JSON dispatch, not Claude-specific SDK dispatch.
 - Budget enforcement at dispatch time: the token ceiling exists in `PromptBudgetPlan` but Relay does not enforce it when making actual calls.
 - Metrics are not emitted or persisted during dispatch.
 
-**Next smallest slice:** wire real Claude API dispatch into the existing `meridian_core/relay_executor.py` skeleton â€” single-lane first, taking a `RelayDispatchPlan` and returning raw text. This is the first moment Prime dispatches to a model through Meridian's own harness stack rather than a flat-file queue.
+**Next smallest slice:** add a thin CLI/demo command that builds a single-lane dispatch plan, registers an env-gated HTTP JSON adapter, and executes it through `execute_relay_plan_with_registry()` with dry-run defaults for tests. This proves the end-to-end V0 loop without adding vendor SDKs.
 
 ---
 
@@ -187,12 +189,12 @@ Full Bifrost cockpit is V1+ scope. V0 is CLI-only.
 - `meridian_core/injections.py` â€” `SessionInjection` factory ready
 
 **Missing for V0:**
-- Executor skeleton exists: `meridian_core/relay_executor.py` built in `190e527`. No live API dispatch yet â€” the executor does not yet make real Claude API calls. The flat-file queue remains the primary live coordination mechanism and it is human-in-the-loop.
+- Provider-neutral API dispatch exists through `meridian_core/model_adapter.py` and `execute_relay_plan_with_registry()`; the flat-file queue remains the primary live coordination mechanism and it is human-in-the-loop.
 - No session lifecycle management â€” no spawn, steer, wait, or terminate.
 - No queue-to-session automation: Prime cannot read a queue file, identify the next task, build a dispatch plan, and launch a session without Scott's manual intervention.
 - No structured session output capture. Worker results today are commits to flat files; no output flows into Review Console automatically.
 
-**Next smallest slice:** wire real Claude API dispatch into the existing `relay_executor.py` skeleton (shared dependency with items 3 and 7 above). Once a single Claude API call can be dispatched through `RelayDispatchPlan`, the flat-file queue can route to it instead of waiting for a human to paste instructions. Session lifecycle and output routing to Review Console follow after.
+**Next smallest slice:** add a CLI/demo entry that routes one dispatch plan through the HTTP JSON adapter with dry-run tests. Session lifecycle and output routing to Review Console follow after.
 
 ---
 

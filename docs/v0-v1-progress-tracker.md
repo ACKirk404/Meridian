@@ -10,9 +10,9 @@
 
 | Status | Count | Percent |
 |---|---:|---:|
-| Built core gate items | 5 | 83% |
+| Built core gate items | 6 | 100% |
 | Supporting slices in review | 0 | n/a |
-| Needs build core gate items | 1 | 17% |
+| Needs build core gate items | 0 | 0% |
 | Total V0 core gate items | 6 | 100% |
 
 ### Built
@@ -21,6 +21,7 @@
 - [x] **Prime + Review Console Harness:** `route_to_console()` + `prime_console` / `prime_status` CLI - built in `989366f`, repaired in `9c3e1a3`; Prime can place and show console items.
 - [x] **Prime + Review Console Harness:** `prime_approve <item-id>` CLI - implemented across `9d38314` / `d687b7f`; targeted CLI tests pass.
 - [x] **Relay Harness:** `relay_executor.py` provider-neutral executor skeleton - built in `190e527`; executor accepts an injected model-call function without vendor code.
+- [x] **Relay Harness + Model Harness:** real provider-neutral model/API dispatch path - adapter contract built in `653488b`, registry/dispatch bridge built in `0560eb4`, env-gated HTTP JSON transport built in `869faa4`, hardened in `f353c8d`.
 - [x] **Beacon Harness:** `beacon.py` file-backed liveness checks - built in `b575677`; queue/sentinel freshness now produces `Heartbeat` objects.
 - [x] **Relay Harness + Aegis Harness:** pre-dispatch proof gate enforcement for tier-3/4 lanes - built in `7c75f43`; blocking proof evidence prevents high-risk dispatch before model calls.
 
@@ -30,7 +31,7 @@
 
 ### Needs Build
 
-- [ ] **Relay Harness:** real model/API dispatch through the existing Relay executor skeleton.
+- [x] **Relay Harness:** V0 core model/API dispatch path is built at the provider-neutral HTTP transport level. Vendor-specific endpoint presets and richer response parsing remain post-V0 hardening, not a V0 core gate.
 
 ## V0 Review Queue
 
