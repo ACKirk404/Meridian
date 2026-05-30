@@ -66,7 +66,7 @@ class ReviewConsoleQueue:
     items: list[ReviewConsoleItem] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        self._next_sequence: int = len(self.items)
+        self._next_sequence: int = max((i.sequence for i in self.items), default=-1) + 1
 
     def enqueue(self, item: ReviewConsoleItem) -> None:
         """Add an item and assign its position in insertion order."""

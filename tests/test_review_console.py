@@ -364,3 +364,30 @@ class TestExplicitEnums:
 
     def test_default_status_is_pending(self):
         assert _cross().status is ReviewConsoleItemStatus.PENDING
+
+
+# ---------------------------------------------------------------------------
+# Pre-populated queue sequence safety
+# ---------------------------------------------------------------------------
+
+
+class TestQueueSequenceSafety:
+    def test_prepopulated_queue_continues_sequence_after_max(self):
+        existing = _cross("pre-1", "pre", "")
+        existing.sequence = 10
+        queue = ReviewConsoleQueue(items=[existing])
+        new_item = _cross("new-1", "new", "")
+        queue.enqueue(new_item)
+        assert new_item.sequence == 11
+
+    def test_prepopulated_queue_no_collision(self):
+        items = []
+        for i in range(3):
+            item = _cross(f"pre-{i}", f"pre {i}", "")
+            item.sequence = i * 5
+            items.append(item)
+        queue = ReviewConsoleQueue(items=items)
+        new_item = _cross("new-1", "new", "")
+        queue.enqueue(new_item)
+        all_seqs = [i.sequence for i in queue.items]
+        assert len(set(all_seqs)) == len(all_seqs)
