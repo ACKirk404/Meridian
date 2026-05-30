@@ -131,6 +131,8 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-05-31 10:20 -06:00 - Build 3 checked queue; status: idle; no active task; awaiting next assignment
 2026-05-31 10:35 -06:00 - Build 3 checked queue; status: idle; no active task; awaiting next assignment
 2026-05-31 11:05 -06:00 - Build 3 checked queue; status: idle; no active task; awaiting next assignment
+2026-05-31 11:20 -06:00 - Build 3 checked queue; status: active task found (FileMap repair — live-codex-reviews-2.md, Round B2); starting work
+2026-05-31 11:35 -06:00 - Build 3 checked queue; status: idle; Round B2 repair closed (intercepted by 45497b1); awaiting new task assignment
 ```
 
 ## Write/Completion Log
