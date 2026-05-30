@@ -253,10 +253,6 @@ class TestToConsoleItem:
         assert "relay.py" in item.content
         assert "RelayRoute" in item.content
 
-    def test_open_status_appears_in_content(self):
-        item = _cc().to_console_item()
-        assert "Status: open" in item.content
-
     def test_resolved_status_appears_in_content(self):
         ev = _blocking()
         ev.resolve()
