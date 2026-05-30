@@ -34,6 +34,7 @@ _REQUIRED_PATHS = [
     "docs/prime-orchestration-state-model.md",
     "docs/bifrost-v0-cockpit-layout-brief.md",
     "docs/bifrost-harness-dashboard-brief.md",
+    "docs/live-codex-reviews-2.md",
 ]
 
 

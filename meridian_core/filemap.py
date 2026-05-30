@@ -359,14 +359,21 @@ def make_default_map() -> FileMap:
         FileMapEntry(
             path="docs/live-codex-reviews.md",
             area=FileArea.BUILD_PROCESS,
-            purpose="Standing queue for the Codex Reviews lane: independent review of completed build slices, repair routing, and checkpoint ledger. Prototype of Prime's future orchestration review loop.",
+            purpose="Standing queue for the Codex Reviews A lane: independent review of completed build slices, repair routing back to build lanes, and checkpoint ledger. Prototype of Prime's future orchestration review loop.",
             related_tests=[],
             notes="Read before running or setting up a Codex review. Do not edit from build lanes.",
         ),
         FileMapEntry(
+            path="docs/live-codex-reviews-2.md",
+            area=FileArea.BUILD_PROCESS,
+            purpose="Standing queue for the Codex Reviews B lane: docs, architecture, FileMap, Bifrost, and strategic consistency reviews; checkpoint ledger and proof log parallel to live-codex-reviews.md. Scaling prototype for spawning additional review capacity.",
+            related_tests=[],
+            notes="Read before running or setting up a Reviews B round. Do not edit from build lanes.",
+        ),
+        FileMapEntry(
             path="docs/prime-orchestration-harness-prototype.md",
             area=FileArea.ARCHITECTURE,
-            purpose="Documents the live build queue pattern as the first working prototype of Prime's orchestration harness: slice assignment, lane routing, completion signals, and review coordination.",
+            purpose="Documents the live build queue pattern as the first working prototype of Prime's orchestration harness: slice assignment, lane routing, allowed-file ownership, completion signals, and review coordination.",
             related_tests=[],
             notes="Strategic. Read before designing any orchestration harness slice.",
         ),
