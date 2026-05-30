@@ -132,16 +132,6 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-30 16:15 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 09f7297
 2026-05-30 16:17 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at a762406
 2026-05-30 16:18 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 2a04ddd
-2026-05-30 16:20 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 1878b93
-2026-05-30 16:20 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 47fadfd
-2026-05-30 16:22 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at ab36ce7
-2026-05-30 16:23 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 58ba77f
-2026-05-30 16:25 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 1b277a4
-2026-05-30 16:26 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 2b3b1ba
-2026-05-30 16:27 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 46fe96a
-2026-05-30 16:29 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 1b97699
-2026-05-30 16:30 -06:00 - Build 4 checked queue; status: idle; no new Active Task; Relay adapter registry landed (0560eb4, Build 1/2); origin/main at 0560eb4
-2026-05-30 16:30 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 4cd2fb5
 2026-05-30 18:00 -06:00 - Build 4 checked queue; status: idle; no new Active Task; Build 1/2/5 idle polling; Reviews B Round B2 cleared 7c34566 (48b0afa); Build 4 slices 3cbf336, 1d17fa1, fd9224d still pending Codex Reviews sweep; origin/main at 48b0afa
 2026-05-30 18:21 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; Build 4 slices 3cbf336, 1d17fa1, fd9224d still pending Codex Reviews sweep; origin/main at e2f7179
 2026-05-30 18:55 -06:00 - Build 4 checked queue; status: idle; no new Active Task; Build 1 idle polling (8cacd21); Build 4 slices 3cbf336, 1d17fa1, fd9224d still pending Codex Reviews sweep; origin/main at 8cacd21
@@ -162,7 +152,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-31 01:17 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 359701d
 2026-05-31 01:48 -06:00 - Build 4 checked queue; status: running; new Active Task = V3 parking lot (docs/v3-parking-lot.md); origin/main at 5c68279
 2026-05-31 02:22 -06:00 - Build 4 checked queue; status: idle; V3 parking lot complete (18e2767/cd787e4); no new Active Task; origin/main at c310f10
-2026-05-30 16:33 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at dcc29f9
+2026-05-30 16:35 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at e8c7db2
 ```
 
 ## Write/Completion Log
@@ -232,6 +222,177 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 ## Active Task
 
 No active task. Polling.
+
+Stale prior text follows.
+
+Goal: define Prime continuous restart/resteer logic.
+
+Context:
+
+- Scott identified that Prime will need constant restart and resteer logic.
+- This is orchestration-harness architecture, not UI polish.
+- The current live queue experiment proves why: sessions can go idle, poll the wrong queue, retain stale Active Tasks, leave local scratch edits, or need review capacity reassignment.
+- Build 4 owns high-level Prime/harness planning docs.
+- Before editing, verify this session is operating in its own unique worktree/path and is not sharing the same working tree as another active Build or Review session. Record the resolved path in this queue. If the session is not on a unique worktree, stop and report the worktree collision instead of editing.
+
+Allowed files only:
+
+- `docs/prime-restart-resteer-logic.md`
+- `docs/live-build-4.md`
+
+Task:
+
+- Pull latest `origin/main` in your unique worktree before editing.
+- Create `docs/prime-restart-resteer-logic.md`.
+- Cover:
+  - what Prime must detect: idle lanes, stale active tasks, wrong queue routing, cadence pauses, uncommitted drift, missing proof, sessions polling but not executing, sessions executing but not committing
+  - what Prime must do: rewrite stale Active Tasks, route repairs, pause/resume lanes, assign review capacity, preserve uncommitted state, and re-anchor Obsidian memory
+  - restart versus resteer: restart restores the operating frame; resteer changes the next move based on current state
+  - how this maps to Beacon, Relay, Aegis, Bifrost, Review Console, FileMap, and the live queue prototype
+  - what belongs in V0 markdown prototype, V1 cockpit visibility, and V2+ native runtime
+  - failure modes and guardrails
+- Add a short "Prime Directive / Pillar" wording proposal for Continuous Restart/Resteer.
+- Keep it candid and implementation-guiding, not marketing copy.
+- Do not edit runtime code.
+- Do not edit FileMap; Build 3 owns FileMap registration.
+- Do not edit tracker totals unless explicitly assigned later.
+
+Tests:
+
+- No tests required. Docs-only.
+
+Completion:
+
+- Commit only this docs slice.
+- Push to `origin/main`.
+- Update Obsidian.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+Stale prior text follows.
+
+Goal: draft the Meridian V1 capability plan.
+
+Context:
+
+- Scott is leaving soon and wants V1 planned enough that builders can keep moving.
+- Scott clarified that V1 is cockpit UI: "V1 is primarily just building a UI and plugging everything we've built into it."
+- `docs/v0-v1-progress-tracker.md` now defines V1 as a cockpit UI release, not a memory/federation/model-adapter release.
+- This is Build 4's high-level architecture lane.
+
+Allowed files only:
+
+- `docs/v1-capability-plan.md`
+- `docs/live-build-4.md`
+
+Task:
+
+- Write a concise V1 plan that turns the cockpit UI scope into a coherent build sequence.
+- Cover:
+  - V1 definition and success test: Scott can see Prime, queues, reviews, proof, status, and harness state in the cockpit
+  - what must wait until V0 is complete before it can be wired into the UI
+  - what can be designed in parallel now
+  - cockpit capability dependency order
+  - recommended builder lane ownership
+  - risk areas: UI sprawl, stale status, noisy progress surfaces, prompt drag through the UI, and confusing human gates
+  - the first 10 commit-sized V1 UI/integration slices
+- Explicitly mark Echo, Atlas, multi-user/federation, and public/account adapter strategy as out of V1 scope.
+- Keep it candid and implementation-guiding, not marketing copy.
+- Do not edit runtime code.
+- Do not edit FileMap.
+- Do not edit package exports.
+- Do not edit other live queues.
+
+Tests:
+
+- No tests required. This is docs-only.
+
+Completion:
+
+- Commit only this docs slice.
+- Push to `origin/main`.
+- Update Obsidian.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+Stale prior text follows.
+
+Goal: define the Prime status console and Review Console CLI bridge.
+
+Context:
+
+- Prime needs a command-center surface that can speak in the orchestrator window and route system/proof/status messages into the non-orchestrator/review surface.
+- This is a docs-only architecture slice for how the current markdown queue prototype becomes Prime-native commands.
+
+Allowed files only:
+
+- `docs/prime-status-console-cli-brief.md`
+- `docs/live-build-4.md`
+
+Task:
+
+- Write a concise architecture brief covering:
+  - `prime_status`
+  - `prime_console`
+  - `prime_approve <item-id>`
+  - `route_to_console(item_type, summary, provenance, status?)`
+  - how Mission Boot, Wake Brief, Progress Intention, Beacon, Review Console, and Aegis gates connect
+  - what belongs in the orchestrator conversation versus the non-orchestrator/review prompt window
+  - how proof summaries should be routed without polluting the main Prime conversation
+  - V0 markdown/CLI prototype versus V1 UI/runtime implementation
+- Include a short example transcript showing NASA-style system messages going to the review/system surface while Prime keeps the conversational thread clean.
+- Do not edit runtime code.
+- Do not edit FileMap.
+- Do not edit package exports.
+- Do not edit other live queues.
+
+Tests:
+
+- No tests required. This is docs-only.
+
+Completion:
+
+- Commit only this docs slice.
+- Push to `origin/main`.
+- Update Obsidian.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+Stale prior text follows.
+
+Goal: define Prime orchestration harness state model.
+
+Allowed files only:
+
+- `docs/prime-orchestration-state-model.md`
+
+Task:
+
+- Write a strategic architecture note that turns the current live queue process into Prime-native state.
+- Cover:
+  - lane registry
+  - active task state
+  - review checkpoint state
+  - review round scope
+  - repair routing
+  - Ready for Codex Review markers
+  - lane clearing and cadence pauses
+  - how this maps to Beacon, Bifrost, Relay, Aegis, and the Review Console
+  - what remains markdown prototype versus what should become Python domain objects
+- Use `docs/prime-orchestration-harness-prototype.md` as source context, but do not edit it.
+- Keep it candid and implementation-guiding, not marketing copy.
+- Do not edit runtime code.
+- Do not edit FileMap.
+- Do not edit package exports.
+- Do not edit other live queues.
+
+Tests:
+
+- No tests required. This is docs-only.
+
+Completion:
+
+- Commit only this docs slice.
+- Push to `origin/main`.
+- Update Obsidian.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
 
 **Ready for Codex Review**
 - Commit: `fd9224d`
