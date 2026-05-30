@@ -133,6 +133,20 @@ def test_beacon_exports():
     assert "check_harness_liveness" in meridian_core.__all__
 
 
+def test_planning_exports():
+    from meridian_core import PlanningAnswer, PlanningBrief, PlanningContext
+    from meridian_core import PlanningQuestion, PlanningRecommendation, build_planning_brief
+
+    assert PlanningAnswer
+    assert PlanningBrief
+    assert PlanningContext
+    assert PlanningQuestion
+    assert PlanningRecommendation
+    assert build_planning_brief
+    assert "PlanningBrief" in meridian_core.__all__
+    assert "build_planning_brief" in meridian_core.__all__
+
+
 def test_internal_helpers_are_not_root_exports():
     assert "_TIER_SEMANTICS" not in meridian_core.__all__
     assert "_ROUTING_TABLE" not in meridian_core.__all__

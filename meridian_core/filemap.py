@@ -33,6 +33,7 @@ class FileArea:
     OBJECTIVES       = "Mission Objectives recall"
     RISK_ENGINE      = "Risk Tier Engine"
     COUNCIL          = "Council cognition"
+    PLANNING         = "Planning harness"
     RELAY_ROUTING    = "Relay routing"
     RELAY_DISPATCH   = "Relay dispatch"
     PROMPT_BUDGET    = "Relay prompt budget"
@@ -289,6 +290,20 @@ def make_default_map() -> FileMap:
             purpose="Structured Council cognition roles and deterministic role planning by risk tier.",
             related_tests=["tests/test_council.py"],
             notes="Consumed by Relay (RelayRoute.council_plan) and Compass (ProgressIntention). Domain-only; no model calls.",
+        ),
+        FileMapEntry(
+            path="meridian_core/planning.py",
+            area=FileArea.PLANNING,
+            purpose="Council-shaped planning harness: objective questions, researched/default answers, Chairman recommendation, and memory/ADR capture candidates.",
+            related_tests=["tests/test_planning.py"],
+            notes="Inspired by grill-with-docs, but extended with Polaris-style recommendations and decision-journal behavior.",
+        ),
+        FileMapEntry(
+            path="docs/planning-harness-council-brief.md",
+            area=FileArea.PLANNING,
+            purpose="Architecture brief for Prime's automated planning engine: question, research, recommendation, and Council ownership.",
+            related_tests=[],
+            notes="Read before adding prime_plan, research retrieval, or decision-journal planning behavior.",
         ),
         FileMapEntry(
             path="meridian_core/relay.py",

@@ -111,6 +111,14 @@ from .prompt_packet import (
     build_prompt_packet,
 )
 from .beacon import LivenessTarget, check_harness_liveness
+from .planning import (
+    PlanningAnswer,
+    PlanningQuestion,
+    PlanningRecommendation,
+    PlanningBrief,
+    PlanningContext,
+    build_planning_brief,
+)
 
 __all__ = [
     # -- Core domain models --------------------------------------------------
@@ -230,4 +238,11 @@ __all__ = [
     # -- Beacon liveness -----------------------------------------------------
     "LivenessTarget",
     "check_harness_liveness",
+    # -- Planning harness ----------------------------------------------------
+    "PlanningAnswer",
+    "PlanningQuestion",
+    "PlanningRecommendation",
+    "PlanningBrief",
+    "PlanningContext",
+    "build_planning_brief",
 ]
