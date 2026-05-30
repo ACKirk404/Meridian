@@ -164,6 +164,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-05-31 18:50 -06:00 - Build 3 checked queue; status: idle; no active task; awaiting next assignment
 2026-05-31 19:05 -06:00 - Build 3 checked queue; status: idle; FileMap hygiene task complete (774695f + 6f3d474); awaiting Reviews B Round B3 verification and next assignment
 2026-05-31 19:20 -06:00 - Build 3 checked queue; status: idle; no active task; awaiting next assignment
+2026-05-31 19:35 -06:00 - Build 3 checked queue; status: idle; FileMap hygiene task complete (774695f + 6f3d474); awaiting Reviews B Round B3 verification and next assignment
 ```
 
 ## Write/Completion Log
@@ -228,35 +229,37 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 Current Active Task (supersedes stale completed FileMap task below):
 
-Goal: FileMap and tracker hygiene for the new progress tracker.
+Goal: FileMap refresh for V1/V2/V3 roadmap docs.
 
 Context:
 
-- `docs/v0-v1-progress-tracker.md` was added in `aee11af`.
-- It is now the canonical count-first progress tracker and should be discoverable by future sessions.
-- Previous FileMap repair appears closed via `45497b1`; do not re-open that repair unless tests show it is still missing.
+- The coordinator added or identified roadmap docs that future Prime sessions must discover automatically.
+- `docs/v0-v1-progress-tracker.md` is already registered, but newer V1/V2 planning docs may not be.
+- Scott and Codex just decided V3 should be a parking lot, not an active build plan. If `docs/v3-parking-lot.md` exists when you poll, register it. If it does not exist yet, note that in Cross-Check Activity and do not create it in this lane.
 
 Allowed files:
 
 - `docs/FileMap.md`
 - `meridian_core/filemap.py`
 - `tests/test_filemap.py`
-- `docs/v0-build-readiness-map.md`
 - `docs/live-build-3.md`
 
 Task:
 
-- Register `docs/v0-v1-progress-tracker.md` in FileMap if it is not already registered.
-- Add it to `_REQUIRED_PATHS` if appropriate under the existing test convention.
-- Update stale `docs/v0-build-readiness-map.md` text that still says `relay_executor.py` is missing, because `190e527` built the executor skeleton.
-- Keep wording precise: executor skeleton exists; real vendor/model API dispatch may still be future work.
+- Check whether these docs are registered in both `docs/FileMap.md` and `meridian_core/filemap.py`:
+  - `docs/v1-capability-plan.md`
+  - `docs/v1-bifrost-cockpit-implementation-brief.md`
+  - `docs/v2-horizon-plan.md`
+  - `docs/v3-parking-lot.md` if present
+- Add missing entries using the existing FileArea taxonomy.
+- Add missing paths to `_REQUIRED_PATHS` if that matches the existing test convention.
+- Keep `docs/FileMap.md` row prose and `meridian_core/filemap.py` entry prose aligned.
 - Do not edit runtime behavior outside FileMap metadata.
 - Do not edit other live queues except this queue's read/completion log.
 
 Tests:
 
 - Run `python -m pytest tests/test_filemap.py -q`.
-- If V0 readiness wording tests exist, run them; otherwise docs-only inspection is enough.
 
 Completion:
 
