@@ -52,11 +52,11 @@ This is the review lane's cursor. Update it after every review pass so the next 
 
 | Build lane | Last reviewed commit | Last reviewed task | Review status | Pending finding / repair | Next action |
 | --- | --- | --- | --- | --- | --- |
-| Build 1 | pending | Relay PromptPacket assembly helper | pending review | none recorded yet | review `6af04d4` |
-| Build 2 | pending | PromptPacket package API note cleanup | pending review | possible stale validation-contract wording | review `4be1117` |
-| Build 3 | pending | FileMap refresh | pending review | possible stale Relay/PromptBudget maturity wording | review `7ec16ac` |
-| Build 4 | pending | Architecture consistency pass | pending review | none recorded yet | review `736b6af` |
-| Build 5 | pending | Bifrost cockpit queue status brief | pending review | none recorded yet | review `818bb31` |
+| Build 1 | fd35a81 | Relay PromptPacket assembly helper + RelayDispatchPlan domain model (6af04d4..fd35a81) | passed | observational: FileMap entry for `meridian_core/relay_dispatch.py` is missing — fold into next Build 3 FileMap refresh (no repair routed) | await next Ready for Codex Review marker |
+| Build 2 | bf15569 | PromptPacket package API note cleanup + is_valid/validation_errors claim repair (4be1117..bf15569) | passed | none | await next Ready for Codex Review marker |
+| Build 3 | ef934b1 | FileMap refresh + FileMap Relay maturity repair (7ec16ac..ef934b1) | passed | observational: next FileMap refresh should add `meridian_core/relay_dispatch.py` (introduced by Build 1 fd35a81 after this commit) | await next Ready for Codex Review marker |
+| Build 4 | 736b6af | architecture consistency pass — Q button reference + cadence closure | passed | none | await next Ready for Codex Review marker |
+| Build 5 | d1d32af | Bifrost cockpit queue status brief + V0 cockpit layout brief (818bb31..d1d32af) | passed | none — Build 5 cadence pause cleared by this review | await next Ready for Codex Review marker |
 
 Checkpoint rules:
 
@@ -104,6 +104,9 @@ Append entries here when this file is checked while idle.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked; notes: <short note>
+
+2026-05-30 15:30 CDT - Codex Reviews checked queue; status: running; notes: starting Round 1 centralized review sweep — Build 1 through Build 5 all have Ready for Codex Review markers.
+2026-05-30 15:45 CDT - Codex Reviews checked queue; status: idle (Round 1 complete); notes: 9 commits reviewed, all passed, no findings, no repairs routed; all 5 lanes cleared for next assignment.
 ```
 
 ## Review Log
@@ -112,6 +115,16 @@ Append one entry per reviewed slice.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blocked; tests: <summary>; notes: <short note>
+
+2026-05-30 15:30 CDT - Reviewed Build 1 commit 6af04d4; result: pass; tests: pytest tests/test_relay_packet.py 18/18 passed (covered jointly with fd35a81); notes: assemble_relay_packet() helper is pure-domain glue; reads route.prompt_budget; defaults source_lineage to direct_input; validates via build_prompt_packet(); thorough test coverage.
+2026-05-30 15:30 CDT - Reviewed Build 1 commit fd35a81; result: pass; tests: pytest tests/test_relay_dispatch.py 23/23 passed; notes: RelayDispatchPlan + RelayDispatchLane frozen dataclasses; build_relay_dispatch_plan() maps route+packet to per-lane payloads using packet.model_payload() only; Tier 0 produces empty lanes; lane order preserved; payload exactly equals model_payload() with no metadata leakage.
+2026-05-30 15:30 CDT - Reviewed Build 2 commit 4be1117; result: pass; tests: docs-only (no tests required); notes: prompt-packet-package-api-note.md cleanly rewritten as post-export record; correct PromptPacketError → PromptPacketValidationError; references commits 0ce0cf9, f2f69ff, e73b840 (all present in history).
+2026-05-30 15:30 CDT - Reviewed Build 2 commit bf15569; result: pass; tests: docs-only (no tests required); notes: removed stale is_valid/validation_errors claim; replaced with accurate exception-based contract description; verified by grep — no is_valid/validation_errors symbols exist in meridian_core/prompt_packet.py.
+2026-05-30 15:30 CDT - Reviewed Build 3 commit 7ec16ac; result: pass; tests: covered jointly with ef934b1; notes: 6-line FileMap.md additions for tokens.py, review-console contract, relay-packet plan, queue hygiene, bifrost brief, live-build-5 — narrow and scope-appropriate.
+2026-05-30 15:30 CDT - Reviewed Build 3 commit ef934b1; result: pass; tests: pytest tests/test_filemap.py 46/46 passed; notes: FileMap repair is comprehensive — relay.py now correctly states "carries CouncilPlan and PromptBudgetPlan for every dispatch"; prompt_budget.py reclassified from "no integration yet" to integrated; relay_packet.py added with related_tests=[tests/test_relay_packet.py]; bifrost-cockpit-queue-status-brief.md added; FileArea.BIFROST enum added; required-path coverage updated.
+2026-05-30 15:30 CDT - Reviewed Build 4 commit 736b6af; result: pass; tests: docs-only (no tests required); notes: narrow consistency pass — Q button note in meridian-capabilities-architecture-map.md now correctly cross-references docs/bifrost-session-queue-activation-brief.md (verified present); Codex review cadence closed in live-build-4.md log.
+2026-05-30 15:30 CDT - Reviewed Build 5 commit 818bb31; result: pass; tests: docs-only (no tests required); notes: bifrost-cockpit-queue-status-brief.md is a coherent 13-section strategic brief; cross-references docs/cockpit-ui-architecture.md and docs/polaris-ui-lessons-for-meridian.md (both verified present); canonical lane status set + Beacon contract + Polaris lessons clearly documented.
+2026-05-30 15:30 CDT - Reviewed Build 5 commit d1d32af; result: pass; tests: docs-only (no tests required); notes: bifrost-v0-cockpit-layout-brief.md is a coherent 14-section V0 layout brief; cross-references both companion briefs (verified present); ASCII layout sketch + scaling rules + "leave out" list are scope-appropriate; cadence pause cleared.
 ```
 
 ## Findings
@@ -120,6 +133,9 @@ Append findings here before routing repairs.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Build <n> commit <hash>; severity: CRITICAL/HIGH/MEDIUM/LOW; file: <path>; finding: <short note>; action: clear/defer/repair-task-written
+
+2026-05-30 15:30 CDT - Round 1 sweep: no CRITICAL, HIGH, MEDIUM, or LOW findings across Build 1 (6af04d4, fd35a81), Build 2 (4be1117, bf15569), Build 3 (7ec16ac, ef934b1), Build 4 (736b6af), Build 5 (818bb31, d1d32af). All 9 reviewed commits cleared. No repair tasks routed.
+2026-05-30 15:30 CDT - Observational (not a finding): Build 1 fd35a81 introduced meridian_core/relay_dispatch.py after Build 3's most recent FileMap refresh (ef934b1). Next Build 3 FileMap refresh should add a FileMapEntry for relay_dispatch.py and its tests. Not routed as a repair — this is normal forward FileMap work, not stale wording.
 ```
 
 ## Repair Routing Log
@@ -128,43 +144,20 @@ Append entries when writing repair work into a build lane.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Routed repair to Build <n>; queue: docs/live-build-<n>.md; finding: <short note>; status: pending
+
+2026-05-30 15:30 CDT - No repairs routed in Round 1. All 5 lanes clear and eligible for next assignment.
 ```
 
 ## Active Task
 
-Goal: perform the first centralized review sweep.
+No active task. Round 1 centralized review sweep complete (2026-05-30 15:45 CDT).
 
-Allowed files only:
+- Build 1 (6af04d4..fd35a81): passed
+- Build 2 (4be1117..bf15569): passed
+- Build 3 (7ec16ac..ef934b1): passed
+- Build 4 (736b6af): passed
+- Build 5 (818bb31..d1d32af): passed — cadence pause cleared
 
-- `docs/live-codex-reviews.md`
-- `docs/live-build-1.md`
-- `docs/live-build-2.md`
-- `docs/live-build-3.md`
-- `docs/live-build-4.md`
-- `docs/live-build-5.md`
+No CRITICAL / HIGH / MEDIUM / LOW findings. No repairs routed.
 
-Task:
-
-- Pull latest `origin/main`.
-- Read the Checkpoint Ledger first.
-- Inspect Build 1 through Build 5 live queues.
-- Find completed commits newer than each lane's checkpoint or marked `Ready for Codex Review`.
-- Write a Review Round Scope entry before detailed review.
-- Review, at minimum, the latest completed slices:
-  - Build 1: `6af04d4` Relay PromptPacket assembly helper
-  - Build 2: `4be1117` PromptPacket package API note cleanup
-  - Build 3: `7ec16ac` FileMap refresh
-  - Build 4: `736b6af` architecture consistency pass
-  - Build 5: `818bb31` Bifrost cockpit queue status brief
-- Run targeted tests for code slices.
-- Record pass/finding results in this file.
-- Update the Checkpoint Ledger for every reviewed lane.
-- If a finding needs repair, write a repair Active Task into the original build lane's queue.
-- Do not implement the repair yourself.
-
-Completion:
-
-- Commit only review/queue file changes.
-- Push to `origin/main`.
-- Update Obsidian if findings or clearances are important.
-- Report review results in the Codex Reviews session.
+When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`..`docs/live-build-5.md` every 30 seconds for new `Ready for Codex Review` markers, cadence triggers, or repair-verification needs.
