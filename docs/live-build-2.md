@@ -2,12 +2,12 @@
 
 This file is the standing assignment queue for Build 2.
 
-When idle, check this file every 30 seconds. If there is an active task below, execute it. If the task is complete, commit and push your slice, update Obsidian, then report completion in your session and return to polling this file.
+When idle, check this file every 10 minutes. If there is an active task below, execute it. If the task is complete, commit and push your slice, update Obsidian, then report completion in your session and return to polling this file.
 
 Rules:
 
-- This session must behave as a live worker, not a one-shot handoff. After completing a task, return to this file and keep polling every 30 seconds.
-- If there is no Active Task, do not stop. Append a Read Checks entry, wait 30 seconds, pull latest, and check again.
+- This session must behave as a live worker, not a one-shot handoff. After completing a task, return to this file and keep polling every 10 minutes.
+- If there is no Active Task, do not stop. Append a Read Checks entry, wait 10 minutes, pull latest, and check again.
 - Always pull latest `origin/main` before editing.
 - Every time you check/read this file, add a timestamped entry to the Read Checks section.
 - Every time you modify this file or complete a task from it, add a timestamped entry to the Write/Completion Log section.
