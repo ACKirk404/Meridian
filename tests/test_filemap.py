@@ -17,6 +17,7 @@ _REQUIRED_PATHS = [
     "meridian_core/intention.py",
     "meridian_core/objectives.py",
     "meridian_core/risk.py",
+    "meridian_core/council.py",
     "meridian_core/relay.py",
     "meridian_core/review_console.py",
     "meridian_core/builds.py",
@@ -235,7 +236,7 @@ class TestDefaultMap:
         fm = make_default_map()
         tested = fm.with_tests()
         tested_paths = {e.path for e in tested}
-        for path in ["meridian_core/risk.py", "meridian_core/relay.py", "meridian_core/builds.py"]:
+        for path in ["meridian_core/risk.py", "meridian_core/council.py", "meridian_core/relay.py", "meridian_core/builds.py"]:
             assert path in tested_paths, f"{path} should have related tests"
 
     def test_mission_md_in_mission_area(self):
@@ -268,6 +269,11 @@ class TestDefaultMap:
         fm = make_default_map()
         risk_entries = fm.by_area(FileArea.RISK_ENGINE)
         assert any(e.path == "meridian_core/risk.py" for e in risk_entries)
+
+    def test_by_area_council(self):
+        fm = make_default_map()
+        council_entries = fm.by_area(FileArea.COUNCIL)
+        assert any(e.path == "meridian_core/council.py" for e in council_entries)
 
     def test_multiple_areas_present(self):
         fm = make_default_map()

@@ -32,6 +32,7 @@ class FileArea:
     COMPASS          = "Progress Intention / Compass"
     OBJECTIVES       = "Mission Objectives recall"
     RISK_ENGINE      = "Risk Tier Engine"
+    COUNCIL          = "Council cognition"
     RELAY_ROUTING    = "Relay routing"
     AEGIS            = "Aegis / Proof harness"
     REVIEW_CONSOLE   = "Review Console"
@@ -251,9 +252,16 @@ def make_default_map() -> FileMap:
         FileMapEntry(
             path="meridian_core/risk.py",
             area=FileArea.RISK_ENGINE,
-            purpose="First-class risk assessment and requirements for tiers 0–4.",
+            purpose="First-class risk assessment and requirements for tiers 0-4.",
             related_tests=["tests/test_risk.py"],
             notes="Decision engine foundation.",
+        ),
+        FileMapEntry(
+            path="meridian_core/council.py",
+            area=FileArea.COUNCIL,
+            purpose="Structured Council cognition roles and deterministic role planning by risk tier.",
+            related_tests=["tests/test_council.py"],
+            notes="Domain-only; no model calls or prompt generation.",
         ),
         FileMapEntry(
             path="meridian_core/relay.py",

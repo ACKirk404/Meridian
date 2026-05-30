@@ -84,6 +84,13 @@ from .builds import (
     make_initial_registry,
 )
 from .filemap import FileMapEntry, FileMap, FileArea, make_default_map
+from .council import (
+    CouncilRole,
+    CouncilPosition,
+    CouncilPlan,
+    default_council_positions,
+    council_plan_for_tier,
+)
 
 __all__ = [
     # -- Core domain models --------------------------------------------------
@@ -178,4 +185,10 @@ __all__ = [
     "FileMap",
     "FileArea",
     "make_default_map",
+    # -- Council cognition ----------------------------------------------------
+    "CouncilRole",
+    "CouncilPosition",
+    "CouncilPlan",
+    "default_council_positions",
+    "council_plan_for_tier",
 ]

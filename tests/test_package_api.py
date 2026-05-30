@@ -74,6 +74,17 @@ def test_build_and_filemap_exports():
     assert make_initial_registry
 
 
+def test_council_exports():
+    from meridian_core import CouncilPlan, CouncilPosition, CouncilRole
+    from meridian_core import council_plan_for_tier, default_council_positions
+
+    assert CouncilPlan
+    assert CouncilPosition
+    assert CouncilRole
+    assert council_plan_for_tier
+    assert default_council_positions
+
+
 def test_internal_helpers_are_not_root_exports():
     assert "_TIER_SEMANTICS" not in meridian_core.__all__
     assert "_ROUTING_TABLE" not in meridian_core.__all__
