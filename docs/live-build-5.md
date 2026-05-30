@@ -98,6 +98,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 checked queue; status: idle/running/blocked
 2026-05-30 13:32 -06:00 - Build 5 checked queue; status: running; new Active Task = draft V1 Bifrost cockpit implementation brief at docs/v1-bifrost-cockpit-implementation-brief.md; Cross-Check Activity: none; origin/main at e800c03
 2026-05-30 13:33 -06:00 - Build 5 checked queue; status: paused (cadence); V1 Bifrost cockpit implementation brief committed at 0629e0c = 3rd task-changing commit in current window (after d1d32af cleared); pausing normal build work per rule 21 until Codex Reviews lane records cadence review result; will continue polling for repair tasks; Cross-Check Activity: none; origin/main at 0629e0c
 2026-05-30 13:38 -06:00 - Build 5 checked queue; status: paused (cadence); Reviews B Round B3/B4 still pending for a412e90 and 0629e0c, no repair routed, no new Cross-Check Activity, Active Task still names completed V1 cockpit implementation brief; awaiting Codex Reviews cadence-clear result; origin/main at 71d520a
+2026-05-30 13:40 -06:00 - Build 5 checked queue; status: paused (cadence); no change since last poll — Reviews B Round B3/B4 still pending for a412e90 and 0629e0c, no repair routed, no new Cross-Check Activity, Active Task still stale; awaiting Codex Reviews cadence-clear result; origin/main at 0f4e5f9
 ```
 
 ## Write/Completion Log
