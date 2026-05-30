@@ -287,13 +287,72 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
+Current Active Task (supersedes stale completed text below):
+
+Goal: build the provider-neutral Model Harness adapter contract for V0 Relay dispatch.
+
+Context:
+
+- Planning Harness answer brief `docs/prime-planning-harness-answers.md` says the next V0 move is adapter-first, not vendor-first.
+- V0's remaining core gate is real Relay model/API dispatch through the existing Relay executor skeleton.
+- `meridian_core/relay_executor.py` must remain provider-neutral and payload-only.
+- Aegis proof gating already blocks tier-3/4 dispatch before model calls; preserve that order.
+- This slice should create the adapter contract and env-safe behavior, but should not choose Claude/OpenAI/OpenRouter as the default provider yet.
+- Before editing, verify this session is operating in its own unique worktree/path and is not sharing the same working tree as another active Build or Review session. Record the resolved path in this queue. If the session is not on a unique worktree, stop and report the worktree collision instead of editing.
+
+Allowed files only:
+
+- `meridian_core/model_adapter.py`
+- `tests/test_model_adapter.py`
+- `meridian_core/relay_executor.py`
+- `tests/test_relay_executor.py`
+- `docs/live-build-1.md`
+
+Task:
+
+- Pull latest `origin/main` in your unique worktree before editing.
+- Add a small provider-neutral Model Adapter contract.
+- Include:
+  - a callable/protocol adapter boundary that receives only the approved payload text;
+  - a deterministic fake/test adapter for unit tests;
+  - an env-safe adapter/config helper that fails clearly when required live-provider configuration is missing;
+  - no real vendor SDK dependency yet unless the task can remain optional, env-gated, and uncalled in tests.
+- Wire the adapter shape into the existing Relay executor only if it can be done without changing the payload-only `model_call(lane.payload)` contract.
+- Preserve the prompt-drag rule: do not pass queue history, proof trails, Council notes, packet metadata, role metadata, or provider config into the model payload.
+- Do not add account-based desktop automation.
+- Do not edit package exports.
+- Do not edit FileMap; Build 3 owns FileMap registration.
+
+Tests:
+
+- Add focused tests proving:
+  - the fake adapter receives only payload text and returns deterministic text;
+  - missing live-provider configuration raises a clear adapter/config error before any model call;
+  - Relay executor still passes only `lane.payload`;
+  - Aegis blocking evidence still prevents adapter/model calls before dispatch.
+- Run `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`.
+- If practical, also run `python -m pytest tests/test_aegis.py tests/test_relay_executor.py -q`.
+
+Completion:
+
+- Commit only this slice.
+- Push to `origin/main`.
+- Update Obsidian.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+Write log:
+
+- 2026-05-30 15:21 -06:00 - Coordinator assigned provider-neutral Model Harness adapter contract from `docs/prime-planning-harness-answers.md`; commit pending; tests pending.
+
+Stale prior completed text follows.
+
 [COMPLETED 2026-05-30 14:43 -06:00] V0 pre-dispatch Aegis proof gate enforcement - commit `7c75f43`; 863 tests pass. Slice ready for Codex Review.
 
 [COMPLETED 2026-05-30 14:26 -06:00] V0 Relay execution summary to Aegis proof trail - commit `0e990df`; 848 tests pass. Slice ready for Codex Review.
 
-No active task. Build 1 is idle - slices `0e990df` and `7c75f43` marked Ready for Codex Review; awaiting Review C result or next assignment.
+Review C has cleared `0e990df` and `7c75f43`; Build 1 is eligible for this next assignment.
 
-Stale prior text follows.
+Stale older text follows.
 
 Current Active Task (supersedes any stale idle text below):
 
