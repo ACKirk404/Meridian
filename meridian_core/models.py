@@ -7,9 +7,8 @@ All definitions align with the vocabulary in context.md.
 
 from __future__ import annotations
 
-import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -59,6 +58,37 @@ class MoveKind(Enum):
     SCOTT_REQUIRED = "scott_required"
 
 
+class TaskStatus(Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    BLOCKED = "blocked"
+    DONE = "done"
+
+
+class ProofType(Enum):
+    TEST = "test"
+    SCREENSHOT = "screenshot"
+    BROWSER_CHECK = "browser_check"
+    DIFF = "diff"
+    REVIEW = "review"
+    WAIVER = "waiver"
+
+
+class ArtifactKind(Enum):
+    CODE = "code"
+    SCREENSHOT = "screenshot"
+    PR = "pr"
+    DOCUMENT = "document"
+
+
+class SteeringCapability(Enum):
+    NONE = "none"
+    USER_MESSAGE = "user_message"
+    DIRECTIVE = "directive"
+    RESUME_CONTEXT = "resume_context"
+    SYSTEM_PROMPT = "system_prompt"
+
+
 # ---------------------------------------------------------------------------
 # Evidence and artifacts
 # ---------------------------------------------------------------------------
@@ -69,7 +99,7 @@ class Proof:
     """Evidence that a claim or result is trustworthy enough to proceed."""
     id: str
     description: str
-    proof_type: str  # "test", "screenshot", "browser_check", "diff", "review", "waiver"
+    proof_type: ProofType
     command: Optional[str] = None
     result: Optional[str] = None
     verified: bool = False
@@ -79,10 +109,10 @@ class Proof:
 class Artifact:
     """A durable output Meridian created, modified, verified, or shipped."""
     id: str
-    kind: str  # "code", "screenshot", "pr", "document", etc.
+    kind: ArtifactKind
     path: str
     description: str = ""
-    created_at: datetime = field(default_factory=datetime.now)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ---------------------------------------------------------------------------
@@ -110,6 +140,7 @@ class NextMove:
     proof_required: bool = False
     proof: Optional[Proof] = None
     reason: Optional[str] = None
+    session_id: Optional[str] = None
 
 
 @dataclass
@@ -119,7 +150,7 @@ class Task:
     title: str
     description: str
     objective_id: str
-    status: str = "pending"  # pending, in_progress, blocked, done
+    status: TaskStatus = TaskStatus.PENDING
 
 
 @dataclass
@@ -186,8 +217,7 @@ class Harness:
     id: str
     name: str
     capabilities: list[str] = field(default_factory=list)
-    # Steering capability this harness backend supports
-    steering_capability: str = "none"  # none, user_message, directive, resume_context, system_prompt
+    steering_capability: SteeringCapability = SteeringCapability.NONE
 
 
 @dataclass
@@ -198,7 +228,7 @@ class Heartbeat:
     current_work: Optional[str] = None
     last_event: Optional[str] = None
     blockers: list[str] = field(default_factory=list)
-    updated_at: datetime = field(default_factory=datetime.now)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ---------------------------------------------------------------------------
@@ -228,7 +258,7 @@ class Decision:
     evidence_needed: list[str] = field(default_factory=list)
     hard_policies_checked: list[str] = field(default_factory=list)
     alternatives_considered: list[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.now)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -240,7 +270,7 @@ class ScottBottleneck:
     priority: Priority
     initiative_id: Optional[str] = None
     move_id: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.now)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -252,7 +282,7 @@ class SessionInjection:
     reason: str
     priority: Priority
     mode: InjectionMode
-    created_at: datetime = field(default_factory=datetime.now)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ---------------------------------------------------------------------------
@@ -272,5 +302,7 @@ class ProviderAdapter:
 
     def is_public_safe(self) -> bool:
         """True if this adapter can appear in a public build without compliance risk."""
+        if not self.enabled_for_public_build:
+            return False
         unsafe = {AdapterTier.PRIVATE_ONLY, AdapterTier.DISABLED_FOR_PUBLIC_BUILD}
         return self.tier not in unsafe

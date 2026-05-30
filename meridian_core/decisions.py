@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Optional
 
 from .events import EventRecorder
@@ -86,11 +85,12 @@ def _process_heartbeats(
                 reason=f"Automatic response to {hb.status.value} harness with known blockers",
                 priority=Priority.HIGH,
                 mode=InjectionMode.DIRECTIVE,
+                stable_key=f"injection:harness:{hb.harness_id}:{hb.status.value}",
             )
             result.injections.append(inj)
 
             decision = Decision(
-                id=str(uuid.uuid4()),
+                id=str(uuid.uuid5(uuid.NAMESPACE_DNS, f"decision:harness:{hb.harness_id}:{hb.status.value}")),
                 next_action=f"inject_directive_to_{hb.harness_id}",
                 reason=f"Harness {hb.harness_id!r} is {hb.status.value} with {len(hb.blockers)} known blocker(s)",
                 evidence_needed=[f"harness {hb.harness_id!r} resumes alive or busy status"],
@@ -104,7 +104,7 @@ def _process_heartbeats(
         else:
             # No blockers known — escalate to Scott
             bn = ScottBottleneck(
-                id=str(uuid.uuid4()),
+                id=str(uuid.uuid5(uuid.NAMESPACE_DNS, f"bottleneck:harness:{hb.harness_id}:{hb.status.value}")),
                 title=f"Harness {hb.harness_id!r} is {hb.status.value} with no known blockers",
                 description=(
                     f"Harness {hb.harness_id!r} reported status {hb.status.value!r} "
@@ -138,7 +138,7 @@ def _escalate_to_scott(
     recorder: Optional[EventRecorder],
 ) -> None:
     bn = ScottBottleneck(
-        id=str(uuid.uuid4()),
+        id=str(uuid.uuid5(uuid.NAMESPACE_DNS, f"bottleneck:move:{move.id}")),
         title=f"Scott judgment required: {move.description}",
         description=move.reason or "This next move requires Scott's judgment before Meridian can proceed.",
         priority=Priority.HIGH,
@@ -162,11 +162,12 @@ def _request_verification(
     )
 
     inj = make_injection(
-        target_session_id="agent_harness",
+        target_session_id=move.session_id or "agent_harness",
         instruction=instruction,
         reason="Next move is autonomous but proof is required and not yet verified",
         priority=Priority.HIGH,
         mode=InjectionMode.DIRECTIVE,
+        stable_key=f"injection:verify:{move.id}",
     )
     result.injections.append(inj)
 

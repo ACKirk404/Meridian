@@ -8,7 +8,7 @@ No persistence yet — SQLite comes later.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -25,7 +25,7 @@ class EventKind(Enum):
 class Event:
     kind: EventKind
     payload: Any
-    created_at: datetime = field(default_factory=datetime.now)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class EventRecorder:

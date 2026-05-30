@@ -94,3 +94,22 @@ def test_no_events_recorded_without_recorder():
     heartbeats = make_sample_heartbeats()
     result = run_decision_loop(portfolio, heartbeats, recorder=None)
     assert result is not None
+
+
+def test_stale_harness_without_blockers_produces_bottleneck():
+    portfolio = make_sample_portfolio()
+    heartbeats = make_sample_heartbeats()
+
+    stale_no_blockers = [
+        hb for hb in heartbeats
+        if hb.status == HeartbeatStatus.STALE and not hb.blockers
+    ]
+    assert stale_no_blockers, "Sample state must include a stale harness with no known blockers"
+
+    result = run_decision_loop(portfolio, heartbeats)
+
+    stale_ids = {hb.harness_id for hb in stale_no_blockers}
+    bottleneck_titles = " ".join(bn.title for bn in result.scott_bottlenecks)
+    assert any(hid in bottleneck_titles for hid in stale_ids), (
+        "Expected a Scott bottleneck mentioning the stale harness"
+    )

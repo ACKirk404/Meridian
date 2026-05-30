@@ -18,8 +18,10 @@ from .models import (
     Portfolio,
     Project,
     Proof,
+    ProofType,
     ProviderAdapter,
     Task,
+    TaskStatus,
     Venture,
 )
 
@@ -52,7 +54,7 @@ def make_sample_portfolio() -> Portfolio:
                 title="Create meridian_core Python package",
                 description="models.py, sample_state.py, decisions.py, events.py, injections.py",
                 objective_id="obj_meridian_core",
-                status="in_progress",
+                status=TaskStatus.IN_PROGRESS,
             ),
         ],
         next_moves=[
@@ -65,7 +67,7 @@ def make_sample_portfolio() -> Portfolio:
                 proof=Proof(
                     id="proof_tests_pass",
                     description="pytest test suite passes",
-                    proof_type="test",
+                    proof_type=ProofType.TEST,
                     command="pytest tests/",
                     verified=False,
                 ),
@@ -198,6 +200,13 @@ def make_sample_heartbeats() -> list[Heartbeat]:
             current_work="Waiting to push branch",
             last_event="Push failed: remote rejected",
             blockers=["authentication token expired", "remote branch protection rule"],
+        ),
+        Heartbeat(
+            harness_id="proof_harness",
+            status=HeartbeatStatus.STALE,
+            current_work=None,
+            last_event="Last activity over 30 minutes ago",
+            blockers=[],
         ),
     ]
 
