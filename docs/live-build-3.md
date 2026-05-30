@@ -6,6 +6,8 @@ When idle, check this file every 30 seconds. If there is an active task below, e
 
 Rules:
 
+- This session must behave as a live worker, not a one-shot handoff. After completing a task, return to this file and keep polling every 30 seconds.
+- If there is no Active Task, do not stop. Append a Read Checks entry, wait 30 seconds, pull latest, and check again.
 - Always pull latest `origin/main` before editing.
 - Every time you check/read this file, add a timestamped entry to the Read Checks section.
 - Every time you modify this file or complete a task from it, add a timestamped entry to the Write/Completion Log section.
@@ -39,6 +41,7 @@ Append entries here when this file is modified or an active task is completed.
 ```text
 YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-05-30 10:33 -06:00 - Codex assigned Prompt Packet domain slice; commit pending; tests pending
+2026-05-30 10:37 -06:00 - Codex strengthened polling contract; commit pending; tests not required
 ```
 
 ## Cross-Check Activity
