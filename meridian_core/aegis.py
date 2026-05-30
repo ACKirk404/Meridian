@@ -19,6 +19,7 @@ from enum import Enum
 from .review_console import (
     ReviewConsoleItem,
     ReviewConsoleSeverity,
+    ReviewConsoleQueue,
     make_approval_gate,
     make_cross_check_item,
 )
@@ -165,6 +166,24 @@ class ProofTrail:
     def open_findings(self) -> list[AegisEvidence]:
         """All evidence with OPEN status."""
         return [e for e in self.evidence if e.status is EvidenceStatus.OPEN]
+
+    def to_console_items(self) -> list[ReviewConsoleItem]:
+        """Convert all evidence to ReviewConsoleItems in insertion order.
+
+        Each call sets console_item_id on the source evidence record.
+        """
+        return [e.to_console_item() for e in self.evidence]
+
+    def enqueue_to_review_console(self, queue: ReviewConsoleQueue) -> list[str]:
+        """Enqueue all evidence as ReviewConsoleItems and return their ids.
+
+        Items are enqueued in insertion order. Each source evidence record
+        has its console_item_id set as a side effect.
+        """
+        items = self.to_console_items()
+        for item in items:
+            queue.enqueue(item)
+        return [item.id for item in items]
 
 
 # ---------------------------------------------------------------------------

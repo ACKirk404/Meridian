@@ -15,6 +15,7 @@ from meridian_core.aegis import (
 from meridian_core.review_console import (
     ReviewConsoleItemType,
     ReviewConsoleSeverity,
+    ReviewConsoleQueue,
 )
 
 
@@ -330,3 +331,137 @@ class TestDeterminism:
     def test_open_evidence_blocking_is_consistent(self, sev):
         ev = _cc(severity=sev)
         assert ev.is_proof_blocking() == ev.is_proof_blocking()
+
+
+# ---------------------------------------------------------------------------
+# ProofTrail Review Console bridge
+# ---------------------------------------------------------------------------
+
+
+class TestProofTrailConsoleItems:
+    def test_emits_one_item_per_evidence(self):
+        trail = ProofTrail()
+        for i in range(3):
+            trail.add(_cc(id=f"ev-{i}"))
+        assert len(trail.to_console_items()) == 3
+
+    def test_empty_trail_emits_no_items(self):
+        assert trail.to_console_items() == [] if (trail := ProofTrail()) else True
+        # explicit form:
+        assert ProofTrail().to_console_items() == []
+
+    def test_output_preserves_insertion_order(self):
+        trail = ProofTrail()
+        for i in range(4):
+            trail.add(_cc(id=f"ev-{i}"))
+        ids = [item.id for item in trail.to_console_items()]
+        assert ids == ["aegis-ev-0", "aegis-ev-1", "aegis-ev-2", "aegis-ev-3"]
+
+    def test_blocking_evidence_becomes_approval_gate(self):
+        trail = ProofTrail()
+        trail.add(_blocking(id="b1"))
+        items = trail.to_console_items()
+        assert items[0].item_type is ReviewConsoleItemType.APPROVAL_GATE
+
+    def test_blocking_evidence_requires_response(self):
+        trail = ProofTrail()
+        trail.add(_blocking(id="b1"))
+        assert trail.to_console_items()[0].requires_response is True
+
+    def test_nonblocking_evidence_becomes_cross_check(self):
+        trail = ProofTrail()
+        trail.add(_cc(id="nb1", severity=EvidenceSeverity.INFO))
+        items = trail.to_console_items()
+        assert items[0].item_type is ReviewConsoleItemType.CROSS_CHECK
+
+    def test_nonblocking_evidence_is_informational(self):
+        trail = ProofTrail()
+        trail.add(_cc(id="nb1", severity=EvidenceSeverity.INFO))
+        assert trail.to_console_items()[0].requires_response is False
+
+    def test_evidence_console_item_id_linked_after_to_console_items(self):
+        trail = ProofTrail()
+        ev = _cc(id="ev-link")
+        trail.add(ev)
+        trail.to_console_items()
+        assert ev.console_item_id == "aegis-ev-link"
+
+    def test_all_evidence_ids_linked_after_to_console_items(self):
+        trail = ProofTrail()
+        evidences = [_cc(id=f"ev-{i}") for i in range(3)]
+        for ev in evidences:
+            trail.add(ev)
+        trail.to_console_items()
+        for i, ev in enumerate(evidences):
+            assert ev.console_item_id == f"aegis-ev-{i}"
+
+
+class TestProofTrailEnqueueToReviewConsole:
+    def test_enqueue_returns_console_item_ids(self):
+        trail = ProofTrail()
+        for i in range(3):
+            trail.add(_cc(id=f"ev-{i}"))
+        queue = ReviewConsoleQueue()
+        ids = trail.enqueue_to_review_console(queue)
+        assert ids == ["aegis-ev-0", "aegis-ev-1", "aegis-ev-2"]
+
+    def test_enqueue_assigns_sequence_numbers(self):
+        trail = ProofTrail()
+        for i in range(3):
+            trail.add(_cc(id=f"ev-{i}"))
+        queue = ReviewConsoleQueue()
+        trail.enqueue_to_review_console(queue)
+        seqs = [item.sequence for item in queue.items]
+        assert seqs == sorted(seqs)
+        assert len(set(seqs)) == 3
+
+    def test_enqueue_items_appear_in_queue_pending(self):
+        trail = ProofTrail()
+        trail.add(_cc(id="ev-a"))
+        trail.add(_blocking(id="ev-b"))
+        queue = ReviewConsoleQueue()
+        trail.enqueue_to_review_console(queue)
+        assert len(queue.pending()) == 2
+
+    def test_blocking_evidence_in_pending_gates(self):
+        trail = ProofTrail()
+        trail.add(_blocking(id="gate-1"))
+        trail.add(_cc(id="info-1", severity=EvidenceSeverity.INFO))
+        queue = ReviewConsoleQueue()
+        trail.enqueue_to_review_console(queue)
+        gates = queue.pending_gates()
+        assert len(gates) == 1
+        assert gates[0].id == "aegis-gate-1"
+
+    def test_nonblocking_evidence_in_informational(self):
+        trail = ProofTrail()
+        trail.add(_cc(id="info-1", severity=EvidenceSeverity.INFO))
+        trail.add(_cc(id="info-2", severity=EvidenceSeverity.WARNING))
+        queue = ReviewConsoleQueue()
+        trail.enqueue_to_review_console(queue)
+        info = queue.informational()
+        assert len(info) == 2
+
+    def test_evidence_ids_linked_after_enqueue(self):
+        trail = ProofTrail()
+        ev = _cc(id="ev-enqueue")
+        trail.add(ev)
+        queue = ReviewConsoleQueue()
+        trail.enqueue_to_review_console(queue)
+        assert ev.console_item_id == "aegis-ev-enqueue"
+
+    def test_enqueue_into_nonempty_queue_no_sequence_collision(self):
+        existing_item = _cc(id="pre-existing").to_console_item()
+        existing_item.sequence = 5
+        queue = ReviewConsoleQueue(items=[existing_item])
+        trail = ProofTrail()
+        trail.add(_cc(id="new-ev"))
+        trail.enqueue_to_review_console(queue)
+        seqs = [item.sequence for item in queue.items]
+        assert len(set(seqs)) == len(seqs)
+
+    def test_empty_trail_enqueue_returns_empty_list(self):
+        queue = ReviewConsoleQueue()
+        result = ProofTrail().enqueue_to_review_console(queue)
+        assert result == []
+        assert queue.items == []
