@@ -9,6 +9,8 @@ Rules:
 - Always pull latest `origin/main` before editing.
 - Every time you check/read this file, add a timestamped entry to the Read Checks section.
 - Every time you modify this file or complete a task from it, add a timestamped entry to the Write/Completion Log section.
+- Every minute while idle, check for cross-check activity relevant to your slice: review notes, Codex findings, Aegis findings, failing tests, or Obsidian build log updates.
+- If cross-check activity affects your task, record it in this file's Cross-Check Activity section and address it before starting unrelated work.
 - Use local time with timezone when possible.
 - Own only the files listed in the active task.
 - Do not edit Build 1 or Build 2 live queue files.
@@ -33,6 +35,14 @@ Append entries here when this file is modified or an active task is completed.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
+```
+
+## Cross-Check Activity
+
+Append entries here when you check or act on cross-check activity.
+
+```text
+YYYY-MM-DD HH:MM TZ - Build 3 cross-check: none/finding/fix; details: <short note>
 ```
 
 ## Active Task
