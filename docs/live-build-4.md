@@ -75,6 +75,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-30 14:29 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 7f87226
 2026-05-30 14:30 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; origin/main at 92c139e
 2026-05-30 14:32 -06:00 - Build 4 checked queue; status: idle; no new Active Task; Reviews B Round B1 scope declared (4019a94) — may cover Build 4 slices 3cbf336 and 1d17fa1; origin/main at 4019a94
+2026-05-30 14:33 -06:00 - Build 4 checked queue; status: idle; no new Active Task; Reviews B Round B1 still pending (0818bcc); origin/main at 0818bcc
 ```
 
 ## Write/Completion Log
