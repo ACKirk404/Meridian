@@ -259,6 +259,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-01 ~13:20 CDT - Build 1 correction: 13:18 entry's "idle" claim was stale — coordinator had just added new Active Task "env-gated HTTP JSON Model Harness transport" (write log line 16:34 -06:00) before my Read; commit bdead7e absorbed the coordinator's cleanup of the prior registry task body (-72 lines) plus this heartbeat. Re-reading current Active Task now.
 2026-06-01 ~13:28 CDT - Build 1 checked queue; status: blocked-on-worktree-collision (Active Task: env-gated HTTP JSON Model Harness transport; this session operates in shared main worktree C:/Users/scott/Code/Meridian alongside other build/review sessions; not picking up code task per task's pre-edit rule; awaiting unique-worktree session to execute)
 2026-06-01 ~13:38 CDT - Build 1 checked queue; status: blocked-on-worktree-collision (transport Active Task still open; no commits matching transport/http/model-harness in git log; awaiting unique-worktree session)
+2026-06-01 ~16:50 CDT - Build 1 checked queue; status: running (Active Task found: env-gated HTTP JSON Model Harness transport; worktree: C:/Users/scott/AppData/Local/Temp/polaris-wt/chat_1780111650704; executing)
 ```
 
 ## Write/Completion Log
@@ -294,6 +295,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 completed <task>; commit <hash>; tests <result>
 2026-06-01 ~04:00 CDT - Coordinator assigned provider-neutral Model Harness adapter contract (from docs/prime-planning-harness-answers.md) [originally logged 2026-05-30 15:21 -06:00; date corrected]
 2026-06-01 ~05:15 CDT - Build 1 completed provider-neutral Model Harness adapter contract; commit 653488b; files: meridian_core/model_adapter.py, meridian_core/relay_executor.py, tests/test_model_adapter.py, tests/test_relay_executor.py, docs/live-build-1.md; tests: 46 adapter/executor passed, 126 Aegis/executor passed; Ready for Codex Review [originally logged 2026-05-30 15:41 -06:00; date corrected]
 2026-06-01 ~10:30 CDT - Build 1 completed Relay adapter registry and lane dispatch bridge; commit 0560eb4; files: meridian_core/model_adapter.py, meridian_core/relay_executor.py, tests/test_model_adapter.py, tests/test_relay_executor.py; tests: 67 targeted adapter/executor passed, 137 Aegis/executor passed, 911 full passed; Ready for Codex Review.
+2026-06-01 ~16:50 CDT - Build 1 completed env-gated HTTP JSON Model Harness transport; commit pending; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 72 targeted adapter/executor passed, 916 full passed; Ready for Codex Review.
 ```
 
 ## Cross-Check Activity
@@ -334,56 +336,13 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Current Active Task (supersedes stale idle/completed text below):
-
-Goal: build an env-gated HTTP JSON Model Harness transport for V0 Relay dispatch.
-
-Context:
-
-- Provider-neutral Model Harness adapter contract exists in `653488b`.
-- Relay adapter registry and lane dispatch bridge exists in `0560eb4` and has been independently reviewed by Codex with no findings.
-- V0 still needs a real API transport path before Relay can dispatch through Meridian instead of flat-file queues.
-- Keep this provider-neutral and SDK-free: use standard-library HTTP only, with tests mocking transport/HTTP behavior and no live network calls in tests.
-- Preserve the prompt-drag rule: the outbound request body may include provider config fields and the approved payload text, but must not include queue history, proof trails, Council notes, packet metadata, role metadata, or FileMap context unless already present in the approved lane payload.
-- Before editing, verify this session is operating in its own unique worktree/path and is not sharing the same working tree as another active Build or Review session. Record the resolved path in this queue. If the session is not on a unique worktree, stop and report the worktree collision instead of editing.
-
-Allowed files only:
-
-- `meridian_core/model_adapter.py`
-- `tests/test_model_adapter.py`
-- `docs/live-build-1.md`
-
-Task:
-
-- Pull latest `origin/main` in your unique worktree before editing.
-- Add an env-gated HTTP JSON adapter or transport helper that can perform a real official-API-style POST using only the standard library.
-- The config must require provider name, model name, API key environment variable, and endpoint URL.
-- The adapter must fail clearly before any network call if API key or endpoint config is missing/blank.
-- The adapter must build a minimal request from only approved payload text plus provider/model/config fields.
-- Do not add vendor SDK dependencies.
-- Do not add account-based desktop automation.
-- Do not edit Relay executor, package exports, FileMap, or other live queues in this slice.
-
-Tests:
-
-- Add focused tests proving missing API key fails before HTTP transport, missing/blank endpoint fails before HTTP transport, request payload includes only approved prompt payload plus model/config fields, Authorization/API-key header is built from env config but not echoed into response/error text, and a fake HTTP transport response returns model text deterministically.
-- Run `python -m pytest tests/test_model_adapter.py -q`.
-- If practical, run `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`.
-
-Completion:
-
-- Commit only this slice.
-- Push to `origin/main`.
-- Update Obsidian.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
-
-Write log:
-
-- 2026-06-01 16:34 -06:00 - Coordinator assigned env-gated HTTP JSON Model Harness transport; commit pending; tests pending.
+No active task. Polling for next assignment.
 
 ## Completed Slices
 
 Historical record of Build 1 V0 completed slices (most recent first). Do not re-execute any entry below.
+
+[COMPLETED 2026-06-01 ~16:50 CDT] Env-gated HTTP JSON Model Harness transport — commit pending; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 72 targeted adapter/executor passed, 916 full passed; Ready for Codex Review.
 
 [COMPLETED 2026-06-01 ~10:30 CDT] Relay adapter registry and lane dispatch bridge — commit `0560eb4`; files: meridian_core/model_adapter.py, meridian_core/relay_executor.py, tests/test_model_adapter.py, tests/test_relay_executor.py; tests: 67 targeted adapter/executor passed, 137 Aegis/executor passed, 911 full passed; Ready for Codex Review.
 

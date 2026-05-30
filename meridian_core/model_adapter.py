@@ -7,7 +7,9 @@ adapter implementation and outside Relay's dispatch payload.
 
 from __future__ import annotations
 
+import json
 import os
+import urllib.request
 from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Callable, Mapping, Protocol
@@ -121,3 +123,75 @@ class EnvConfiguredModelAdapter:
     def __call__(self, payload: str) -> str:
         api_key = self.config.require_api_key(self._env)
         return self._transport(payload, self.config, api_key)
+
+
+@dataclass(frozen=True)
+class HttpModelAdapterConfig:
+    """Environment-backed configuration for an HTTP JSON provider adapter."""
+
+    provider: str
+    model: str
+    api_key_env_var: str
+    endpoint_url: str
+
+    def require_api_key(self, env: Mapping[str, str] | None = None) -> str:
+        """Return the configured API key or raise before any network call."""
+        source = os.environ if env is None else env
+        key = source.get(self.api_key_env_var, "").strip()
+        if not key:
+            raise ModelAdapterConfigError(
+                f"Missing required API key environment variable: {self.api_key_env_var}"
+            )
+        return key
+
+    def require_endpoint(self) -> str:
+        """Return the configured endpoint URL or raise before any network call."""
+        url = self.endpoint_url.strip()
+        if not url:
+            raise ModelAdapterConfigError(
+                f"Missing required endpoint_url for provider={self.provider!r}"
+            )
+        return url
+
+
+def _stdlib_http_post(payload: str, endpoint: str, model: str, api_key: str) -> str:
+    """POST approved payload to endpoint using only stdlib urllib. No SDK dependency."""
+    body = json.dumps(
+        {"model": model, "messages": [{"role": "user", "content": payload}]}
+    ).encode()
+    req = urllib.request.Request(
+        endpoint,
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req) as resp:
+        return resp.read().decode()
+
+
+class HttpJsonModelAdapter:
+    """HTTP JSON adapter for V0 Relay dispatch; validates config before any call.
+
+    Accepts an injectable http_post for testing — no live network calls in tests.
+    The request body carries only approved payload text, provider, and model name.
+    API key is set as an Authorization header and never echoed into response/error text.
+    """
+
+    def __init__(
+        self,
+        config: HttpModelAdapterConfig,
+        *,
+        env: Mapping[str, str] | None = None,
+        http_post: Callable[[str, str, str, str], str] | None = None,
+    ) -> None:
+        self._config = config
+        self._env = env
+        self._http_post = http_post if http_post is not None else _stdlib_http_post
+
+    def __call__(self, payload: str) -> str:
+        api_key = self._config.require_api_key(self._env)
+        endpoint = self._config.require_endpoint()
+        return self._http_post(payload, endpoint, self._config.model, api_key)
