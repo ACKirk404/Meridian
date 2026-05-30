@@ -319,7 +319,7 @@ Completion:
 - Tests: not required (docs-only)
 
 **Ready for Codex Review**
-- Commit: (pending — revised version, see commit below)
+- Commit: `7b43848` (cross-lane contamination — content correct, attributed to Build 3 commit)
 - Files: `docs/v1-capability-plan.md` (cockpit UI scope revision)
 - Tests: not required (docs-only)
 
