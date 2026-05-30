@@ -84,7 +84,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: harden PromptPacket validation against direct construction.
+Goal: add a PromptPacket model-dispatch boundary.
 
 Allowed files only:
 
@@ -93,34 +93,26 @@ Allowed files only:
 
 Task:
 
-- Codex reviewed Build 1 commit `b453e2e`.
-- The PromptPacket domain model is good overall, but one hardening gap remains:
-  - `build_prompt_packet(...)` validates correctly.
-  - Direct `PromptPacket(...)` construction can bypass validation and create invalid packets.
-- Make invalid direct construction impossible or clearly private/internal.
-- Preferred repair:
-  - move validation into `PromptPacket.__post_init__`
-  - keep `build_prompt_packet(...)` as the ergonomic creation helper
-  - ensure `source_lineage` is still copied and immutable
-  - ensure validation still reports all errors together
-- Also validate `serialized_prompt` is a string, not just truthy.
-- Add tests proving:
-  - direct `PromptPacket(...)` with invalid data raises `PromptPacketValidationError`
-  - direct construction with non-string prompt raises
-  - helper still works
-  - source lineage remains immutable and input dict is not aliased
+- Build 1 completed PromptPacket construction hardening in commit `0ce0cf9`.
+- Next, make the "only serialized_prompt goes to the model" rule executable.
+- Add a tiny method or helper that returns the model-facing prompt payload from a `PromptPacket`.
+- The returned value must contain only the serialized prompt text, not packet id, budget, source lineage, construction time, or metrics metadata.
 - Keep this domain-only.
 - Do not edit Relay yet.
-- Do not edit package exports.
-- Do not edit FileMap.
+- Do not edit package exports; Build 2 owns package API.
+- Do not edit FileMap; Build 3 owns FileMap.
 - No UI.
 - No persistence.
 - No model calls.
+- Add tests proving:
+  - the model-dispatch boundary returns exactly the serialized prompt
+  - packet metadata is not present in the returned payload
+  - existing validation and immutability behavior still works
 
 Tests:
 
 ```text
-python -m pytest tests/test_prompt_packet.py tests/test_prompt_budget.py -q
+python -m pytest tests/test_prompt_packet.py -q
 python -m pytest -q
 ```
 

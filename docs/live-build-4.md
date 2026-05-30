@@ -69,7 +69,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: create a Meridian capabilities architecture map.
+Goal: update the capabilities architecture map after the latest build reality.
 
 Allowed files only:
 
@@ -77,36 +77,15 @@ Allowed files only:
 
 Task:
 
-- Read the existing Meridian architecture/capability docs before writing:
-  - `context.md`
-  - `docs/meridian-capabilities.md`
-  - `docs/meridian-pillars.md`
-  - `docs/polaris-lessons-for-meridian.md`
-  - `docs/relay-prompt-budget-integration-brief.md`
-  - `docs/prompt-packet-design-brief.md`
-  - `docs/prompt-packet-implementation-checklist.md`
-- Create a high-level architecture map of Meridian's major capabilities.
-- Focus on what makes Meridian different and marketable:
-  - Prime as persistent orchestrator
-  - worker sessions as harness-driven execution lanes
-  - live queue / pull / poll / review loop
-  - Prompt Budget / Prompt Packet / Prompt Metrics
-  - Review Console and non-orchestrator surface
-  - Aegis proof and gated cognition
-  - Council reasoning
-  - memory and effective unbounded context
-  - cross-check review automation
-  - future multi-user / connected Meridian possibility
-- For each capability, include:
-  - one-sentence definition
-  - why it matters
-  - current maturity: planned / domain slice / integrated / needs hardening
-  - likely harness owner
-  - risks or open questions
-- Keep this strategic and architectural.
+- Codex reviewed the Build 4 architecture map and found one factual drift issue:
+  - The map says Prompt Packet has only design/checklist docs and no runtime code.
+  - Build 1 has now landed the PromptPacket domain model and validation hardening (`0ce0cf9`).
+- Update capability 4 and the maturity snapshot so Prompt Packet is described as a domain slice, not merely planned.
+- Add a short note that Polaris now has a Q button queue-polling prototype, but Meridian still needs this as a future Bifrost/session-harness capability.
+- Keep the doc strategic and architectural.
 - Do not write runtime code.
-- Do not edit FileMap yet.
-- Do not edit package exports.
+- Do not edit FileMap; Build 3 owns FileMap.
+- Do not edit package exports; Build 2 owns package API.
 - Do not edit other live queues.
 
 Tests:

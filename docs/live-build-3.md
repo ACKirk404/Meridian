@@ -77,34 +77,31 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: create a simple Prompt Packet Codex review checklist.
+Goal: update FileMap for PromptPacket and the Build 4 capabilities map.
 
 Allowed files only:
 
-- `docs/prompt-packet-codex-review-checklist.md`
+- `meridian_core/filemap.py`
+- `tests/test_filemap.py`
+- `docs/FileMap.md`
 
 Task:
 
-- Write a short checklist Codex can use to review the future Prompt Packet implementation.
-- Keep it simple and concrete.
-- Cover only:
-  - expected files
-  - required tests
-  - immutability checks
-  - budget validation checks
-  - source-lineage validation checks
-  - no prompt metadata leakage
-  - no Relay integration yet
-  - no package export yet
-  - review questions Codex should answer
-- Do not write runtime code.
+- Build 1 added `meridian_core/prompt_packet.py`.
+- Build 4 added `docs/meridian-capabilities-architecture-map.md`.
+- Add both files to the living FileMap so future sessions can discover them.
+- Update `_REQUIRED_PATHS` in `tests/test_filemap.py` if needed.
+- Update human-readable `docs/FileMap.md` with short descriptions.
+- Keep this Haiku-sized and mechanical.
+- Do not edit PromptPacket runtime code.
 - Do not edit package exports.
-- Do not edit FileMap.
 - Do not edit Build 1 or Build 2 files.
 
 Tests:
 
-- No tests required. This is docs-only.
+```text
+python -m pytest tests/test_filemap.py -q
+```
 
 Completion:
 
