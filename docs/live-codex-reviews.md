@@ -1,12 +1,18 @@
 # Live Codex Reviews Queue
 
-This file is the standing queue for the specialized Codex Reviews session.
+This file is the standing queue for Codex Reviews A, the runtime/code review session.
 
-The build lanes build. This lane reviews.
+The build lanes build. Review lanes review.
 
 This queue is also a Prime prototype. The checkpoint ledger, review scope declaration, repair routing, and lane-clearing logic are not throwaway process. They are intended to become part of Meridian's orchestration harness: Prime should eventually own this loop natively instead of relying on humans to paste work between sessions.
 
 When idle, check this file every 30 seconds. Also inspect `docs/live-build-1.md` through `docs/live-build-5.md` for slices marked `Ready for Codex Review`, stale active tasks, or repair completions.
+
+Codex Reviews A owns runtime, package API, tests, behavior, and code-level regression reviews unless Prime assigns a different scope.
+
+Codex Reviews B (`docs/live-codex-reviews-2.md`) owns docs, architecture, FileMap, Bifrost, and strategic consistency reviews unless Prime assigns a different scope.
+
+This split is deliberate: Meridian must be able to dynamically spawn review sessions when the review queue becomes the bottleneck. Every review session must declare scope and checkpoints before it starts so parallel review capacity does not create duplicate or conflicting findings.
 
 ## Rules
 
@@ -14,6 +20,7 @@ When idle, check this file every 30 seconds. Also inspect `docs/live-build-1.md`
 - Always pull latest `origin/main` before reviewing.
 - Do not implement product code.
 - Do not edit runtime files, package exports, tests, or architecture docs except when an Active Task explicitly says this review lane may update queue/review records.
+- Coordinate scope with `docs/live-codex-reviews-2.md` before reviewing docs/architecture slices.
 - Own review coordination files and live queue routing only.
 - Review completed build slices by commit hash.
 - Inspect the diff, compare it to the lane's allowed files and task text, and run targeted tests when code changed.
@@ -154,22 +161,22 @@ Current Active Task:
 
 Goal: perform centralized Codex Review sweep Round 2.
 
+Review lane split:
+
+- Codex Reviews A handles Build 1 and Build 2 runtime/API/code review.
+- Codex Reviews B handles Build 3, Build 4, and Build 5 docs/architecture review in `docs/live-codex-reviews-2.md`.
+- Do not duplicate Review B's docs/architecture review unless Prime explicitly reassigns it back here.
+
 Allowed files:
 
 - `docs/live-codex-reviews.md`
 - `docs/live-build-1.md`
 - `docs/live-build-2.md`
-- `docs/live-build-3.md`
-- `docs/live-build-4.md`
-- `docs/live-build-5.md`
 
 Review scope to declare before deep review:
 
 - Build 1: review `d2820d2` (`WorkerLaneState` domain model) plus queue marker `13b4b48` as needed.
 - Build 2: review `46e4eb3` (Relay package API policy note) plus queue markers `c8f7a35`, `3e1de48`, and `37bcd7a` as needed.
-- Build 3: review `4075ef4` (FileMap refresh for `relay_dispatch.py`, live Codex Reviews, Prime prototype, and diagrams) plus queue marker `6879bd9` as needed.
-- Build 4: review `1d17fa1` (Prime orchestration state model) plus queue marker `14ae1e9` as needed.
-- Build 5: review `7c34566` (Bifrost Harness dashboard brief) plus queue marker `3026216` as needed.
 
 Required review process:
 
@@ -178,9 +185,8 @@ Required review process:
 3. Review only the target diffs and directly necessary supporting files.
 4. Run targeted tests:
    - `python -m pytest tests/test_lane_state.py -q`
-   - `python -m pytest tests/test_filemap.py -q`
    - Run broader `python -m pytest -q` only if review finds integration risk.
-5. Treat Build 2, Build 4, and Build 5 as docs-only unless their diffs touch runtime code.
+5. Treat Build 2 as docs-only unless its diff touches runtime code.
 6. Update the Checkpoint Ledger, Review Log, Findings, and Repair Routing Log.
 7. If findings require repair, write the repair Active Task into the original build lane queue. Do not repair it in the Codex Reviews lane.
 8. Commit only review/queue file changes and push to `origin/main`.
@@ -193,6 +199,7 @@ Completion marker:
 Write log:
 
 - 2026-05-30 12:06 -06:00 - Coordinator queued Round 2 centralized review sweep for Build 1 through Build 5.
+- 2026-05-30 12:22 -06:00 - Coordinator split Round 2: Review A keeps Build 1/2 code/API review; Review B now owns Build 3/4/5 docs/architecture review in `docs/live-codex-reviews-2.md`.
 
 Previous state:
 
