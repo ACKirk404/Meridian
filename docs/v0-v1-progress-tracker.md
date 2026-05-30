@@ -75,3 +75,11 @@ Then list:
 - Review Queue
 - Blockers/Risks
 - Next Coordinator Action
+
+## V2 Horizon
+
+**V2 trigger:** Start detailed V2 planning after V1 cockpit scope is locked.
+
+**V2 direction:** memory, retrieval, stronger Prime autonomy, model harness hardening, session lifecycle, and eventual multi-Meridian/multi-user federation.
+
+**Canonical horizon doc:** `docs/v2-horizon-plan.md`
