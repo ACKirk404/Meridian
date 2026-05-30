@@ -458,6 +458,39 @@ The name comes from the Prime Meridian: the reference line that gives every othe
 
 Prime is currently preferred over Oracle and Daemon for the user-facing orchestrator identity. Oracle may remain useful as the name for a brief/recommendation mode. Daemon may still describe the internal always-on runtime/process nature of Meridian.
 
+## Dynamic Risk-Tiered Dual-Structured Gated Cognition
+
+Meridian's decision engine is Dynamic Risk-Tiered Dual-Structured Gated Cognition: Prime dynamically adjusts reasoning depth by risk tier, can use independent dual lanes, applies structured Council deliberation, and gates completion claims through Aegis proof when consequences require it.
+
+This is Prime Directive Two.
+
+Dynamic means Prime can change process midstream as consequence, uncertainty, reversibility, or proof requirements change.
+
+Risk-tiered means Prime selects the amount of scrutiny required for the action.
+
+Dual means meaningful work can use independent model lanes or reasoning paths when the tier requires it.
+
+Structured means Prime does not merely ask a model to think harder. It can use named cognition structures, including The Council.
+
+Gated means Aegis controls proof, completion claims, escalation, and human gates when consequences require it.
+
+## The Council
+
+The Council is Prime's internal reasoning chamber.
+
+It is a structured cognition mode, not necessarily six separate models or six worker sessions. Prime may invoke all or part of the Council depending on risk tier.
+
+Council voices:
+
+- Analyst: evidence-based, skeptical, cites reasoning, asks what is actually known.
+- Devil's Advocate: challenges assumptions and finds flaws in the prevalent view.
+- Pragmatist: focuses on what is realistic, actionable, timely, and cost-aware.
+- Contrarian: pushes against the answer that seems most obvious or agreeable.
+- Expansionist: finds possibilities, upside, and paths the current frame is missing.
+- Chairman: collects the voices, weighs their value for the moment, and determines what Prime presents or does next.
+
+The Chairman does not average the voices. The Chairman decides which voice matters most for the conversation, action, risk tier, and gate.
+
 ## Dual-Lane Cognition
 
 Risk-tiered dual-lane cognition is Meridian's decision engine.
@@ -623,6 +656,33 @@ Meridian's architecture should make Prime durable by backstopping session contex
 A very large-context model may be useful for the orchestrator, but it is not the core solution.
 
 The core solution is that Prime has persistent, queryable, ranked access to memory and knowledge. Prime's effective memory should not be bounded by any one model session's context window.
+
+## Meridian File Map
+
+Meridian needs a living knowledge tracker for important files and what they do.
+
+This should be more than a static README. It should be an architecture-aware file map that sessions can consult, visualize, and eventually receive through memory injection automatically.
+
+Purpose:
+
+- Help any session quickly find the important Meridian files.
+- Explain what each file owns.
+- Reduce repeated repository rediscovery.
+- Support future visual knowledge views.
+- Feed Echo/Atlas memory injection so Prime and worker sessions start with the right file context.
+
+The file map should include:
+
+- file path
+- owner harness or architecture area
+- purpose
+- public API or key objects
+- related tests
+- maturity/build metadata if known
+- common reasons to edit it
+- risks/cautions
+
+The file map should be updated when new important files are added or ownership changes.
 
 ## Meridian Federation
 
