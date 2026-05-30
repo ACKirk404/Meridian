@@ -10,9 +10,9 @@
 
 | Status | Count | Percent |
 |---|---:|---:|
-| Built core gate items | 4 | 67% |
-| Supporting slices in review | 1 | n/a |
-| Needs build core gate items | 2 | 33% |
+| Built core gate items | 5 | 83% |
+| Supporting slices in review | 2 | n/a |
+| Needs build core gate items | 1 | 17% |
 | Total V0 core gate items | 6 | 100% |
 
 ### Built
@@ -22,15 +22,16 @@
 - [x] **Prime + Review Console Harness:** `prime_approve <item-id>` CLI - implemented across `9d38314` / `d687b7f`; targeted CLI tests pass.
 - [x] **Relay Harness:** `relay_executor.py` provider-neutral executor skeleton - built in `190e527`; executor accepts an injected model-call function without vendor code.
 - [x] **Beacon Harness:** `beacon.py` file-backed liveness checks - built in `b575677`; queue/sentinel freshness now produces `Heartbeat` objects.
+- [x] **Relay Harness + Aegis Harness:** pre-dispatch proof gate enforcement for tier-3/4 lanes - built in `7c75f43`; blocking proof evidence prevents high-risk dispatch before model calls.
 
 ### In Progress / Review
 
 - [ ] **Relay Harness + Aegis Harness:** Relay execution summary to Aegis proof trail - built in `0e990df`; awaiting Codex Reviews C Round C2.
+- [ ] **Planning Harness + Council:** Council-shaped automated planning harness - built in `2c90247`; awaiting appropriate review sweep.
 
 ### Needs Build
 
 - [ ] **Relay Harness:** real model/API dispatch through the existing Relay executor skeleton.
-- [ ] **Relay Harness + Aegis Harness:** pre-dispatch proof gate enforcement for tier-3/4 lanes.
 
 ## V0 Review Queue
 

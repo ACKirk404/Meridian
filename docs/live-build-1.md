@@ -282,13 +282,16 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 2026-05-31 ~17:05 CDT - Build 1 completed Relay executor skeleton; commit 190e527; tests 811 passed; files: relay_executor.py, test_relay_executor.py; Obsidian updated
 2026-05-31 ~17:05 CDT - Build 1 slice ready for Codex Review: commit 190e527; files: relay_executor.py, test_relay_executor.py; tests: 811 passed
 2026-05-30 14:26 -06:00 - Build 1 completed Relay execution summary to Aegis proof trail; commit 0e990df; files: relay_executor.py, test_relay_executor.py; tests: 119 targeted passed, 848 full passed; Ready for Codex Review
+2026-05-30 14:43 -06:00 - Build 1 completed pre-dispatch Aegis proof gate enforcement; commit 7c75f43; files: relay_executor.py, test_relay_executor.py; tests: 124 targeted passed, 863 full passed; Ready for Codex Review
 ```
 
 ## Active Task
 
+[COMPLETED 2026-05-30 14:43 -06:00] V0 pre-dispatch Aegis proof gate enforcement - commit `7c75f43`; 863 tests pass. Slice ready for Codex Review.
+
 [COMPLETED 2026-05-30 14:26 -06:00] V0 Relay execution summary to Aegis proof trail - commit `0e990df`; 848 tests pass. Slice ready for Codex Review.
 
-No active task. Build 1 is idle - slice `0e990df` marked Ready for Codex Review; awaiting Review C result or next assignment.
+No active task. Build 1 is idle - slices `0e990df` and `7c75f43` marked Ready for Codex Review; awaiting Review C result or next assignment.
 
 Stale prior text follows.
 
