@@ -61,6 +61,12 @@ def test_risk_relay_aegis_review_console_exports():
     assert route_from_tier
 
 
+def test_prompt_metrics_bridge_exports():
+    from meridian_core import make_prompt_metrics_finding
+
+    assert make_prompt_metrics_finding
+
+
 def test_build_and_filemap_exports():
     from meridian_core import BuildRegistry, FileArea, FileMap, FileMapEntry
     from meridian_core import HarnessBuild, HarnessMaturity, make_default_map

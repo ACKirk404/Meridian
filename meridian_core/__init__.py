@@ -76,6 +76,7 @@ from .review_console import (
     make_plan_review_item,
     make_approval_gate,
     make_system_finding,
+    make_prompt_metrics_finding,
 )
 from .builds import (
     HarnessMaturity,
@@ -188,6 +189,7 @@ __all__ = [
     "make_plan_review_item",
     "make_approval_gate",
     "make_system_finding",
+    "make_prompt_metrics_finding",
     # -- Build and maturity registry ------------------------------------------
     "HarnessMaturity",
     "HarnessBuild",
