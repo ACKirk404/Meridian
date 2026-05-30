@@ -78,6 +78,16 @@ Harnesses are Prime's capabilities, not the user's chores.
 
 Relay manages models and sessions. Echo remembers. Beacon reports health. Aegis proves. Bifrost provides the UI bridge. Forge/Vulcan acts through tools. Atlas retrieves knowledge. The harnesses make Prime operational.
 
+## 13. Relay Dispatch Must Be Lean
+
+Prime orchestration can be rich, but Relay dispatch must be lean.
+
+Relay should make model sessions steerable, observable, and coordinated without bloating prompts, slowing response time, or making the worker experience worse than using the vendor app directly.
+
+Worker prompts should be minimal by default. Memory and context injection should be selective, ranked, and task-specific. Session state should live outside the prompt when possible. Risk tier determines prompt weight: higher tiers may carry richer Council and proof context, but every tier should have a budget. Heavy process belongs in Prime, Aegis, Echo, Atlas, or Review Console — not automatically inside every worker message.
+
+Prompt inflation should be a detectable, measurable signal — not an invisible tax on every model call.
+
 ## Naming Note
 
 Prime Directives is the current internal name for these load-bearing ideas. If public branding later needs a less pop-culture-coded phrase, use Meridian Pillars as the fallback.

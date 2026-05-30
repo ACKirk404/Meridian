@@ -581,6 +581,56 @@ Start with those boundaries instead of extracting them later.
 - Encoding-sensitive file writes scattered through the codebase.
 - Retrofitting proof after workflows already exist.
 
+## 16. Relay Must Not Become Prompt Drag
+
+### What Happened in Polaris
+
+The major performance tax in Polaris was not orchestration overhead itself. It was prompt overhead inside the agent/model harness.
+
+Extra prompt payload — injected context, diagnostic text, wrapper instructions, process boilerplate, and harness metadata — made the vendor model experience slower and heavier than using Claude or Codex directly.
+
+This degraded the worker experience rather than enhancing it. The harness was supposed to make model sessions more capable. Instead it was making them slower and noisier.
+
+### Why It Mattered
+
+A harness that inflates prompt costs produces worker sessions that are:
+
+- Slower to first token
+- More expensive per call
+- Harder to steer with precision
+- More likely to confuse the model with irrelevant context
+
+The promise of Relay is steerable, observable, coordinated model work. That promise fails if the coordination tax exceeds the coordination benefit.
+
+### Carry Forward
+
+Meridian's working principle for Relay:
+
+> **Relay Must Not Become Prompt Drag**
+
+Canonical wording:
+
+> Relay should make model sessions steerable, observable, and coordinated without bloating prompts, slowing response time, or making the worker experience worse than using the vendor app directly.
+
+### Practical Rules
+
+- Prime orchestration can be rich, but Relay dispatch must be lean.
+- Default worker prompts should be minimal.
+- Memory and context injection should be selective, ranked, and task-specific.
+- Diagnostic metadata should not ride inside every model prompt.
+- Session state should live outside the prompt when possible.
+- Use references, file paths, and retrieval hooks instead of dumping context inline.
+- Risk tier determines prompt weight: Tier 0–1 prompts should be near-minimal; Tier 3–4 may carry richer Council/proof context.
+- The worker prompt should have an explicit token/context budget.
+- Relay should eventually measure: prompt construction time, prompt token count, time to first token, total response time, and vendor/native delta where possible.
+- Heavy process belongs in Prime, Aegis, Echo, Atlas, or Review Console — not automatically in every worker message.
+
+### Change
+
+Polaris had no prompt budget discipline. Context and diagnostic metadata were added to prompts opportunistically.
+
+Relay should build prompt efficiency in from the start. Prompt inflation should be a detectable, measurable signal — not an invisible tax.
+
 ## First Meridian Implication
 
 The first Meridian build should not begin with app scaffolding. It should begin by preserving Polaris's strongest lesson:

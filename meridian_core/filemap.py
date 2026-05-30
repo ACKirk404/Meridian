@@ -158,6 +158,13 @@ def make_default_map() -> FileMap:
             notes="Update when major architecture decisions are made.",
         ),
         FileMapEntry(
+            path="docs/polaris-lessons-for-meridian.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="Structured lessons from Polaris: what worked, why, carry-forward principles, and what not to repeat. Includes Relay prompt efficiency (Lesson 16).",
+            related_tests=[],
+            notes="Reference before designing a new harness or major subsystem.",
+        ),
+        FileMapEntry(
             path="docs/FileMap.md",
             area=FileArea.FILE_MAP,
             purpose="Human-readable living knowledge tracker for important Meridian files.",

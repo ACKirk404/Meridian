@@ -24,6 +24,7 @@ G:\My Drive\Aesop Academy\Obsidian\Meridian_Build\FileMap.md
 | --- | --- | --- | --- | --- |
 | `MISSION.md` | Mission / Prime authority | Prime's first boot authority file: directives, harness boot order, current mission objective, queue guidance. | `tests/test_mission.py` | Prime should read this before meaningful action. |
 | `context.md` | Architecture memory | Working architecture vocabulary, product rules, Prime directives, UI decisions, harness naming, collaboration rules. | n/a | Update when major architecture decisions are made. |
+| `docs/polaris-lessons-for-meridian.md` | Architecture memory | Structured lessons from Polaris: what worked, carry-forward principles, and what not to repeat. Includes Relay prompt efficiency (Lesson 16). | n/a | Reference before designing a new harness or major subsystem. |
 | `docs/meridian-capabilities.md` | Product recall | Plain-language recall sheet for major Meridian capabilities, including The Council. | n/a | Update when a new major capability is wired up. |
 | `docs/meridian-pillars.md` | Prime Directives | Load-bearing Meridian ideas, currently named Prime Directives. | n/a | Public-safe fallback name: Meridian Pillars. |
 

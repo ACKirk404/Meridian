@@ -533,6 +533,29 @@ Users should be able to see why Prime selected a tier, what that tier requires, 
 
 The interface should treat risk tier as a major control/state, at least as important as model selection.
 
+## Relay Prompt Efficiency
+
+**Relay Must Not Become Prompt Drag.**
+
+Relay should make model sessions steerable, observable, and coordinated without bloating prompts, slowing response time, or making the worker experience worse than using the vendor app directly.
+
+This is a first-class Relay design constraint derived from the Polaris lesson that the major orchestration performance tax was prompt overhead in the agent harness — not orchestration itself.
+
+Practical rules:
+
+- Prime orchestration can be rich, but Relay dispatch must be lean.
+- Default worker prompts should be minimal.
+- Memory and context injection should be selective, ranked, and task-specific.
+- Diagnostic metadata should not ride inside every model prompt.
+- Session state should live outside the prompt when possible.
+- Use references, file paths, and retrieval hooks instead of dumping context inline.
+- Risk tier determines prompt weight. Tier 0–1 prompts should be near-minimal. Tier 3–4 may carry richer Council and proof context, but must still have a budget.
+- The worker prompt should have an explicit token/context budget.
+- Relay should eventually measure: prompt construction time, prompt token count, time to first token, total response time, and vendor/native delta where possible.
+- Heavy process belongs in Prime, Aegis, Echo, Atlas, or Review Console — not automatically in every worker message.
+
+See `docs/polaris-lessons-for-meridian.md` Lesson 16 for full context.
+
 ## Wake Experience
 
 The wake experience is the moment Meridian comes online and the orchestrator session becomes active.

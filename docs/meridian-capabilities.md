@@ -48,6 +48,10 @@ Relay is the Agent / Model Harness.
 
 Prime does not talk directly to Claude, OpenAI, OpenRouter, or local models. Prime talks to Relay, and Relay manages model roles, adapters, sessions, steering, and dual-lane cognition.
 
+Relay carries a CouncilPlan on every routing decision so Prime knows which Council voices to apply before dispatching.
+
+**Relay Must Not Become Prompt Drag.** Relay should make model sessions steerable, observable, and coordinated without bloating prompts, slowing response time, or making the worker experience worse than using the vendor app directly. Default worker prompts should be minimal. Context injection should be selective and task-specific. Heavy orchestration process belongs in Prime, Aegis, Echo, Atlas, or the Review Console — not automatically inside every worker message.
+
 ## Echo
 
 Echo is the Memory Harness.

@@ -11,6 +11,7 @@ _REQUIRED_PATHS = [
     "MISSION.md",
     "context.md",
     "docs/FileMap.md",
+    "docs/polaris-lessons-for-meridian.md",
     "meridian_core/models.py",
     "meridian_core/mission.py",
     "meridian_core/wake.py",
