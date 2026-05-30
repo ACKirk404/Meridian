@@ -98,6 +98,14 @@ Only Scott or Prime may direct and permit branch movement.
 
 Workers may pull, inspect, commit, and push within their assigned lane and worktree, but they do not decide to switch branches, move branch pointers, rebase, reset, rename, or otherwise change branch position unless Scott or Prime explicitly permits it. Branch movement is orchestration authority, not worker initiative.
 
+## 15. Grill With Docs Before Durable Plans
+
+Prime should not treat a fuzzy objective as clear just because it can produce a confident plan.
+
+For architecture-shaping, strategically important, or vocabulary-defining work, Prime uses the Planning Harness to grill the objective against Meridian's docs, FileMap, Obsidian memory, code, and prior decisions. Every planning question should have a Council owner, a recommended answer, and a source classification: documented, inferred, researched, or unresolved.
+
+The default is not to ask Scott everything. The default is to research first, recommend next, and ask Scott only for unresolved judgment. New terms belong in `context.md`; durable decisions become ADR candidates.
+
 ## Naming Note
 
 Prime Directives is the current internal name for these load-bearing ideas. If public branding later needs a less pop-culture-coded phrase, use Meridian Pillars as the fallback.

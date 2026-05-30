@@ -4,7 +4,7 @@
 
 Meridian's Planning Harness is Prime's automated planning engine. It turns an objective into Council-owned questions, researched answers, and a Chairman recommendation before workers are dispatched.
 
-This carries forward the useful part of Matt Pocock's docs-first planning pattern: plans should interrogate the repo's own context before asking the human. It also carries forward Polaris's Builder Kernel improvement: the system must recommend actions, evidence, and decision-journal material, not merely ask questions.
+This carries forward the useful part of Matt Pocock's `grill-with-docs` skill from `mattpocock/skills` (`skills/engineering/grill-with-docs`): plans should interrogate the repo's own context before asking the human. It also carries forward Polaris's Builder Kernel improvement: the system must recommend actions, evidence, and decision-journal material, not merely ask questions.
 
 ## Meridian Rule
 
@@ -16,6 +16,27 @@ Prime should ask and answer every planning question through the lens of the Coun
 - **Contrarian:** What if the obvious implementation path is too rigid?
 - **Expansionist:** What upside is missing from the current framing?
 - **Chairman:** Which voice matters most, and what should Prime present or do?
+
+## Grill-With-Docs Is A Prime Planning Primitive
+
+`grill-with-docs` is not a side technique. It is the interrogation layer of Prime's Planning Harness.
+
+Prime should use it whenever an objective is fuzzy, strategically important, architecture-shaping, or likely to create durable vocabulary. The point is not to slow the user down. The point is to prevent false clarity.
+
+In Meridian, `grill-with-docs` becomes:
+
+```text
+Council questions -> repo/docs research -> recommended answers -> unresolved judgment only
+```
+
+This means Prime does not dump a wall of questions onto Scott. Prime should:
+
+- Ask the Council-owned question.
+- Search local context, FileMap, Obsidian, code, and prior decisions.
+- Provide the recommended answer.
+- Mark whether the answer is inferred, documented, or requires Scott.
+- Capture new terms in `context.md`.
+- Capture durable decisions as ADR candidates.
 
 ## Question, Research, Recommendation
 
@@ -30,6 +51,8 @@ The default behavior is not "ask Scott." The default behavior is:
 ```text
 research first -> recommend next -> ask Scott only for unresolved judgment
 ```
+
+This matches the important `grill-with-docs` rule: for each question, provide the recommended answer, and if a question can be answered by exploring the codebase, explore the codebase instead.
 
 ## Current Slice
 
@@ -46,7 +69,13 @@ The slice is deterministic and domain-only. It does not call models, scrape docs
 
 ## Polaris Carry-Forward
 
-Polaris's Builder Kernel taught three important lessons:
+`grill-with-docs` taught three important lessons:
+
+- Interrogate plans before implementation.
+- Challenge fuzzy terms against the repo's shared language.
+- Update `CONTEXT.md` and ADRs as decisions crystallize.
+
+Polaris's Builder Kernel added three Meridian-critical lessons:
 
 - A planning engine should infer intent and risk from the request.
 - It should recommend actions with reasons and evidence expectations.
