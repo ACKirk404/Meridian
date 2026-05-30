@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Runtime data (not source)
+meridian.db
+events.jsonl
+artifacts/
+logs/
+workspaces/
+harness-heartbeats/
+
+# Local secrets / env
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
