@@ -51,6 +51,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; tests <result>
 2026-05-30 10:47 -06:00 - Build 2 completed Review Console visibility bridge; commit e27da72; tests 643 passed
 2026-05-30 10:54 -06:00 - Codex review cleared Prompt Metrics Review Console bridge and assigned package API export; commit pending; tests pending
 2026-05-30 11:15 -06:00 - Build 2 completed package API export for make_prompt_metrics_finding; commit 9c52688; tests 644 passed
+2026-05-30 11:00 -06:00 - Codex review cleared package API export and assigned PromptPacket package API planning note; commit pending; tests not required
 ```
 
 ## Cross-Check Activity
@@ -62,6 +63,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 cross-check: none/finding/fix; details: <short not
 2026-05-30 10:42 -06:00 - Build 2 cross-check: no actionable findings in commit 6d51710; targeted tests 103 passed.
 2026-05-30 10:54 -06:00 - Build 2 cross-check: no blocking findings in commit e27da72; targeted tests 239 passed.
 2026-05-30 11:15 -06:00 - Build 2 cross-check: no blocking findings in commit 9c52688; targeted tests 95 passed (test_package_api.py + test_review_console.py).
+2026-05-30 11:00 -06:00 - Build 2 cross-check: no blocking findings in commit 9c52688; targeted tests 140 passed.
 ```
 
 ## Codex Review Cadence
@@ -74,40 +76,41 @@ YYYY-MM-DD HH:MM TZ - Build 2 Codex review finding: <severity>; details: <short 
 YYYY-MM-DD HH:MM TZ - Build 2 Codex review repair: commit <hash>; tests <result>; details: <short note>
 YYYY-MM-DD HH:MM TZ - Build 2 Codex review result: pass/no actionable findings/fixed; details: <short note>
 2026-05-30 11:15 -06:00 - Build 2 Codex review requested after commits 6d51710, e27da72, 9c52688 (Prompt Metrics package exposure, Review Console bridge, package API export)
+2026-05-30 11:00 -06:00 - Build 2 Codex review result: pass/no actionable findings; package API export cleared.
 ```
 
 ## Active Task
 
-Goal: expose the Prompt Metrics Review Console bridge through the package API.
+Goal: create a PromptPacket package API planning note.
 
 Allowed files only:
 
-- `meridian_core/__init__.py`
-- `tests/test_package_api.py`
+- `docs/prompt-packet-package-api-note.md`
 
 Context:
 
-- Codex review cleared Build 2 commit `e27da72`.
-- `make_prompt_metrics_finding(...)` now exists in `meridian_core/review_console.py`.
-- Root package exports include other Review Console factories, but not this new bridge yet.
+- Codex review cleared Build 2 commit `9c52688`.
+- Build 1 is repairing PromptPacket validation before it should be exported from package root.
+- Build 2 should prepare the export decision, not edit package API yet.
 
 Task:
 
-- Export `make_prompt_metrics_finding` from package root.
-- Add package API import smoke coverage.
-- Keep root API deliberate; do not export private severity maps.
-- No behavior changes.
-- No Review Console implementation edits unless a test requires a tiny import fix.
-- No Prompt Metrics edits.
+- Write a short planning note for when PromptPacket should become a root package export.
+- Cover:
+  - which names might be exported
+  - which names should stay internal
+  - what tests should exist before export
+  - why export should wait until Build 1 validation hardening lands
+  - how this relates to `docs/package-api-surface-note.md`
+- No code changes.
+- No package API edits.
+- No FileMap edits.
 - No UI.
 - No persistence.
 
 Tests:
 
-```text
-python -m pytest tests/test_package_api.py tests/test_review_console.py -q
-python -m pytest -q
-```
+- No tests required. This is docs-only.
 
 Completion:
 

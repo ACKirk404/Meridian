@@ -54,6 +54,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 completed <task>; commit <hash>; tests <result>
 2026-05-30 ~23:00 CDT - Build 1 completed PromptBudgetPlan immutability hardening; commit 305b8d4; tests 627 passed
 2026-05-30 10:54 -06:00 - Codex review cleared PromptBudgetPlan immutability hardening and assigned Prompt Packet domain model; commit pending; tests pending
 2026-05-30 ~23:10 CDT - Build 1 completed Prompt Packet domain model; commit b453e2e; tests 669 passed
+2026-05-30 11:00 -06:00 - Codex review found PromptPacket direct-construction validation bypass and assigned repair; commit pending; tests pending
 ```
 
 ## Cross-Check Activity
@@ -64,6 +65,7 @@ Append entries here when you check or act on cross-check activity.
 YYYY-MM-DD HH:MM TZ - Build 1 cross-check: none/finding/fix; details: <short note>
 2026-05-30 10:39 -06:00 - Build 1 cross-check finding: PromptBudgetPlan is frozen but allowed_sources is mutable list; repair before Prompt Packet runtime work.
 2026-05-30 10:54 -06:00 - Build 1 cross-check: no blocking findings in commit 305b8d4; targeted tests 239 passed.
+2026-05-30 11:00 -06:00 - Build 1 cross-check finding: PromptPacket validates through build_prompt_packet(), but direct PromptPacket(...) construction can bypass validation.
 ```
 
 ## Codex Review Cadence
@@ -79,7 +81,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: create the Prompt Packet domain model.
+Goal: harden PromptPacket validation against direct construction.
 
 Allowed files only:
 
@@ -88,29 +90,23 @@ Allowed files only:
 
 Task:
 
-- Codex review cleared Build 1 commit `305b8d4`.
-- Build the first runtime/domain version of Prompt Packet based on `docs/prompt-packet-design-brief.md`.
+- Codex reviewed Build 1 commit `b453e2e`.
+- The PromptPacket domain model is good overall, but one hardening gap remains:
+  - `build_prompt_packet(...)` validates correctly.
+  - Direct `PromptPacket(...)` construction can bypass validation and create invalid packets.
+- Make invalid direct construction impossible or clearly private/internal.
+- Preferred repair:
+  - move validation into `PromptPacket.__post_init__`
+  - keep `build_prompt_packet(...)` as the ergonomic creation helper
+  - ensure `source_lineage` is still copied and immutable
+  - ensure validation still reports all errors together
+- Also validate `serialized_prompt` is a string, not just truthy.
+- Add tests proving:
+  - direct `PromptPacket(...)` with invalid data raises `PromptPacketValidationError`
+  - direct construction with non-string prompt raises
+  - helper still works
+  - source lineage remains immutable and input dict is not aliased
 - Keep this domain-only.
-- Suggested minimum:
-  - frozen `PromptPacket` dataclass
-  - `PromptPacketValidationError`
-  - `build_prompt_packet(...)` helper
-- The packet should include:
-  - `packet_id`
-  - `serialized_prompt`
-  - `prompt_tokens`
-  - `budget`
-  - `source_lineage`
-  - `construction_time_ms`
-- Validate:
-  - prompt text is non-empty
-  - prompt tokens are non-negative
-  - prompt tokens do not exceed `budget.max_context_tokens`
-  - all lineage sources are in `budget.allowed_sources`
-  - lineage token counts are non-negative
-  - lineage total does not exceed prompt tokens
-  - construction time is non-negative
-- Use immutable internal collections where possible.
 - Do not edit Relay yet.
 - Do not edit package exports.
 - Do not edit FileMap.

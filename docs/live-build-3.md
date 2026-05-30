@@ -75,26 +75,26 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: create a simple Prompt Packet implementation checklist.
+Goal: create a simple Prompt Packet Codex review checklist.
 
 Allowed files only:
 
-- `docs/prompt-packet-implementation-checklist.md`
+- `docs/prompt-packet-codex-review-checklist.md`
 
 Task:
 
-- Write a short implementation checklist for a future stronger build lane.
+- Write a short checklist Codex can use to review the future Prompt Packet implementation.
 - Keep it simple and concrete.
 - Cover only:
-  - files the future implementation should touch
-  - files it should not touch
-  - first tests to write
-  - smallest domain model shape
-  - validation rules
-  - how it should connect to Prompt Budget
-  - how it should later feed Prompt Metrics
-  - what should remain out of worker prompts
-  - open questions for Codex review
+  - expected files
+  - required tests
+  - immutability checks
+  - budget validation checks
+  - source-lineage validation checks
+  - no prompt metadata leakage
+  - no Relay integration yet
+  - no package export yet
+  - review questions Codex should answer
 - Do not write runtime code.
 - Do not edit package exports.
 - Do not edit FileMap.
