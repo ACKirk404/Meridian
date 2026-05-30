@@ -35,6 +35,7 @@ Append entries here when this file is checked while idle.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
+2026-05-30 11:06 -06:00 - Build 4 checked queue; status: running; Active Task = capabilities architecture map; pulled origin/main fast-forward to d84bb0f
 ```
 
 ## Write/Completion Log
@@ -44,6 +45,7 @@ Append entries here when this file is modified or an active task is completed.
 ```text
 YYYY-MM-DD HH:MM TZ - Build 4 completed <task>; commit <hash>; tests <result>
 2026-05-30 11:04 -06:00 - Codex created Build 4 Opus high-level queue and assigned Meridian capabilities architecture map; commit pending; tests not required
+2026-05-30 11:09 -06:00 - Build 4 completed Meridian capabilities architecture map (docs/meridian-capabilities-architecture-map.md); commit pending push; tests not required
 ```
 
 ## Cross-Check Activity
