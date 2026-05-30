@@ -200,6 +200,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-01 04:11 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B2; awaiting next assignment
 2026-06-01 04:12 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B2; awaiting next assignment
 2026-06-01 04:27 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B2; awaiting next assignment
+2026-05-30 16:03 -06:00 - Build 3 checked queue; status: active task found (FileMap refresh — model_adapter.py); task complete in commit be34fea; recording completion marker; cadence 3/3 — Codex review required
 ```
 
 ## Write/Completion Log
@@ -227,6 +228,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-05-31 11:20 -06:00 - Build 3 FileMap repair (Round B2 — live-codex-reviews-2.md + A-lane label + prose-divergence fixes) intercepted: work already present in commit 45497b1 (Build 1 cross-lane repair); local edits verified identical to HEAD; tests 46/46 filemap; no new commit required; task closed
 2026-05-31 16:05 -06:00 - Build 3 completed FileMap hygiene (register v0-v1-progress-tracker.md; fix stale relay_executor claims in v0-build-readiness-map.md); commit 774695f; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/v0-build-readiness-map.md
 2026-05-31 21:05 -06:00 - Build 3 completed FileMap refresh (v1-capability-plan, v1-bifrost-cockpit-implementation-brief, v2-horizon-plan, v3-parking-lot); commit 330f200; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py
+2026-05-30 16:03 -06:00 - Build 3 completed FileMap refresh (model_adapter.py); commit be34fea; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py. Cadence: 3/3 since Round B2 — Codex review required before next task.
 ```
 
 ## Cross-Check Activity
@@ -259,6 +261,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 2026-05-30 12:32 -06:00 - Build 3 Codex review finding: LOW; details: test count stated as 13, enumerated as 14 in codex-review-checklist.md (deferred — not in task scope)
 2026-05-30 12:37 -06:00 - Build 3 Codex review repair: commit ecc9fdf; tests not required; details: added live-build-5.md to lane set in queue hygiene note
 2026-05-30 12:37 -06:00 - Build 3 Codex review result: fixed (lane set); 2 LOW findings deferred pending future task assignment to allowed files
+2026-05-30 16:03 -06:00 - Build 3 Codex review requested after commits 774695f, 330f200, be34fea
 ```
 
 ## Active Task
@@ -312,6 +315,8 @@ Coordinator write log:
 Ready for Codex Review:
 
 - FileMap refresh for Model Harness adapter contract; commit `be34fea`; tests: `python -m pytest tests/test_filemap.py -q` -> 46 passed.
+
+**COMPLETED 2026-05-30 16:03 -06:00. Commit: be34fea. Tests: 46/46 filemap. Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py. Cadence: 3/3 since Round B2 — Codex review required before next task.**
 
 Stale prior completed FileMap task follows.
 
