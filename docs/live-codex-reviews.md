@@ -66,8 +66,8 @@ This is the review lane's cursor. Update it after every review pass so the next 
 
 | Build lane | Last reviewed commit | Last reviewed task | Review status | Pending finding / repair | Next action |
 | --- | --- | --- | --- | --- | --- |
-| Build 1 | d2820d2 | WorkerLaneState domain model (Round 2: d2820d2; Round 1 covered 6af04d4..fd35a81) | passed | LOW observational: transition helpers can't clear fields through helper surface (use dataclasses.replace); FileMap entry for `meridian_core/relay_dispatch.py` still missing — Build 3 to fold into next refresh (no repair routed) | await next Ready for Codex Review marker |
-| Build 2 | 46e4eb3 | Relay package API policy note (Round 2: 46e4eb3; Round 1 covered 4be1117..bf15569) | passed | LOW observational: Build 2 self-recorded "Codex review result: APPROVE" cadence entry in commit 3e1de48 before Codex Reviews A's Round 2 result existed; record-only, not blocking | await next Ready for Codex Review marker |
+| Build 1 | 190e527 (Reviews C delegated) | Build 1 V0 Relay executor skeleton (delegated to Reviews C Round C1); Reviews A Round 2 covered d2820d2; Round 1 covered 6af04d4..fd35a81 | passed | LOW observational: lane_state transition helpers can't clear fields through helper surface (use dataclasses.replace); FileMap entry for `meridian_core/relay_dispatch.py` still missing — Build 3 to fold into next refresh (no repair routed) | await next Ready for Codex Review marker |
+| Build 2 | d821106 (A) + 989366f (Reviews C delegated) | Relay executor API policy note (Reviews A Round 3) + prime_wake/prime_console/prime_status/route_to_console (Reviews C Round C1); Round 2 covered 46e4eb3; Round 1 covered 4be1117..bf15569 | passed | LOW deferred (Reviews C): route_to_console accepts any ReviewConsoleItemType but always creates a non-promptable INFO ACKNOWLEDGE item — V1 doc/narrow item_type recommended; LOW observational (Reviews A Round 2): Build 2 self-recorded APPROVE cadence entry in 3e1de48 before Codex Reviews A's Round 2 result existed | Build 2 cadence cleared for window ending at 989366f; await next Ready for Codex Review marker |
 | Build 3 | ef934b1 | FileMap refresh + FileMap Relay maturity repair (7ec16ac..ef934b1) | passed | observational: next FileMap refresh should add `meridian_core/relay_dispatch.py` (introduced by Build 1 fd35a81 after this commit) | await next Ready for Codex Review marker |
 | Build 4 | 736b6af | architecture consistency pass — Q button reference + cadence closure | passed | none | await next Ready for Codex Review marker |
 | Build 5 | d1d32af | Bifrost cockpit queue status brief + V0 cockpit layout brief (818bb31..d1d32af) | passed | none — Build 5 cadence pause cleared by this review | await next Ready for Codex Review marker |
@@ -208,32 +208,19 @@ YYYY-MM-DD HH:MM TZ - Routed repair to Build <n>; queue: docs/live-build-<n>.md;
 
 ## Active Task
 
-Current Active Task:
+Round 3 complete (2026-06-01 04:00 CDT).
 
-Goal: coordinate Review A Round 3 after delegation to Review C.
+- Build 2 d821106 (Relay executor API policy note): passed — policy correctly defers exports as future work; verified by grep that none of the 5 names (ModelCallFn, RelayExecutionResult, RelayExecutionError, RelayExecutionSummary, execute_relay_dispatch_plan) appear in meridian_core/__init__.py.
+- Reviews C Round C1 delegated scope verified complete in docs/live-codex-reviews-3.md: Build 1 190e527 (Relay executor skeleton), Build 2 e800c03 (prime_wake), Build 2 989366f (prime_console/prime_status/route_to_console) — all passed with one LOW deferred (route_to_console type-vs-semantics doc note).
 
-Scope:
+Build 2 cadence cleared for the three-commit window ending at 989366f. Build 1 cadence cleared by Reviews C for the window covering 190e527. No repairs routed by Reviews A in Round 3.
 
-- Build 2 commit `d821106` - Relay executor API policy note.
-- Delegated to Review C (`docs/live-codex-reviews-3.md`): Build 1 `190e527`, Build 2 `e800c03`, Build 2 `989366f`.
-- Include queue marker commits only as provenance, not product scope.
+Round 3 write log:
 
-Required proof:
+- 2026-06-01 03:55 CDT - Codex Reviews A started Round 3 (Build 2 d821106 + delegation verification).
+- 2026-06-01 04:00 CDT - Codex Reviews A completed Round 3. 1 commit passed (d821106); delegated Round C1 confirmed clear in docs/live-codex-reviews-3.md.
 
-- For Build 2, inspect `docs/relay-executor-api-policy.md`.
-- Confirm the policy does not prematurely require package-root exports before Build 1 is reviewed.
-- Confirm Review C has accepted or completed the delegated V0 gate scope before marking Build 1 or Build 2 cadence fully clear.
-- Treat Build 2 as cadence-paused until both Review A's `d821106` policy check and Review C's runtime-gate check complete.
-
-Output:
-
-- Declare Round 3 scope in Review Round Scope.
-- Update Checkpoint Ledger.
-- Update Review Log.
-- Update Proof Log.
-- Record findings, if any.
-- Route repairs to Build 1 or Build 2 if actionable.
-- If clean, mark Round 3 complete and return to polling.
+When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
 Stale prior status follows.
 
