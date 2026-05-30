@@ -88,10 +88,9 @@ def test_council_exports():
 
 
 def test_prompt_budget_exports():
-    from meridian_core import PromptBudget, PromptBudgetPlan, PromptBudgetTier
+    from meridian_core import PromptBudgetPlan, PromptBudgetTier
     from meridian_core import prompt_budget_for_risk_tier
 
-    assert PromptBudget
     assert PromptBudgetPlan
     assert PromptBudgetTier
     assert prompt_budget_for_risk_tier

@@ -15,6 +15,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
+from .risk import RiskTier
+
 
 class PromptBudgetTier(Enum):
     """Prompt budget tier modes mapped to risk tiers."""
@@ -25,33 +27,13 @@ class PromptBudgetTier(Enum):
     EXPLAINED = "explained"  # Tier 4: human-gate explanation, not execution payload
 
 
-@dataclass
-class PromptBudget:
-    """
-    A specific prompt budget allocation.
-
-    Defines max context tokens and allowed context sources for a dispatch.
-    Not mutable; used to freeze and communicate budget boundaries.
-    """
-
-    tier: PromptBudgetTier
-    max_context_tokens: int
-    allowed_sources: list[str] = field(default_factory=list)
-    reason: str = ""
-
-    def __post_init__(self):
-        """Ensure allowed_sources is a copy to prevent shared-list mutations."""
-        self.allowed_sources = list(self.allowed_sources)
-
-
-@dataclass
+@dataclass(frozen=True)
 class PromptBudgetPlan:
     """
-    Bundled prompt budget plan for a risk tier.
+    Prompt budget plan for a risk tier.
 
-    Extends PromptBudget with explicit semantics for Relay dispatch planning.
-    Includes the tier, token budget, allowed context sources, and the reason
-    the budget was set.
+    Defines max context tokens and allowed context sources for a Relay dispatch.
+    Frozen: values are locked after construction.
     """
 
     tier: PromptBudgetTier
@@ -59,9 +41,8 @@ class PromptBudgetPlan:
     allowed_sources: list[str] = field(default_factory=list)
     reason: str = ""
 
-    def __post_init__(self):
-        """Ensure allowed_sources is a copy to prevent shared-list mutations."""
-        self.allowed_sources = list(self.allowed_sources)
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "allowed_sources", list(self.allowed_sources))
 
 
 # ---------------------------------------------------------------------------
@@ -115,9 +96,11 @@ _TIER_BUDGETS: dict[int, dict] = {
 }
 
 
-def prompt_budget_for_risk_tier(tier: int) -> PromptBudgetPlan:
+def prompt_budget_for_risk_tier(tier: int | RiskTier) -> PromptBudgetPlan:
     """
     Return a PromptBudgetPlan for the given risk tier (0–4).
+
+    Accepts either an int (0–4) or a RiskTier enum value.
 
     Tier 0/1 have minimal budgets to prevent deterministic/single-lane overhead.
     Tier 2 allows focused context for dual-lane cognition.
@@ -126,13 +109,17 @@ def prompt_budget_for_risk_tier(tier: int) -> PromptBudgetPlan:
 
     Raises ValueError if tier is out of range.
     """
-    if tier not in _TIER_BUDGETS:
+    tier_int = tier.value if isinstance(tier, RiskTier) else tier
+    if tier_int not in _TIER_BUDGETS:
         raise ValueError(f"Unknown risk tier: {tier!r}. Valid range is 0–4.")
 
-    budget = _TIER_BUDGETS[tier]
+    budget = _TIER_BUDGETS[tier_int]
     return PromptBudgetPlan(
         tier=budget["tier"],
         max_context_tokens=budget["max_context_tokens"],
-        allowed_sources=list(budget["allowed_sources"]),  # Copy to prevent mutation
+        allowed_sources=list(budget["allowed_sources"]),
         reason=budget["reason"],
     )
+
+
+PromptBudget = PromptBudgetPlan  # Alias for backward compatibility
