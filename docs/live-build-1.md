@@ -258,6 +258,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-01 ~13:18 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-01 ~13:20 CDT - Build 1 correction: 13:18 entry's "idle" claim was stale — coordinator had just added new Active Task "env-gated HTTP JSON Model Harness transport" (write log line 16:34 -06:00) before my Read; commit bdead7e absorbed the coordinator's cleanup of the prior registry task body (-72 lines) plus this heartbeat. Re-reading current Active Task now.
 2026-06-01 ~13:28 CDT - Build 1 checked queue; status: blocked-on-worktree-collision (Active Task: env-gated HTTP JSON Model Harness transport; this session operates in shared main worktree C:/Users/scott/Code/Meridian alongside other build/review sessions; not picking up code task per task's pre-edit rule; awaiting unique-worktree session to execute)
+2026-06-01 ~13:38 CDT - Build 1 checked queue; status: blocked-on-worktree-collision (transport Active Task still open; no commits matching transport/http/model-harness in git log; awaiting unique-worktree session)
 ```
 
 ## Write/Completion Log
