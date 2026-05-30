@@ -64,6 +64,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 completed <task>; commit <hash>; tests <result>
 2026-05-30 11:00 -06:00 - Codex review found PromptPacket direct-construction validation bypass and assigned repair; commit pending; tests pending
 2026-05-30 ~23:20 CDT - Build 1 completed PromptPacket validation hardening; commit 0ce0cf9; tests 675 passed
 2026-05-31 ~00:05 CDT - Build 1 completed PromptPacket model_payload() dispatch boundary; commit 111a975; tests 685 passed; Obsidian updated
+2026-05-31 ~00:40 CDT - Build 1 Codex review repair: commit 9389563; tests 688 passed; whitespace prompt + empty packet_id validation added; Obsidian updated
 ```
 
 ## Cross-Check Activity
@@ -86,6 +87,11 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review requested after commits <hash1>, <has
 YYYY-MM-DD HH:MM TZ - Build 1 Codex review finding: <severity>; details: <short note>
 YYYY-MM-DD HH:MM TZ - Build 1 Codex review repair: commit <hash>; tests <result>; details: <short note>
 YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/fixed; details: <short note>
+2026-05-31 ~00:40 CDT - Build 1 Codex review requested after commits b453e2e, 0ce0cf9, 111a975
+2026-05-31 ~00:40 CDT - Build 1 Codex review finding: MEDIUM; whitespace-only prompt passes validation (truthy but blank)
+2026-05-31 ~00:40 CDT - Build 1 Codex review finding: MEDIUM; empty packet_id passes without error
+2026-05-31 ~00:40 CDT - Build 1 Codex review repair: commit 9389563; tests 688 passed; strip() check + packet_id validation added
+2026-05-31 ~00:40 CDT - Build 1 Codex review result: fixed; all other checks clear (no aliasing, no leakage, no budget gaps)
 ```
 
 ## Active Task
