@@ -88,6 +88,7 @@ Reason: delegated V0 runtime-gate review per Active Task in this file
 ```text
 2026-05-30 13:55 MDT - Codex Reviews C checked queue; status: running; notes: starting Round C1
 2026-05-30 14:05 MDT - Codex Reviews C checked queue; status: idle; notes: Round C1 complete, all clear, awaiting next delegated work
+2026-05-30 14:05 MDT - Codex Reviews C checked queue; status: idle; notes: Active Task already reports Round C1 complete; reviewed inputs (live-build-1.md, live-build-2.md, live-codex-reviews.md) — Reviews A Round 3 Active Task confirms only the same C1-delegated commits (190e527, e800c03, 989366f) and no new Review-C delegation; Build 2 commit d821106 is owned by Reviews A; no Ready for Codex Review markers route to Review C; no executable task
 ```
 
 ## Review Log
