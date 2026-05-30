@@ -133,9 +133,14 @@ class TestBuildRegistry:
         r.register(HarnessBuild("Aegis", build_number=0, maturity=HarnessMaturity.CONCEPT))
         assert r.get("Aegis").name == "Aegis"
 
-    def test_register_overwrites_existing(self):
+    def test_register_duplicate_raises_value_error(self):
         r = self._registry()
-        r.register(HarnessBuild("Beacon", build_number=3, maturity=HarnessMaturity.OPERATIONAL))
+        with pytest.raises(ValueError, match="already registered"):
+            r.register(HarnessBuild("Beacon", build_number=3, maturity=HarnessMaturity.OPERATIONAL))
+
+    def test_upsert_overwrites_existing(self):
+        r = self._registry()
+        r.upsert(HarnessBuild("Beacon", build_number=3, maturity=HarnessMaturity.OPERATIONAL))
         assert r.get("Beacon").build_number == 3
         assert r.get("Beacon").maturity is HarnessMaturity.OPERATIONAL
 

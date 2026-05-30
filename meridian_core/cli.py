@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 from .decisions import run_decision_loop
-from .intention import ObjectiveStage, RiskTier
+from .intention import RiskTier
 from .mission import MissionLoadError, find_mission_file, load_mission
 from .models import Initiative
 from .objectives import get_mission_objectives

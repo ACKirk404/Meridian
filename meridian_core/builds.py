@@ -73,6 +73,13 @@ class BuildRegistry:
             raise KeyError(f"Unknown harness: {name!r}. Register it before querying.")
 
     def register(self, harness: HarnessBuild) -> None:
+        """Register a new harness build. Raises ValueError if the harness exists."""
+        if harness.name in self.harnesses:
+            raise ValueError(f"Harness already registered: {harness.name!r}. Use upsert to replace it.")
+        self.harnesses[harness.name] = harness
+
+    def upsert(self, harness: HarnessBuild) -> None:
+        """Insert or replace harness build metadata intentionally."""
         self.harnesses[harness.name] = harness
 
 

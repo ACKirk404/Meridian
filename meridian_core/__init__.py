@@ -31,6 +31,12 @@ from .models import (
 from .decisions import run_decision_loop, DecisionResult
 from .events import EventRecorder, Event, EventKind
 from .injections import make_injection
+from .intention import (
+    ObjectiveStage,
+    MissionObjectiveLine,
+    ProgressIntention,
+    build_progress_intention,
+)
 
 __all__ = [
     "Portfolio",
@@ -60,4 +66,8 @@ __all__ = [
     "Event",
     "EventKind",
     "make_injection",
+    "ObjectiveStage",
+    "MissionObjectiveLine",
+    "ProgressIntention",
+    "build_progress_intention",
 ]
