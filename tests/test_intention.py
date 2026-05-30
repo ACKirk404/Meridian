@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from meridian_core.council import CouncilPlan, CouncilRole
 from meridian_core.decisions import DecisionResult, run_decision_loop
 from meridian_core.intention import (
     MissionObjectiveLine,
@@ -271,6 +272,112 @@ class TestRiskTier:
 # ---------------------------------------------------------------------------
 # Render without model calls
 # ---------------------------------------------------------------------------
+
+
+class TestCouncilPlan:
+    """Council plan is derived from the risk tier on each objective line."""
+
+    def _line_for_stage(self, stage: ObjectiveStage) -> MissionObjectiveLine:
+        """Build the minimal portfolio that produces the requested stage."""
+        if stage is ObjectiveStage.PLAN:
+            project = Project(
+                id="proj_cp_plan", title="CP Plan Project", description="",
+                initiatives=[Initiative(id="init_cp_plan", title="CP Init", description="")]
+            )
+            return build_progress_intention(Portfolio(projects=[project]), DecisionResult()).objective_lines[0]
+
+        if stage is ObjectiveStage.BUILD:
+            move = NextMove(id="mv_cp_build", description="Implement feature", kind=MoveKind.AUTONOMOUS, objective_id="obj_cp")
+            project = Project(
+                id="proj_cp_build", title="CP Build Project", description="",
+                initiatives=[Initiative(id="init_cp_build", title="CP Build", description="", next_moves=[move])]
+            )
+            result = DecisionResult(safe_next_moves=[move])
+            return build_progress_intention(Portfolio(projects=[project]), result).objective_lines[0]
+
+        if stage is ObjectiveStage.REVIEW:
+            portfolio = make_sample_portfolio()
+            result = run_decision_loop(portfolio, make_sample_heartbeats())
+            intention = build_progress_intention(portfolio, result)
+            return next(l for l in intention.objective_lines if l.stage is ObjectiveStage.REVIEW)
+
+        if stage is ObjectiveStage.VERIFY:
+            portfolio = make_sample_portfolio()
+            result = run_decision_loop(portfolio, make_sample_heartbeats())
+            intention = build_progress_intention(portfolio, result)
+            return next(l for l in intention.objective_lines if l.stage is ObjectiveStage.VERIFY)
+
+        if stage is ObjectiveStage.GATE:
+            portfolio = make_sample_portfolio()
+            result = run_decision_loop(portfolio, make_sample_heartbeats())
+            intention = build_progress_intention(portfolio, result)
+            return next(l for l in intention.objective_lines if l.stage is ObjectiveStage.GATE)
+
+        raise ValueError(f"No fixture for stage {stage}")
+
+    def test_council_plan_is_council_plan_type(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.PLAN)
+        assert isinstance(line.council_plan, CouncilPlan)
+
+    def test_plan_stage_council_roles(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.PLAN)
+        assert line.council_plan.roles == [CouncilRole.PRAGMATIST, CouncilRole.CHAIRMAN]
+
+    def test_plan_stage_does_not_require_full_council(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.PLAN)
+        assert line.council_plan.requires_full_council is False
+
+    def test_build_stage_council_roles(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.BUILD)
+        assert line.council_plan.roles == [
+            CouncilRole.ANALYST,
+            CouncilRole.DEVILS_ADVOCATE,
+            CouncilRole.PRAGMATIST,
+            CouncilRole.CHAIRMAN,
+        ]
+
+    def test_build_stage_does_not_require_full_council(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.BUILD)
+        assert line.council_plan.requires_full_council is False
+
+    def test_review_stage_requires_full_council(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.REVIEW)
+        assert line.council_plan.requires_full_council is True
+
+    def test_review_stage_has_all_council_roles(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.REVIEW)
+        assert set(line.council_plan.roles) == set(CouncilRole)
+
+    def test_verify_stage_requires_full_council(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.VERIFY)
+        assert line.council_plan.requires_full_council is True
+
+    def test_verify_stage_has_all_council_roles(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.VERIFY)
+        assert set(line.council_plan.roles) == set(CouncilRole)
+
+    def test_gate_stage_requires_full_council(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.GATE)
+        assert line.council_plan.requires_full_council is True
+
+    def test_gate_stage_has_all_council_roles(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.GATE)
+        assert set(line.council_plan.roles) == set(CouncilRole)
+
+    def test_council_plan_tier_matches_line_risk_tier(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.PLAN)
+        assert line.council_plan.risk_tier == line.risk_tier.value
+
+    def test_council_plan_is_deterministic(self) -> None:
+        line = self._line_for_stage(ObjectiveStage.BUILD)
+        assert line.council_plan.roles == line.council_plan.roles
+
+    def test_each_sample_line_has_chairman(self) -> None:
+        portfolio = make_sample_portfolio()
+        result = run_decision_loop(portfolio, make_sample_heartbeats())
+        intention = build_progress_intention(portfolio, result)
+        for line in intention.objective_lines:
+            assert CouncilRole.CHAIRMAN in line.council_plan.roles
 
 
 class TestNoModelCalls:

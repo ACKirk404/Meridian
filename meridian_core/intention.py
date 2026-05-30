@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
+from .council import CouncilPlan, council_plan_for_tier
 from .decisions import DecisionResult
 from .models import Heartbeat, HeartbeatStatus, Initiative, MoveKind, Portfolio
 from .risk import RiskTier  # noqa: F401 — re-exported for callers that import from here
@@ -54,6 +55,11 @@ class MissionObjectiveLine:
     stage: ObjectiveStage
     risk_tier: RiskTier
     risk_reason: str = ""
+
+    @property
+    def council_plan(self) -> CouncilPlan:
+        """Council cognition plan for this line's risk tier. Computed on access."""
+        return council_plan_for_tier(self.risk_tier)
 
 
 @dataclass

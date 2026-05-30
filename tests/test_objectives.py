@@ -230,3 +230,29 @@ class TestFormatMissionObjectivesText:
         assert "Stage:" in text
         assert "Mission Objectives:" in text
         assert "Next Stage:" in text
+
+    def test_each_objective_line_includes_council(self) -> None:
+        view = self._view()
+        text = format_mission_objectives_text(view)
+        assert "Council:" in text
+
+    def test_full_council_tiers_render_as_full_council(self) -> None:
+        view = self._view()
+        text = format_mission_objectives_text(view)
+        # sample portfolio has GATE and VERIFY lines (Tier 3/4) → full council
+        assert "full council" in text
+
+    def test_partial_council_tiers_render_role_names(self) -> None:
+        project = Project(
+            id="proj_fmt_plan", title="Fmt Plan", description="",
+            initiatives=[Initiative(id="init_fmt_plan", title="Fmt Init", description="")]
+        )
+        view = get_mission_objectives(Portfolio(projects=[project]), DecisionResult())
+        text = format_mission_objectives_text(view)
+        # Plan → Tier 1 → [pragmatist, chairman]
+        assert "pragmatist" in text
+        assert "chairman" in text
+
+    def test_council_format_is_deterministic(self) -> None:
+        view = self._view()
+        assert format_mission_objectives_text(view) == format_mission_objectives_text(view)

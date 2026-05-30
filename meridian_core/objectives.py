@@ -50,10 +50,13 @@ def format_mission_objectives_text(view: ProgressIntention) -> str:
         "Mission Objectives:",
     ]
     for obj in view.objective_lines:
+        plan = obj.council_plan
+        council_str = "full council" if plan.requires_full_council else ", ".join(r.value for r in plan.roles)
         lines.append(
             f"  {obj.project_name} - {obj.initiative_title}"
             f" - Stage {obj.stage.value}"
             f" - Risk Tier {obj.risk_tier.value}"
+            f" - Council: {council_str}"
         )
     lines.extend(["", f"Next Stage: {view.next_stage}"])
     return "\n".join(lines)
