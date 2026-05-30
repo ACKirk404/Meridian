@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from meridian_core.cli import prime_console, prime_status, prime_wake
+from meridian_core.cli import prime_approve, prime_console, prime_status, prime_wake
 from meridian_core.review_console import (
     ReviewConsoleItemType,
     ReviewConsoleQueue,
+    make_approval_gate,
     route_to_console,
 )
 
@@ -204,3 +205,54 @@ class TestRouteToConsole:
         q = ReviewConsoleQueue()
         item = route_to_console(ReviewConsoleItemType.SYSTEM_FINDING, "s", console=q)
         assert item.id == "rc-0000"
+
+class TestPrimeApprove:
+    def _gate(self, q, item_id="rc-0000"):
+        item = make_approval_gate(item_id, "Release approval", "Approve the v0.1 release")
+        q.enqueue(item)
+
+    def test_approve_gate_item_prints_confirmation(self, capsys):
+        q = ReviewConsoleQueue()
+        self._gate(q, "rc-0000")
+        prime_approve("rc-0000", console=q)
+        out = capsys.readouterr().out
+        assert "Approved" in out
+        assert "rc-0000" in out
+
+    def test_approve_gate_item_shows_resulting_status(self, capsys):
+        q = ReviewConsoleQueue()
+        self._gate(q, "rc-0000")
+        prime_approve("rc-0000", console=q)
+        out = capsys.readouterr().out
+        assert "responded" in out
+
+    def test_approve_gate_item_changes_domain_status(self):
+        q = ReviewConsoleQueue()
+        self._gate(q, "rc-0000")
+        prime_approve("rc-0000", console=q)
+        assert q.get("rc-0000").status.value == "responded"
+
+    def test_approve_unknown_id_prints_not_found(self, capsys):
+        q = ReviewConsoleQueue()
+        prime_approve("rc-9999", console=q)
+        out = capsys.readouterr().out
+        assert "Not found" in out
+        assert "rc-9999" in out
+
+    def test_approve_unknown_id_does_not_raise(self):
+        q = ReviewConsoleQueue()
+        prime_approve("rc-9999", console=q)
+
+    def test_approve_non_promptable_item_prints_error(self, capsys):
+        q = ReviewConsoleQueue()
+        route_to_console(ReviewConsoleItemType.SYSTEM_FINDING, "Finding", console=q)
+        prime_approve("rc-0000", console=q)
+        out = capsys.readouterr().out
+        assert "Cannot approve" in out
+
+    def test_approve_item_without_approve_action_prints_error(self, capsys):
+        q = ReviewConsoleQueue()
+        route_to_console(ReviewConsoleItemType.CROSS_CHECK, "Check", console=q)
+        prime_approve("rc-0000", console=q)
+        out = capsys.readouterr().out
+        assert "Cannot approve" in out
