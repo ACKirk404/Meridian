@@ -37,8 +37,56 @@ from .intention import (
     ProgressIntention,
     build_progress_intention,
 )
+from .mission import (
+    load_mission,
+    find_mission_file,
+    Mission,
+    MissionLoadError,
+)
+from .wake import build_wake_brief, WakeBrief, WakeLine, WakeStatus
+from .objectives import get_mission_objectives, format_mission_objectives_text
+from .risk import RiskTier, RiskMode, RiskAssessment, assess_tier, assess_blocked_action
+from .relay import (
+    RoutingMode,
+    ModelRole,
+    ContextStrategy,
+    CostPosture,
+    RelayLane,
+    RelayRoute,
+    route_from_tier,
+    route_from_assessment,
+)
+from .aegis import (
+    EvidenceType,
+    EvidenceStatus,
+    EvidenceSeverity,
+    AegisEvidence,
+    ProofTrail,
+    evidence_from_cross_check,
+)
+from .review_console import (
+    ReviewConsoleItemType,
+    ReviewConsoleSeverity,
+    ReviewConsoleAction,
+    ReviewConsoleItemStatus,
+    ReviewConsoleItem,
+    ReviewConsoleQueue,
+    make_cross_check_item,
+    make_plan_review_item,
+    make_approval_gate,
+    make_system_finding,
+)
+from .builds import (
+    HarnessMaturity,
+    HarnessBuild,
+    MeridianBuild,
+    BuildRegistry,
+    make_initial_registry,
+)
+from .filemap import FileMapEntry, FileMap, FileArea, make_default_map
 
 __all__ = [
+    # -- Core domain models --------------------------------------------------
     "Portfolio",
     "Venture",
     "Project",
@@ -60,14 +108,74 @@ __all__ = [
     "AdapterTier",
     "Priority",
     "MoveKind",
+    # -- Decision loop --------------------------------------------------------
     "run_decision_loop",
     "DecisionResult",
+    # -- Events and injections ------------------------------------------------
     "EventRecorder",
     "Event",
     "EventKind",
     "make_injection",
+    # -- Progress intention / Compass -----------------------------------------
     "ObjectiveStage",
     "MissionObjectiveLine",
     "ProgressIntention",
     "build_progress_intention",
+    # -- Mission boot ---------------------------------------------------------
+    "load_mission",
+    "find_mission_file",
+    "Mission",
+    "MissionLoadError",
+    # -- Wake sequence --------------------------------------------------------
+    "build_wake_brief",
+    "WakeBrief",
+    "WakeLine",
+    "WakeStatus",
+    # -- Mission objectives ---------------------------------------------------
+    "get_mission_objectives",
+    "format_mission_objectives_text",
+    # -- Risk tier engine -----------------------------------------------------
+    "RiskTier",
+    "RiskMode",
+    "RiskAssessment",
+    "assess_tier",
+    "assess_blocked_action",
+    # -- Relay routing --------------------------------------------------------
+    "RoutingMode",
+    "ModelRole",
+    "ContextStrategy",
+    "CostPosture",
+    "RelayLane",
+    "RelayRoute",
+    "route_from_tier",
+    "route_from_assessment",
+    # -- Aegis / proof harness ------------------------------------------------
+    "EvidenceType",
+    "EvidenceStatus",
+    "EvidenceSeverity",
+    "AegisEvidence",
+    "ProofTrail",
+    "evidence_from_cross_check",
+    # -- Review Console -------------------------------------------------------
+    "ReviewConsoleItemType",
+    "ReviewConsoleSeverity",
+    "ReviewConsoleAction",
+    "ReviewConsoleItemStatus",
+    "ReviewConsoleItem",
+    "ReviewConsoleQueue",
+    "make_cross_check_item",
+    "make_plan_review_item",
+    "make_approval_gate",
+    "make_system_finding",
+    # -- Build and maturity registry ------------------------------------------
+    "HarnessMaturity",
+    "HarnessBuild",
+    "MeridianBuild",
+    "BuildRegistry",
+    "make_initial_registry",
+    # -- File map knowledge tracker -------------------------------------------
+    "FileMapEntry",
+    "FileMap",
+    "FileArea",
+    "make_default_map",
 ]
