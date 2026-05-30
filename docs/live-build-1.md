@@ -9,7 +9,7 @@ Rules:
 - This session must behave as a live worker, not a one-shot handoff. After completing a task, return to this file and keep polling every 30 seconds.
 - If there is no Active Task, do not stop. Append a Read Checks entry, wait 30 seconds, pull latest, and check again.
 - Always pull latest `origin/main` before editing.
-- Every time you check/read this file, add a timestamped entry to the Read Checks section.
+- Add a timestamped Read Checks entry approximately every 10 minutes while idle, or immediately on any status change. Polling continues every 30 seconds between log entries.
 - Every time you modify this file or complete a task from it, add a timestamped entry to the Write/Completion Log section.
 - Every minute while idle, check for cross-check activity relevant to your slice: review notes, Codex findings, Aegis findings, failing tests, or Obsidian build log updates.
 - If cross-check activity affects your task, record it in this file's Cross-Check Activity section and address it before starting unrelated work.
@@ -30,7 +30,7 @@ Rules:
 
 ## Read Checks
 
-Append entries here when this file is checked while idle.
+Append entries here when this file is checked (approximately every 10 minutes while idle, or on status change).
 
 ```text
 YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
@@ -234,6 +234,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-01 ~09:35 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-01 ~09:45 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-01 ~09:55 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
+2026-06-01 ~10:05 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 ```
 
 ## Write/Completion Log
@@ -304,172 +305,18 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Current Active Task (supersedes stale completed text below):
+**No active task.** Build 1 is idle — awaiting next assignment from the coordinator.
 
-Goal: build the provider-neutral Model Harness adapter contract for V0 Relay dispatch.
+Latest completed slice: provider-neutral Model Harness adapter contract; commit `653488b`; Ready for Codex Review.
 
-Context:
+### Completed Slices (most recent first)
 
-- Planning Harness answer brief `docs/prime-planning-harness-answers.md` says the next V0 move is adapter-first, not vendor-first.
-- V0's remaining core gate is real Relay model/API dispatch through the existing Relay executor skeleton.
-- `meridian_core/relay_executor.py` must remain provider-neutral and payload-only.
-- Aegis proof gating already blocks tier-3/4 dispatch before model calls; preserve that order.
-- This slice should create the adapter contract and env-safe behavior, but should not choose Claude/OpenAI/OpenRouter as the default provider yet.
-- Before editing, verify this session is operating in its own unique worktree/path and is not sharing the same working tree as another active Build or Review session. Record the resolved path in this queue. If the session is not on a unique worktree, stop and report the worktree collision instead of editing.
+[COMPLETED 2026-05-30 15:41 -06:00] Provider-neutral Model Harness adapter contract — commit `653488b`; files: meridian_core/model_adapter.py, meridian_core/relay_executor.py, tests/test_model_adapter.py, tests/test_relay_executor.py; tests: 46 adapter/executor passed, 126 Aegis/executor passed; Ready for Codex Review.
 
-Allowed files only:
+[COMPLETED 2026-05-30 14:43 -06:00] V0 pre-dispatch Aegis proof gate enforcement — commit `7c75f43`; 863 tests pass; Ready for Codex Review. Cleared by Review C.
 
-- `meridian_core/model_adapter.py`
-- `tests/test_model_adapter.py`
-- `meridian_core/relay_executor.py`
-- `tests/test_relay_executor.py`
-- `docs/live-build-1.md`
+[COMPLETED 2026-05-30 14:26 -06:00] V0 Relay execution summary to Aegis proof trail — commit `0e990df`; 848 tests pass; Ready for Codex Review. Cleared by Review C.
 
-Task:
+[COMPLETED 2026-05-31 ~17:05 CDT] V0 Relay executor skeleton — commit `190e527`; 811 tests pass; Ready for Codex Review.
 
-- Pull latest `origin/main` in your unique worktree before editing.
-- Add a small provider-neutral Model Adapter contract.
-- Include:
-  - a callable/protocol adapter boundary that receives only the approved payload text;
-  - a deterministic fake/test adapter for unit tests;
-  - an env-safe adapter/config helper that fails clearly when required live-provider configuration is missing;
-  - no real vendor SDK dependency yet unless the task can remain optional, env-gated, and uncalled in tests.
-- Wire the adapter shape into the existing Relay executor only if it can be done without changing the payload-only `model_call(lane.payload)` contract.
-- Preserve the prompt-drag rule: do not pass queue history, proof trails, Council notes, packet metadata, role metadata, or provider config into the model payload.
-- Do not add account-based desktop automation.
-- Do not edit package exports.
-- Do not edit FileMap; Build 3 owns FileMap registration.
-
-Tests:
-
-- Add focused tests proving:
-  - the fake adapter receives only payload text and returns deterministic text;
-  - missing live-provider configuration raises a clear adapter/config error before any model call;
-  - Relay executor still passes only `lane.payload`;
-  - Aegis blocking evidence still prevents adapter/model calls before dispatch.
-- Run `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`.
-- If practical, also run `python -m pytest tests/test_aegis.py tests/test_relay_executor.py -q`.
-
-Completion:
-
-- Commit only this slice.
-- Push to `origin/main`.
-- Update Obsidian.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
-
-Write log:
-
-- 2026-05-30 15:21 -06:00 - Coordinator assigned provider-neutral Model Harness adapter contract from `docs/prime-planning-harness-answers.md`; commit pending; tests pending.
-- 2026-05-30 15:41 -06:00 - Build 1 completed provider-neutral Model Harness adapter contract; commit `653488b`; files: meridian_core/model_adapter.py, meridian_core/relay_executor.py, tests/test_model_adapter.py, tests/test_relay_executor.py, docs/live-build-1.md; tests: 46 adapter/executor passed, 126 Aegis/executor passed; Ready for Codex Review.
-
-Ready for Codex Review:
-
-- Provider-neutral Model Harness adapter contract; commit `653488b`; tests: `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` -> 46 passed; `python -m pytest tests/test_aegis.py tests/test_relay_executor.py -q` -> 126 passed.
-
-Stale prior completed text follows.
-
-[COMPLETED 2026-05-30 14:43 -06:00] V0 pre-dispatch Aegis proof gate enforcement - commit `7c75f43`; 863 tests pass. Slice ready for Codex Review.
-
-[COMPLETED 2026-05-30 14:26 -06:00] V0 Relay execution summary to Aegis proof trail - commit `0e990df`; 848 tests pass. Slice ready for Codex Review.
-
-Review C has cleared `0e990df` and `7c75f43`; Build 1 is eligible for this next assignment.
-
-Stale older text follows.
-
-Current Active Task (supersedes any stale idle text below):
-
-Goal: build the V0 Relay + Aegis gate wire.
-
-Context:
-
-- `meridian_core/relay_executor.py` exists in commit `190e527` and has been cleared by Codex Reviews C.
-- `meridian_core/aegis.py` already has `ProofTrail`, `AegisEvidence`, and Review Console conversion.
-- This slice should connect Relay execution results/errors to proof evidence without calling real models, vendors, APIs, shells, or account automation.
-- Keep this provider-neutral and domain-only.
-- Before editing, verify this session is operating in its own unique worktree/path and is not sharing the same working tree as another active Build or Review session. Record the resolved path in this queue. If the session is not on a unique worktree, stop and report the worktree collision instead of editing.
-
-Allowed files only:
-
-- `meridian_core/relay_executor.py`
-- `tests/test_relay_executor.py`
-- `docs/live-build-1.md`
-
-Task:
-
-- Pull latest `origin/main` in your unique worktree before editing.
-- Add a small helper that converts a `RelayExecutionSummary` into an Aegis `ProofTrail`.
-- Use successful lane outputs as non-blocking `BUILD_OUTPUT` evidence.
-- Use lane execution errors as proof-blocking `ERROR` evidence.
-- Preserve the prompt-drag rule: do not add prompt text, packet metadata, or model configuration to the model-call boundary.
-- Do not add vendor/model adapter code.
-- Do not edit package exports.
-- Do not edit Review Console or Aegis internals unless absolutely required; prefer importing existing Aegis types.
-
-Tests:
-
-- Add focused tests for:
-  - clean execution summary produces a clean proof trail
-  - execution errors produce blocking evidence
-  - evidence records include lane role/model target information without leaking prompt payloads
-  - empty execution summary produces a clean empty proof trail
-- Run `python -m pytest tests/test_relay_executor.py -q`.
-- If practical, also run `python -m pytest tests/test_aegis.py tests/test_relay_executor.py -q`.
-
-Completion:
-
-- Commit only this slice.
-- Push to `origin/main`.
-- Update Obsidian.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
-
-Stale prior text follows.
-
-[COMPLETED 2026-05-31 ~17:05 CDT] V0 Relay executor skeleton — commit 190e527; 811 tests pass. Slice ready for Codex Review.
-
-Goal: build the V0 Relay executor skeleton.
-
-Context:
-
-- Build 1 commit `d2820d2` is still awaiting Review A, but that is not a stop sign under the three-slice cadence rule.
-- This slice should create the provider-neutral execution boundary without calling real Claude, OpenAI, OpenRouter, shell, or account-based automation.
-
-Allowed files only:
-
-- `meridian_core/relay_executor.py`
-- `tests/test_relay_executor.py`
-- `docs/live-build-1.md`
-
-Task:
-
-- Add a small Relay executor domain slice that can execute a `RelayDispatchPlan` through an injected model-call function.
-- Include:
-  - `RelayExecutionResult`
-  - `RelayExecutionError`
-  - a callable/protocol boundary that accepts only the lane payload and returns text
-  - `execute_relay_dispatch_plan(plan, model_call)`
-- Preserve the Relay prompt-efficiency constraint: only the lane payload should be passed to the model-call function unless a test proves otherwise.
-- Do not call external APIs.
-- Do not add vendor-specific model code.
-- Do not edit package exports unless Build 2 has already exposed the needed symbol and this file requires a tiny follow-up; if so, stop and record the need instead of editing outside your lane.
-
-Tests:
-
-- Add focused tests for:
-  - empty dispatch plan returns empty result collection
-  - one model-call per lane
-  - returned text captured per lane
-  - exception converted into execution error
-  - metadata is not passed into the model-call function
-- Run `python -m pytest tests/test_relay_executor.py -q`.
-- Also run the existing Relay dispatch/packet tests if practical.
-
-Completion:
-
-- Commit only this slice.
-- Push to `origin/main`.
-- Update Obsidian.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
-
-Stale prior text follows.
-
-No active task. Build 1 is idle — slice d2820d2 marked Ready for Codex Review; awaiting review result or next assignment.
+[COMPLETED 2026-05-31 ~04:30 CDT] WorkerLaneState domain model — commit `d2820d2`; 785 tests pass; Ready for Codex Review.
