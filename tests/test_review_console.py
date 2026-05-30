@@ -7,6 +7,7 @@ import pytest
 from meridian_core.review_console import (
     ReviewConsoleAction,
     ReviewConsoleItem,
+    ReviewConsoleResponse,
     ReviewConsoleItemStatus,
     ReviewConsoleItemType,
     ReviewConsoleSeverity,
@@ -391,3 +392,86 @@ class TestQueueSequenceSafety:
         queue.enqueue(new_item)
         all_seqs = [i.sequence for i in queue.items]
         assert len(set(all_seqs)) == len(all_seqs)
+
+
+# ---------------------------------------------------------------------------
+# Queue response handling
+# ---------------------------------------------------------------------------
+
+
+class TestQueueResponses:
+    def test_get_returns_item_by_id(self):
+        queue = ReviewConsoleQueue()
+        item = _cross("cc-find", "find me", "")
+        queue.enqueue(item)
+        assert queue.get("cc-find") is item
+
+    def test_get_unknown_returns_none(self):
+        assert ReviewConsoleQueue().get("missing") is None
+
+    def test_require_unknown_raises_key_error(self):
+        with pytest.raises(KeyError, match="missing"):
+            ReviewConsoleQueue().require("missing")
+
+    def test_respond_approve_marks_gate_responded(self):
+        queue = ReviewConsoleQueue()
+        item = _gate("gate-approve", "approve?", "")
+        queue.enqueue(item)
+        response = queue.respond("gate-approve", ReviewConsoleAction.APPROVE, "approved")
+        assert item.status is ReviewConsoleItemStatus.RESPONDED
+        assert isinstance(response, ReviewConsoleResponse)
+
+    def test_respond_returns_response_record(self):
+        queue = ReviewConsoleQueue()
+        queue.enqueue(_gate("gate-response", "approve?", ""))
+        response = queue.respond("gate-response", ReviewConsoleAction.REJECT, "not ready")
+        assert response.item_id == "gate-response"
+        assert response.action is ReviewConsoleAction.REJECT
+        assert response.note == "not ready"
+
+    def test_response_note_is_stripped(self):
+        queue = ReviewConsoleQueue()
+        queue.enqueue(_gate("gate-note", "approve?", ""))
+        response = queue.respond("gate-note", ReviewConsoleAction.MODIFY, "  revise scope  ")
+        assert response.note == "revise scope"
+
+    def test_acknowledge_marks_item_acknowledged(self):
+        queue = ReviewConsoleQueue()
+        item = _cross("cc-ack", "ack", "")
+        queue.enqueue(item)
+        queue.acknowledge("cc-ack")
+        assert item.status is ReviewConsoleItemStatus.ACKNOWLEDGED
+
+    def test_acknowledged_item_leaves_pending(self):
+        queue = ReviewConsoleQueue()
+        item = _cross("cc-ack", "ack", "")
+        queue.enqueue(item)
+        queue.acknowledge("cc-ack")
+        assert item not in queue.pending()
+
+    def test_dismiss_marks_item_dismissed(self):
+        queue = ReviewConsoleQueue()
+        item = _cross("cc-dismiss", "dismiss", "")
+        queue.enqueue(item)
+        returned = queue.dismiss("cc-dismiss")
+        assert item.status is ReviewConsoleItemStatus.DISMISSED
+        assert returned is item
+
+    def test_dismissed_item_leaves_pending(self):
+        queue = ReviewConsoleQueue()
+        item = _cross("cc-dismiss", "dismiss", "")
+        queue.enqueue(item)
+        queue.dismiss("cc-dismiss")
+        assert item not in queue.pending()
+
+    def test_respond_non_promptable_item_raises(self):
+        queue = ReviewConsoleQueue()
+        queue.enqueue(_finding("sys-1", "system", ""))
+        with pytest.raises(ValueError, match="not promptable"):
+            queue.respond("sys-1", ReviewConsoleAction.ACKNOWLEDGE)
+
+    def test_respond_disallowed_action_raises(self):
+        queue = ReviewConsoleQueue()
+        queue.enqueue(_cross("cc-no", "cross", ""))
+        with pytest.raises(ValueError, match="not allowed"):
+            queue.respond("cc-no", ReviewConsoleAction.APPROVE)

@@ -61,6 +61,13 @@ class ReviewConsoleItem:
     sequence: int = field(default=-1)
 
 
+@dataclass(frozen=True)
+class ReviewConsoleResponse:
+    item_id: str
+    action: ReviewConsoleAction
+    note: str = ""
+
+
 @dataclass
 class ReviewConsoleQueue:
     items: list[ReviewConsoleItem] = field(default_factory=list)
@@ -88,6 +95,52 @@ class ReviewConsoleQueue:
     def informational(self) -> list[ReviewConsoleItem]:
         """Pending items that are informational and do not require a response."""
         return [i for i in self.pending() if not i.requires_response]
+
+    def get(self, item_id: str) -> ReviewConsoleItem | None:
+        """Return an item by id, or None if it is not present."""
+        return next((i for i in self.items if i.id == item_id), None)
+
+    def require(self, item_id: str) -> ReviewConsoleItem:
+        """Return an item by id. Raises KeyError if it is not present."""
+        item = self.get(item_id)
+        if item is None:
+            raise KeyError(f"No Review Console item for {item_id!r}")
+        return item
+
+    def respond(
+        self,
+        item_id: str,
+        action: ReviewConsoleAction,
+        note: str = "",
+    ) -> ReviewConsoleResponse:
+        """
+        Record a response to a promptable item.
+
+        ACKNOWLEDGE maps to ACKNOWLEDGED. Other allowed actions map to
+        RESPONDED, leaving interpretation to Prime.
+        """
+        item = self.require(item_id)
+        if not item.promptable:
+            raise ValueError(f"Review Console item {item_id!r} is not promptable")
+        if action not in item.suggested_actions:
+            raise ValueError(f"Action {action.value!r} is not allowed for {item_id!r}")
+
+        item.status = (
+            ReviewConsoleItemStatus.ACKNOWLEDGED
+            if action is ReviewConsoleAction.ACKNOWLEDGE
+            else ReviewConsoleItemStatus.RESPONDED
+        )
+        return ReviewConsoleResponse(item_id=item_id, action=action, note=note.strip())
+
+    def acknowledge(self, item_id: str, note: str = "") -> ReviewConsoleResponse:
+        """Acknowledge a promptable informational item."""
+        return self.respond(item_id, ReviewConsoleAction.ACKNOWLEDGE, note)
+
+    def dismiss(self, item_id: str) -> ReviewConsoleItem:
+        """Dismiss an item without treating it as a substantive response."""
+        item = self.require(item_id)
+        item.status = ReviewConsoleItemStatus.DISMISSED
+        return item
 
 
 # ---------------------------------------------------------------------------

@@ -41,7 +41,8 @@ def test_mission_wake_and_compass_exports():
 
 def test_risk_relay_aegis_review_console_exports():
     from meridian_core import AegisEvidence, EvidenceSeverity, ProofTrail, RelayRoute
-    from meridian_core import ReviewConsoleItem, ReviewConsoleQueue, RiskTier
+    from meridian_core import ReviewConsoleItem, ReviewConsoleQueue, ReviewConsoleResponse
+    from meridian_core import RiskTier
     from meridian_core import assess_blocked_action, assess_tier, evidence_from_cross_check
     from meridian_core import make_approval_gate, route_from_tier
 
@@ -51,6 +52,7 @@ def test_risk_relay_aegis_review_console_exports():
     assert RelayRoute
     assert ReviewConsoleItem
     assert ReviewConsoleQueue
+    assert ReviewConsoleResponse
     assert RiskTier
     assert assess_blocked_action
     assert assess_tier
