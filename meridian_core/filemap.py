@@ -36,6 +36,7 @@ class FileArea:
     RELAY_ROUTING    = "Relay routing"
     PROMPT_BUDGET    = "Relay prompt budget"
     PROMPT_METRICS   = "Relay prompt metrics"
+    PROMPT_PACKET    = "Relay prompt packet"
     AEGIS            = "Aegis / Proof harness"
     REVIEW_CONSOLE   = "Review Console"
     BUILD_MATURITY   = "Build/maturity registry"
@@ -165,6 +166,13 @@ def make_default_map() -> FileMap:
             purpose="Structured lessons from Polaris: what worked, why, carry-forward principles, and what not to repeat. Includes Relay prompt efficiency (Lesson 16).",
             related_tests=[],
             notes="Reference before designing a new harness or major subsystem.",
+        ),
+        FileMapEntry(
+            path="docs/meridian-capabilities-architecture-map.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="High-level capability positioning and maturity map. Covers what makes Meridian distinct and where each capability stands today (planned/domain-slice/integrated/needs-hardening).",
+            related_tests=[],
+            notes="Strategic; does not list file paths or class names. Companion to docs/meridian-capabilities.md and the live FileMap.",
         ),
         FileMapEntry(
             path="docs/FileMap.md",
@@ -299,6 +307,13 @@ def make_default_map() -> FileMap:
             purpose="Architectural plan for wiring PromptMetricSample collection into the Relay dispatch path and surfacing status in Compass.",
             related_tests=[],
             notes="Planning only; no runtime changes yet.",
+        ),
+        FileMapEntry(
+            path="meridian_core/prompt_packet.py",
+            area=FileArea.PROMPT_PACKET,
+            purpose="Validated, immutable prompt bundle for Relay dispatch. Enforces budget, source compliance, and serialization integrity at construction. Only serialized_prompt is sent to the model.",
+            related_tests=["tests/test_prompt_packet.py"],
+            notes="PromptPacketValidationError raised on invalid construction. source_lineage stored as immutable MappingProxyType.",
         ),
         FileMapEntry(
             path="meridian_core/aegis.py",
