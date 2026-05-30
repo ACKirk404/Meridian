@@ -61,6 +61,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-05-30 16:35 -06:00 - Build 3 checked queue; status: idle; Active Task still stale; awaiting Codex review result and new task
 2026-05-30 16:50 -06:00 - Build 3 checked queue; status: idle; Active Task still stale; awaiting Codex review result and new task
 2026-05-30 17:05 -06:00 - Build 3 checked queue; status: active task found (FileMap refresh for relay_dispatch, live-codex-reviews, prime-orchestration prototype, diagrams); starting work
+2026-05-30 17:35 -06:00 - Build 3 checked queue; status: idle; Active Task stale (relay_dispatch/codex-reviews refresh done at 4075ef4); awaiting new task
 ```
 
 ## Write/Completion Log
