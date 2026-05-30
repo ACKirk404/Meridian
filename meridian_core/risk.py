@@ -13,6 +13,14 @@ from enum import Enum
 from typing import Union
 
 
+class RiskTier(Enum):
+    TIER_0 = 0  # deterministic local logic only
+    TIER_1 = 1  # low-risk reversible actions
+    TIER_2 = 2  # meaningful Prime decisions
+    TIER_3 = 3  # dual-lane cognition + Aegis proof
+    TIER_4 = 4  # human gate
+
+
 class RiskMode(Enum):
     DETERMINISTIC = "Deterministic logic only"
     SINGLE_LANE = "Single-lane cognition"
@@ -137,6 +145,14 @@ _TIER_SEMANTICS: dict[int, dict] = {
         "requires_human_gate": True,
     },
 }
+
+
+def assess_blocked_action(reason: str | None = None) -> RiskAssessment:
+    """Blocked actions always assess as Tier 4 — human gate required."""
+    return assess_tier(
+        RiskTier.TIER_4,
+        reason=reason or "action is blocked; human gate required",
+    )
 
 
 def assess_tier(tier: Union[int, object], reason: str | None = None) -> RiskAssessment:

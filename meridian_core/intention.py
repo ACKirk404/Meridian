@@ -12,6 +12,7 @@ from enum import Enum
 
 from .decisions import DecisionResult
 from .models import Heartbeat, HeartbeatStatus, Initiative, MoveKind, Portfolio
+from .risk import RiskTier  # noqa: F401 — re-exported for callers that import from here
 
 _BLOCKED_HARNESS_STATUSES: frozenset[HeartbeatStatus] = frozenset(
     {HeartbeatStatus.BLOCKED, HeartbeatStatus.FAILED}
@@ -25,14 +26,6 @@ class ObjectiveStage(Enum):
     VERIFY = "Verify"
     BLOCKED = "Blocked"
     GATE = "Gate"
-
-
-class RiskTier(Enum):
-    TIER_0 = 0  # deterministic observation only
-    TIER_1 = 1  # low-risk reversible work
-    TIER_2 = 2  # meaningful build or coordination
-    TIER_3 = 3  # proof, completion, review, or release prep
-    TIER_4 = 4  # human-gated, irreversible, public, or policy-sensitive
 
 
 _STAGE_TO_TIER: dict[ObjectiveStage, RiskTier] = {
