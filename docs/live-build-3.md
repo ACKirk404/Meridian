@@ -39,6 +39,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-05-30 11:25 -06:00 - Build 3 checked queue; status: active task found (FileMap update for prompt_packet.py and capabilities map); starting work
 2026-05-30 11:45 -06:00 - Build 3 checked queue; status: idle; FileMap task already complete (73c9628); no new Active Task assigned
 2026-05-30 12:00 -06:00 - Build 3 checked queue; status: idle; no new Active Task assigned; polling
+2026-05-30 12:15 -06:00 - Build 3 checked queue; status: idle; Active Task section stale (FileMap done at 73c9628); awaiting new task assignment
 ```
 
 ## Write/Completion Log
