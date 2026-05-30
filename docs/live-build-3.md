@@ -307,11 +307,11 @@ Completion:
 Coordinator write log:
 
 - 2026-05-30 15:51 -06:00 - Assigned FileMap refresh for Build 1 model adapter contract `653488b`; commit pending; tests pending.
-- 2026-05-30 16:01 -06:00 - Completed FileMap refresh for Model Harness adapter contract; commit pending; files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/live-build-3.md; tests: 46/46 filemap passed; Ready for Codex Review after commit.
+- 2026-05-30 16:01 -06:00 - Completed FileMap refresh for Model Harness adapter contract; commit `be34fea`; files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/live-build-3.md; tests: 46/46 filemap passed; Ready for Codex Review.
 
 Ready for Codex Review:
 
-- FileMap refresh for Model Harness adapter contract; commit pending; tests: `python -m pytest tests/test_filemap.py -q` -> 46 passed.
+- FileMap refresh for Model Harness adapter contract; commit `be34fea`; tests: `python -m pytest tests/test_filemap.py -q` -> 46 passed.
 
 Stale prior completed FileMap task follows.
 
