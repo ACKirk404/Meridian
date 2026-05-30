@@ -94,6 +94,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-05-30 19:55 -06:00 - Build 2 checked queue; status: idle (no new Active Task; polling)
 2026-05-30 20:05 -06:00 - Build 2 checked queue; status: idle (no new Active Task; polling)
 2026-05-30 20:15 -06:00 - Build 2 checked queue; status: idle (no new Active Task; polling)
+2026-05-30 20:25 -06:00 - Build 2 checked queue; status: idle (no new Active Task; polling)
 ```
 
 ## Write/Completion Log
@@ -101,7 +102,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 Append entries here when this file is modified or an active task is completed.
 
 ```text
-YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; tests <result>
+YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; files changed: <list>; tests <result>; Ready for Codex Review
 2026-05-30 10:33 -06:00 - Codex assigned Prompt Metrics package API + FileMap exposure; commit pending; tests pending
 2026-05-30 10:37 -06:00 - Codex strengthened polling contract; commit pending; tests not required
 2026-05-30 10:42 -06:00 - Build 2 completed Prompt Metrics package exposure; commit 6d51710; tests 627 passed
@@ -110,15 +111,15 @@ YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; tests <result>
 2026-05-30 10:54 -06:00 - Codex review cleared Prompt Metrics Review Console bridge and assigned package API export; commit pending; tests pending
 2026-05-30 11:15 -06:00 - Build 2 completed package API export for make_prompt_metrics_finding; commit 9c52688; tests 644 passed
 2026-05-30 11:20 -06:00 - Codex review cleared package API export and assigned PromptPacket package API planning note; commit pending; tests not required
-2026-05-30 11:25 -06:00 - Build 2 completed PromptPacket package API planning note; commit 88fbecb; tests none required (docs-only)
+2026-05-30 11:25 -06:00 - Build 2 completed PromptPacket package API planning note; commit 88fbecb; files changed: docs/prompt-packet-package-api-note.md; tests none required (docs-only); Ready for Codex Review
 2026-05-30 11:37 -06:00 - Codex assigned PromptPacket package API note cleanup; commit pending; tests not required
 2026-05-30 11:43 -06:00 - Codex review found stale PromptPacket note claim after commit 4be1117; repair assigned; tests not required
 2026-05-30 11:45 -06:00 - Build 2 completed PromptPacket package API export; commit f2f69ff; tests 685 passed
-2026-05-30 12:25 -06:00 - Build 2 completed package API surface note update; commit e73b840; tests none required (docs-only)
+2026-05-30 12:25 -06:00 - Build 2 completed package API surface note update; commit e73b840; files changed: docs/package-api-surface-note.md; tests none required (docs-only); Ready for Codex Review
 2026-05-30 12:35 -06:00 - Build 2 completed Codex review repair pass; commit 253e505; tests 688 passed
-2026-05-30 13:52 -06:00 - Build 2 completed PromptPacket planning note cleanup; commit 4be1117; tests none required (docs-only)
-2026-05-30 14:20 -06:00 - Build 2 completed is_valid/validation_errors claim repair; commit bf15569; tests none required (docs-only)
-2026-05-30 16:55 -06:00 - Build 2 completed Relay package API policy note; commit 46e4eb3; tests none required (docs-only)
+2026-05-30 13:52 -06:00 - Build 2 completed PromptPacket planning note cleanup; commit 4be1117; files changed: docs/prompt-packet-package-api-note.md; tests none required (docs-only); Ready for Codex Review
+2026-05-30 14:20 -06:00 - Build 2 completed is_valid/validation_errors claim repair; commit bf15569; files changed: docs/prompt-packet-package-api-note.md; tests none required (docs-only); Ready for Codex Review
+2026-05-30 16:55 -06:00 - Build 2 completed Relay package API policy note; commit 46e4eb3; files changed: docs/relay-package-api-policy-note.md, docs/package-api-surface-note.md; tests none required (docs-only); Ready for Codex Review
 ```
 
 ## Cross-Check Activity
@@ -131,8 +132,8 @@ YYYY-MM-DD HH:MM TZ - Build 2 cross-check: none/finding/fix; details: <short not
 2026-05-30 10:54 -06:00 - Build 2 cross-check: no blocking findings in commit e27da72; targeted tests 239 passed.
 2026-05-30 11:15 -06:00 - Build 2 cross-check: no blocking findings in commit 9c52688; targeted tests 95 passed (test_package_api.py + test_review_console.py).
 2026-05-30 11:20 -06:00 - Build 2 cross-check: no blocking findings in commit 9c52688; targeted tests 140 passed.
-2026-05-30 11:45 -06:00 - Build 2 cross-check: no blocking findings in commit f2f69ff; targeted tests 11 passed (test_package_api.py).
 2026-05-30 11:43 -06:00 - Build 2 cross-check finding: docs/prompt-packet-package-api-note.md still says callers use is_valid and validation_errors, but PromptPacket raises PromptPacketValidationError and has no such public attributes.
+2026-05-30 11:45 -06:00 - Build 2 cross-check: no blocking findings in commit f2f69ff; targeted tests 11 passed (test_package_api.py).
 2026-05-30 12:35 -06:00 - Build 2 cross-check: Codex found 3 MEDIUM findings in 88fbecb/f2f69ff/e73b840; repaired 2 (test __all__ membership, stale candidates text); 1 deferred (prompt-packet-package-api-note.md not in allowed files); commit 253e505; tests 688 passed.
 ```
 
