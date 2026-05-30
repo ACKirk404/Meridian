@@ -295,8 +295,8 @@ YYYY-MM-DD HH:MM TZ - Build 1 completed <task>; commit <hash>; tests <result>
 2026-06-01 ~04:00 CDT - Coordinator assigned provider-neutral Model Harness adapter contract (from docs/prime-planning-harness-answers.md) [originally logged 2026-05-30 15:21 -06:00; date corrected]
 2026-06-01 ~05:15 CDT - Build 1 completed provider-neutral Model Harness adapter contract; commit 653488b; files: meridian_core/model_adapter.py, meridian_core/relay_executor.py, tests/test_model_adapter.py, tests/test_relay_executor.py, docs/live-build-1.md; tests: 46 adapter/executor passed, 126 Aegis/executor passed; Ready for Codex Review [originally logged 2026-05-30 15:41 -06:00; date corrected]
 2026-06-01 ~10:30 CDT - Build 1 completed Relay adapter registry and lane dispatch bridge; commit 0560eb4; files: meridian_core/model_adapter.py, meridian_core/relay_executor.py, tests/test_model_adapter.py, tests/test_relay_executor.py; tests: 67 targeted adapter/executor passed, 137 Aegis/executor passed, 911 full passed; Ready for Codex Review.
-2026-06-01 ~16:50 CDT - Build 1 completed env-gated HTTP JSON Model Harness transport; commit pending; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 72 targeted adapter/executor passed, 916 full passed; Ready for Codex Review.
-2026-05-30 16:45 -06:00 - Codex review repair for env-gated HTTP JSON Model Harness transport; commit pending; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 72 targeted adapter/executor passed, 916 full passed; added provider to request body and parsed standard-library HTTP JSON response text.
+2026-06-01 ~16:50 CDT - Build 1 completed env-gated HTTP JSON Model Harness transport; commit 869faa4; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 72 targeted adapter/executor passed, 916 full passed; Ready for Codex Review.
+2026-05-30 16:45 -06:00 - Codex review repair for env-gated HTTP JSON Model Harness transport; commit f353c8d; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 72 targeted adapter/executor passed, 916 full passed; added provider to request body and parsed standard-library HTTP JSON response text.
 ```
 
 ## Cross-Check Activity
@@ -343,9 +343,9 @@ No active task. Polling for next assignment.
 
 Historical record of Build 1 V0 completed slices (most recent first). Do not re-execute any entry below.
 
-[COMPLETED 2026-06-01 ~16:50 CDT] Env-gated HTTP JSON Model Harness transport — commit pending; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 72 targeted adapter/executor passed, 916 full passed; Ready for Codex Review.
+[COMPLETED 2026-06-01 ~16:50 CDT] Env-gated HTTP JSON Model Harness transport — commit `869faa4`; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 72 targeted adapter/executor passed, 916 full passed; Ready for Codex Review.
 
-[REPAIR 2026-05-30 16:45 -06:00] Env-gated HTTP JSON Model Harness transport review repair — commit pending; default stdlib transport now sends provider/model/input and extracts `text` from JSON response; tests: 72 targeted adapter/executor passed, 916 full passed.
+[REPAIR 2026-05-30 16:45 -06:00] Env-gated HTTP JSON Model Harness transport review repair — commit `f353c8d`; default stdlib transport now sends provider/model/input and extracts `text` from JSON response; tests: 72 targeted adapter/executor passed, 916 full passed. V0 dispatch gate marked built in `a0e665e`.
 
 [COMPLETED 2026-06-01 ~10:30 CDT] Relay adapter registry and lane dispatch bridge — commit `0560eb4`; files: meridian_core/model_adapter.py, meridian_core/relay_executor.py, tests/test_model_adapter.py, tests/test_relay_executor.py; tests: 67 targeted adapter/executor passed, 137 Aegis/executor passed, 911 full passed; Ready for Codex Review.
 

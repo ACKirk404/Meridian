@@ -211,7 +211,15 @@ Minimum proof expectations:
 
 Current Active Task:
 
-Round C3 complete at 2026-05-30 15:51 MDT. Build 1 `653488b` passed with no actionable findings.
+Round C4 complete at 2026-05-30 16:45 MDT. Build 1 `0560eb4`, `869faa4`, and repair `f353c8d` passed after repair with no remaining actionable findings.
+
+Proof:
+
+- `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` -> 72 passed.
+- `python -m pytest -q` -> 916 passed.
+- Diff inspection confirmed `AdapterRegistry`/`execute_relay_plan_with_registry()` preserve payload-only dispatch.
+- Diff inspection confirmed HTTP JSON transport is env-gated, stdlib-only, SDK-free, and account-automation-free.
+- Repair `f353c8d` corrected the default HTTP helper to send provider/model/input JSON and parse response `text`.
 
 No active task. Codex Reviews C is idle - continue polling for Build 1/Build 2 runtime-gate review markers.
 
