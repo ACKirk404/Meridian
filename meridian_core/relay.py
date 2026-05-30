@@ -1,32 +1,30 @@
-"""
-Relay Routing — deterministic model/session routing from risk tier and task context.
+﻿"""
+Relay Routing -- deterministic model/session routing plan from risk tier.
 
-Relay turns a RiskAssessment into a RelayRoute: lane list, roles, context strategy,
-cost posture, and independence requirements. No real model calls, provider credentials,
-or account automation here — this slice is domain-only.
+Relay is the Agent / Model Harness. This slice produces a structured
+RelayRoute from a RiskAssessment without calling real models or APIs.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Union
 
 from .risk import RiskAssessment, RiskTier, assess_tier
 
 
 class RoutingMode(Enum):
-    NO_MODEL = "no_model"
-    SINGLE_LANE = "single_lane"
-    DUAL_LANE = "dual_lane"
-    DUAL_LANE_PROOF = "dual_lane_proof"
-    HUMAN_GATE = "human_gate"
+    NO_MODEL = "no-model"
+    SINGLE_LANE = "single-lane"
+    DUAL_LANE = "dual-lane"
+    DUAL_LANE_PROOF = "dual-lane-proof"
+    HUMAN_GATE = "human-gate"
 
 
 class ModelRole(Enum):
     BUILDER = "builder"
     REVIEWER = "reviewer"
-    PROOF = "proof"
+    VERIFIER = "verifier"
     EXPLAINER = "explainer"
 
 
@@ -37,11 +35,17 @@ class ContextStrategy(Enum):
     LARGE_CONTEXT = "large_context"
 
 
+class CostPosture(Enum):
+    MINIMAL = "minimal"
+    STANDARD = "standard"
+    THOROUGH = "thorough"
+
+
 @dataclass
 class RelayLane:
     role: ModelRole
-    model_label: str
-    independent: bool
+    preferred_model: str
+    independent: bool = False
 
 
 @dataclass
@@ -50,95 +54,105 @@ class RelayRoute:
     lanes: list[RelayLane]
     context_strategy: ContextStrategy
     reason: str
-    cost_posture: str
+    cost_posture: CostPosture
     requires_independence: bool
     requires_human_gate: bool
-    assessment: RiskAssessment
+    risk_tier: int
 
 
 # ---------------------------------------------------------------------------
-# Routing semantics — deterministic defaults per tier
+# Routing table -- deterministic defaults per tier
 # ---------------------------------------------------------------------------
 
-_ROUTING_SEMANTICS: dict[int, dict] = {
+_ROUTING_TABLE: dict[int, dict] = {
     0: {
         "mode": RoutingMode.NO_MODEL,
         "lanes": [],
-        "cost_posture": "none",
-        "requires_independence": False,
         "reason": "deterministic local logic; no model lanes needed",
+        "cost_posture": CostPosture.MINIMAL,
+        "requires_independence": False,
+        "requires_human_gate": False,
     },
     1: {
         "mode": RoutingMode.SINGLE_LANE,
         "lanes": [
-            RelayLane(role=ModelRole.BUILDER, model_label="fast/cheap default", independent=False),
+            RelayLane(role=ModelRole.BUILDER, preferred_model="fast-default", independent=False),
         ],
-        "cost_posture": "minimal",
+        "reason": "low-risk reversible action; one fast/cheap lane is sufficient",
+        "cost_posture": CostPosture.MINIMAL,
         "requires_independence": False,
-        "reason": "low-risk reversible action; single fast lane sufficient",
+        "requires_human_gate": False,
     },
     2: {
         "mode": RoutingMode.DUAL_LANE,
         "lanes": [
-            RelayLane(role=ModelRole.BUILDER, model_label="primary default", independent=False),
-            RelayLane(role=ModelRole.REVIEWER, model_label="independent reviewer", independent=True),
+            RelayLane(role=ModelRole.BUILDER, preferred_model="primary-default", independent=False),
+            RelayLane(role=ModelRole.REVIEWER, preferred_model="independent-reviewer", independent=True),
         ],
-        "cost_posture": "moderate",
+        "reason": "meaningful Prime decision; two independent lanes required for disagreement detection",
+        "cost_posture": CostPosture.STANDARD,
         "requires_independence": True,
-        "reason": "meaningful build work; dual-lane cognition with Prime adjudication",
+        "requires_human_gate": False,
     },
     3: {
         "mode": RoutingMode.DUAL_LANE_PROOF,
         "lanes": [
-            RelayLane(role=ModelRole.BUILDER, model_label="primary default", independent=False),
-            RelayLane(role=ModelRole.REVIEWER, model_label="independent reviewer", independent=True),
-            RelayLane(role=ModelRole.PROOF, model_label="Aegis proof verifier", independent=True),
+            RelayLane(role=ModelRole.BUILDER, preferred_model="primary-default", independent=False),
+            RelayLane(role=ModelRole.REVIEWER, preferred_model="independent-reviewer", independent=True),
+            RelayLane(role=ModelRole.VERIFIER, preferred_model="proof-verifier", independent=True),
         ],
-        "cost_posture": "high",
+        "reason": "completion or proof claim; dual-lane plus Aegis verification posture",
+        "cost_posture": CostPosture.THOROUGH,
         "requires_independence": True,
-        "reason": "completion or proof claim; dual-lane cognition plus Aegis verification",
+        "requires_human_gate": False,
     },
     4: {
         "mode": RoutingMode.HUMAN_GATE,
         "lanes": [
-            RelayLane(role=ModelRole.EXPLAINER, model_label="explanation only", independent=False),
+            RelayLane(role=ModelRole.EXPLAINER, preferred_model="primary-default", independent=False),
         ],
-        "cost_posture": "deferred",
-        "requires_independence": False,
         "reason": (
-            "irreversible, public, financial, destructive, account-risking, "
-            "policy-sensitive, blocked, or strategic action; human gate before execution"
+            "irreversible, public, financial, destructive, or strategic action; "
+            "no autonomous execution until human gate is cleared"
         ),
+        "cost_posture": CostPosture.STANDARD,
+        "requires_independence": False,
+        "requires_human_gate": True,
     },
 }
 
 
-def route(
-    tier: Union[int, RiskTier, RiskAssessment],
+def route_from_assessment(
+    assessment: RiskAssessment,
+    context_strategy: ContextStrategy = ContextStrategy.FOCUSED_PACKET,
+) -> RelayRoute:
+    """
+    Produce a deterministic RelayRoute from a RiskAssessment.
+
+    context_strategy defaults to FOCUSED_PACKET. Pass an explicit strategy
+    when the caller has already decided (e.g. reuse_session after a healthy
+    context check).
+    """
+    row = _ROUTING_TABLE[assessment.tier]
+    return RelayRoute(
+        mode=row["mode"],
+        lanes=[RelayLane(l.role, l.preferred_model, l.independent) for l in row["lanes"]],
+        context_strategy=context_strategy,
+        reason=row["reason"],
+        cost_posture=row["cost_posture"],
+        requires_independence=row["requires_independence"],
+        requires_human_gate=row["requires_human_gate"],
+        risk_tier=assessment.tier,
+    )
+
+
+def route_from_tier(
+    tier: int | RiskTier,
     context_strategy: ContextStrategy = ContextStrategy.FOCUSED_PACKET,
     reason: str | None = None,
 ) -> RelayRoute:
     """
-    Produce a deterministic RelayRoute from a tier number, RiskTier enum, or RiskAssessment.
-
-    context_strategy defaults to FOCUSED_PACKET.
-    reason overrides the default routing reason when provided.
+    Convenience: produce a RelayRoute directly from a tier number or RiskTier enum.
     """
-    if isinstance(tier, RiskAssessment):
-        assessment = tier
-    else:
-        assessment = assess_tier(tier)
-
-    tier_num = assessment.tier
-    sem = _ROUTING_SEMANTICS[tier_num]
-
-    return RelayRoute(
-        mode=sem["mode"],
-        lanes=[RelayLane(l.role, l.model_label, l.independent) for l in sem["lanes"]],
-        context_strategy=context_strategy,
-        reason=reason if reason is not None else sem["reason"],
-        cost_posture=sem["cost_posture"],
-        requires_independence=sem["requires_independence"],
-        requires_human_gate=assessment.requires_human_gate,
-        assessment=assessment,
-    )
+    assessment = assess_tier(tier, reason=reason)
+    return route_from_assessment(assessment, context_strategy=context_strategy)
