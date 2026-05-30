@@ -140,7 +140,18 @@ Minimum proof expectations:
 
 Current Active Task:
 
-Goal: prepare Codex Reviews C Round C2 for the next V0 runtime gate.
+Goal: perform Codex Reviews C Round C2 for Build 1 `0e990df`.
+
+Round C2 scope:
+
+- Build 1 commit `0e990df`
+- Files: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`
+- Focus: RelayExecutionSummary -> Aegis ProofTrail conversion, proof-blocking semantics for lane errors, prompt payload/packet metadata non-leakage, provider-neutral boundary preservation
+- Tests: `python -m pytest tests/test_relay_executor.py -q` and `python -m pytest tests/test_aegis.py tests/test_relay_executor.py -q`
+
+Do not review unrelated Build 2/3/4/5 work in this round.
+
+Stale prior trigger text follows.
 
 Scope trigger:
 
