@@ -213,36 +213,33 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 
 Current Active Task (supersedes any stale text below):
 
-Goal: create the Meridian V3 parking lot.
+Goal: define Prime continuous restart/resteer logic.
 
 Context:
 
-- Scott asked whether V2 covers everything discussed or whether V3 is needed now.
-- Codex's call: V2 covers the architecture horizon; V3 should exist only as a parking lot for product/ecosystem ideas so they do not contaminate V0/V1/V2 execution.
+- Scott identified that Prime will need constant restart and resteer logic.
+- This is orchestration-harness architecture, not UI polish.
+- The current live queue experiment proves why: sessions can go idle, poll the wrong queue, retain stale Active Tasks, leave local scratch edits, or need review capacity reassignment.
 - Build 4 owns high-level Prime/harness planning docs.
 
 Allowed files only:
 
-- `docs/v3-parking-lot.md`
+- `docs/prime-restart-resteer-logic.md`
 - `docs/live-build-4.md`
 
 Task:
 
-- Create `docs/v3-parking-lot.md`.
-- Keep it concise and harness-owned.
-- It should state:
-  - V3 is not active scope.
-  - V3 starts after V2 makes Prime genuinely smarter and more autonomous.
-  - V3 candidate themes: public repo/release, marketed tool, provider compliance modes, hosted/cloud packaging, team/business workflows, multi-user polish, distributed Meridian networks, plugin/extension ecosystem.
-  - Every V3 item must still be owned by Prime or a harness.
-  - V3 must not pull effort away from V0 Prime core, V1 Bifrost cockpit, or V2 Echo/Atlas/Prime autonomy.
-- Include a short "Parking Lot Items" checklist grouped by owner:
-  - Prime
-  - Bifrost Harness
-  - Model Harness
-  - Federation Harness
-  - Release Harness
-  - Aegis Harness
+- Create `docs/prime-restart-resteer-logic.md`.
+- Cover:
+  - what Prime must detect: idle lanes, stale active tasks, wrong queue routing, cadence pauses, uncommitted drift, missing proof, sessions polling but not executing, sessions executing but not committing
+  - what Prime must do: rewrite stale Active Tasks, route repairs, pause/resume lanes, assign review capacity, preserve uncommitted state, and re-anchor Obsidian memory
+  - restart versus resteer: restart restores the operating frame; resteer changes the next move based on current state
+  - how this maps to Beacon, Relay, Aegis, Bifrost, Review Console, FileMap, and the live queue prototype
+  - what belongs in V0 markdown prototype, V1 cockpit visibility, and V2+ native runtime
+  - failure modes and guardrails
+- Add a short "Prime Directive / Pillar" wording proposal for Continuous Restart/Resteer.
+- Keep it candid and implementation-guiding, not marketing copy.
+- Do not edit runtime code.
 - Do not edit FileMap; Build 3 owns FileMap registration.
 - Do not edit tracker totals unless explicitly assigned later.
 
