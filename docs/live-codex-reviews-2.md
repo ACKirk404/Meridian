@@ -50,9 +50,9 @@ Look for:
 
 | Build lane | Last reviewed commit | Last reviewed task | Review status | Pending finding / repair | Next action |
 | --- | --- | --- | --- | --- | --- |
-| Build 3 | 4075ef4 | FileMap refresh (relay_dispatch.py, live-codex-reviews, prime-orchestration prototype) (Round B1) | passed | 2 LOW prose-divergence findings (defer) | route consolidated FileMap-gap repair to Build 3 (covers Build 4 + Build 5 missing docs); verify in Round B2 |
-| Build 4 | 1d17fa1 | Prime orchestration state model (Round B1) | passed | MEDIUM FileMap gap routed to Build 3; LOW severity-ladder design question recorded | wait on Build 3 FileMap repair; clarify FindingSeverity↔EvidenceSeverity mapping when Build 4 next picks up state-model implementation slice |
-| Build 5 | 7c34566 | Bifrost Harness dashboard brief (Round B1) | passed | MEDIUM FileMap gap (bundled into Build 3 repair) | wait on Build 3 FileMap repair; no Build 5 follow-up required |
+| Build 3 | 1378bda | FileMap repair — register 4 uncatalogued docs (Round B2) | passed | Round B1 MEDIUM repair verified closed; 1 new MEDIUM finding (live-codex-reviews-2.md still uncatalogued); 2 LOW prose-divergence carryovers from Round B1 still deferred | route 1-row FileMap follow-up to Build 3 for `docs/live-codex-reviews-2.md`; verify in Round B3 |
+| Build 4 | 1d17fa1 | Prime orchestration state model (Round B1) | passed | LOW severity-ladder design question recorded | clarify FindingSeverity↔EvidenceSeverity mapping when Build 4 next picks up state-model implementation slice |
+| Build 5 | 7c34566 | Bifrost Harness dashboard brief (Round B1) | passed | MEDIUM FileMap gap closed in Build 3 1378bda (Round B2) | no Build 5 follow-up required |
 
 ## Review Round Scope
 
@@ -76,6 +76,14 @@ Tests to run: `python -m pytest tests/test_filemap.py -q` (Build 3); Build 4 and
 Out of scope: runtime/package-API/behavior reviews of relay_dispatch.py, prompt_packet, review_console, council, beacon, registry; product test suites (owned by Review A).
 Reason: Coordinator-queued Round B1 to clear docs/architecture slices Ready for Codex Review across all three build lanes.
 
+2026-05-31 10:20 -06:00 - Round B2 scope
+Build lanes: Build 3 (repair verification only)
+Commit range(s): Build 3 1378bda (FileMap repair for 4 uncatalogued docs — verifies the consolidated repair routed in Round B1)
+Allowed review files: diff files only — docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py. Cross-reference: this very queue file's Repair Routing Log entry from 2026-05-30 23:30 (the routed repair being verified).
+Tests to run: `python -m pytest tests/test_filemap.py -q`.
+Out of scope: Build 4 and Build 5 (no new Ready for Codex Review markers since Round B1; their lanes are awaiting reassignment, not new review). Runtime/package-API/behavior reviews (owned by Review A). Build 1's `lane_state` slice marked Ready for Codex Review (`13b4b48`) is runtime/API scope, owned by Review A.
+Reason: Build 3 marked commit 1378bda Ready for Codex Review — Reviews B Round B2 in the Build 3 queue; this round verifies the Round B1-routed MEDIUM FileMap-gap repair is closed.
+
 ## Read Checks
 
 Append entries here when this file is checked while idle.
@@ -85,6 +93,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews B checked queue; status: idle/running/blocke
 ```
 
 2026-05-30 23:30 -06:00 - Codex Reviews B checked queue; status: running; notes: starting Round B1 (Build 3 4075ef4, Build 4 1d17fa1, Build 5 7c34566).
+2026-05-31 10:20 -06:00 - Codex Reviews B checked queue; status: running; notes: Build 3 marked 1378bda Ready for Codex Review for Round B2; Build 4 and Build 5 idle without new Ready markers; starting Round B2 repair-verification.
 
 ## Review Log
 
@@ -97,6 +106,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-05-30 23:30 -06:00 - Reviewed Build 3 commit 4075ef4 (+ queue marker 6879bd9); result: pass; tests: `python -m pytest tests/test_filemap.py -q` → 46/46 passed in 0.09s; notes: FileMap.md ↔ filemap.py ↔ tests internally consistent; new `RELAY_DISPATCH` area placed sensibly; both new doc rows match registered FileMapEntries by path; referenced files (`meridian_core/relay_dispatch.py`, `tests/test_relay_dispatch.py`, `docs/live-codex-reviews.md`, `docs/prime-orchestration-harness-prototype.md`) exist. Two LOW prose-divergence findings recorded.
 2026-05-30 23:30 -06:00 - Reviewed Build 4 commit 1d17fa1 (+ queue marker 14ae1e9); result: pass-with-findings; tests: docs-only; notes: state model is internally consistent, cross-references to `meridian_core/aegis.py` (EvidenceSeverity, AegisEvidence), `meridian_core/models.py` (TaskStatus), `meridian_core/builds.py`, `docs/meridian-pillars.md`, `docs/review-console-surface-contract.md`, `docs/bifrost-cockpit-queue-status-brief.md`, `docs/prime-orchestration-harness-prototype.md`, `docs/v0-build-readiness-map.md` all verified present. Doc explicitly defers FileMap edits to Build 3 — gap routed accordingly. Severity-ladder reuse/alias question recorded as LOW.
 2026-05-30 23:30 -06:00 - Reviewed Build 5 commit 7c34566 (+ queue marker 3026216); result: pass-with-findings; tests: docs-only; notes: Bifrost Harness dashboard brief is internally consistent and aligns with companion briefs (session-queue activation, cockpit queue status, V0 cockpit layout). §5 reference to bifrost-v0-cockpit-layout-brief.md §5 verified. Cross-references to `docs/cockpit-ui-architecture.md`, `docs/prime-wake-sequence-build-brief.md`, `docs/meridian-capabilities-architecture-map.md` all exist on disk. Brief explicitly disclaims FileMap edits — gap routed to Build 3.
+2026-05-31 10:20 -06:00 - Reviewed Build 3 commit 1378bda (Round B2 repair verification); result: pass-with-findings; tests: `python -m pytest tests/test_filemap.py -q` → 46/46 passed in 0.12s; notes: all 4 routed docs (`docs/v0-build-readiness-map.md`, `docs/prime-orchestration-state-model.md`, `docs/bifrost-v0-cockpit-layout-brief.md`, `docs/bifrost-harness-dashboard-brief.md`) registered in both docs/FileMap.md and meridian_core/filemap.py with matching purpose/notes prose (no new divergence introduced); FileArea taxonomy correct (ARCHITECTURE for state model + V0 readiness map; BIFROST for both Bifrost briefs); all 4 paths added to `_REQUIRED_PATHS`. Round B1 MEDIUM repair closed. NEW MEDIUM finding: `docs/live-codex-reviews-2.md` was created since 4075ef4 (commit `3de9c74`) and remains uncatalogued; Build 3 did not note it in cross-check despite the Active Task's instruction to flag any other new docs there. Round B1 LOW prose-divergence findings on the existing `live-codex-reviews.md` and `prime-orchestration-harness-prototype.md` entries remain deferred (Build 3 did not opportunistically fold them in; permitted by task scope).
 
 ## Proof Log
 
@@ -111,6 +121,7 @@ YYYY-MM-DD HH:MM TZ - Proof for Build <n> commit <hash>; proof type: diff/test/r
 2026-05-30 23:30 -06:00 - Proof for Build 3 commit 4075ef4; proof type: test/reference; evidence: `python -m pytest tests/test_filemap.py -q` passed 46/46 and referenced files (`meridian_core/relay_dispatch.py`, `tests/test_relay_dispatch.py`, `docs/live-codex-reviews.md`, `docs/prime-orchestration-harness-prototype.md`) exist; result: pass.
 2026-05-30 23:30 -06:00 - Proof for Build 4 commit 1d17fa1; proof type: reference/manual; evidence: referenced architecture/domain files exist; doc explicitly defers FileMap edits to Build 3; severity-ladder concern recorded as LOW; result: pass-with-findings.
 2026-05-30 23:30 -06:00 - Proof for Build 5 commit 7c34566; proof type: reference/manual; evidence: companion Bifrost briefs and referenced architecture docs exist; FileMap gap routed to Build 3; result: pass-with-findings.
+2026-05-31 10:20 -06:00 - Proof for Build 3 commit 1378bda (Round B2 repair verification); proof type: test/diff/reference; evidence: `python -m pytest tests/test_filemap.py -q` → 46/46 passed in 0.12s; `git show 1378bda -- docs/FileMap.md meridian_core/filemap.py tests/test_filemap.py` confirms 4 matching pairs of FileMap.md rows + filemap.py FileMapEntry plus 4 additions to `_REQUIRED_PATHS`; `git log --diff-filter=A --name-only 4075ef4..HEAD -- 'docs/*.md'` shows three docs added post-baseline of which only `docs/live-codex-reviews-2.md` remains uncatalogued; result: pass for the original Round B1 repair scope, with one new MEDIUM finding to be re-verified in Round B3.
 
 Minimum proof expectations:
 
@@ -132,6 +143,8 @@ YYYY-MM-DD HH:MM TZ - Build <n> commit <hash>; severity: CRITICAL/HIGH/MEDIUM/LO
 2026-05-30 23:30 -06:00 - Build 4 commit 1d17fa1; severity: MEDIUM; file: docs/FileMap.md and meridian_core/filemap.py (missing entries); finding: `docs/prime-orchestration-state-model.md` (created in this slice) and `docs/v0-build-readiness-map.md` (created earlier in Build 4 commit `3cbf336`) are both uncatalogued. Build 4 explicitly defers FileMap edits to Build 3 in the state-model doc itself, so this is a Build 3 follow-up; action: repair-task-written (bundled with the Build 5 missing entries into a single Build 3 Active Task).
 2026-05-30 23:30 -06:00 - Build 4 commit 1d17fa1; severity: LOW; file: docs/prime-orchestration-state-model.md line 195; finding: state model proposes `FindingSeverity → EvidenceSeverity (reuse or alias)` but the ladders differ — review prototype uses CRITICAL/HIGH/MEDIUM/LOW (also the convention used in this very queue), while `meridian_core/aegis.py` EvidenceSeverity uses INFO/WARNING/ERROR/CRITICAL. A direct alias cannot preserve LOW/MEDIUM/HIGH granularity. Doc acknowledges the open decision; action: defer (LOW; expect the next Build 4 implementation slice to surface this as a typed-enum decision before any Python is written).
 2026-05-30 23:30 -06:00 - Build 5 commit 7c34566; severity: MEDIUM; file: docs/FileMap.md and meridian_core/filemap.py (missing entries); finding: `docs/bifrost-harness-dashboard-brief.md` (created in this slice) and `docs/bifrost-v0-cockpit-layout-brief.md` (created earlier in Build 5 commit `d1d32af`) are both uncatalogued. Brief explicitly disclaims FileMap edits in §15 (docs-only, strategic, "does not authorize runtime code, FileMap edits, or package-API changes"), so this is a Build 3 follow-up; action: repair-task-written (bundled with the Build 4 missing entries into a single Build 3 Active Task).
+2026-05-31 10:20 -06:00 - Build 3 commit 1378bda; severity: MEDIUM; file: docs/FileMap.md and meridian_core/filemap.py (missing entry); finding: `docs/live-codex-reviews-2.md` was created in commit `3de9c74` (post-baseline 4075ef4) and is still absent from both FileMap.md and filemap.py. Parallel to the already-cataloged `docs/live-codex-reviews.md`. Build 3's 1378bda Active Task explicitly asked "note them in the cross-check section, do not silently bundle" for other new docs, but Build 3 did neither (no cross-check entry, no inclusion); action: repair-task-written (small follow-up Active Task into docs/live-build-3.md — one FileMap.md row, one FileMapEntry, one `_REQUIRED_PATHS` line).
+2026-05-31 10:20 -06:00 - Build 3 commit 1378bda; severity: LOW (carryover); file: docs/FileMap.md vs meridian_core/filemap.py (entries for `docs/live-codex-reviews.md` and `docs/prime-orchestration-harness-prototype.md`); finding: the 2 LOW prose-divergence findings recorded in Round B1 remain present; Build 3 1378bda did not opportunistically reconcile them (permitted by its Active Task's "out of scope" allowance); action: defer (re-recorded as carryover so the follow-up Build 3 task can fold them in opportunistically).
 
 ## Repair Routing Log
 
@@ -141,9 +154,29 @@ Append entries when writing repair work into a build lane.
 YYYY-MM-DD HH:MM TZ - Routed repair to Build <n>; queue: docs/live-build-<n>.md; finding: <short note>; status: pending
 ```
 
-2026-05-30 23:30 -06:00 - Routed repair to Build 3; queue: docs/live-build-3.md; finding: register four uncatalogued docs in FileMap.md and filemap.py — `docs/v0-build-readiness-map.md`, `docs/prime-orchestration-state-model.md`, `docs/bifrost-v0-cockpit-layout-brief.md`, `docs/bifrost-harness-dashboard-brief.md`. Opportunistically reconcile LOW prose-divergence findings on the Build 3 4075ef4 entries; status: pending.
+2026-05-30 23:30 -06:00 - Routed repair to Build 3; queue: docs/live-build-3.md; finding: register four uncatalogued docs in FileMap.md and filemap.py — `docs/v0-build-readiness-map.md`, `docs/prime-orchestration-state-model.md`, `docs/bifrost-v0-cockpit-layout-brief.md`, `docs/bifrost-harness-dashboard-brief.md`. Opportunistically reconcile LOW prose-divergence findings on the Build 3 4075ef4 entries; status: closed in Round B2 (Build 3 commit 1378bda — 4 docs registered, tests 46/46; LOW reconciliation deferred).
+2026-05-31 10:20 -06:00 - Routed repair to Build 3; queue: docs/live-build-3.md; finding: register `docs/live-codex-reviews-2.md` in FileMap.md and meridian_core/filemap.py (one row + one FileMapEntry under FileArea.BUILD_PROCESS, parallel to the existing `docs/live-codex-reviews.md` entry) and add the path to `_REQUIRED_PATHS` in tests/test_filemap.py. Opportunistically (still permitted, not required) reconcile the two LOW prose-divergence carryovers on the existing `live-codex-reviews.md` and `prime-orchestration-harness-prototype.md` entries; status: pending.
 
 ## Active Task
+
+**Round B2 complete. Codex Reviews B is idle, awaiting Round B3.**
+
+Round B2 result summary:
+
+- Build 3 commit `1378bda` — PASS-WITH-FINDINGS. Tests: `python -m pytest tests/test_filemap.py -q` → 46/46 in 0.12s. The Round B1 MEDIUM FileMap-gap repair (4 docs) is verified closed: all 4 paths registered in both `docs/FileMap.md` and `meridian_core/filemap.py` with matching prose, correct FileArea taxonomy (ARCHITECTURE / BIFROST), and `_REQUIRED_PATHS` extended.
+- New finding (MEDIUM): `docs/live-codex-reviews-2.md` was added in commit `3de9c74` (post-baseline `4075ef4`) and is still absent from FileMap. The Round B1 Active Task instructed Build 3 to note new uncatalogued docs in cross-check rather than bundle them; Build 3 did neither. One-row follow-up routed to Build 3.
+- Carryovers (LOW × 2): the 2 prose-divergence findings on existing `live-codex-reviews.md` and `prime-orchestration-harness-prototype.md` entries remain deferred. Re-flagged as opportunistic for the new Build 3 repair.
+- Repair routing: one small Build 3 follow-up Active Task written to `docs/live-build-3.md`. Build 4 and Build 5 untouched this round (no new Ready markers).
+- Round B3 trigger: verify the new Build 3 follow-up when marked Ready for Codex Review; sweep any new Build 4 / Build 5 slices that arrive in the meantime.
+
+Proof discipline (from Round B2 Active Task): commit hash + diff inspection + test command output + file-existence cross-check, all recorded above in Review Log / Proof Log / Findings / Repair Routing Log.
+
+Polling cadence:
+
+- When idle, append a Read Check entry every poll interval.
+- When `Ready for Codex Review` markers appear in any of `docs/live-build-3.md`, `docs/live-build-4.md`, `docs/live-build-5.md`, or when Review A flags a docs/architecture-shaped finding in `docs/live-codex-reviews.md`, declare a Round B<n+1> scope and begin.
+
+Stale prior status follows.
 
 **Round B1 complete. Codex Reviews B is idle, awaiting Round B2.**
 
@@ -164,3 +197,4 @@ Write log:
 
 - 2026-05-30 12:22 -06:00 - Coordinator created Codex Reviews B and queued Round B1 for docs/architecture review scaling.
 - 2026-05-30 23:30 -06:00 - Round B1 completed by Codex Reviews B; result: 3 PASS (with 2 MEDIUM findings consolidated and routed to Build 3, 3 LOW findings recorded/deferred); tests: `python -m pytest tests/test_filemap.py -q` 46/46 (Build 3), docs-only (Build 4 and Build 5); ledger, review log, findings, and repair routing log updated.
+- 2026-05-31 10:20 -06:00 - Round B2 completed by Codex Reviews B; result: PASS-WITH-FINDINGS for Build 3 1378bda (Round B1 MEDIUM repair verified closed; 1 new MEDIUM finding routed for `docs/live-codex-reviews-2.md`; 2 LOW carryovers re-noted); tests: `python -m pytest tests/test_filemap.py -q` 46/46 in 0.12s; ledger, review log, proof log, findings, and repair routing log updated.
