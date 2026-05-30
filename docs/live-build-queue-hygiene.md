@@ -114,4 +114,4 @@ An idle lane is a worker with no task. Leaving it idle wastes potential build th
 | Long-term scaling | Move queue state to structured object; markdown becomes a human mirror |
 | Idle lane | Prime assigns next task immediately or writes explicit `(none)` placeholder |
 
-These rules apply to all live build queue files: `docs/live-build-1.md`, `docs/live-build-2.md`, `docs/live-build-3.md`, and any future lane files.
+These rules apply to all live build queue files: `docs/live-build-1.md`, `docs/live-build-2.md`, `docs/live-build-3.md`, `docs/live-build-5.md`, and any future lane files.
