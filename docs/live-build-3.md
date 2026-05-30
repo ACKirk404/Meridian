@@ -152,6 +152,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-05-31 15:50 -06:00 - Build 3 checked queue; status: idle; Round B2 repair closed (45497b1); awaiting Reviews B Round B3 verification and next assignment
 2026-05-31 16:05 -06:00 - Build 3 checked queue; status: active task found (FileMap hygiene — v0-v1-progress-tracker.md + v0-readiness-map relay_executor stale text); starting work
 2026-05-31 16:20 -06:00 - Build 3 checked queue; status: running (FileMap+tracker hygiene); executing Active Task
+2026-05-31 16:35 -06:00 - Build 3 checked queue; status: idle; FileMap hygiene task complete (774695f + 6f3d474); awaiting Reviews B Round B3 verification and next assignment
 ```
 
 ## Write/Completion Log
@@ -252,6 +253,10 @@ Completion:
 - Push to `origin/main`.
 - Update Obsidian.
 - Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+**COMPLETED 2026-05-31 16:05 -06:00. Commit: 774695f. Tests: 46/46 filemap. Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/v0-build-readiness-map.md. Cadence: 1/3 since Round B2.**
+
+**No active task. Build 3 is idle.**
 
 Stale prior text follows.
 
