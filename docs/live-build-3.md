@@ -82,31 +82,31 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: update FileMap for PromptPacket and the Build 4 capabilities map.
+Goal: create a live queue hygiene note.
 
 Allowed files only:
 
-- `meridian_core/filemap.py`
-- `tests/test_filemap.py`
-- `docs/FileMap.md`
+- `docs/live-build-queue-hygiene.md`
 
 Task:
 
-- Build 1 added `meridian_core/prompt_packet.py`.
-- Build 4 added `docs/meridian-capabilities-architecture-map.md`.
-- Add both files to the living FileMap so future sessions can discover them.
-- Update `_REQUIRED_PATHS` in `tests/test_filemap.py` if needed.
-- Update human-readable `docs/FileMap.md` with short descriptions.
-- Keep this Haiku-sized and mechanical.
-- Do not edit PromptPacket runtime code.
+- Write a short operational note for live build queue hygiene based on what we learned from Q polling.
+- Cover:
+  - why completed Active Tasks must be replaced or explicitly marked complete
+  - how stale Active Task sections cause repeated queue checks
+  - why Read Checks, Write/Completion Log, Cross-Check Activity, and Codex Review Cadence should remain separate
+  - how allowed-file ownership prevents lane collisions
+  - how queue files should eventually map to a real Meridian session-harness queue state
+  - what Prime should do when a lane is idle
+- Keep it simple and concrete.
+- Do not edit other live queue files.
+- Do not edit runtime code.
+- Do not edit FileMap.
 - Do not edit package exports.
-- Do not edit Build 1 or Build 2 files.
 
 Tests:
 
-```text
-python -m pytest tests/test_filemap.py -q
-```
+- No tests required. This is docs-only.
 
 Completion:
 

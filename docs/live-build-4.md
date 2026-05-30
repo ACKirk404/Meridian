@@ -80,19 +80,24 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: update the capabilities architecture map after the latest build reality.
+Goal: define the Review Console surface contract.
 
 Allowed files only:
 
-- `docs/meridian-capabilities-architecture-map.md`
+- `docs/review-console-surface-contract.md`
 
 Task:
 
-- Codex reviewed the Build 4 architecture map and found one factual drift issue:
-  - The map says Prompt Packet has only design/checklist docs and no runtime code.
-  - Build 1 has now landed the PromptPacket domain model and validation hardening (`0ce0cf9`).
-- Update capability 4 and the maturity snapshot so Prompt Packet is described as a domain slice, not merely planned.
-- Add a short note that Polaris now has a Q button queue-polling prototype, but Meridian still needs this as a future Bifrost/session-harness capability.
+- Write a strategic surface contract for the Review Console, the real replacement name for the old "non-orchestrator queue".
+- Cover:
+  - what belongs in the Orchestrator Queue versus the Review Console
+  - what Prime may place in the Review Console without asking Scott first
+  - what must become a human gate
+  - how Aegis proof, cross-check findings, worker outputs, and system Go calls should appear
+  - what actions Scott should be able to take from that surface
+  - how to avoid recreating the Polaris worker-card wall
+  - how this relates to Bifrost and Beacon
+- Keep it strategic and architectural.
 - Keep the doc strategic and architectural.
 - Do not write runtime code.
 - Do not edit FileMap; Build 3 owns FileMap.

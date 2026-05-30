@@ -46,6 +46,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-05-31 ~00:30 CDT - Build 1 checked queue; status: idle (no new active task)
 2026-05-31 ~00:40 CDT - Build 1 checked queue; status: running (Codex review pass on PromptPacket slice)
 2026-05-31 ~00:45 CDT - Build 1 checked queue; status: idle (review complete, awaiting next assignment)
+2026-05-31 ~01:00 CDT - Build 1 checked queue; status: running (Relay PromptPacket integration plan task)
 ```
 
 ## Write/Completion Log
@@ -97,34 +98,26 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: run Build 1 Codex review pass for the PromptPacket slice.
+Goal: create the Relay PromptPacket integration plan.
 
 Allowed files only:
 
-- `meridian_core/prompt_packet.py`
-- `tests/test_prompt_packet.py`
+- `docs/relay-prompt-packet-integration-plan.md`
 
 Task:
 
-- Build 1 has completed three PromptPacket-related commits since the last major review:
-  - `b453e2e` Prompt Packet domain model
-  - `0ce0cf9` PromptPacket validation hardening
-  - `111a975` PromptPacket model_payload() dispatch boundary
-- Per the live queue cadence, stop normal build work and perform a Codex-style review pass on the Build 1-owned PromptPacket slice.
-- Review only:
-  - `meridian_core/prompt_packet.py`
-  - `tests/test_prompt_packet.py`
-  - related prompt budget assumptions only if needed for correctness
-- Look specifically for:
-  - invalid direct construction paths
-  - mutable metadata or lineage aliasing
-  - metadata leakage through `model_payload()`
-  - budget validation gaps
-  - unclear validation error aggregation
-  - missing or weak tests
-- Automatically repair actionable findings in the allowed files.
-- If there are no actionable findings, record that result in this queue and return to polling.
-- Do not edit Relay yet.
+- Build 1 completed PromptPacket domain, validation, dispatch boundary, and Codex review repair.
+- Before editing Relay runtime, write a short implementation plan for how Relay should build/use PromptPacket.
+- Cover:
+  - what Relay should pass into `build_prompt_packet(...)`
+  - where prompt token counting belongs
+  - how source lineage should be calculated
+  - how `model_payload()` should be the only model-facing string
+  - how Prompt Metrics should observe packet construction without bloating worker prompts
+  - what tests should be written before runtime integration
+  - what must not happen yet
+- Keep it practical and build-ready.
+- Do not edit runtime code.
 - Do not edit package exports; Build 2 owns package API.
 - Do not edit FileMap; Build 3 owns FileMap.
 - No UI.
@@ -133,10 +126,7 @@ Task:
 
 Tests:
 
-```text
-python -m pytest tests/test_prompt_packet.py tests/test_prompt_budget.py -q
-python -m pytest -q
-```
+- No tests required. This is docs-only.
 
 Completion:
 

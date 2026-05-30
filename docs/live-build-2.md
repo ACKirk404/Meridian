@@ -94,33 +94,39 @@ YYYY-MM-DD HH:MM TZ - Build 2 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Goal: update the package API surface note for PromptPacket exports.
+Goal: run Build 2 Codex review pass for package API surface.
 
 Allowed files only:
 
+- `meridian_core/__init__.py`
+- `tests/test_package_api.py`
 - `docs/package-api-surface-note.md`
 
 Task:
 
-- Build 2 completed PromptPacket package-root exports in commit `f2f69ff`.
-- Update the package API policy note so it reflects current reality, not just the early ProgressIntention examples.
-- Add PromptPacket exports to the "Already exported" section:
-  - `PromptPacket`
-  - `PromptPacketValidationError`
-  - `build_prompt_packet`
-- Add a short note explaining why these are safe public exports now:
-  - construction validates in `PromptPacket.__post_init__`
-  - source lineage is copied and immutable
-  - `model_payload()` exposes only serialized prompt text
-- Keep it concise and policy-oriented.
-- Do not edit package code.
-- Do not edit tests.
+- Build 2 has completed three package/API docs commits since the last review:
+  - `88fbecb` PromptPacket package API planning note
+  - `f2f69ff` PromptPacket package-root exports
+  - `e73b840` package API surface note update
+- Per the live queue cadence, stop normal build work and perform a Codex-style review pass on the Build 2-owned package API surface.
+- Review only the allowed files.
+- Check:
+  - exported names are intentional and present in `__all__`
+  - package API smoke tests cover PromptPacket exports
+  - private helpers are not exported
+  - package API note matches current root exports
+  - no root export has been added without a clear public-contract reason
+- Automatically repair actionable findings in the allowed files.
+- If there are no actionable findings, record that result in this queue and return to polling.
 - Do not edit FileMap; Build 3 owns FileMap.
 - Do not edit PromptPacket runtime code; Build 1 owns PromptPacket.
 
 Tests:
 
-- No tests required. This is docs-only.
+```text
+python -m pytest tests/test_package_api.py -q
+python -m pytest -q
+```
 
 Completion:
 
