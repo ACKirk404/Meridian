@@ -86,6 +86,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 checked queue; status: idle/running/blocked
 2026-05-30 13:03 -06:00 - Build 5 checked queue; status: idle (cleared); no change since last poll — Reviews B Round B1 clearance unchanged, no repair routed, no new Cross-Check Activity, Active Task still stale; awaiting orchestrator reassignment; origin/main at 931ecce
 2026-05-30 13:05 -06:00 - Build 5 checked queue; status: idle (cleared); no change since last poll — Reviews B Round B1 clearance unchanged, no repair routed, no new Cross-Check Activity, Active Task still stale; awaiting orchestrator reassignment; origin/main at 25b1473
 2026-05-30 13:07 -06:00 - Build 5 checked queue; status: idle (cleared); no change since last poll — Reviews B Round B1 clearance unchanged, no repair routed, no new Cross-Check Activity, Active Task still stale; awaiting orchestrator reassignment; origin/main at b19b6af
+2026-05-30 13:09 -06:00 - Build 5 checked queue; status: running; new Active Task = design configurable Bifrost progress/proof surface at docs/bifrost-configurable-progress-surface-brief.md; Cross-Check Activity: none; origin/main at d821106
 ```
 
 ## Write/Completion Log
@@ -100,6 +101,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 completed <task>; commit <hash>; tests <result>
 2026-05-30 11:39 -06:00 - Build 5 completed Bifrost cockpit queue status surface brief at docs/bifrost-cockpit-queue-status-brief.md; commit pending; tests not required
 2026-05-30 11:46 -06:00 - Build 5 completed Bifrost V0 cockpit layout brief at docs/bifrost-v0-cockpit-layout-brief.md; commit pending; tests not required
 2026-05-30 12:02 -06:00 - Build 5 completed Bifrost Harness dashboard brief at docs/bifrost-harness-dashboard-brief.md; commit pending; tests not required
+2026-05-30 13:09 -06:00 - Build 5 completed Bifrost configurable progress and proof surface brief at docs/bifrost-configurable-progress-surface-brief.md; commit pending; tests not required
 ```
 
 ## Ready for Codex Review
