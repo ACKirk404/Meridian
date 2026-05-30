@@ -13,9 +13,10 @@ Rules:
 - Every time you modify this file or complete a task from it, add a timestamped entry to the Write/Completion Log section.
 - Every minute while idle, check for cross-check activity relevant to your slice: review notes, Codex findings, Aegis findings, failing tests, or Obsidian build log updates.
 - If cross-check activity affects your task, record it in this file's Cross-Check Activity section and address it before starting unrelated work.
-- After every three completed changes/commits from this build session, stop normal build work and request a Codex review check before taking another build task.
-- The Codex review check must automatically repair actionable findings in your owned files, rerun required tests, commit/push the repair slice, and report findings/fixes back in this file's heartbeat sections.
-- Record Codex review requests, findings, repairs, and outcomes in the Codex Review Cadence section.
+- After completing a task, mark the slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+- Do not perform your own Codex review. A separate Codex Reviews lane owns independent review, findings, and repair routing.
+- If the Codex Reviews lane writes a repair task into this file, complete that repair before taking unrelated work.
+- After every three completed task-changing commits, pause normal build work until the Codex Reviews lane records a cadence review result.
 - Use local time with timezone when possible.
 - Own only the files listed in the active task.
 - Do not edit Build 1 or Build 3 live queue files.
@@ -56,6 +57,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-05-30 14:05 -06:00 - Build 2 checked queue; status: idle (no new Active Task; polling)
 2026-05-30 14:15 -06:00 - Build 2 checked queue; status: idle (no new Active Task; polling)
 2026-05-30 14:20 -06:00 - Build 2 checked queue; status: running (Active Task found — repair stale is_valid/validation_errors claim in note)
+2026-05-30 14:25 -06:00 - Build 2 checked queue; status: idle (task bf15569 complete; no new Active Task; polling)
 ```
 
 ## Write/Completion Log
