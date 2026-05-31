@@ -1,0 +1,221 @@
+/* Bifrost cockpit — V1 palette and layout
+   Canonical design source; render_cockpit_html embeds this inline. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --bg:      #0d1117;
+  --surface: #161b22;
+  --border:  #30363d;
+  --text:    #e6edf3;
+  --muted:   #8b949e;
+  --accent:  #58a6ff;
+  --success: #56d364;
+  --warning: #f0883e;
+  --danger:  #f85149;
+}
+
+body {
+  margin: 0;
+  font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Nav ──────────────────────────────────────────── */
+
+.cockpit-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 12px;
+  flex-shrink: 0;
+}
+
+.nav-buttons { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 3px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.nav-btn:hover { background: var(--border); }
+
+.nav-harness { margin-left: auto; }
+
+.harness-dot { color: var(--success); }
+
+/* ── Content grid ─────────────────────────────────── */
+
+.cockpit-content {
+  display: grid;
+  grid-template-columns: 1fr 100px 220px;
+  gap: 1px;
+  flex: 1;
+  overflow: hidden;
+  background: var(--border);
+}
+
+.cockpit-content > * { background: var(--bg); overflow: auto; }
+
+/* ── Prime panel ──────────────────────────────────── */
+
+.prime-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 8px;
+}
+
+.prime-header {
+  color: var(--muted);
+  font-size: 11px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.prime-sep { opacity: 0.4; }
+.prime-status { color: var(--success); }
+
+.prime-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+
+.tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  padding: 4px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.tab-active { border-color: var(--accent); color: var(--accent); }
+
+.review-badge {
+  background: var(--warning);
+  color: var(--bg);
+  font-size: 10px;
+  padding: 0 5px;
+  border-radius: 8px;
+  margin-left: 4px;
+}
+
+.prime-messages { flex: 1; overflow: auto; }
+.prime-msg { margin: 0 0 8px; line-height: 1.5; }
+
+.prime-input { border-top: 1px solid var(--border); padding-top: 8px; }
+
+.prime-prompt {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+/* ── Lane strip ───────────────────────────────────── */
+
+.lane-strip {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 6px;
+  gap: 4px;
+}
+
+.lane-rows { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+
+.lane-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 6px;
+  border-radius: 3px;
+  border-left: 3px solid transparent;
+  font-size: 11px;
+}
+
+.lane-row[data-status="running"] { border-left-color: var(--success); }
+.lane-row[data-status="blocked"]  { border-left-color: var(--danger);  background: rgba(248,81,73,0.05); }
+.lane-row[data-status="paused"]   { border-left-color: var(--warning); }
+.lane-row[data-status="idle"]     { border-left-color: var(--border);  color: var(--muted); }
+
+.lane-name { font-weight: 600; }
+.lane-label { color: var(--muted); font-size: 10px; }
+
+.lane-summary {
+  font-size: 10px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 6px;
+}
+
+/* ── Progress surface ─────────────────────────────── */
+
+.progress-surface {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 6px;
+}
+
+.progress-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+
+.progress-filter { cursor: pointer; color: var(--accent); }
+
+.progress-cards { display: flex; flex-direction: column; gap: 4px; overflow: auto; }
+
+.progress-card {
+  padding: 6px 8px;
+  background: var(--surface);
+  border-radius: 4px;
+  border-left: 2px solid var(--border);
+}
+
+.progress-ts     { font-size: 10px; color: var(--muted); margin-right: 6px; }
+.progress-source { font-size: 10px; color: var(--accent); font-weight: 600; }
+.progress-summary { margin: 3px 0 0; font-size: 11px; line-height: 1.4; }
+
+/* ── Instrument band ──────────────────────────────── */
+
+.instrument-band {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 5px 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.instr-chip { display: inline-flex; gap: 3px; }
+.instr-ok   { color: var(--success); }
+.instr-warn { color: var(--warning); }
+.instr-error { color: var(--danger); }
+
+.instr-clock { margin-left: auto; }
