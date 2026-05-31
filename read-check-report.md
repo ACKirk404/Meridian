@@ -129,5 +129,34 @@ These entries were merged from commit 4534abf and belong to a different session 
 2025-07-16 ~03:00 UTC - s_1780252771590 read check; status: idle; pulled origin/main (HEAD 1a8e9f9); all 5 lanes idle
 2026-05-31 15:13 CDT - s_1780252771590 read check; status: idle; pulled origin/main (HEAD 8a7cec3); all 5 lanes idle
 2026-06-09 ~21:00 UTC - s_1780252771590 read check; status: idle; pulled origin/main (HEAD cd52729); all 5 lanes idle
-2026-07-16 ~21:05 UTC - s_1780252771590 read check; status: idle; all 5 lanes — no executable task; no lane assignment
+2026-07-16 ~21:05 UTC - s_1780252771590 read check; status: idle; all 5 lanes -- no executable task; no lane assignment
+2026-05-31 16:30 CDT - s_1780252771590 read check; status: idle (no lane assignment); pulled origin/main (HEAD 0078999); Build 1 stale (b7c8ad3), Build 2 idle, Build 3/4/5 have executable tasks; session unassigned
 ```
+Reporting IDLE. Awaiting assignment from Scott/Prime/Coordinator. 
+
+---
+
+## Read Check — 2026-07-16 ~22:00 UTC
+
+### Status: IDLE — No Lane Assignment
+
+### Pull
+- `git pull origin/main` from `C:\Users\scott\Code\Meridian` — SUCCESS (already up to date)
+- HEAD: `0078999` — "docs: mark Session Lifecycle implementation checklist complete, update Build 2 queue"
+
+### Full Five-Lane Queue Inspection (fresh reads from origin/main)
+
+| Lane | Active Task | Output File | Verdict |
+|------|------------|-------------|---------|
+| Build 1 | "implement Prime project-state next-action selector" (line 119) | `meridian_core/prime_autonomy.py` exists with `ProjectState` + `select_prime_project_action()` | **STALE** — completed at `b7c8ad3` by Scott |
+| Build 2 | No Active Task block present; top section is "Coordinator Override - Completed" (Session Lifecycle contract already done at `e37030e`; implementation checklist already done at `78d9bdd`) | N/A | **NO ACTIVE TASK** |
+| Build 3 | "register new V2 contract-wave documents in FileMap" (line 13) | Target docs not in `filemap.py` or `test_filemap.py` | **EXECUTABLE** — not completed, cadence 1/3 since Round B5 (not blocked) |
+| Build 4 | "write a Prime workflow/sub-agent usage checklist" (line 35) | `docs/workflow-subagent-usage-checklist.md` **MISSING** | **EXECUTABLE** |
+| Build 5 | "write a Bifrost voice-control command palette contract" (line 33) | `docs/bifrost-voice-command-contract.md` **MISSING** | **EXECUTABLE** |
+
+### Verdict
+Three lanes (Build 3, 4, 5) have executable Active Tasks. This session remains **unassigned** to any Build 1–5 lane. No queue file is designated as this session's assigned queue. Cannot execute tasks without lane assignment.
+
+### Action
+**Reporting IDLE.** Three executable tasks exist across Build 3/4/5. Awaiting lane/queue assignment from Prime/Scott. 
+
