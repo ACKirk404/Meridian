@@ -320,3 +320,5 @@ Historical record for reference. Authoritative detail is in the Write/Completion
 2026-06-07 00:00 UTC - Build 3 checked queue; status: idle; no new Active Task; cadence 1/3 since Round B5; awaiting assignment
 2026-06-07 12:00 UTC - Build 3 checked queue; status: idle; no new Active Task; cadence 1/3 since Round B5; awaiting assignment
 2026-06-08 00:00 UTC - Build 3 checked queue; status: idle; no new Active Task; cadence 1/3 since Round B5; awaiting assignment
+2026-06-08 12:00 UTC - Build 3 checked queue; status: idle; Active Task stale (v2-detailed-build-plan); no executable new task; cadence 1/3 since Round B5; awaiting assignment
+2026-06-08 12:00 UTC - Build 3 checked queue; status: idle; Active Task stale (v2-detailed-build-plan); no executable new task; cadence 1/3 since Round B5; awaiting assignment
