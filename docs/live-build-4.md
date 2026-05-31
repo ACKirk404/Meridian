@@ -321,6 +321,8 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-31 09:02 -06:00 - Build 4 checked queue; status: idle; no Active Task; Build 1 paused cadence 3/3 awaiting Codex clear (fab3ce0); Build 3 idle awaiting next assignment (f2e88ec); Next Candidate Task (Prime restart/resteer logic contract) still awaits coordinator promotion; origin/main at f1b03b1
 
 2026-05-31 16:26 -06:00 - Build 4 checked queue; status: running; Active Task = Prime workflow/sub-agent usage checklist (docs/workflow-subagent-usage-checklist.md); pulled origin/main to 0078999; worktree C:/Users/scott/AppData/Local/Temp/polaris-wt/s_1780256820022 (unique)
+2026-07-16 02:30 UTC - Build 4 checked queue; status: idle (no executable Active Task; all Coordinator Override blocks complete: Federation Harness e37030e, Workflow checklist dc86d68, Claude Workflows 17d8d90; Next Candidate "Prime restart/resteer logic contract" not yet promoted; awaiting assignment)
+2026-05-31 22:49 UTC - Build 4 checked queue; status: idle (no executable Active Task; all Coordinator Override blocks complete: Federation Harness e37030e, Workflow checklist dc86d68, Claude Workflows 17d8d90; Next Candidate "Prime restart/resteer logic contract" not yet promoted; awaiting assignment); origin/main at a1253b8
 ```
 
 ## Write/Completion Log
