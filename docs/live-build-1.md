@@ -72,7 +72,7 @@ Completion:
 
 Ready for Codex Review. Routed to Codex Reviews A in `29109e7`.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair and harden the Prime queue runway policy.
 
@@ -88,7 +88,26 @@ Task: revise `docs/prime-queue-runway-policy.md` so it matches the live Meridian
 - Unique worktrees, assigned queues, and branch-movement permission are hard invariants.
 - Include what Prime should do when a provider/model limit blocks a lane: reduce active lanes, switch allowed models/providers, or reassign non-model-bound docs/review work.
 
-Tests: none required, docs-only.
+Tests: not required (docs-only).
+
+Completion:
+
+- Coordinator completed this policy repair on 2026-05-31 15:42 -06:00.
+- Files changed: `docs/prime-queue-runway-policy.md`, `docs/live-build-1.md`.
+- Tests run: not required (docs-only).
+- Commit: pending coordinator commit.
+
+Ready for Codex Review after commit.
+
+## Coordinator Override - Active Now
+
+Goal: write a short Echo/Atlas handoff review note.
+
+Allowed files only: `docs/echo-atlas-handoff-review-note.md`, `docs/live-build-1.md`.
+
+Task: inspect the current Echo/Atlas V2 docs and runtime objects, then write a short note identifying gaps, follow-up runtime objects, and how Prime should use Echo vs Atlas differently. Keep it docs-only and do not edit Echo, Atlas, package exports, FileMap, or tests.
+
+Tests: not required (docs-only).
 
 Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
 
@@ -100,7 +119,7 @@ Allowed files: to be assigned by Prime/Codex after review.
 
 Task: wire the prompt payload snapshot into the Relay dispatch surface and Bifrost prompt visibility panel without increasing prompt drag.
 
-## Next Candidate Task
+## Archived Prior Candidate - Promoted Above
 
 Goal: write a short Echo/Atlas handoff review note.
 
