@@ -55,7 +55,7 @@ Look for:
 | Build lane | Last reviewed commit | Last reviewed task | Review status | Pending finding / repair | Next action |
 | --- | --- | --- | --- | --- | --- |
 | Build 3 | 1378bda | FileMap repair — register 4 uncatalogued docs (Round B2) | passed | Round B1 MEDIUM repair verified closed; 1 new MEDIUM finding (live-codex-reviews-2.md still uncatalogued); 2 LOW prose-divergence carryovers from Round B1 still deferred | route 1-row FileMap follow-up to Build 3 for `docs/live-codex-reviews-2.md`; verify in Round B3 |
-| Build 4 | c8b4738 | Prime Autonomy V2 contract (Round B14) | passed-with-findings | MEDIUM: 4 V2 architecture contracts need FileMap registration (echo-memory-contract.md, atlas-retrieval-contract.md, workflow-subagent-harness-contract.md, prime-autonomy-v2-contract.md — from Rounds B11+B13+B14 findings) | route consolidated 4-entry FileMap repair to Build 3; verify in next Build 3 cadence review |
+| Build 4 | 0115581 | Workflows architecture note (Round B15) | passed-with-findings | MEDIUM: 5 V2 architecture docs need FileMap registration (echo-memory-contract.md, atlas-retrieval-contract.md, workflow-subagent-harness-contract.md, prime-autonomy-v2-contract.md, workflows-subagent-harness-architecture.md — from Rounds B11+B13+B14+B15 findings) | route consolidated 5-entry FileMap repair to Build 3; verify in next Build 3 cadence review |
 | Build 5 | 9328272 | V1 Harness Dashboard implementation | passed Round B8 | no findings; final V1 cockpit item cleared | V1 cockpit build is review-cleared |
 
 ## Review Round Scope
@@ -843,4 +843,117 @@ Tests: docs-only (no pytest required; test requirements defined for Build 1 runt
 
 **Next Action**
 - Route consolidated 4-entry FileMap repair for B11+B13+B14 findings to Build 3
+- Return to idle polling for new Ready markers
+
+## Round B15 Documentation — Workflows Sub-Agent Harness Architecture Note
+
+**2026-05-31 08:57 - Round B15 Scope**
+Build lanes: Build 4
+Commit: Build 4 0115581 (backfill marker; actual narrative at 17d8d90)
+Reason: Monitor detected new Build 4 Ready marker for Workflows architecture narrative
+Allowed files: docs/workflows-subagent-harness-architecture.md, docs/live-build-4.md (provenance only)
+Tests: docs-only (narrative architecture, no pytest required)
+
+**Review Summary**
+- Build 4: docs/workflows-subagent-harness-architecture.md (195 lines)
+- Status: PASS-WITH-FINDINGS
+- Findings: 1 MEDIUM (FileMap registration gap; consolidates with B11/B13/B14 findings)
+
+**Contract Overview**
+- Narrative architecture companion to implementation-facing docs/workflow-subagent-harness-contract.md
+- Owned by Workflow Sub-Agent Harness (cross-cutting); owned doc by Build 4
+- Purpose: Explain *why* workflows, *which* harnesses use them, *what* state Prime keeps, *how* this protects Prime context, *how* this maps to long-term design
+
+**The Problem Section**
+✓ Context bleed: Echo raw text, Atlas file dumps, Aegis full logs, Relay transcripts, Bifrost HTML/CSS, Beacon probes, Session Lifecycle chat all accumulate in Prime window
+✓ Consequence: Orchestrator stops being a coordination surface, becomes a noisy log aggregator
+✓ Solution: Separate context where bounded work runs end-to-end; typed summary returns; working noise discarded
+
+**Core Principle**
+✓ Prime owns: intent, policy, priority, final coordination
+✓ Workflows own: bounded harness work, return structured results
+✓ Distinction: one prompt→response = Model Call (Relay); "spend N minutes doing bounded thing" = workflow (Workflow Sub-Agent Harness)
+
+**Which Harnesses Should Run as Workflows (Closed List for V2 First Wave)**
+✓ Echo: memory maintenance (compaction, bulk-import distillation, large-query prep)
+✓ Atlas: retrieval (wide FileMap scans, Echo fold-in, doc allowlist reads)
+✓ Aegis: proof review (review, finding synthesis, waiver prep)
+✓ Relay: model dispatch (dispatch itself, multi-call aggregation, dual-lane synthesis)
+✓ Bifrost: UI verification (preview/build checks, render checks, fixture validation, escape audits)
+✓ Beacon: liveness (sweeps, staleness audits, health pings)
+✓ Session Lifecycle: spawn/watch/steer/recover AND operates workflows for other harnesses
+
+✓ What NOT to make workflows:
+  - Single inferences (use Model Harness)
+  - Prime deliberation (Prime does not delegate "what next?" to sub-agent)
+  - Direct global mutation (workflows return summaries; durable changes via calling harness or Prime)
+  - Unbounded watch loops (if you cannot say "ends when X is true", not a workflow)
+
+**Prime's Local State**
+✓ Prime KEEPS:
+  - Current PrimeNextAction
+  - Current CognitionPolicy decisions for tier-2+ actions
+  - Active gate refs from Review Console
+  - Active workflow work_order_ids + last WorkflowHeartbeat summary line
+  - Recent Scott directions + current intention
+  - Standing instructions + Charter constraints
+
+✓ Prime DELEGATES (never keeps):
+  - MemoryRecord.body text (only MemoryHit summaries)
+  - Raw file content (only AtlasHit.excerpt)
+  - Workflow transcripts
+  - Raw proof logs, test stdout, browser dumps
+  - Raw worker session chat
+  - Tool intermediate results inside sub-agent
+  - Heartbeat history
+
+**What Each Workflow Returns**
+✓ Exactly two shapes: WorkflowResultSummary OR WorkflowErrorSummary (no third)
+✓ WorkflowResultSummary: summary (≤1000 chars), typed outputs matching expected_result_shape, ProofTrail, tokens_used, time_used, next_action_recommendation, requires_human_gate
+✓ WorkflowErrorSummary: failure_kind (8 enum values), summary, partial_outputs (typed), optional WorkflowResteerRequest
+✓ Everything else stays in sub-agent context and is discarded at termination
+
+**How This Protects Prime's Context Window (7 Structural Properties)**
+✓ Separate context: sub-agent window is isolated; no quoting from Prime except via typed WorkflowInputPacket
+✓ Typed boundary: inputs/outputs are frozen dataclasses with bounded fields; no free-text passthrough
+✓ Hard caps on rendered surface: summary length cap, echo_inputs rendered cap, atlas_inputs rendered cap
+✓ Default injection is zero: only summary/result_shape/structured outputs eligible for Prime context (Aegis policy gated)
+✓ Heartbeats stay operational: Bifrost renders live; Prime keeps last line only (never in result)
+✓ Errors are typed: workflow crash returns WorkflowErrorSummary(INTERNAL_ERROR); Prime sees typed error and decides
+✓ Promotion is gated: tier-1 accepts summary; tier-2+ requires ProofTrail+ALLOW policy; tier-3 adds Review Console; tier-4 requires Scott
+
+**Three-Level Long-Term Mapping**
+✓ Level 1 — V2 first wave (now): 7 harnesses expose workflow action vocabularies; Session Lifecycle operates them; Prime issues orders and reads summaries
+✓ Level 2 — V2 mature: runtime tests landed; cockpit shows active workflows with status/age/tier; Council deliberation becomes workflow; restart vs. resteer plumbed in
+✓ Level 3 — Long-term federation: workflows become federation boundary (cross-Meridian work dispatched as work orders); public/account reuse workflows; "agent factory" thesis operational (Prime coordinates; bounded work is composable, typed, budget-disciplined)
+
+**Architectural Consistency**
+✓ Cross-references verified:
+  - context.md "Workflow Sub-Agents" ✓
+  - docs/workflow-subagent-harness-contract.md (implementation-facing) ✓
+  - docs/prime-autonomy-v2-contract.md (selector rules) ✓
+  - docs/echo-memory-contract.md, docs/atlas-retrieval-contract.md ✓
+  - docs/prime-restart-resteer-logic.md ✓
+  - docs/review-console-surface-contract.md ✓
+  - docs/v2-detailed-build-plan.md Track 6 ✓
+  - docs/federation-harness-horizon.md (noted as when-written future doc) ✓
+
+✓ "Closed list for V2 first wave" clearly stated; no scope drift
+✓ All referenced docs exist and are consistent with narrative
+✓ No contradiction with contract or related architecture docs
+✓ Long-term mapping (3 levels) coherent and forward-looking
+
+**Findings**
+- MEDIUM: docs/workflows-subagent-harness-architecture.md needs FileMap registration (new V2 architecture narrative doc)
+- Consolidated repair: 5 docs now need FileMap entry (echo-memory-contract, atlas-retrieval-contract, workflow-subagent-harness-contract, prime-autonomy-v2-contract, workflows-subagent-harness-architecture)
+- Action: Route consolidated 5-entry FileMap repair to Build 3
+
+**Proof**
+- `git show 17d8d90 --stat` confirms 195-line architecture narrative + live-build-4.md mark
+- Full note read: problem statement (7 harnesses bleeding context), core principle (Prime coords; workflows do bounded work), closed list of 7 harnesses (Echo/Atlas/Aegis/Relay/Bifrost/Beacon/Session Lifecycle), state split (5 Prime local + 8 Prime delegates), return shapes (2 only), 7 context protections (separate/typed/caps/zero-inject/operational/typed-errors/gated), 3-level design mapping
+- Cross-references: all companion docs verified present and consistent
+- "Closed list for V2" and "not a workflow" sections clear
+
+**Next Action**
+- Route consolidated 5-entry FileMap repair for B11+B13+B14+B15 findings to Build 3
 - Return to idle polling for new Ready markers
