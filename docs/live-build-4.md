@@ -13,7 +13,7 @@
 ~~Completion: commit only this architecture slice, push, update Obsidian, and mark Ready for Codex Review.~~
 
 **Ready for Codex Review**
-- Commit: `<pending>`
+- Commit: `3aa16fe`
 - Files: `docs/prime-autonomy-v2-contract.md`
 - Tests: not required (docs-only)
 
@@ -263,6 +263,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-31 08:38 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no new Active Task; Build 1/2 idle polling (752520a, 5dc8284 V2 package API surface task complete cadence 2/3); Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642 still pending Codex Reviews sweep; origin/main at 752520a
 2026-05-31 08:40 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no new Active Task; Build 2 landed V2 package/API surface policy for Echo, Atlas, Prime Autonomy, Session Lifecycle, Workflow dispatch (f6ba22d) — derived from Build 4 V2 contracts; Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642 still pending Codex Reviews sweep; origin/main at f6ba22d
 2026-05-31 08:45 -06:00 - Build 4 checked queue; status: running; new Coordinator Override (Active Now) at top of file = V2 Prime Autonomy contract (docs/prime-autonomy-v2-contract.md); runway refill commit 2743366 added it and a Next Candidate slot; override authorizes work despite cadence pause; origin/main at 806a328
+2026-05-31 08:47 -06:00 - Build 4 checked queue; status: idle (cadence-paused); Prime Autonomy contract complete (3aa16fe); Ready for Codex Review block backfilled with real hash; Next Candidate Task (Claude Workflows sub-agent architecture note) sits below override block awaiting coordinator promotion; Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642, 3aa16fe (6) still pending Codex Reviews sweep; origin/main at 3aa16fe
 ```
 
 ## Write/Completion Log
