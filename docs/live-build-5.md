@@ -62,7 +62,7 @@ Completion:
 - Coordinator completed this docs-only Bifrost balance/payload surface contract on 2026-05-31.
 - Files changed: `docs/bifrost-balance-payload-surface-contract.md`, `docs/live-build-5.md`.
 - Tests: not required (docs-only).
-- Commit: `6887333`.
+- Commit: `70d3af4`.
 
 Ready for Codex Review.
 

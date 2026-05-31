@@ -12,7 +12,7 @@ Goal: review Build 5 Bifrost balance and prompt payload surface contract.
 
 Scope:
 
-- Build 5 commit `6887333` - creates `docs/bifrost-balance-payload-surface-contract.md` and marks Build 5 ready for Codex Review.
+- Build 5 commit `70d3af4` - creates `docs/bifrost-balance-payload-surface-contract.md` and marks Build 5 ready for Codex Review.
 
 Allowed review files:
 
