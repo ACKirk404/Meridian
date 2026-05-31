@@ -60,6 +60,7 @@ Contract wave scope:
 - `docs/session-lifecycle-v2-contract.md`
 - `docs/federation-harness-horizon.md`
 - `docs/session-card-queue-activation-contract.md`
+- `docs/deepseek-provider-validation-gate.md`
 - `docs/live-build-2.md`
 - `docs/live-build-4.md`
 - `docs/live-build-5.md`
@@ -69,6 +70,7 @@ Review expectations:
 - Verify the Session Lifecycle contract preserves unique worktree, queue routing, branch-permission, proof, and workflow/sub-agent invariants.
 - Verify the Federation horizon plan stays planning-only and does not imply unsafe shared state, hidden account automation, or V2 network/auth implementation.
 - Verify the session-card queue activation contract captures Polaris Q mode lessons without making read-check commits a substitute for work.
+- Verify the DeepSeek validation gate treats DeepSeek as a candidate provider until direct API, prompt payload, Q-mode, and coding benchmark proof establish trust; it must not allow autonomous coding, review-clearing, or branch/worktree authority while candidate-state.
 - Verify Build 2, Build 4, and Build 5 each have a valid next active task after the completed contract slice.
 - Route FileMap registration gaps to Build 3 after review.
 

@@ -4,6 +4,42 @@ This file is the standing queue for Codex Reviews A, the runtime/code review ses
 
 The build lanes build. Review lanes review.
 
+## Coordinator Override - Active Now
+
+Goal: review and clear or repair the V2 Prime Session Lifecycle restart/resteer runtime slice.
+
+Scope:
+
+- Runtime commit `8b4c8ac` - `meridian_core/restart_resteer.py`, `tests/test_restart_resteer.py`.
+- Contract commit `27e1b1f` - `docs/prime-restart-resteer-contract.md`.
+- Tracker implication: `docs/v2-progress-tracker.md` currently marks this slice built-awaiting-review.
+
+Allowed review files:
+
+- `meridian_core/restart_resteer.py`
+- `tests/test_restart_resteer.py`
+- `docs/prime-restart-resteer-contract.md`
+- `docs/live-build-1.md` and `docs/live-build-2.md` for provenance only.
+- `docs/v2-progress-tracker.md` for tracker implication only.
+
+Proof commands:
+
+- `python -m pytest tests/test_restart_resteer.py -q`
+- `python -m pytest tests/test_filemap.py tests/test_restart_resteer.py -q`
+
+Review expectations:
+
+- Verify empty build queues route to resteer without treating empty review queues as build-runway failures.
+- Verify wrong-queue findings distinguish build lanes reading review queues and review lanes reading build queues.
+- Verify shared/main worktree findings are blocking and preserve the Prime Directive that every worker/review session uses a unique worktree.
+- Verify branch movement, quota blocks, launch/popup failures, proof blocks, and stale/polling findings produce deterministic directives without performing live side effects.
+- Verify the module is pure: no subprocess, filesystem mutation, network calls, branch movement, or UI automation.
+- Verify the contract remains aligned with the runtime object names and safety posture.
+- If clean, record proof and mark the V2 tracker implication as review-cleared.
+- If findings exist, route a focused repair back to the owning build lane with allowed files and tests.
+
+Completion: commit and push only `docs/live-codex-reviews.md` unless routing a repair or updating tracker implication after a clean pass.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: verify Build 1 repair commit `8e8c87b` closes the V2 runtime/code MEDIUM findings.
@@ -383,6 +419,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-05-31 15:04 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current in detached review worktree; Build 1 repair verification remains completed/passed and no executable Active Task remains.
 2026-05-31 15:07 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current in detached review worktree; no executable Active Task remains. Queue-only cadence check found no actionable findings.
 2026-05-31 15:08 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main inspected in detached review worktree; no executable Active Task remains in Reviews A queue; Build 1/2 build queues contain build-lane tasks only and were not executed.
+2026-05-31 15:11 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main fast-forwarded in detached review worktree; no executable Active Task remains in Reviews A queue.
 ```
 
 ## Review Log
@@ -659,6 +696,7 @@ Round 6 write log:
 - 2026-05-31 15:04 -06:00 - Codex Reviews A completed idle queue read after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `3966a4d`; status-update commits: `0dbd6d9`, `30791c4`, `2081008`. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new review finding or clearance.
 - 2026-05-31 15:07 -06:00 - Codex Reviews A completed idle queue read and queue-only cadence check after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (queue-only documentation review); proof command: `git diff 43a704e..HEAD -- docs/live-codex-reviews.md`. Commit: `8edeb19`; status-update commit: `6c254c7`. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new durable review finding or clearance.
 - 2026-05-31 15:08 -06:00 - Codex Reviews A completed idle queue read after origin/main inspection. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `792e354`; status-update commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new review finding or clearance.
+- 2026-05-31 15:11 -06:00 - Codex Reviews A completed idle queue read after origin/main fast-forward. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `261f1a0`. Push status: pending. Obsidian update status: not updated; no new review finding or clearance.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
