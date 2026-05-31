@@ -680,6 +680,37 @@ A very large-context model may be useful for the orchestrator, but it is not the
 
 The core solution is that Prime has persistent, queryable, ranked access to memory and knowledge. Prime's effective memory should not be bounded by any one model session's context window.
 
+## Workflow Sub-Agents
+
+Claude now has a workflow concept that can act like a sub-agent with a separate context window. Meridian should treat this as a core architectural pattern, not a convenience feature.
+
+Prime should not carry every harness's working context in the orchestrator session. Prime should coordinate. Harnesses and substantial sub-processes should run in workflow/sub-agent contexts whenever the host model or adapter supports it.
+
+This gives Meridian three important advantages:
+
+- Prime's context stays lean enough for judgment, priority, and coordination.
+- Harnesses can maintain focused working context without polluting the orchestrator window.
+- Completed workflow work can return typed summaries, evidence, heartbeats, and next-action recommendations instead of raw chat history.
+
+Practical rule:
+
+```text
+Prime owns intent, policy, priority, and final coordination.
+Workflow sub-agents own bounded harness work and return structured results.
+```
+
+Likely workflow-backed areas:
+
+- Echo memory maintenance and retrieval preparation.
+- Atlas file/docs retrieval.
+- Aegis proof review and finding synthesis.
+- Relay model/session dispatch.
+- Beacon health/liveness checks.
+- Bifrost UI preview/build verification.
+- Session lifecycle watch/steer/recover loops.
+
+The anti-pattern is letting Prime become the place where every harness's logs, searches, drafts, proofs, and retries accumulate. If a task can be bounded, delegated, and summarized, it belongs in a workflow context with a clear input contract and output contract.
+
 ## Meridian File Map
 
 Meridian needs a living knowledge tracker for important files and what they do.

@@ -15,6 +15,7 @@ In practical terms:
 - Prime retrieves relevant files, notes, plans, and prior decisions through a ranked interface instead of depending on pasted context.
 - Prime selects and routes work by risk tier, using stronger gated cognition only when the action justifies the cost.
 - Prime can spawn, watch, steer, and recover sessions through a session lifecycle harness.
+- Prime can delegate bounded harness work into workflow/sub-agent contexts so the orchestrator context does not fill with harness working memory.
 - Scott sees bottlenecks, review gates, memory/retrieval activity, and harness health in Bifrost without managing worker sessions manually.
 
 ## Recommended First V2 Wave
@@ -26,6 +27,7 @@ Why this first:
 - It directly addresses the reason Meridian exists: Scott should be the bottleneck only when judgment is truly needed.
 - It uses V1 cockpit surfaces instead of building invisible infrastructure.
 - It improves model reliability by giving Prime persistent, queryable context rather than larger prompt dumps.
+- It keeps Prime's orchestrator window lean by moving harness execution into workflow/sub-agent contexts when available.
 - It creates early proof for the central V2 claim: Prime's effective memory is not bounded by any one model context window.
 
 First wave deliverable:
@@ -189,9 +191,12 @@ First wave deliverable:
 
 **Why it matters:** This is the operational heart of Meridian's agent-factory behavior.
 
+**Workflow/sub-agent principle:** Session lifecycle should prefer workflow-backed harness execution when available. Prime should issue typed work orders, receive heartbeats/proof/results, and avoid absorbing each session's full working context.
+
 **First vertical slice:**
 
 - Define `SessionLifecycleState` and `SessionCommandPlan`.
+- Define a workflow/sub-agent dispatch contract for bounded harness work.
 - Model spawn, watch, steer, stop, transfer, archive, stale, and recover as typed actions.
 - Keep execution mocked/deterministic first.
 
@@ -200,10 +205,12 @@ First wave deliverable:
 - `meridian_core/session_lifecycle.py`
 - `tests/test_session_lifecycle.py`
 - `docs/session-lifecycle-v2-contract.md`
+- `docs/workflow-subagent-harness-contract.md`
 
 **Proof/test expectation:**
 
 - Tests for legal/illegal transitions.
+- Tests for workflow dispatch request/result summaries once runtime begins.
 - Tests that branch/worktree movement requires Scott or Prime permission.
 - Tests for stale recovery recommendation.
 
@@ -212,6 +219,7 @@ First wave deliverable:
 - No direct Polaris/Electron automation in the first slice.
 - No destructive session operations.
 - No branch switching without explicit permission object.
+- No raw workflow transcript injection into Prime context.
 
 ## Track 7: Bifrost V2 Extensions
 
