@@ -212,6 +212,35 @@ YYYY-MM-DD HH:MM TZ - Routed repair to Build <n>; queue: docs/live-build-<n>.md;
 
 ## Active Task
 
+Current Active Task - Coordinator Override:
+
+Goal: perform the next Codex Reviews B docs/FileMap/Bifrost sweep.
+
+Immediate scope:
+
+- Build 5 commit `6b3e652` - Electron cockpit app shell.
+- Build 3 commit `b48b5c3` - V2 detailed build plan FileMap registration, if not already cleared.
+- Build 4 commits `7eb5ae1` and `1649b09` - Echo/Atlas first-wave contract docs and queue backfill.
+
+Required proof:
+
+- Inspect target diffs with `git show`.
+- Run `python -m pytest tests/test_bifrost_preview.py tests/test_bifrost_cockpit.py -q`.
+- Run `python -m pytest tests/test_filemap.py -q`.
+- Confirm `npm start` exists and is wired as `npm run preview && electron .`.
+- Confirm Electron shell uses secure local-preview behavior and blocks remote navigation.
+- Confirm V1 tracker says 13/13 with Electron shell built.
+- Confirm Echo/Atlas docs are V2-scoped and avoid vector DB, prompt dumping, broad crawling, or live account scraping in first slices.
+- Route any FileMap gaps to Build 3.
+
+Output:
+
+- Declare a new Round B scope.
+- Update Review Ledger, Review Log, Proof Log, Findings, and Repair Routing Log.
+- If clean, mark these slices passed and unblock Build 3/4/5.
+
+Stale prior task follows.
+
 Current Active Task (supersedes stale Round B4 text below):
 
 Goal: perform Codex Reviews B Round B5 for the current V1 Bifrost startup wave.

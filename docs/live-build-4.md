@@ -287,6 +287,36 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
+Current Active Task - Coordinator Override:
+
+Goal: write the Workflow Sub-Agent Harness contract for V2.
+
+Allowed files only:
+
+- `docs/workflow-subagent-harness-contract.md`
+- `docs/v2-detailed-build-plan.md`
+- `docs/live-build-4.md`
+
+Task:
+
+- Create `docs/workflow-subagent-harness-contract.md`.
+- Define how Prime delegates bounded work to workflow/sub-agent contexts.
+- Cover work order shape, input packet, heartbeat/status summary, proof/result summary, error/restart/resteer summary, and what must never return to Prime as raw context.
+- Cover how Echo, Atlas, Aegis, Relay, Bifrost, and Session Lifecycle should use workflow contexts.
+- Explain how this differs from normal model calls through the Model Harness.
+- Include review/proof expectations before workflow results affect durable state.
+- Do not edit runtime code or FileMap.
+
+Tests:
+
+- No tests required. Docs-only.
+
+Completion:
+
+- Commit only this architecture slice, push, update Obsidian, and mark Ready for Codex Review.
+
+Stale prior task follows.
+
 ~~Current Active Task (COMPLETED 2026-05-31 07:37 -06:00):~~
 
 ~~Goal: write V2 first-wave contract docs for Echo Memory and Atlas Retrieval.~~

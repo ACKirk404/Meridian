@@ -264,6 +264,33 @@ YYYY-MM-DD HH:MM TZ - Build 5 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
+Current Active Task - Coordinator Override:
+
+Goal: write the Bifrost V2 cockpit extensions contract.
+
+Allowed files only:
+
+- `docs/bifrost-v2-extensions-contract.md`
+- `docs/live-build-5.md`
+
+Task:
+
+- Create `docs/bifrost-v2-extensions-contract.md`.
+- Define V2 cockpit surfaces for Prime next action, Echo memory hits, Atlas retrieval hits, Session Lifecycle command preview, Aegis cognition policy result, and workflow/sub-agent activity summary.
+- For each surface, specify owning harness, input domain object, display fields, stale/degraded state, proof expectation, V2 user actions versus deferred actions, and what must never be injected into Prime prompts.
+- Keep the contract static/render-model focused.
+- Do not edit Bifrost runtime code or FileMap.
+
+Tests:
+
+- No tests required. Docs-only.
+
+Completion:
+
+- Commit only this Bifrost V2 contract slice, push, update Obsidian, and mark Ready for Codex Review.
+
+Stale prior task follows.
+
 Current Active Task (supersedes any stale text below):
 
 Goal: implement the V1 Harness Dashboard surface in Bifrost.

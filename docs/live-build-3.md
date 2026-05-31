@@ -248,6 +248,34 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
+Current Active Task - Coordinator Override:
+
+Goal: register the V1 Electron cockpit app shell and preview files in FileMap.
+
+Allowed files only:
+
+- `docs/FileMap.md`
+- `meridian_core/filemap.py`
+- `tests/test_filemap.py`
+- `docs/live-build-3.md`
+
+Task:
+
+- Register `package.json`, `electron/main.js`, `bifrost/preview.py`, and `tests/test_bifrost_preview.py`.
+- Use `FileArea.BIFROST`.
+- Add required-path coverage in `tests/test_filemap.py`.
+- Do not edit Electron app code, Bifrost renderer code, or package API.
+
+Tests:
+
+- Run `python -m pytest tests/test_filemap.py -q`.
+
+Completion:
+
+- Commit only this FileMap slice, push, update Obsidian, and mark Ready for Codex Review.
+
+Stale prior task follows.
+
 Current Active Task:
 
 Goal: register the V2 detailed build plan in FileMap.
