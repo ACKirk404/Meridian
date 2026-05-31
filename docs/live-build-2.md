@@ -202,6 +202,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-06-04 14:45 -06:00 - Build 2 checked queue; status: idle (no new Active Task; cadence 2 of 3; awaiting orchestrator assignment; polling)
 2026-06-04 14:55 -06:00 - Build 2 checked queue; status: idle (no new Active Task; both listed tasks already complete; cadence 2 of 3; awaiting orchestrator assignment; polling)
 2026-06-04 15:05 -06:00 - Build 2 checked queue; status: idle (no new Active Task; awaiting orchestrator assignment; cadence 2 of 3; polling)
+2026-06-04 15:15 -06:00 - Build 2 checked queue; status: idle (no new Active Task; awaiting orchestrator assignment; cadence 2 of 3; polling)
 ```
 
 ## Write/Completion Log
@@ -279,6 +280,47 @@ YYYY-MM-DD HH:MM TZ - Build 2 Codex review result: pass/no actionable findings/f
 ```
 
 ## Active Task
+
+Current Active Task - Coordinator Override:
+
+Goal: create the V2 progress tracker so V2 becomes countable in progress reports.
+
+Context:
+
+- V0 and V1 are complete.
+- `docs/v2-detailed-build-plan.md` exists and defines the V2 tracks.
+- Scott wants progress reports to show total items built, total left, and percentages.
+- Every tracker item must be framed as Prime or harness ownership. No loose feature names.
+- This is a Haiku-safe docs/accounting slice. Do not implement runtime code.
+
+Allowed files only:
+
+- `docs/v2-progress-tracker.md`
+- `docs/v0-v1-progress-tracker.md`
+- `docs/live-build-2.md`
+
+Task:
+
+- Create `docs/v2-progress-tracker.md`.
+- Convert the V2 detailed plan into countable checklist items grouped by owner: Prime Autonomy, Echo Harness, Atlas Harness, Relay/Model Harness, Aegis Harness, Session Lifecycle Harness, Bifrost Harness, FileMap Harness, and Review/Codex Harness.
+- Include totals table with Built / In Progress / Needs Build / Total / Percent.
+- Mark already-built V2 items accurately: CognitionPolicy domain model, policy-aware Relay executor wrapper, Echo/Atlas contract docs, and workflow sub-agent architecture principle if represented as an architecture/contract baseline.
+- Mark first-wave tasks still needed, including Echo runtime, Atlas runtime, PrimeNextAction, SessionLifecycleState, Bifrost V2 extensions, and FileMap follow-ups.
+- Update `docs/v0-v1-progress-tracker.md` to point V2 reporting at the new tracker.
+- Do not edit runtime code or FileMap.
+
+Tests:
+
+- No tests required. Docs-only.
+
+Completion:
+
+- Commit only this tracker slice.
+- Push to `origin/main`.
+- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+Stale prior task follows.
 
 Coordinator Override - Current Active Task (supersedes stale CognitionPolicy export task below):
 
