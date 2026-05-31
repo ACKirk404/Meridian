@@ -12,7 +12,7 @@ Goal: review Build 3 Bifrost voice command FileMap registration.
 
 Scope:
 
-- Build 3 commit `06f0325` - registers `docs/bifrost-voice-command-contract.md` in runtime FileMap and required-path coverage, then marks Build 3 ready for review.
+- Build 3 commit `2760013` - registers `docs/bifrost-voice-command-contract.md` in runtime FileMap and required-path coverage, then marks Build 3 ready for review.
 
 Allowed review files:
 
