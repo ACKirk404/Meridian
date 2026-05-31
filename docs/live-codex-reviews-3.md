@@ -150,6 +150,7 @@ Reason: Build 1 marked provider-neutral Model Harness adapter contract Ready for
 2026-05-30 16:41 MDT - Codex Reviews C checked queue; status: idle; notes: queue unchanged since 093c856; Active Task still idle; no new Ready for Codex Review markers in Build 1/Build 2 since 653488b; no executable task
 2026-05-30 16:43 MDT - Codex Reviews C checked queue; status: idle; notes: queue substance unchanged since ef8538b; Active Task still idle; no new V0 runtime-gate trigger; no executable task
 2026-05-30 21:02 MDT - Codex Reviews C checked queue; status: idle; notes: Active Task records Round C4 complete at 16:45 MDT for Build 1 0560eb4/869faa4/repair f353c8d; current Active Task is "No active task. Codex Reviews C is idle"; observed new Ready for Codex Review marker on Build 2 prime_approve (commits 9d38314 + d687b7f, live-build-2.md line 206) which matches the stale-prior Round C2 trigger language but no current Active Task instruction to pick it up — flagging for orchestrator delegation
+2026-05-30 21:04 MDT - Codex Reviews C checked queue; status: idle; notes: queue unchanged since 0f733d4; Active Task still idle; Build 2 prime_approve marker still awaiting orchestrator delegation; no executable task
 ```
 
 ## Review Log
