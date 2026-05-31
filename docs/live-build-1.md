@@ -510,7 +510,7 @@ Append entries here when this file is modified or an active task is completed.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Build 1 completed <task>; commit <hash>; tests <result>
-2026-05-31 12:58 -06:00 - Codex Reviews A routed Round 4 repair task for `restart_resteer.py`; files changed: docs/live-build-1.md; tests run by Reviews A before routing: filemap/prompt_metrics 94 passed, restart_resteer/bifrost targeted 124 passed, npm proof:cockpit 108 passed + 0 vulnerabilities; commit pending from Reviews A; Obsidian update pending.
+2026-05-31 12:58 -06:00 - Codex Reviews A routed Round 4 repair task for `restart_resteer.py`; files changed: docs/live-build-1.md; tests run by Reviews A before routing: filemap/prompt_metrics 94 passed, restart_resteer/bifrost targeted 124 passed, npm proof:cockpit 108 passed + 0 vulnerabilities; commit pending from Reviews A; push pending; Obsidian status: repair note already present at `Meridian_Build/2026-05-31 Restart Resteer Repair Ready.md`.
 2026-05-30 ~22:30 CDT - Build 1 completed Prompt Budget package API + FileMap; commit d18d651; tests 604 passed
 2026-05-30 10:33 -06:00 - Codex assigned Relay Prompt Budget integration into RelayRoute; commit pending; tests pending
 2026-05-30 10:37 -06:00 - Codex strengthened polling contract; commit pending; tests not required
