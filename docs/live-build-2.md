@@ -269,7 +269,56 @@ YYYY-MM-DD HH:MM TZ - Build 2 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-No active task. Awaiting orchestrator assignment.
+Current Active Task:
+
+Goal: expose the V1 cockpit-state domain objects through the package root.
+
+Context:
+
+- Build 1 completed `meridian_core/cockpit_state.py` in commit `f56af55`.
+- Build 2 owns package/API surface work.
+- Bifrost and downstream integration code should be able to import the stable cockpit-state types from `meridian_core`, not only from the submodule.
+
+Allowed files only:
+
+- `meridian_core/__init__.py`
+- `tests/test_package_api.py`
+- `docs/live-build-2.md`
+
+Task:
+
+- Import the public cockpit-state types/helpers from `.cockpit_state` in `meridian_core/__init__.py`.
+- Add them to `__all__`.
+- Add a focused package API smoke test in `tests/test_package_api.py`.
+- Export only intentional public names. Do not export private ordering tables or helper constants.
+- Do not edit `meridian_core/cockpit_state.py` unless a package-export test reveals an unavoidable issue; if that happens, stop and report instead of broadening scope.
+- Do not edit FileMap; Build 3 owns FileMap.
+- Do not edit Bifrost UI files; Build 5 owns those.
+
+Likely public names to export:
+
+- `CockpitStatus`
+- `QueuePolicy`
+- `LaneStatus`
+- `ProgressEventCategory`
+- `ProgressSeverity`
+- `CockpitLaneSummary`
+- `CockpitProgressEvent`
+- `CockpitLaneCounts`
+- `PrimeCockpitSnapshot`
+
+Tests:
+
+- `python -m pytest tests/test_package_api.py -q`
+- `python -m pytest tests/test_cockpit_state.py tests/test_package_api.py -q`
+- `python -m pytest -q`
+
+Completion:
+
+- Commit only this package API slice.
+- Push to `origin/main`.
+- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
 
 Last completed: V0 `prime_approve` CLI gate-disposition surface; commits `9d38314` (meridian_core/cli.py) + `d687b7f` (tests/test_cli.py); 31 tests passed. Cadence count: 1 of 3 since cadence clear at `9c3e1a3`.
 

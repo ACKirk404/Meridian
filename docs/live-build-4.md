@@ -245,7 +245,56 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-No active task. Polling.
+Current Active Task:
+
+Goal: write the V1 Bifrost cockpit integration sequence.
+
+Context:
+
+- V1 cockpit startup is underway.
+- Build 5 is building the first static Bifrost scaffold.
+- Build 1 completed the cockpit-state domain shape in `f56af55`.
+- Build 2 is being assigned package API exposure for the cockpit-state types.
+- Build 4 owns architecture and integration sequencing.
+
+Allowed files only:
+
+- `docs/v1-bifrost-integration-sequence.md`
+- `docs/live-build-4.md`
+
+Task:
+
+- Create a concise implementation sequence that tells the next Bifrost build slices how to wire the cockpit from static scaffold to live V0 data.
+- Organize the sequence by harness owner:
+  - **Bifrost Harness:** static scaffold, render model, local preview command, browser verification.
+  - **Prime:** cockpit snapshot provider and current intention.
+  - **Review Console Harness:** gate list and approval actions.
+  - **Beacon Harness:** liveness/age/stale signals.
+  - **Relay Harness:** lane/session dispatch status.
+  - **Aegis Harness:** proof/gate status.
+  - **Build/Queue Harness:** lane strip and progress-event source.
+- For each step, include:
+  - input dependency
+  - output artifact/module
+  - test/proof expectation
+  - what can run in parallel
+  - what must wait for review/FileMap registration
+- Keep the sequence V1-scoped. Do not pull Echo, Atlas, federation, or public/provider strategy into V1.
+- Include a short "stop conditions" section: when Prime should pause UI integration for review, stale data, proof-gate failure, or prompt-drag risk.
+- Do not edit runtime code.
+- Do not edit FileMap.
+- Do not edit other live queues.
+
+Tests:
+
+- No tests required. Docs-only.
+
+Completion:
+
+- Commit only this docs slice.
+- Push to `origin/main`.
+- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
 
 ---
 
