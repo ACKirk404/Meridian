@@ -357,6 +357,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; files changed: <l
 2026-06-01 10:20 -06:00 - Build 2 completed V2 CognitionPolicy package API surface; commit e08e598 (merged to main as b04c465); files changed: meridian_core/__init__.py, tests/test_package_api.py; tests 32 passed (cognition_policy + package_api); cadence count: 1 of 3 since 9c3e1a3; Ready for Codex Review
 2026-06-02 15:10 -06:00 - Build 2 completed Bifrost Electron/preview package surface policy note; commit e9062d9; files changed: docs/bifrost-preview-package-api-note.md, docs/package-api-surface-note.md, docs/live-build-2.md; tests 17 passed (package_api sanity check); cadence count: 2 of 3 since 9c3e1a3; Ready for Codex Review
 2026-06-04 15:30 -06:00 - Build 2 completed V2 progress tracker task (Coordinator Override); commit 261332e (merged to main as 932b98c); files changed: docs/v2-progress-tracker.md (new, 21-item V2 tracker: 1 built/20 needs build/0 in-progress), docs/v0-v1-progress-tracker.md, docs/live-build-2.md; tests none required (docs-only); cadence count: 3 of 3 since 9c3e1a3; Ready for Codex Review
+2026-06-04 20:50 -06:00 - Build 2 completed V2 progress tracker refresh (Coordinator Override); commit 47eeb89; files changed: docs/v2-progress-tracker.md; tests none required (docs-only); marked 3cdc74d and b99ce1d as review-cleared Aegis/Relay work; marked Echo runtime as built-awaiting-review; marked Echo/Atlas/Session contracts as baselines; added V3 horizon note; Ready for Codex Review
 ```
 
 ## Cross-Check Activity
