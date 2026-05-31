@@ -192,6 +192,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 checked queue; status: idle/running/blocked
 2026-05-31 17:45 -06:00 - Build 5 checked queue; status: idle (cleared); snapshot mapping committed at 5c89e87 (cadence 2/3); Build 1/4/Reviews C heartbeats landed, not Build 5 scope; no repair routed, no new Cross-Check Activity; awaiting orchestrator reassignment; origin/main at 59c9c92
 2026-05-31 17:55 -06:00 - Build 5 checked queue; status: idle (cleared); no change — Active Task still stale (snapshot mapping 5c89e87 complete); no repair routed, no new Cross-Check Activity; cadence 2/3; awaiting orchestrator reassignment; origin/main at f56920e
 2026-05-31 18:05 -06:00 - Build 5 checked queue; status: idle (cleared); no change — Active Task still stale (snapshot mapping 5c89e87 complete); Build 4/Reviews C heartbeats, not Build 5 scope; no repair routed, no new Cross-Check Activity; cadence 2/3; awaiting orchestrator reassignment; origin/main at eb202d8
+2026-05-31 18:15 -06:00 - Build 5 checked queue; status: idle (cleared); no change — Active Task still stale (snapshot mapping 5c89e87 complete); Build 1/4/Reviews C heartbeats, not Build 5 scope; Reviews C flagged Build 1 6c9a397 awaiting delegation (informational, no Build 5 action); no repair routed; cadence 2/3; awaiting orchestrator reassignment; origin/main at d09b383
 ```
 
 ## Write/Completion Log
