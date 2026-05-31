@@ -239,6 +239,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-01 09:45 -06:00 - Build 3 checked queue; status: idle; no active task; new Bifrost cockpit scaffold landed (d13f1d1 — bifrost/cockpit.py, bifrost/__init__.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py); FileMap gap noted in cross-check; cadence 2/3 since Round B3; awaiting next assignment
 2026-05-31 00:56 -06:00 - Build 3 checked queue; status: idle; no active task; Bifrost cockpit FileMap gap noted; cadence 2/3 since Round B3; awaiting next task assignment
 2026-06-01 10:00 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B3; awaiting next assignment
+2026-06-01 10:10 -06:00 - Build 3 checked queue; status: active tasks found (Codex Reviews C cockpit_state + Coordinator Override Bifrost scaffold FileMap); executing combined registration
 ```
 
 ## Write/Completion Log
@@ -269,6 +270,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-05-31 16:05 -06:00 - Build 3 completed FileMap hygiene (register v0-v1-progress-tracker.md; fix stale relay_executor claims in v0-build-readiness-map.md); commit 774695f; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/v0-v1-progress-tracker.md, docs/v0-build-readiness-map.md
 2026-05-31 21:05 -06:00 - Build 3 completed FileMap refresh (v1-capability-plan, v1-bifrost-cockpit-implementation-brief, v2-horizon-plan, v3-parking-lot); commit 330f200; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py
 2026-05-31 00:48 -06:00 - Build 3 completed Round B4 FileMap repair (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md — 3 missing rows added to docs/FileMap.md only); commit c388f47; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md. Cadence: 2/3 since Round B3.
+2026-06-01 10:10 -06:00 - Build 3 completed FileMap registration (Bifrost cockpit scaffold + integration docs + cockpit_state: bifrost/__init__.py, bifrost/cockpit.py, bifrost/static/cockpit.css, meridian_core/cockpit_state.py, docs/v1-bifrost-live-data-contract.md, docs/v1-bifrost-integration-sequence.md); commit pending; tests 95/95 (46 filemap + 49 bifrost_cockpit); Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py. Cadence: 3/3 since Round B3 — Codex review required before next task.
 ```
 
 ## Cross-Check Activity
@@ -308,68 +310,11 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-**Active Task — FileMap registration for cockpit_state (routed by Codex Reviews C Round C5)**
-
-Codex Reviews C Round C5 found that `meridian_core/cockpit_state.py` and `tests/test_cockpit_state.py` (Build 1 commit `f56af55`) are not registered in `meridian_core/filemap.py` or `docs/FileMap.md`. MEDIUM severity — repair before next FileMap cadence checkpoint.
-
-Steps:
-1. Add `meridian_core/cockpit_state.py` and `tests/test_cockpit_state.py` to `docs/FileMap.md` (two new rows).
-2. Add both files to `meridian_core/filemap.py` `_REQUIRED_PATHS` (or equivalent registration mechanism).
-3. Run `python -m pytest tests/test_filemap.py -q` — must pass.
-4. Commit and mark this task complete.
-5. Mark this task complete in this file and record in Write/Completion Log.
-
-Routing source: `docs/live-codex-reviews-3.md` Round C5 Repair Routing Log entry 2026-05-31 01:10 MDT.
+**No active task. Build 3 is idle — cadence 3/3 since Round B3, Codex review required before next task.**
 
 Poll every 30 seconds. When a new task is written here, begin immediately.
 
-Last completed: Round B4 FileMap repair (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md — 3 rows added to docs/FileMap.md); commit c388f47; tests 46/46 filemap; cadence 2/3 since Round B3; Ready for Codex Review.
-
-## Coordinator Override - Active Task
-
-Current Active Task:
-
-Goal: register the new V1 Bifrost cockpit scaffold and integration docs in FileMap.
-
-Context:
-
-- Build 5 completed the first Bifrost cockpit scaffold in commit `d13f1d1`.
-- Build 4 completed the V1 Bifrost cockpit integration sequence in commit `ed0fb75`.
-- Prior Build 4 V1 live-data contract commit `56f626d` also remains uncatalogued.
-- Build 3 owns FileMap, so do not let Bifrost or Build 4 edit FileMap directly.
-
-Allowed files only:
-
-- `docs/FileMap.md`
-- `meridian_core/filemap.py`
-- `tests/test_filemap.py`
-- `docs/live-build-3.md`
-
-Task:
-
-- Add FileMap coverage for:
-  - `bifrost/__init__.py`
-  - `bifrost/cockpit.py`
-  - `bifrost/static/cockpit.css`
-  - `tests/test_bifrost_cockpit.py`
-  - `docs/v1-bifrost-live-data-contract.md`
-  - `docs/v1-bifrost-integration-sequence.md`
-- Use the existing FileMap taxonomy. Bifrost runtime/static files should be under the Bifrost area. The integration docs should be architecture/Bifrost planning entries, matching local conventions.
-- Add required-path coverage in `tests/test_filemap.py` for the new files if that is the established pattern.
-- Do not edit Bifrost runtime code, tests, or Build 4 docs content.
-- Preserve the untracked `docs/assets/diagrams/Master.png`; do not include it.
-
-Tests:
-
-- `python -m pytest tests/test_filemap.py -q`
-- If practical, also run `python -m pytest tests/test_bifrost_cockpit.py tests/test_filemap.py -q`
-
-Completion:
-
-- Commit only this FileMap slice.
-- Push to `origin/main`.
-- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+Last completed: FileMap registration (Bifrost cockpit scaffold + integration docs + cockpit_state); commit pending; tests 95/95; cadence 3/3 since Round B3; Ready for Codex Review.
 
 ## Completed Task Archive
 
@@ -381,5 +326,6 @@ Historical record for reference. Authoritative detail is in the Write/Completion
 - **COMPLETED 2026-05-31 00:35 -06:00** — FileMap refresh (4 uncatalogued docs from Round B1: v0-build-readiness-map.md, prime-orchestration-state-model.md, bifrost-v0-cockpit-layout-brief.md, bifrost-harness-dashboard-brief.md); commit 1378bda; tests 46/46 filemap, 785/785 full suite; Ready for Codex Review.
 - **COMPLETED 2026-05-30 17:20 -06:00** — FileMap refresh (relay_dispatch, live-codex-reviews, prime-orchestration prototype); commit 4075ef4; tests 46/46 filemap, 785/785 full suite; Ready for Codex Review.
 - **COMPLETED 2026-05-30 16:07 -06:00** — FileMap repair (Round B3 — prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md); commit 5e0facb; tests 46/46 filemap; cadence 1/3 since Round B3; Ready for Codex Review.
+- **COMPLETED 2026-06-01 10:10 -06:00** — FileMap registration (Bifrost scaffold + integration docs + cockpit_state: bifrost/__init__.py, bifrost/cockpit.py, bifrost/static/cockpit.css, meridian_core/cockpit_state.py, docs/v1-bifrost-live-data-contract.md, docs/v1-bifrost-integration-sequence.md); commit pending; tests 95/95 (46 filemap + 49 bifrost_cockpit); cadence 3/3 since Round B3; Ready for Codex Review.
 - **COMPLETED 2026-05-31 00:48 -06:00** — Round B4 FileMap repair (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md — 3 missing rows added to docs/FileMap.md only); commit c388f47; tests 46/46 filemap; cadence 2/3 since Round B3; Ready for Codex Review.
 - **COMPLETED 2026-05-30 16:03 -06:00** — FileMap refresh (model_adapter.py); commit be34fea; tests 46/46 filemap; Ready for Codex Review. Codex review cleared 2026-05-30 16:11 -06:00 (Reviews B; no findings; cadence window 774695f, 330f200, be34fea clear).
