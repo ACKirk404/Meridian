@@ -277,6 +277,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-02 ~21:20 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-02 ~21:30 CDT - Build 1 checked queue; status: running (Active Task: Prime cockpit snapshot/event domain shape; executing)
 2026-06-02 ~21:40 CDT - Build 1 checked queue; status: idle (cockpit_state slice f56af55 complete; awaiting next assignment or Codex review result)
+2026-06-02 ~22:00 CDT - Build 1 checked queue; status: idle (no active task; cockpit_state f56af55 confirmed in origin/main; 25 targeted + 941 full tests pass; awaiting next assignment)
 ```
 
 ## Write/Completion Log
@@ -355,51 +356,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Current Active Task:
-
-Goal: build the Prime cockpit snapshot/event domain shape for V1 Bifrost.
-
-Context:
-
-- V1 is the cockpit UI release.
-- Build 5 is starting the Bifrost scaffold.
-- Build 4 is defining the live-data integration contract.
-- Build 1 owns Prime-side signals needed to feed the cockpit without prompt drag.
-- The cockpit needs typed data, not raw queue-file dumps.
-
-Allowed files only:
-
-- `meridian_core/cockpit_state.py`
-- `tests/test_cockpit_state.py`
-- `docs/live-build-1.md`
-
-Task:
-
-- Create a small, dependency-free `meridian_core.cockpit_state` module.
-- Define frozen dataclasses/enums for the Prime-facing cockpit snapshot:
-  - cockpit status (`online`, `thinking`, `waiting_on_scott`, `blocked`, `degraded`, `offline`)
-  - queue policy (`on`, `off`, `paused`, `degraded`, `blocked`)
-  - progress event categories aligned to the V1 brief (`routine_progress`, `blocker`, `review_result`, `proof_summary`, `repair_routed`, `completion`, `human_gate`, `system_health`)
-  - lane summary rows (`lane_id`, `role`, `status`, `last_poll_at`, `last_commit`, `attention`)
-  - Prime cockpit snapshot (`project`, `bearing`, `risk_tier`, `prime_status`, `queue_policy`, `lanes`, `progress_events`, `review_gate_count`)
-- Add helpers that keep the UI lean:
-  - sort lanes by attention first, then running/polling/idle/offline order
-  - filter progress events by category/severity without mutating the snapshot
-  - compute summary counts (`total`, `attention`, `blocked`, `stale`)
-- Keep this purely domain/data. No filesystem reads, no CLI, no browser/UI code.
-- Write focused tests for sorting, filtering, immutability, and summary counts.
-
-Tests:
-
-- `python -m pytest tests/test_cockpit_state.py -q`
-- `python -m pytest -q`
-
-Completion:
-
-- Commit only this slice.
-- Push to `origin/main`.
-- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+No active task. Polling for next assignment.
 
 ## Completed Slices
 
