@@ -170,6 +170,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-31 09:15 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; Build 4 slices pending Codex Reviews sweep; origin/main at 59225bf
 2026-05-31 09:45 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; Build 4 slices pending Codex Reviews sweep; origin/main at 7c8f420
 2026-05-31 10:15 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle; Build 4 slices pending Codex Reviews sweep; origin/main at 2f3c8a2
+2026-05-31 10:45 -06:00 - Build 4 checked queue; status: running; new Active Task = V1 Bifrost live-data integration contract (docs/v1-bifrost-live-data-contract.md); origin/main at af1a8a5
 ```
 
 ## Write/Completion Log
@@ -238,7 +239,56 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-No active task. Polling.
+Current Active Task:
+
+Goal: write the V1 Bifrost live-data integration contract.
+
+Context:
+
+- V1 is now starting.
+- Build 5 will scaffold the cockpit surface.
+- Build 1 will build the Prime-side cockpit snapshot/event domain shape.
+- Build 4 owns integration contracts and high-level architecture.
+
+Allowed files only:
+
+- `docs/v1-bifrost-live-data-contract.md`
+- `docs/live-build-4.md`
+
+Task:
+
+- Create a concise integration contract for how Bifrost reads V0/V1 data without prompt drag.
+- Cover each live cockpit surface:
+  - Prime conversation / current intention
+  - Review Console gates
+  - lane strip / queue state
+  - Progress Surface events
+  - Harness dashboard
+  - bottom instrumentation band
+- For each surface, specify:
+  - owning harness
+  - source object/module/CLI today
+  - V1 domain object expected
+  - refresh cadence
+  - stale/degraded behavior
+  - what must never be injected into Prime prompts
+- Include the principle that Bifrost renders typed objects and summaries, not raw queue files or full logs.
+- Include the first integration order after the scaffold lands.
+- Keep this docs-only and implementation-facing.
+- Do not edit runtime code.
+- Do not edit FileMap.
+- Do not edit other live queues.
+
+Tests:
+
+- No tests required. Docs-only.
+
+Completion:
+
+- Commit only this docs slice.
+- Push to `origin/main`.
+- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
 
 **Ready for Codex Review**
 - Commit: `fd9224d`

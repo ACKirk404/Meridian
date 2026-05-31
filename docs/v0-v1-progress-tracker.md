@@ -47,9 +47,10 @@
 | Status | Count | Percent |
 |---|---:|---:|
 | Built | 0 | 0% |
-| Planned / designed | 4 | 67% |
-| Needs planning | 2 | 33% |
-| Total V1 cockpit items | 6 | 100% |
+| In Progress | 3 | 33% |
+| Planned / designed | 4 | 44% |
+| Needs planning | 2 | 22% |
+| Total V1 cockpit items | 9 | 100% |
 
 ### Planned / Designed
 
@@ -57,6 +58,12 @@
 - [ ] **Bifrost Harness + Aegis Harness:** configurable progress/proof surface - brief built in `a412e90`.
 - [ ] **Bifrost Harness:** harness dashboard - brief built in `7c34566`.
 - [ ] **Prime + Review Console Harness:** status / review console CLI bridge - brief built in `fd9224d`.
+
+### In Progress
+
+- [ ] **Bifrost Harness:** first static cockpit scaffold - assigned to Build 5 on 2026-05-31 00:42 -06:00.
+- [ ] **Prime + Bifrost Harness:** cockpit snapshot/event domain shape - assigned to Build 1 on 2026-05-31 00:42 -06:00.
+- [ ] **Bifrost Harness + Prime:** live-data integration contract - assigned to Build 4 on 2026-05-31 00:42 -06:00.
 
 ### Needs Planning
 

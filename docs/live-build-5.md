@@ -220,48 +220,55 @@ YYYY-MM-DD HH:MM TZ - Build 5 Codex review result: pass/no actionable findings/f
 
 Current Active Task (supersedes any stale text below):
 
-Goal: draft the V1 Bifrost cockpit implementation brief.
+Goal: start V1 by building the first Bifrost cockpit scaffold.
 
 Context:
 
-- V0 is CLI-first, but V1 should turn Prime into the cockpit-backed orchestrator experience.
-- Build 5 owns Bifrost/product-surface thinking.
+- V1 is the cockpit UI release.
+- V0 is complete enough to start wiring from typed domain objects.
+- The first slice should be dependency-free and testable in Python before we choose a heavier frontend stack.
 - Use existing Bifrost briefs as source material, but do not edit them in this slice.
 
 Allowed files only:
 
-- `docs/v1-bifrost-cockpit-implementation-brief.md`
+- `bifrost/__init__.py`
+- `bifrost/cockpit.py`
+- `bifrost/static/cockpit.css`
+- `tests/test_bifrost_cockpit.py`
 - `docs/live-build-5.md`
 
 Task:
 
-- Write a concise implementation brief for the first real Bifrost cockpit.
-- Cover:
-  - page/screen layout
-  - Prime main conversation surface
-  - non-orchestrator/review/system prompt surface
-  - progress/proof right-side surface
-  - harness dashboard entry point
-  - queue state and worker/session visibility
-  - how Q polling becomes Prime-owned rather than human-owned
-  - what should be configurable
-  - what V1 should intentionally leave out
-  - first five UI slices to build
-- Keep it product/implementation-oriented.
-- Do not edit runtime code.
+- Create a tiny dependency-free Bifrost package that can render a static cockpit HTML string from typed sample data.
+- Implement:
+  - a `CockpitViewModel` dataclass or equivalent
+  - `sample_cockpit_view_model()` for deterministic preview data
+  - `render_cockpit_html(view_model)` returning a complete HTML document
+  - CSS file with the cockpit palette/layout direction from the V1 briefs
+- The rendered HTML must include:
+  - top nav buttons: Settings, Projects, Reset, Close, Cross Check, Backlog, Skills, Harness
+  - Prime panel with Orchestrator Queue and Review Console tabs represented visually
+  - lane strip with at least five lanes
+  - Progress Surface with typed events
+  - bottom instrumentation band: Beacon, Relay, Aegis, Compass, Queue, Tier, version, clock placeholder
+- Keep it static for this slice. No JS, no server, no Electron, no browser automation yet.
+- Escape user-visible strings safely.
+- Write focused tests that assert key cockpit regions and escaped content render.
+- Do not wire live V0 data yet.
 - Do not edit FileMap.
 - Do not edit package exports.
 - Do not edit other live queues.
 
 Tests:
 
-- No tests required. This is docs-only.
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+- `python -m pytest -q`
 
 Completion:
 
-- Commit only this docs slice.
+- Commit only this Bifrost scaffold slice.
 - Push to `origin/main`.
-- Update Obsidian.
+- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
 - Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
 
 Stale prior text follows.
