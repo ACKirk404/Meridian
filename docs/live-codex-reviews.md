@@ -99,7 +99,7 @@ This is the review lane's cursor. Update it after every review pass so the next 
 
 | Build lane | Last reviewed commit | Last reviewed task | Review status | Pending finding / repair | Next action |
 | --- | --- | --- | --- | --- | --- |
-| Build 1 | 8b4c8ac | Round 4 coordinator override restart/resteer evaluator review; supporting scope also covered 7d82b79, e5f3673, 27e1b1f, b158550, 8430040, e874d3e | repair routed | MEDIUM: committed `EMPTY_QUEUE` finding applies to non-build lanes; LOW: contract signature mismatch for `choose_recovery_action`; repair task routed to `docs/live-build-1.md` | verify Build 1 repair commit |
+| Build 1 | 40def3d | Round 5 repair verification for restart/resteer lane-role gating + contract signature | passed | LOW process note: repair commit also contains Build 2 Prime Autonomy product files; those files were not reviewed in Round 5 and remain covered by Build 2's Ready marker | await next Build 1 Ready marker |
 | Build 2 | d821106 (A) + 989366f (Reviews C delegated) | Relay executor API policy note (Reviews A Round 3) + prime_wake/prime_console/prime_status/route_to_console (Reviews C Round C1); Round 2 covered 46e4eb3; Round 1 covered 4be1117..bf15569 | passed | LOW deferred (Reviews C): route_to_console accepts any ReviewConsoleItemType but always creates a non-promptable INFO ACKNOWLEDGE item — V1 doc/narrow item_type recommended; LOW observational (Reviews A Round 2): Build 2 self-recorded APPROVE cadence entry in 3e1de48 before Codex Reviews A's Round 2 result existed | Build 2 cadence cleared for window ending at 989366f; await next Ready for Codex Review marker |
 | Build 3 | ef934b1 | FileMap refresh + FileMap Relay maturity repair (7ec16ac..ef934b1) | passed | observational: next FileMap refresh should add `meridian_core/relay_dispatch.py` (introduced by Build 1 fd35a81 after this commit) | await next Ready for Codex Review marker |
 | Build 4 | 736b6af | architecture consistency pass — Q button reference + cadence closure | passed | none | await next Ready for Codex Review marker |
@@ -151,6 +151,14 @@ Allowed review files: diff files in listed commits; docs/live-build-1.md and doc
 Tests to run: python -m pytest tests/test_filemap.py tests/test_prompt_metrics.py tests/test_restart_resteer.py -q; add narrower checks if diff inspection requires them
 Out of scope: executing Build 1/2 product Active Tasks; modifying runtime/package/test files; Build 3/4/5 queue execution
 Reason: user requested queue check; coordinator override review scope still active after origin/main pull
+
+2026-05-31 13:02 -06:00 - Round 5 scope (Codex Reviews A — Build 1 repair verification)
+Build lanes: Build 1
+Commit range(s): repair verification for 40def3d against original Round 4 findings on 8b4c8ac/27e1b1f
+Allowed review files: `meridian_core/restart_resteer.py`, `tests/test_restart_resteer.py`, `docs/prime-restart-resteer-contract.md`, `docs/live-build-1.md`; inspect other files in 40def3d only for scope-drift classification
+Tests to run: python -m pytest tests/test_restart_resteer.py -q; python -m pytest tests/test_filemap.py tests/test_restart_resteer.py -q
+Out of scope: reviewing Prime Autonomy product behavior in `meridian_core/prime_autonomy.py` and `tests/test_prime_autonomy.py`; executing Build 1 product Active Tasks
+Reason: Build 1 marked Round 4 repair Ready for Codex Review; checkpoint ledger next action is verify Build 1 repair commit
 ```
 
 Scope rules:
@@ -176,7 +184,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-05-31 12:55 -06:00 - Codex Reviews A checked queue; status: running; notes: origin/main already current; coordinator override review scope still active; inspecting Build 1/2 Ready-for-review and cadence signals without executing build-lane product work.
 2026-05-31 12:57 -06:00 - Codex Reviews A checked queue; status: running; notes: origin/main already current; assigned review queue read; active coordinator override review scope remains executable; continuing Round 4 record update only in this queue.
 2026-05-31 12:58 -06:00 - Codex Reviews A checked queue; status: repair routed (Round 4 complete); notes: 7 coordinator override commits reviewed; no CRITICAL/HIGH findings; MEDIUM restart/resteer lane-role repair routed to Build 1; no build-lane product work executed.
-2026-05-31 13:02 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main already current at 3e13891; Build 1 repair marker exists but still says commit pending, so no committed repair slice is available for verification; no build-lane product work executed.
+2026-05-31 13:02 -06:00 - Codex Reviews A checked queue; status: running; notes: origin/main current; Build 1 repair marker found for Round 4 restart/resteer repair; verifying commit 40def3d and checking for scope drift.
 ```
 
 ## Review Log
@@ -198,6 +206,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-05-31 16:30 CDT - Reviewed Build 1 commit d2820d2; result: pass; tests: pytest tests/test_lane_state.py 37/37 passed; notes: WorkerLaneState frozen dataclass + LaneStatus (9 states) + LaneReviewState (5 states); transition helpers (mark_running/mark_blocked/mark_ready_for_review/mark_review_passed) use dataclasses.replace and return new instances; pure domain — no I/O, no datetime parsing; mark_review_passed correctly clears active_task to "" using raw literal not the if-pattern.
 2026-05-31 16:30 CDT - Reviewed Build 2 commit 46e4eb3; result: pass; tests: docs-only (no tests required); notes: relay-package-api-policy-note.md correctly records assemble_relay_packet, RelayDispatchLane, RelayDispatchPlan, build_relay_dispatch_plan, count_tokens as intentional internals — verified by grep that none appear in meridian_core/__init__.py; package-api-surface-note.md updated with cross-reference and matching "What Stays Internal" entry; three-condition export gate (external need / stable shape / no undocumented dependencies) is reasonable and explicit; build_prompt_packet() correctly noted as already exported.
 2026-05-31 12:58 -06:00 - Reviewed Round 4 coordinator override commits 7d82b79, e5f3673, 27e1b1f, 8b4c8ac, b158550, 8430040, e874d3e; result: finding/repair-routed; tests: `python -m pytest tests/test_filemap.py tests/test_prompt_metrics.py -q` 94 passed; `python -m pytest tests/test_restart_resteer.py tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q` 124 passed; `npm run proof:cockpit` 108 passed + 0 vulnerabilities; notes: Bifrost shell/proof surface and V2 scope docs cleared; restart/resteer evaluator has one committed MEDIUM lane-role bug and one LOW contract/API signature mismatch; repair routed to Build 1.
+2026-05-31 13:04 -06:00 - Reviewed Build 1 repair commit 40def3d; result: pass with LOW process note; tests: `python -m pytest tests/test_restart_resteer.py -q` 16 passed; `python -m pytest tests/test_filemap.py tests/test_restart_resteer.py -q` 62 passed; notes: repair closes Round 4 findings by gating `EMPTY_QUEUE` to `LaneRole.BUILD`, adding idle-review-lane regression coverage, and updating contract signature to `choose_recovery_action(frame, findings)`; Prime Autonomy files in the same commit were out of Round 5 scope and not reviewed here.
 ```
 
 ## Proof Log
@@ -216,6 +225,7 @@ YYYY-MM-DD HH:MM TZ - Proof for Build <n> commit <hash>; proof type: diff/test/r
 2026-05-31 16:30 CDT - Proof for Build 1 commit d2820d2; proof type: test/diff; evidence: pytest tests/test_lane_state.py 37/37 passed; diff inspection confirms frozen dataclass, dataclasses.replace transitions, no I/O, all 9 LaneStatus + 5 LaneReviewState members and all 4 transition helpers present; result: pass
 2026-05-31 16:30 CDT - Proof for Build 2 commit 46e4eb3; proof type: reference/diff; evidence: `grep -n "assemble_relay_packet|RelayDispatchLane|RelayDispatchPlan|build_relay_dispatch_plan|count_tokens" meridian_core/__init__.py` returned zero matches; package-api-surface-note.md now contains cross-reference to relay-package-api-policy-note.md; result: pass
 2026-05-31 12:58 -06:00 - Proof for Round 4 commits 7d82b79, e5f3673, 27e1b1f, 8b4c8ac, b158550, 8430040, e874d3e; proof type: test/diff/reference; evidence: filemap/prompt_metrics proof passed 94 tests; restart_resteer + Bifrost cockpit/preview proof passed 124 tests; `npm run proof:cockpit` passed 108 tests and `npm audit --audit-level=high` found 0 vulnerabilities; diff inspection confirmed docs references exist and Bifrost package proof surface is wired; committed `restart_resteer.py` still emits `EMPTY_QUEUE` without checking `LaneRole.BUILD`; result: fail-repair-routed
+2026-05-31 13:04 -06:00 - Proof for Build 1 repair commit 40def3d; proof type: test/diff/reference; evidence: `python -m pytest tests/test_restart_resteer.py -q` -> 16 passed; `python -m pytest tests/test_filemap.py tests/test_restart_resteer.py -q` -> 62 passed; diff inspection confirms `EMPTY_QUEUE` now requires `frame.lane_role is LaneRole.BUILD`, regression test `test_empty_review_queue_does_not_trigger_build_runway_finding` exists, and contract signature now matches runtime; result: pass.
 ```
 
 Minimum proof expectations:
@@ -241,6 +251,7 @@ YYYY-MM-DD HH:MM TZ - Build <n> commit <hash>; severity: CRITICAL/HIGH/MEDIUM/LO
 2026-06-01 04:00 CDT - Round 3 A-portion sweep: no CRITICAL, HIGH, MEDIUM, or LOW findings for Build 2 d821106. Delegated Round C1 (Build 1 190e527, Build 2 e800c03, Build 2 989366f) was already cleared by Reviews C with one LOW deferred on route_to_console; that LOW is tracked in `docs/live-codex-reviews-3.md` and does not duplicate here. No repair tasks routed by Reviews A.
 2026-05-31 12:55 -06:00 - Build 1 commit 8b4c8ac; severity: MEDIUM; file: meridian_core/restart_resteer.py; finding: committed `evaluate_lane_frame()` emits `EMPTY_QUEUE` for any lane with empty `active_task_id` and `next_candidate_id`, so an idle review/coordinator/proof lane can be resteered with "Assign one active executable task and one next candidate" even though the empty-queue runway rule is documented as a build-lane rule; action: repair-task-written to `docs/live-build-1.md`.
 2026-05-31 12:55 -06:00 - Build 1 commit 27e1b1f + 8b4c8ac; severity: LOW; file: docs/prime-restart-resteer-contract.md; finding: contract documents `choose_recovery_action(findings)` but committed runtime implements `choose_recovery_action(frame, findings)`; action: repair-task-written to `docs/live-build-1.md` with the MEDIUM repair.
+2026-05-31 13:04 -06:00 - Build 1 repair commit 40def3d; severity: LOW; file: commit scope; finding: repair commit also includes Build 2 Prime Autonomy product files (`meridian_core/prime_autonomy.py`, `tests/test_prime_autonomy.py`) outside the Round 5 repair verification scope; action: defer to Build 2 Ready marker review, no Build 1 repair required because restart/resteer repair passed.
 ```
 
 ## Repair Routing Log
@@ -254,6 +265,7 @@ YYYY-MM-DD HH:MM TZ - Routed repair to Build <n>; queue: docs/live-build-<n>.md;
 2026-05-31 16:30 CDT - No repairs routed in Round 2 A-portion. Build 1 and Build 2 (code/API scope) clear and eligible for next assignment.
 2026-06-01 04:00 CDT - No repairs routed in Round 3 A-portion. Build 2 d821106 clear; Reviews C Round C1 already cleared Build 1 190e527 + Build 2 e800c03/989366f. Build 2 cadence now fully clear.
 2026-05-31 12:55 -06:00 - Routed repair to Build 1; queue: docs/live-build-1.md; finding: `EMPTY_QUEUE` must be build-lane-only and restart/resteer contract must match `choose_recovery_action(frame, findings)` runtime signature; status: pending
+2026-05-31 13:04 -06:00 - Verified Build 1 repair commit 40def3d; queue: docs/live-build-1.md; finding: Round 4 `EMPTY_QUEUE` lane-role gating + contract signature mismatch; status: passed, no further Build 1 repair routed.
 ```
 
 ## Coordinator Addendum - Planning Harness Review
@@ -278,6 +290,19 @@ Round 4 complete (2026-05-31 12:58 -06:00).
 - Repair routing: Build 1 repair Active Task written to `docs/live-build-1.md`.
 - Proofs: filemap/prompt_metrics 94 passed; restart_resteer + Bifrost cockpit/preview 124 passed; `npm run proof:cockpit` 108 passed plus 0 high vulnerabilities.
 - Files changed by Reviews A: `docs/live-codex-reviews.md`, `docs/live-build-1.md`.
+- Commit: pending.
+- Push: pending.
+- Obsidian status: repair note already present at `Meridian_Build/2026-05-31 Restart Resteer Repair Ready.md`.
+
+Stale prior status follows.
+
+Round 5 complete (2026-05-31 13:04 -06:00).
+
+- Scope: Build 1 repair verification for commit `40def3d` against Round 4 restart/resteer findings.
+- Result: passed. `EMPTY_QUEUE` is now build-lane-only, regression coverage exists for idle review lanes, and contract signature matches runtime.
+- Findings: no CRITICAL/HIGH/MEDIUM findings. LOW process note only: `40def3d` also carries Build 2 Prime Autonomy product files, left unreviewed in Round 5 and deferred to Build 2's Ready marker.
+- Proofs: `tests/test_restart_resteer.py` 16 passed; `tests/test_filemap.py tests/test_restart_resteer.py` 62 passed.
+- Files changed by Reviews A after Round 5: `docs/live-codex-reviews.md`.
 - Commit: pending.
 - Push: pending.
 - Obsidian status: repair note already present at `Meridian_Build/2026-05-31 Restart Resteer Repair Ready.md`.
