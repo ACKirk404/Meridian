@@ -422,6 +422,20 @@ def make_default_map() -> FileMap:
             related_tests=[],
             notes="Read before running or setting up a Reviews B round. Do not edit from build lanes.",
         ),
+        FileMapEntry(
+            path="docs/live-build-queue-hygiene.md",
+            area=FileArea.BUILD_PROCESS,
+            purpose="Live build queue hygiene: maintenance standards for live-build-*.md queue files, lint rules, stale-marker cleanup, archive policies, and cross-lane coordination rules.",
+            related_tests=[],
+            notes="Governance. Read before modifying any live-build-*.md queue structure.",
+        ),
+        FileMapEntry(
+            path="docs/prime-queue-runway-policy.md",
+            area=FileArea.BUILD_PROCESS,
+            purpose="Prime queue runway policy: defines when Prime is allowed to queue work and when to respect runway constraints. Coordination rules between live build lanes and Prime's task-routing autonomy.",
+            related_tests=[],
+            notes="Queue governance. Read before implementing Prime's autonomous task queueing or modifying build-lane submission rules.",
+        ),
 
         # -- V2 Contract Docs (Echo, Atlas, Workflow subagent) ---------
         FileMapEntry(
@@ -509,6 +523,27 @@ def make_default_map() -> FileMap:
             related_tests=[],
             notes="Architecture only; no runtime code. Owner: Build 4. Read before implementing Prime orchestration Python domain objects.",
         ),
+        FileMapEntry(
+            path="docs/v2-package-api-surface-note.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="V2 package API surface note: extends the core Meridian package surface for V2 harnesses, Echo integration, and Atlas context retrieval.",
+            related_tests=[],
+            notes="V2 entry-point. Read before extending the package root exports for V2 features.",
+        ),
+        FileMapEntry(
+            path="docs/v2-progress-tracker.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="V2 progress tracker: countable progress view for Echo, Atlas, workflow subagent harnesses, and expanded model harnesses. Refines v0-v1-progress-tracker.md for V2 capabilities.",
+            related_tests=[],
+            notes="Companion to v0-v1-progress-tracker.md. Update when a V2 capability status changes.",
+        ),
+        FileMapEntry(
+            path="docs/prime-autonomy-v2-contract.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="Prime autonomy V2 contract: defines stronger autonomy boundaries for V2. Establishes coordination rules between Prime, extended harnesses, and worker sessions.",
+            related_tests=[],
+            notes="V2 entry-point. Read before implementing stronger Prime autonomy or expanding harness delegation.",
+        ),
 
         # -- Bifrost / session harness ---------------------------------
         FileMapEntry(
@@ -531,6 +566,13 @@ def make_default_map() -> FileMap:
             purpose="Harness dashboard surface brief: what opens when Scott clicks the Harness button â€” observability of every harness (heartbeat, capabilities, maturity, recent events). Observation-first; no controls in V0.",
             related_tests=[],
             notes="Design-only. Owner: Build 5. Companion to bifrost-v0-cockpit-layout-brief.md.",
+        ),
+        FileMapEntry(
+            path="docs/bifrost-session-queue-activation-brief.md",
+            area=FileArea.BIFROST,
+            purpose="Session queue activation brief: how the Bifrost harness activates and manages worker sessions from the live build queue. Covers queue polling, lane state tracking, and session lifecycle.",
+            related_tests=[],
+            notes="Design brief. Owner: Build 5. Companion to bifrost-cockpit-queue-status-brief.md.",
         ),
         FileMapEntry(
             path="docs/v1-bifrost-cockpit-implementation-brief.md",
