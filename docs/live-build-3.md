@@ -4,11 +4,11 @@
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Cadence Paused - Awaiting Codex Review
+## Cadence Cleared
 
-Build 3 is paused at cadence 3/3 since Round B5. Do not execute new FileMap work until Reviews B records cadence clearance for the recent FileMap registration window.
+Build 3 cadence for commit `67a75dc` plus marker `b3316b6` was cleared by Codex Reviews B on 2026-05-31 15:52 -06:00. FileMap tests passed (46 tests), and no repair was routed.
 
-## Next Active Task After Cadence Clearance
+## Active Task
 
 Goal: register new V2 contract-wave documents in FileMap.
 
