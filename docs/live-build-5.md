@@ -49,13 +49,30 @@ Completion:
 
 Ready for Codex Review.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: write the Bifrost provider balance and prompt payload visibility surface contract.
 
 Allowed files only: `docs/bifrost-balance-payload-surface-contract.md`, `docs/live-build-5.md`.
 
 Task: define how Bifrost should expose the Polaris-style Balance button and per-prompt payload meter for Claude, OpenAI, DeepSeek, and future adapters. Cover provider health, token/cost pressure, prompt-size label, growth/flat Q-mode state, warning/degraded states, and the rule that Bifrost displays structured Relay/Model Harness telemetry but does not make routing decisions.
+
+Completion:
+
+- Coordinator completed this docs-only Bifrost balance/payload surface contract on 2026-05-31.
+- Files changed: `docs/bifrost-balance-payload-surface-contract.md`, `docs/live-build-5.md`.
+- Tests: not required (docs-only).
+- Commit: `6887333`.
+
+Ready for Codex Review.
+
+## Active Task
+
+Goal: await next Bifrost assignment.
+
+Allowed files only: `docs/live-build-5.md`.
+
+Task: no executable Bifrost implementation task is currently assigned. Continue polling and do not create read-check-only commits. If Reviews B routes a repair or Prime/Codex assigns the next Bifrost V2 surface slice, execute that scoped task.
 
 ## ~~Codex Repair - Active Now~~ (COMPLETED 2026-05-31 13:54 -06:00)
 

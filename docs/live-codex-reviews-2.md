@@ -6,6 +6,33 @@ This file is the standing queue for a second specialized Codex Reviews session.
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Active Task
+
+Goal: review Build 5 Bifrost balance and prompt payload surface contract.
+
+Scope:
+
+- Build 5 commit `6887333` - creates `docs/bifrost-balance-payload-surface-contract.md` and marks Build 5 ready for Codex Review.
+
+Allowed review files:
+
+- `docs/bifrost-balance-payload-surface-contract.md`
+- `docs/live-build-5.md` for provenance only.
+
+Proof:
+
+- Docs-only review; no tests required.
+
+Review expectations:
+
+- Verify the contract covers the Polaris-style Balance surface and per-prompt payload meter for Claude, OpenAI, DeepSeek, and future adapters.
+- Verify it includes provider health, trust state, context/prompt budgets, payload label, budget percent, growth delta, cost/quota pressure, and evidence source.
+- Verify Q-mode prompt-drag rules explicitly catch additive prompt growth and route DeepSeek degradation if Q-mode payloads grow unexpectedly.
+- Verify DeepSeek direct API vs aggregator/OpenRouter route mismatch is visible and DeepSeek candidate trust cannot clear reviews, move branches, or receive autonomous coding authority.
+- Verify Bifrost displays structured Relay/Model Harness telemetry but does not make routing decisions.
+- Verify Build 5 is not left with a stale executable task after completion.
+- If clean, record proof and clear the contract. If findings exist, route a focused repair back to Build 5.
+
 ## Completed / Passed
 
 Goal: review Build 3 Bifrost voice command FileMap registration.
