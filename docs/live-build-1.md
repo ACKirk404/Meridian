@@ -1,6 +1,6 @@
 # Live Build 1 Queue
 
-## Codex Review Repair Routed - Active Before Other Work
+## Codex Review Repair Completed - Awaiting Review Verification
 
 2026-05-31 14:45 -06:00 - Codex Reviews A routed MEDIUM repairs from the V2 runtime/code review sweep.
 
@@ -30,13 +30,13 @@ Tests:
 
 Completion:
 
-- Commit and push only the allowed repair files.
-- Mark the repair Ready for Codex Review with commit hash, files changed, and tests run.
-- Do not start unrelated active work until this repair is complete or superseded by the coordinator.
+- Repair committed and pushed in `8e8c87b`.
+- Marked Ready for Codex Review below.
+- Normal Build 1 work may proceed only after Reviews A verifies or routes follow-up repair.
 
 ## Queue Authority
 
-The repair block above is executable before all other work. After any active repair is complete, only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
+Only the first `Coordinator Override - Active Now` block in this file is executable unless a future repair block is explicitly marked active above it. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
 ## Coordinator Override - Active Now
 
@@ -649,7 +649,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 - Scope: Codex Reviews A V2 runtime/code sweep repair for prompt payload zero/invalid budgets and Echo naive timestamp handling.
 - Files changed: `meridian_core/prompt_payload_meter.py`, `tests/test_prompt_payload_meter.py`, `meridian_core/echo.py`, `tests/test_echo.py`, `docs/live-build-1.md`.
 - Tests run: `python -m pytest tests/test_echo.py -q` (23 passed); `python -m pytest tests/test_prompt_payload_meter.py -q` (25 passed); `python -m pytest tests/test_echo.py tests/test_atlas.py tests/test_prompt_payload_meter.py tests/test_relay_executor.py -q` (136 passed); `python -m pytest tests/test_cognition_policy.py tests/test_aegis.py tests/test_relay_executor.py -q` (157 passed).
-- Commit: pending coordinator commit.
+- Commit: `8e8c87b`.
 - Notes: `PromptPayloadSnapshot` now treats zero/negative budgets as no usable budget instead of crashing; Echo normalizes naive datetimes to UTC for deterministic query/filter/ranking behavior.
 
 2026-05-31 13:01 -06:00 - Build 1 repair ready for Codex Review.

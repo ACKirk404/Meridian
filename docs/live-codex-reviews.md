@@ -4,9 +4,39 @@ This file is the standing queue for Codex Reviews A, the runtime/code review ses
 
 The build lanes build. Review lanes review.
 
-## Coordinator Override - Completed / Repair Routed
+## Coordinator Override - Active Review Scope
 
-No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+Goal: verify Build 1 repair commit `8e8c87b` closes the V2 runtime/code MEDIUM findings.
+
+Scope:
+
+- Build 1 repair commit `8e8c87b` - `PromptPayloadSnapshot` zero/invalid budget failure-soft behavior and Echo naive timestamp handling.
+
+Allowed review files:
+
+- `meridian_core/prompt_payload_meter.py`
+- `tests/test_prompt_payload_meter.py`
+- `meridian_core/echo.py`
+- `tests/test_echo.py`
+- `docs/live-build-1.md` for repair provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_echo.py -q`
+- `python -m pytest tests/test_prompt_payload_meter.py -q`
+- `python -m pytest tests/test_echo.py tests/test_atlas.py tests/test_prompt_payload_meter.py tests/test_relay_executor.py -q`
+- `python -m pytest tests/test_cognition_policy.py tests/test_aegis.py tests/test_relay_executor.py -q`
+
+Review expectations:
+
+- Verify zero and negative budgets cannot crash `budget_percent` or `status`.
+- Verify Echo queries cannot crash on naive `created_at` values and preserve deterministic ordering/filtering.
+- If clean, clear the Build 1 repair and update the V2 tracker implication for Echo and prompt payload meter review state.
+- If findings remain, route a focused repair back to Build 1.
+
+Completion: commit and push only `docs/live-codex-reviews.md` unless routing a repair into `docs/live-build-1.md`.
+
+## Completed / Repair-Routed Prior Scope
 
 ## Completed / Repair-Routed Review Scope
 
