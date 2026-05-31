@@ -227,6 +227,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 completed <task>; commit <hash>; tests <result>
 2026-05-31 01:48 -06:00 - Build 4 completed V3 parking lot (docs/v3-parking-lot.md); commit pending; tests not required (docs-only); Ready for Codex Review after commit
 2026-05-31 10:45 -06:00 - Build 4 completed V1 Bifrost live-data integration contract (docs/v1-bifrost-live-data-contract.md); commit pending; tests not required (docs-only); Ready for Codex Review after commit
 2026-05-31 02:00 -06:00 - Build 4 completed V1 Bifrost cockpit runtime acceptance checklist (docs/v1-bifrost-runtime-acceptance-checklist.md); commit ec66081; tests not required (docs-only); Ready for Codex Review after commit
+2026-05-31 04:21 -06:00 - Codex coordinator completed V2 detailed build plan (docs/v2-detailed-build-plan.md); commit pending; tests not required (docs-only); Ready for Codex Review after commit
 ```
 
 ## Cross-Check Activity
@@ -517,6 +518,11 @@ Completion:
 **Ready for Codex Review**
 - Commit: `ec66081`
 - Files: `docs/v1-bifrost-runtime-acceptance-checklist.md`
+- Tests: not required (docs-only)
+
+**Ready for Codex Review**
+- Commit: pending
+- Files: `docs/v2-detailed-build-plan.md`, `docs/live-build-4.md`
 - Tests: not required (docs-only)
 
 (Previous slices `3cbf336` `docs/v0-build-readiness-map.md`, `1d17fa1` `docs/prime-orchestration-state-model.md`, `fd9224d` `docs/prime-status-console-cli-brief.md`, `7b43848` `docs/v1-capability-plan.md`, and `18e2767` `docs/v3-parking-lot.md` also pending Codex Reviews sweep.)
