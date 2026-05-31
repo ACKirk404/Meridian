@@ -236,6 +236,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-05-31 00:51 -06:00 - Build 3 checked queue; status: idle; Round B4 FileMap repair already complete (c388f47); cadence 2/3 since Round B3; awaiting next task assignment
 2026-06-01 09:35 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B3; awaiting next assignment
 2026-05-31 00:55 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B3; awaiting next task assignment
+2026-06-01 09:45 -06:00 - Build 3 checked queue; status: idle; no active task; new Bifrost cockpit scaffold landed (d13f1d1 — bifrost/cockpit.py, bifrost/__init__.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py); FileMap gap noted in cross-check; cadence 2/3 since Round B3; awaiting next assignment
 ```
 
 ## Write/Completion Log
@@ -279,6 +280,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 cross-check: none/finding/fix; details: <short not
 2026-05-30 12:32 -06:00 - Build 3 cross-check: Codex review finding LOW — PromptPacketError should be PromptPacketValidationError in implementation-checklist and codex-review-checklist; deferred (not in this task's allowed files)
 2026-05-30 12:32 -06:00 - Build 3 cross-check: Codex review finding LOW — test count 13 vs 14 in codex-review-checklist; deferred (not in this task's allowed files)
 2026-05-31 00:35 -06:00 - Build 3 cross-check: Codex Reviews B Round B1 finding — four docs exist on disk but absent from FileMap (v0-build-readiness-map.md, prime-orchestration-state-model.md, bifrost-v0-cockpit-layout-brief.md, bifrost-harness-dashboard-brief.md); Build 4/5 disclaim edits to these owners; repair assigned to Build 3; executing now
+2026-06-01 09:45 -06:00 - Build 3 cross-check: new Bifrost cockpit scaffold d13f1d1 adds bifrost/cockpit.py, bifrost/__init__.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py — none registered in docs/FileMap.md or meridian_core/filemap.py; FileMap gap; no active task assigned yet; awaiting Codex Reviews routing
 2026-05-31 11:20 -06:00 - Build 3 cross-check: Round B2 repair (live-codex-reviews-2.md + A-lane label + prose-divergence) already present in HEAD via Build 1 commit 45497b1; no duplicate commit; task closed
 ```
 
