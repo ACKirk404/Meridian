@@ -137,7 +137,7 @@ This is the review lane's cursor. Update it after every review pass so the next 
 | Build 2 | 40def3d | V2 Prime next-action domain object (`prime_autonomy.py`) | repair routed | MEDIUM: `PrimeNextAction.is_executable()` ignores `human_gate_required`, making human-gated high-risk actions executable when no blockers exist | Build 2 repair task written in `docs/live-build-2.md` |
 | Build 3 | ef934b1 | FileMap refresh + FileMap Relay maturity repair (7ec16ac..ef934b1) | passed | observational: next FileMap refresh should add `meridian_core/relay_dispatch.py` (introduced by Build 1 fd35a81 after this commit) | await next Ready for Codex Review marker |
 | Build 4 | 736b6af | architecture consistency pass — Q button reference + cadence closure | passed | none | await next Ready for Codex Review marker |
-| Build 5 | d1d32af | Bifrost cockpit queue status brief + V0 cockpit layout brief (818bb31..d1d32af) | passed | none — Build 5 cadence pause cleared by this review | await next Ready for Codex Review marker |
+| Build 5 | d5579f8 | Round 7 repair verification (stale Active Task path + v2 plan alignment) | passed | none — Round 7 repair verified in Round 8 | await next Ready for Codex Review marker |
 
 Checkpoint rules:
 
@@ -201,6 +201,14 @@ Allowed review files: `meridian_core/prime_autonomy.py`, `tests/test_prime_auton
 Tests to run: python -m pytest tests/test_prime_autonomy.py -q; python -m pytest tests/test_prime_autonomy.py tests/test_filemap.py -q
 Out of scope: re-reviewing Build 1 restart/resteer repair already cleared in Round 5; Bifrost integration contract Active Task execution
 Reason: Build 2 Ready marker for V2 Prime next-action domain object commit 40def3d
+
+2026-05-31 14:05 -06:00 - Round 8 scope (Codex Reviews A — Build 5 repair verification)
+Build lanes: Build 5
+Commit range(s): 4558cf1..d5579f8 (repair verification against Round 7 finding on 39c9ac8)
+Allowed review files: docs/live-build-5.md, docs/v2-detailed-build-plan.md
+Tests to run: none (docs-only repair verification)
+Out of scope: executing Build 5 product Active Tasks; re-reviewing prior scope already cleared in Round 7
+Reason: Build 5 marked Round 7 repair Ready for Codex Review at 4558cf1/d5579f8
 ```
 
 Scope rules:
@@ -262,6 +270,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-05-31 13:55 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch and ff-only merge; top active state says no active task; stale-prior scope lists `f1a1b7c` but was not executed.
 2026-05-31 13:57 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch and ff-only merge; top active state says no active task; Build 5 repair completion observed in build queue but not executed without review-queue assignment.
 2026-05-31 13:59 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current in detached review worktree; top active state says no active task; Build 5 repair completion remains unassigned for Reviews A execution.
+2026-05-31 14:05 -06:00 - Codex Reviews A checked queue; status: running; notes: Build 5 repair commits 4558cf1/d5579f8 found Ready for Codex Review; executing Round 8 repair verification.
 ```
 
 ## Review Log
@@ -286,6 +295,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-05-31 13:04 -06:00 - Reviewed Build 1 repair commit 40def3d; result: pass with LOW process note; tests: `python -m pytest tests/test_restart_resteer.py -q` 16 passed; `python -m pytest tests/test_filemap.py tests/test_restart_resteer.py -q` 62 passed; notes: repair closes Round 4 findings by gating `EMPTY_QUEUE` to `LaneRole.BUILD`, adding idle-review-lane regression coverage, and updating contract signature to `choose_recovery_action(frame, findings)`; Prime Autonomy files in the same commit were out of Round 5 scope and not reviewed here.
 2026-05-31 13:06 -06:00 - Reviewed Build 2 commit 40def3d; result: finding/repair-routed; tests: `python -m pytest tests/test_prime_autonomy.py -q` 30 passed; `python -m pytest tests/test_prime_autonomy.py tests/test_filemap.py -q` 76 passed; notes: PrimeNextAction model is immutable and deterministic, but `is_executable()` ignores `human_gate_required` despite the field documenting that approval must happen before execution; repair routed to Build 2.
 2026-05-31 13:30 -06:00 - Reviewed coordinator commit 39c9ac8; result: finding/repair-routed; tests: `python -m pytest tests/test_prime_autonomy.py tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q` 137 passed; `python -m pytest tests/test_filemap.py tests/test_prompt_metrics.py -q` 94 passed; notes: Prime human-gate repair passed; JARVIS-source runway direction is present, but Build 5 has contradictory stale active-task/path references that could send the builder to the old contract file; repair routed to Build 5.
+2026-05-31 14:05 -06:00 - Reviewed Build 5 repair commits 4558cf1..d5579f8; result: pass; tests: none required (docs-only repair verification); notes: repair closes Round 7 finding. Stale docs/bifrost-v2-extensions-contract.md Active Task now quarantined under Archived header with displacement note. docs/v2-detailed-build-plan.md already references docs/bifrost-v2-cockpit-extensions.md (line 269). JARVIS-source requirement preserved.
 ```
 
 ## Proof Log
@@ -316,6 +326,7 @@ YYYY-MM-DD HH:MM TZ - Proof for Build <n> commit <hash>; proof type: diff/test/r
 2026-05-31 13:51 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff 4c980f9..HEAD -- docs/live-codex-reviews.md` shows only idle read-check/write-log updates since the prior cadence checkpoint; recent `pending` scan found no unresolved pending write status before this checkpoint; result: pass.
 2026-05-31 13:54 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff c11ba9d..HEAD -- docs/live-codex-reviews.md` shows only idle read-check/write-log updates since the prior cadence checkpoint; recent `pending` scan found no unresolved pending write status before this checkpoint; result: pass.
 2026-05-31 13:59 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff aec8dc9..HEAD -- docs/live-codex-reviews.md` shows idle read/write checkpoints plus Build 5 repair-observation notes, while the queue top still says no active task; recent `pending` scan found no unresolved pending write status before this checkpoint; result: pass.
+2026-05-31 14:05 -06:00 - Proof for Build 5 repair commits 4558cf1..d5579f8; proof type: reference/diff; evidence: git grep confirms docs/v2-detailed-build-plan.md line 269 uses docs/bifrost-v2-cockpit-extensions.md (correct path); docs/live-build-5.md stale Active Task now under Archived stale task header with do-not-execute displacement note; no executable path to old bifrost-v2-extensions-contract.md remains; result: pass.
 ```
 
 Minimum proof expectations:
@@ -353,6 +364,7 @@ YYYY-MM-DD HH:MM TZ - Build <n> commit <hash>; severity: CRITICAL/HIGH/MEDIUM/LO
 2026-05-31 13:51 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md; finding: no actionable findings in the recent queue-only read-check/status updates; action: clear, no repair task written.
 2026-05-31 13:54 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md; finding: no actionable findings in the recent queue-only read-check/status updates; action: clear, no repair task written.
 2026-05-31 13:59 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md; finding: no actionable findings in the recent queue-only read-check/status updates or Build 5 repair-observation notes; action: clear, no repair task written.
+2026-05-31 14:05 -06:00 - Build 5 repair commits 4558cf1..d5579f8; severity: none; file: docs/live-build-5.md, docs/v2-detailed-build-plan.md; finding: no CRITICAL/HIGH/MEDIUM/LOW findings. Round 7 repair verified — stale Active Task archived; v2 plan aligned with docs/bifrost-v2-cockpit-extensions.md; action: clear, repair verified.
 ```
 
 ## Repair Routing Log
@@ -368,7 +380,7 @@ YYYY-MM-DD HH:MM TZ - Routed repair to Build <n>; queue: docs/live-build-<n>.md;
 2026-05-31 12:55 -06:00 - Routed repair to Build 1; queue: docs/live-build-1.md; finding: `EMPTY_QUEUE` must be build-lane-only and restart/resteer contract must match `choose_recovery_action(frame, findings)` runtime signature; status: pending
 2026-05-31 13:04 -06:00 - Verified Build 1 repair commit 40def3d; queue: docs/live-build-1.md; finding: Round 4 `EMPTY_QUEUE` lane-role gating + contract signature mismatch; status: passed, no further Build 1 repair routed.
 2026-05-31 13:06 -06:00 - Routed repair to Build 2; queue: docs/live-build-2.md; finding: `PrimeNextAction.is_executable()` must respect `human_gate_required`; status: pending.
-2026-05-31 13:30 -06:00 - Routed repair to Build 5; queue: docs/live-build-5.md; finding: remove stale lower `## Active Task` / old `docs/bifrost-v2-extensions-contract.md` path contradiction and align `docs/v2-detailed-build-plan.md` with `docs/bifrost-v2-cockpit-extensions.md`; status: pending.
+2026-05-31 13:30 -06:00 - Routed repair to Build 5; queue: docs/live-build-5.md; finding: remove stale lower `## Active Task` / old `docs/bifrost-v2-extensions-contract.md` path contradiction and align `docs/v2-detailed-build-plan.md` with `docs/bifrost-v2-cockpit-extensions.md`; status: passed (verified 2026-05-31 14:05 -06:00 in Round 8).
 ```
 
 ## Coordinator Addendum - Planning Harness Review
