@@ -261,9 +261,9 @@ Allowed files only:
 
 Task:
 
-- Register `package.json`, `electron/main.js`, `bifrost/preview.py`, `tests/test_bifrost_preview.py`, and `docs/prime-queue-reconciliation-requirement.md`.
+- Register `package.json`, `electron/main.js`, `bifrost/preview.py`, `tests/test_bifrost_preview.py`, `docs/prime-queue-reconciliation-requirement.md`, and `docs/agentic-ai-framework-checklist.md`.
 - Use `FileArea.BIFROST`.
-- Use `FileArea.ARCHITECTURE` for the Prime queue reconciliation requirement.
+- Use `FileArea.ARCHITECTURE` for the Prime queue reconciliation requirement and agentic AI framework checklist.
 - Add required-path coverage in `tests/test_filemap.py`.
 - Do not edit Electron app code, Bifrost renderer code, or package API.
 
