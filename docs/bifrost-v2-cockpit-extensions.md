@@ -50,7 +50,7 @@ The V2 cockpit should have these regions:
 - Every agent card must show enough proof to answer: what is it doing, where is it working, when did it last move, and what blocks it?
 - The cockpit must retain Polaris's best navigation affordances: Settings, Projects, Reset, Close, Cross Check, Backlog, Skills, Harness, and Balance.
 - The cockpit must be fully voice-enabled: voice input, voice output, wake/boot audio, mute controls, and visible listening/thinking/speaking state.
-- The interface should open as an Electron app and should also render deterministically as static preview HTML for tests.
+- The interface should be browser-first HTML/CSS and render deterministically as static preview HTML for tests. Electron is optional packaging, not the center of gravity, unless Meridian later needs desktop-only capabilities.
 - Code reuse must preserve license/copyright notices. Do not import non-commercial Ethan Jarvis code unless licensing is resolved.
 
 ## First Implementation Slice

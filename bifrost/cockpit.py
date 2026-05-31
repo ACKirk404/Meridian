@@ -288,7 +288,6 @@ def _render_nav() -> str:
     )
     return (
         '<nav class="cockpit-nav">'
-        '<div class="hud-title-plate"><span>SET</span><strong>HUD</strong></div>'
         '<div class="brand-block">'
         '<span class="brand-kicker">MERIDIAN</span>'
         '<strong>Prime Cockpit</strong>'
@@ -307,15 +306,9 @@ def _render_nav() -> str:
 def _render_prime_panel(vm: CockpitViewModel) -> str:
     header = (
         '<div class="prime-header">'
-        '<div class="window-number">02</div>'
         "<div>"
-        '<span class="prime-eyebrow">Prime, Meridian orchestrator</span>'
         f"<h1>{_e(vm.project)}</h1>"
-        "</div>"
-        '<div class="prime-bearing-stack">'
-        f'<span class="prime-bearing">{_e(vm.bearing)}</span>'
-        f'<span class="prime-tier">Tier {_e(vm.instrument.tier)}</span>'
-        '<span class="prime-status">Prime: online</span>'
+        f'<span class="sr-only cockpit-bearing">{_e(vm.bearing)}</span>'
         "</div>"
         "</div>"
     )
@@ -348,11 +341,11 @@ def _render_prime_panel(vm: CockpitViewModel) -> str:
     hud_core = (
         '<div class="hud-stage" aria-label="Prime HUD command core">'
         '<div class="hud-left-stack">'
-        '<div class="hud-micro-panel"><span>TITLE 01</span><strong>QUEUE</strong>'
+        '<div class="hud-micro-panel"><span>Queue</span>'
         f'<em>{_e(active_lanes)} active / {len(vm.lanes)} lanes</em></div>'
-        '<div class="hud-micro-panel"><span>TITLE 02</span><strong>PROOF</strong>'
+        '<div class="hud-micro-panel"><span>Proof</span>'
         f'<em>{_e(vm.review_count)} review gates</em></div>'
-        '<div class="hud-micro-panel"><span>TITLE 03</span><strong>PAYLOAD</strong>'
+        '<div class="hud-micro-panel"><span>Payload</span>'
         '<em>(under 1k) stable</em></div>'
         "</div>"
         '<div class="hud-core">'
@@ -372,7 +365,7 @@ def _render_prime_panel(vm: CockpitViewModel) -> str:
         '<div class="hud-metric"><span>Attention</span>'
         f'<strong>{_e(blocked_lanes)} lanes</strong><em>need review</em></div>'
         "</div>"
-        '<div class="delegation-map"><span class="map-title">Delegation Map</span>'
+        '<div class="delegation-map" aria-label="Delegation Map">'
         '<span class="prime-node">Prime</span>'
         f'<div class="delegation-nodes">{lane_nodes}</div>'
         "</div>"
@@ -388,8 +381,14 @@ def _render_prime_panel(vm: CockpitViewModel) -> str:
         "</div>"
         f"{hud_core}"
         f"{tabs}"
-        '<div class="prime-input">'
-        '<input type="text" placeholder="&gt; _" class="prime-prompt" />'
+        '<div class="prime-input" aria-label="Prime command prompt">'
+        '<div class="prompt-head"><span>Prime Command Bay</span><em>voice + text armed</em></div>'
+        '<textarea placeholder="&gt; Tell Prime what to build, approve, reroute, or inspect..." class="prime-prompt"></textarea>'
+        '<div class="prompt-actions">'
+        '<button type="button" class="prompt-btn" data-action="voice">Voice</button>'
+        '<button type="button" class="prompt-btn" data-action="send">Send</button>'
+        '<button type="button" class="prompt-btn prompt-primary" data-action="mission-objectives">Mission Objectives</button>'
+        "</div>"
         "</div>"
         f'<div class="prime-messages">{messages}</div>'
         "</section>"
@@ -435,7 +434,6 @@ def _render_harness_dashboard(harnesses: list[HarnessCard]) -> str:
     return (
         '<section class="harness-dashboard" aria-label="Harness Dashboard">'
         '<div class="harness-dashboard-header">'
-        '<div class="window-header"><span class="window-number">03</span><span>MERIDIAN</span><em>Harness Viewers</em></div>'
         '<h2>Harness Dashboard</h2>'
         '<span class="harness-dashboard-mode">View only</span>'
         "</div>"
@@ -456,7 +454,6 @@ def _render_lane_strip(lanes: list[LaneRow]) -> str:
     attn = sum(1 for lane in lanes if lane.status in ("blocked", "paused"))
     return (
         '<aside class="lane-strip">'
-        '<div class="window-header"><span class="window-number">01</span><span>MERIDIAN</span><em>Queue Runway</em></div>'
         '<div class="rail-title">Build Lanes</div>'
         f'<div class="lane-rows">{rows}</div>'
         f'<div class="lane-summary">{total} tot. / {attn} attn</div>'
@@ -496,7 +493,6 @@ def _render_progress_surface(events: list[ProgressEvent]) -> str:
     )
     return (
         '<aside class="progress-surface">'
-        '<div class="window-header"><span class="window-number">04</span><span>MERIDIAN</span><em>Proof Console</em></div>'
         '<div class="progress-header">'
         'Review Console <span class="progress-filter">(all)</span>'
         f'<div class="progress-counts">{counts}</div>'
@@ -516,7 +512,6 @@ def _render_instrument_band(inst: InstrumentBand) -> str:
 
     return (
         '<footer class="instrument-band">'
-        '<span class="window-number">05</span>'
         '<span class="instr-title">Systems</span>'
         f"{chip('Beacon', inst.beacon)}"
         f"{chip('Relay', inst.relay)}"
