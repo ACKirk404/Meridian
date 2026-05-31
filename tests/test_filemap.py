@@ -26,6 +26,8 @@ _REQUIRED_PATHS = [
     "docs/session-card-queue-activation-contract.md",
     "docs/bifrost-voice-command-contract.md",
     "docs/bifrost-balance-payload-surface-contract.md",
+    "docs/bifrost-v2-cockpit-extensions.md",
+    "docs/jarvis-ui-source-assessment.md",
     "docs/deepseek-provider-validation-gate.md",
     "meridian_core/models.py",
     "meridian_core/mission.py",

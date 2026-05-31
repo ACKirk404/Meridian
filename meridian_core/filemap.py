@@ -702,6 +702,20 @@ def make_default_map() -> FileMap:
             notes="UI/product contract only. Bifrost displays Relay/Model Harness telemetry but does not choose provider routing.",
         ),
         FileMapEntry(
+            path="docs/jarvis-ui-source-assessment.md",
+            area=FileArea.BIFROST,
+            purpose="Source assessment for JARVIS/HUD UI references that can shape Bifrost's Prime-first command center without importing unsafe or incompatible code.",
+            related_tests=[],
+            notes="Read before reusing external UI patterns. Source assessment only; not proof of completed runtime UI implementation.",
+        ),
+        FileMapEntry(
+            path="docs/bifrost-v2-cockpit-extensions.md",
+            area=FileArea.BIFROST,
+            purpose="Bifrost V2 cockpit extension contract: browser-first HUD direction, central Prime command bay, quiet PRIMED presence core, project rail, harness consoles, and voice-first interaction layer.",
+            related_tests=["tests/test_bifrost_cockpit.py"],
+            notes="Active V2 UI direction. Bifrost displays state; Prime/Relay/Aegis own decisions and routing.",
+        ),
+        FileMapEntry(
             path="docs/v1-bifrost-cockpit-implementation-brief.md",
             area=FileArea.BIFROST,
             purpose="V1 Bifrost cockpit implementation brief: what V1 builds, what it omits, and which UI slices land first. Turns V0's domain capabilities into a Prime-centered, browser-rendered cockpit surface.",

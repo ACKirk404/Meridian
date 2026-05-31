@@ -148,7 +148,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: register the active Bifrost V2 cockpit/JARVIS source docs in FileMap.
 
@@ -171,7 +171,14 @@ Tests:
 
 - `python -m pytest tests/test_filemap.py -q`
 
-Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+Completion:
+
+- Coordinator completed this FileMap registration on 2026-05-31.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests run: `python -m pytest tests/test_filemap.py -q`.
+- Commit: pending.
+
+Ready for Codex Review.
 
 ## Next Candidate Task
 
