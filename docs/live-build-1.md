@@ -321,6 +321,8 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-03 ~17:40 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-03 ~17:50 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-03 ~18:00 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
+2026-06-03 19:30 -05:00 - Build 1 checked queue; status: running (V2 policy-aware Relay executor wrapper task)
+2026-06-03 19:31 -05:00 - Build 1 checked queue; status: idle (b99ce1d complete; awaiting next assignment or Codex review result)
 ```
 
 ## Write/Completion Log
@@ -361,6 +363,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 completed <task>; commit <hash>; tests <result>
 2026-06-02 ~21:40 CDT - Build 1 completed Prime cockpit snapshot/event domain shape; commit f56af55; files: meridian_core/cockpit_state.py, tests/test_cockpit_state.py; tests: 25 targeted cockpit_state passed, 941 full passed; Obsidian pending; Ready for Codex Review.
 2026-05-31 05:02 -06:00 - Coordinator assigned V2 Aegis CognitionPolicy domain model; commit pending; tests pending (`python -m pytest tests/test_cognition_policy.py -q`)
 2026-05-31 05:54 -06:00 - Coordinator completed V2 Aegis CognitionPolicy domain model; commit 3cdc74d; files: meridian_core/cognition_policy.py, tests/test_cognition_policy.py, docs/live-build-1.md; tests: 15 cognition_policy passed, 102 aegis+cognition_policy passed; Ready for Codex Review.
+2026-06-03 19:31 -05:00 - Build 1 completed V2 policy-aware Relay executor wrapper; commit b99ce1d; files: meridian_core/relay_executor.py, tests/test_relay_executor.py, docs/live-build-1.md; tests: 50 relay_executor, 15 cognition_policy, 92 aegis (157 total) passed; Ready for Codex Review.
 ```
 
 ## Cross-Check Activity
@@ -404,61 +407,13 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Current Active Task:
-
-Goal: add a policy-aware Relay executor wrapper for V2 CognitionPolicy.
-
-Context:
-
-- V2 is active.
-- `meridian_core/cognition_policy.py` landed in commit `3cdc74d`.
-- Coordinator review found the domain model clean: 102 Aegis+cognition_policy tests passed.
-- Build 1 owns runtime/domain code.
-- This is a small Haiku-safe slice: wire the existing cognition policy into Relay execution without changing the legacy executor functions.
-
-Allowed files only:
-
-- `meridian_core/relay_executor.py`
-- `tests/test_relay_executor.py`
-- `docs/live-build-1.md`
-
-Task:
-
-- Add a new helper in `meridian_core/relay_executor.py` named `execute_relay_dispatch_plan_with_policy`.
-- The helper should:
-  - accept the same `plan`, `model_call`, and optional `proof_trail` used by `execute_relay_dispatch_plan`
-  - also accept `human_gate_approved: bool = False`
-  - call `evaluate_cognition_policy(plan.route.risk_tier, proof_trail=proof_trail, human_gate_approved=human_gate_approved)`
-  - if the policy result cannot dispatch, raise `RelayProofGateError` before any model call
-  - include the policy blocking reasons in the error message
-  - otherwise delegate to the existing `execute_relay_dispatch_plan(...)`
-- Do not change behavior of existing `execute_relay_dispatch_plan(...)` or `execute_relay_plan_with_registry(...)`.
-- Do not export from package root; Build 2 owns package API.
-- Do not edit FileMap; Build 3 owns FileMap.
-- Keep the implementation deterministic and model-free.
-
-Tests:
-
-- Add focused tests in `tests/test_relay_executor.py` for:
-  - tier 3 missing proof blocks before model call
-  - tier 3 clean proof allows dispatch
-  - tier 4 clean proof without human approval blocks before model call
-  - tier 4 clean proof with human approval allows dispatch
-  - tier 2 still dispatches without proof
-- Run `python -m pytest tests/test_relay_executor.py tests/test_cognition_policy.py tests/test_aegis.py -q`.
-
-Completion:
-
-- Commit only this slice.
-- Push to `origin/main`.
-- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
-
-Last completed: V2 Aegis CognitionPolicy domain model; commit `3cdc74d`; files: meridian_core/cognition_policy.py, tests/test_cognition_policy.py, docs/live-build-1.md; tests: 15 cognition_policy passed, 102 aegis+cognition_policy passed; Ready for Codex Review.
+(None currently assigned.)
 
 ## Completed Slices
 
 Historical record of Build 1 V0 completed slices (most recent first). Do not re-execute any entry below.
+
+[COMPLETED 2026-06-03 19:31 -05:00] V2 policy-aware Relay executor wrapper — commit `b99ce1d`; files: meridian_core/relay_executor.py, tests/test_relay_executor.py; tests: 50 relay_executor, 15 cognition_policy, 92 aegis (157 total) passed; Ready for Codex Review.
 
 [COMPLETED 2026-05-31 05:54 -06:00] V2 Aegis CognitionPolicy domain model - commit `3cdc74d`; files: meridian_core/cognition_policy.py, tests/test_cognition_policy.py; tests: 15 targeted passed, 102 Aegis+cognition_policy passed; Ready for Codex Review.
 
