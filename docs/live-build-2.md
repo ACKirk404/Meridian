@@ -1,5 +1,19 @@
 # Live Build 2 Queue
 
+## Codex Repair Active Task - Reviews A Round 6
+
+Goal: repair PrimeNextAction human-gate executability semantics.
+
+Allowed files only: `meridian_core/prime_autonomy.py`, `tests/test_prime_autonomy.py`, `docs/live-build-2.md`.
+
+Finding: Codex Reviews A found a MEDIUM behavior bug in commit `40def3d`. `PrimeNextAction.human_gate_required` is documented as "Must wait for human approval before executing", but `PrimeNextAction.is_executable()` returns `True` whenever there are no blockers, even when `human_gate_required` is `True`. That lets a high-risk action marked as human-gated appear executable before approval.
+
+Task: make the executable predicate respect the human gate. The simplest acceptable repair is for `is_executable()` to return `False` when `human_gate_required` is `True` or blockers are present. Update the existing tests that currently expect human-gated actions to be executable, and add/keep focused coverage proving high-risk human-gated actions are not executable until a later approval model exists. Do not add live execution, UI, package exports, or approval workflows in this repair.
+
+Tests: `python -m pytest tests/test_prime_autonomy.py -q`
+
+Completion: commit only the allowed repair files, push, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
 ## Coordinator Override - Active Now
 
 Goal: write the V2 Bifrost integration contract for Prime next action and prompt payload telemetry.
@@ -382,6 +396,7 @@ Append entries here when this file is modified or an active task is completed.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; files changed: <list>; tests <result>; Ready for Codex Review
+2026-05-31 13:06 -06:00 - Codex Reviews A routed MEDIUM repair task for PrimeNextAction human-gate executability; files changed: docs/live-build-2.md; tests run by Reviews A before routing: `python -m pytest tests/test_prime_autonomy.py -q` 30 passed, `python -m pytest tests/test_prime_autonomy.py tests/test_filemap.py -q` 76 passed; commit pending from Reviews A; push pending; Obsidian status: updated `Meridian_Build/2026-05-31 Prime Autonomy Human Gate Review Finding.md`.
 2026-05-30 10:33 -06:00 - Codex assigned Prompt Metrics package API + FileMap exposure; commit pending; tests pending
 2026-05-30 10:37 -06:00 - Codex strengthened polling contract; commit pending; tests not required
 2026-05-30 10:42 -06:00 - Build 2 completed Prompt Metrics package exposure; commit 6d51710; tests 627 passed
