@@ -89,3 +89,45 @@ This session (s_1780256820022) still has **no lane assignment**. No queue file i
 Reporting IDLE. Awaiting lane assignment from Scott/Prime/Coordinator.
 
 ---
+
+## Read Check — 2026-07-16 ~21:45 UTC
+
+### Status: IDLE — No Lane Assignment
+
+### Pull
+- `git pull origin/main` from `C:\Users\scott\Code\Meridian` — SUCCESS (merge f863363 from d40b221)
+- 2 files changed: `docs/live-build-1.md` (+22), `docs/live-codex-reviews.md` (+24/-3)
+
+### Full Five-Lane Queue Inspection (fresh reads from origin/main)
+
+| Lane | Active Task | Stale? | Executable? |
+|------|------------|--------|-------------|
+| Build 1 | "Coordinator Override - Active Now" (line 97): "repair and harden Prime queue runway policy." Allowed: `docs/prime-queue-runway-policy.md`, `docs/live-build-1.md`. | **YES** — completed at b5bbab8 (Write/Completion Log line 590), also at 57ed79a (line 593) | **NO** |
+| Build 2 | "Coordinator Override - Active Now" (line 35): "write Session Lifecycle implementation checklist." Allowed: `docs/session-lifecycle-implementation-checklist.md`, `docs/live-build-2.md`. | **UNCLEAR** — no explicit completion in log, but hundreds of prior idle polls treat as stale | **AMBIGUOUS** |
+| Build 3 | "Cadence Paused" (line 7) — "Build 3 is paused at cadence 3/3 since Round B5." Next Active Task after cadence clearance exists at line 13. | **GATED** | **NO** |
+| Build 4 | "Coordinator Override - Active Now" (line 35): "write a Prime workflow/sub-agent usage checklist." Allowed: `docs/workflow-subagent-usage-checklist.md`, `docs/live-build-4.md`. | **POSSIBLY STALE** — file `docs/workflow-subagent-usage-checklist.md` NOT present at HEAD; prior read checks show persistent idle | **UNCLEAR** |
+| Build 5 | "Active Task" (line 33): "write a Bifrost voice-control command palette contract." Allowed: `docs/bifrost-voice-command-contract.md`, `docs/live-build-5.md`. | **UNCLEAR** — no explicit completion, but Codex Repair at line 45 completed (4558cf1), Coordinator Override paused at line 64 | **AMBIGUOUS** |
+
+### Verdict
+- **Build 1**: Active Task is definitively stale (completed at b5bbab8, also re-completed at 57ed79a). Per queue hygiene rules, this task should be replaced with `(none — awaiting next assignment)`.
+- **Build 2**: Active Task remains in place with no completion record. Could be fresh work OR orphaned stale task. Write/Completion Log has no matching entry.
+- **Build 3**: Explicitly cadence-paused. Correct per rules.
+- **Build 4**: Active Task may be executable but the output file doesn't exist and prior polls show idle patterns. Write/Completion Log has no matching entry for the checklist task.
+- **Build 5**: Active Task sits under a completed Codex Repair and paused Coordinator Override. Ambiguous whether it's promoted or stale.
+
+### Action
+**Reporting IDLE.** This session (s_1780256820022) remains unassigned to any Build 1–5 lane. No queue file is designated as this session's assigned queue. Two lanes (Build 2, Build 4) have potentially executable Active Tasks but this session cannot claim them without assignment. Awaiting lane/queue assignment from Prime/Scott.
+
+---
+
+## Read Check History (from session s_1780252771590 — archival reference only)
+
+These entries were merged from commit 4534abf and belong to a different session (s_1780252771590). Archived here for completeness; do not act on them.
+
+```text
+2026-06-09 03:00 UTC approx - s_1780252771590 read check; status: idle; pulled origin/main (already up to date); all 5 lanes idle
+2025-07-16 ~03:00 UTC - s_1780252771590 read check; status: idle; pulled origin/main (HEAD 1a8e9f9); all 5 lanes idle
+2026-05-31 15:13 CDT - s_1780252771590 read check; status: idle; pulled origin/main (HEAD 8a7cec3); all 5 lanes idle
+2026-06-09 ~21:00 UTC - s_1780252771590 read check; status: idle; pulled origin/main (HEAD cd52729); all 5 lanes idle
+2026-07-16 ~21:05 UTC - s_1780252771590 read check; status: idle; all 5 lanes — no executable task; no lane assignment
+```
