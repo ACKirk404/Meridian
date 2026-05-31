@@ -291,6 +291,10 @@ Round 3 write log:
 - 2026-06-01 03:55 CDT - Codex Reviews A started Round 3 (Build 2 d821106 + delegation verification).
 - 2026-06-01 04:00 CDT - Codex Reviews A completed Round 3. 1 commit passed (d821106); delegated Round C1 confirmed clear in docs/live-codex-reviews-3.md.
 
+Round 4 write log:
+
+- 2026-05-31 12:55 -06:00 - Codex Reviews A completed Round 4 queue update. Files changed: `docs/live-codex-reviews.md`, `docs/live-build-1.md`. Tests run: `python -m pytest tests/test_filemap.py tests/test_prompt_metrics.py tests/test_restart_resteer.py -q` (110 passed), `python -m pytest tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q` (108 passed), `npm audit --audit-level=high` (0 vulnerabilities). Commit: `dfc2cbe`. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue routing only, no durable build-knowledge change.
+
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
 Stale prior status follows.
