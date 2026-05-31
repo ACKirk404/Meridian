@@ -137,6 +137,7 @@ from .cockpit_provider import (
     build_snapshot,
     demo_snapshot,
 )
+
 __all__ = [
     # -- Core domain models --------------------------------------------------
     "Portfolio",
