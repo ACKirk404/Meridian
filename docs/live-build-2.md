@@ -19,6 +19,7 @@ When idle, check this file every 10 minutes. If there is an active task below, e
 Rules:
 
 - This session must behave as a live worker, not a one-shot handoff. After completing a task, return to this file and keep polling every 10 minutes.
+- Before editing any task file, verify you are in your own unique worktree. If you are in `C:\Users\scott\Code\Meridian` main worktree or sharing a worktree with another lane, stop and report the worktree violation instead of editing.
 - If there is no Active Task, do not stop. Append a Read Checks entry, wait 10 minutes, pull latest, and check again.
 - Always pull latest `origin/main` before editing.
 - Every time you check/read this file, add a timestamped entry to the Read Checks section.
