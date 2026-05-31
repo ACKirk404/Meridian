@@ -203,3 +203,43 @@ def test_cockpit_provider_exports():
     assert snap.project == "Meridian"
     assert snap.bearing == "V1 Bifrost"
 
+
+def test_v2_cognition_policy_exports():
+    from meridian_core import (
+        CognitionActionType,
+        CognitionLane,
+        CognitionDecision,
+        CognitionPolicy,
+        CognitionPolicyResult,
+        cognition_policy_for_tier,
+        evaluate_cognition_policy,
+    )
+
+    assert CognitionActionType
+    assert CognitionLane
+    assert CognitionDecision
+    assert CognitionPolicy
+    assert CognitionPolicyResult
+    assert cognition_policy_for_tier
+    assert evaluate_cognition_policy
+
+    for name in (
+        "CognitionActionType",
+        "CognitionLane",
+        "CognitionDecision",
+        "CognitionPolicy",
+        "CognitionPolicyResult",
+        "cognition_policy_for_tier",
+        "evaluate_cognition_policy",
+    ):
+        assert name in meridian_core.__all__, f"{name} missing from __all__"
+
+    policy = cognition_policy_for_tier(1)
+    assert isinstance(policy, CognitionPolicy)
+    assert policy.risk_tier == 1
+    assert policy.action_type == CognitionActionType.BUILD
+
+    result = evaluate_cognition_policy(1)
+    assert isinstance(result, CognitionPolicyResult)
+    assert result.can_dispatch
+

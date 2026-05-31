@@ -137,6 +137,15 @@ from .cockpit_provider import (
     build_snapshot,
     demo_snapshot,
 )
+from .cognition_policy import (
+    CognitionActionType,
+    CognitionLane,
+    CognitionDecision,
+    CognitionPolicy,
+    CognitionPolicyResult,
+    cognition_policy_for_tier,
+    evaluate_cognition_policy,
+)
 
 __all__ = [
     # -- Core domain models --------------------------------------------------
@@ -278,4 +287,12 @@ __all__ = [
     # -- Cockpit provider ----------------------------------------------------
     "build_snapshot",
     "demo_snapshot",
+    # -- V2 Cognition policy --------------------------------------------------
+    "CognitionActionType",
+    "CognitionLane",
+    "CognitionDecision",
+    "CognitionPolicy",
+    "CognitionPolicyResult",
+    "cognition_policy_for_tier",
+    "evaluate_cognition_policy",
 ]
