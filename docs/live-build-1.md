@@ -366,6 +366,9 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-05-31 08:02 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-05-31 08:07 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-05-31 08:10 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
+2026-05-31 08:12 -06:00 - Build 1 checked queue; status: idle (Active Task: "(None currently assigned.)"; origin/main fast-forwarded to 9660d40 before read; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
+2026-05-31 08:13 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
+2026-05-31 08:16 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 ```
 
 ## Write/Completion Log
@@ -455,6 +458,8 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 ## Completed Slices
 
 Historical record of Build 1 V0 completed slices (most recent first). Do not re-execute any entry below.
+
+[COMPLETED 2026-05-31 07:50 -06:00] V2 Echo Memory Harness domain slice — commit `2bccb55`; files: meridian_core/echo.py, tests/test_echo.py; tests: 27 passed; MemoryRecord, MemoryQuery, MemoryHit frozen dataclasses; deterministic ranking by project/pinning/importance/recency; failure-soft on missing store/unknown project/corrupt records; Ready for Codex Review.
 
 [COMPLETED 2026-06-03 19:31 -05:00] V2 policy-aware Relay executor wrapper — commit `b99ce1d`; files: meridian_core/relay_executor.py, tests/test_relay_executor.py; tests: 50 relay_executor, 15 cognition_policy, 92 aegis (157 total) passed; Ready for Codex Review.
 
