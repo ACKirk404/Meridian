@@ -12,6 +12,9 @@ build/
 .coverage
 htmlcov/
 
+# JavaScript / Electron
+node_modules/
+
 # Virtual envs
 .venv/
 venv/
@@ -24,6 +27,7 @@ artifacts/
 logs/
 workspaces/
 harness-heartbeats/
+bifrost/preview.html
 
 # Local secrets / env
 .env

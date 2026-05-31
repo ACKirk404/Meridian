@@ -6,9 +6,10 @@
   "main": "electron/main.js",
   "scripts": {
     "preview": "python -m bifrost.preview",
-    "start": "npm run preview && electron ."
+    "start": "npm run preview && electron .",
+    "proof:cockpit": "python -m pytest tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q && npm audit --audit-level=high"
   },
   "devDependencies": {
-    "electron": "^31.0.0"
+    "electron": "^42.3.0"
   }
 }
