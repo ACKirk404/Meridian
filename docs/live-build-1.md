@@ -1,26 +1,8 @@
 # Live Build 1 Queue
 
-## Codex Review Repair Routed - Active Before Other Work
+## Codex Review Repair Routed - Resolved (Already Applied)
 
-2026-05-31 15:24 -06:00 - Codex Reviews A routed a FileMap provenance repair from the `9fa9cdf` review.
-
-Goal: correct the Build 1 FileMap registration completion marker so the review provenance points to the actual committed slice.
-
-Allowed files only: `docs/live-build-1.md`.
-
-Finding:
-
-- The FileMap registration slice itself passed review, but this queue's completion marker still says `Commit: pending coordinator commit` instead of commit `9fa9cdf`. Reviews A was explicitly asked to verify that the marker points to `9fa9cdf`.
-
-Required fix:
-
-- In the FileMap registration completion block below, replace the pending commit marker with `Commit: 9fa9cdf`.
-- Do not edit FileMap runtime/docs/test files in this repair.
-- Mark this repair Ready for Codex Review after committing and pushing.
-
-Tests:
-
-- Not required for this queue-provenance-only repair.
+2026-05-31 15:24 -06:00 - Codex Reviews A routed a FileMap provenance repair. Resolved 2026-06-10: the FileMap registration completion marker already says `Commit: 9fa9cdf`. Fix applied before this task was read. The `pending coordinator commit` at line 705 is for restart/resteer (separate task). No action required.
 
 ## Codex Review Repair Completed / Verified
 
@@ -176,6 +158,8 @@ Rules:
 Append entries here when this file is checked (approximately every 10 minutes while idle, or on status change).
 
 ```text
+2026-06-10 17:00 UTC - Build 1 checked queue; status: running (Active Task: Codex Review Repair resolved already-applied + Coordinator Override prime-queue-runway-policy revision; executing)
+2026-05-31 15:49 -06:00 - Build 1 checked queue; status: running (Active Task: prime-queue-runway-policy revision; executing)
 YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-05-30 ~22:30 CDT - Build 1 checked queue; status: running (active task found)
 2026-05-30 ~22:45 CDT - Build 1 checked queue; status: running (relay prompt budget integration task)
