@@ -1,5 +1,35 @@
 # Live Build 4 Queue
 
+## Coordinator Override - Active Now
+
+Goal: write the Federation Harness horizon plan as the V2 planning entry point for later multi-Meridian and multi-user collaboration.
+
+Allowed files only: `docs/federation-harness-horizon.md`, `docs/live-build-4.md`.
+
+Task: create `docs/federation-harness-horizon.md`.
+
+Cover:
+
+- Why Federation is horizon/V3 runtime but belongs in V2 planning.
+- How one Meridian should discover another Meridian without sharing unsafe state by default.
+- User/project permission boundaries for collaboration.
+- Prime-to-Prime handoff concepts: project summary, task request, proof packet, review result, and refusal/blocker.
+- Shared work principles: no silent branch movement, no shared worktree, no hidden account-based automation, explicit project/user consent before cross-Meridian action.
+- Future UI implication: Federation appears as a harness panel, not as permanent top navigation.
+- Out of V2 scope: network protocol, auth implementation, shared mutable project state, and public marketplace.
+
+Tests: none required, docs-only.
+
+Completion: commit only this Federation planning slice, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
+## Next Candidate Task
+
+Goal: write a Prime workflow/sub-agent usage checklist for harness offloading.
+
+Allowed files later: `docs/workflow-subagent-usage-checklist.md`, `docs/live-build-4.md`.
+
+Task later: convert the workflow/sub-agent architecture note into an operational checklist Prime can use when deciding whether Echo, Atlas, Aegis, Relay, Bifrost, or Session Lifecycle work should run in a separate workflow context.
+
 ## ~~Coordinator Override - Active Now (COMPLETED 2026-05-31 08:55 -06:00)~~
 
 ~~Goal: write the Claude Workflows sub-agent architecture note.~~

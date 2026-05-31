@@ -1,5 +1,35 @@
 # Live Build 2 Queue
 
+## Coordinator Override - Active Now
+
+Goal: write the V2 Session Lifecycle contract so Prime can spawn, watch, steer, recover, and hand off sessions through typed state instead of ad hoc UI supervision.
+
+Allowed files only: `docs/session-lifecycle-v2-contract.md`, `docs/live-build-2.md`.
+
+Task: create `docs/session-lifecycle-v2-contract.md`.
+
+Cover:
+
+- `SessionLifecycleState` responsibilities: session id/name, project, harness role, assigned queue file, model/provider, status, worktree path, branch, current task id, last read/write heartbeat, last prompt payload size, review/cadence state, health, blocker summary, and permission context.
+- `SessionCommandPlan` responsibilities: spawn, watch, poll_queue, steer, stop_request, transfer, archive, restart, resteer, recover_from_limit, and request_human_gate.
+- Unique worktree invariant: every worker/review session must run in a separate worktree; branch movement requires Scott or Prime permission.
+- Queue routing invariant: build sessions read only their assigned build queue, review sessions read only their assigned review queue.
+- Workflow/sub-agent principle: harness work should run in bounded workflow contexts when available so Prime does not absorb every harness transcript.
+- Proof and safety: command plans must include evidence refs, Aegis/cadence gate status, and whether the command is executable or human-gated.
+- Out of scope: no live Polaris/Electron automation, no destructive commands, no branch switching, no vendor-account automation.
+
+Tests: none required, docs-only.
+
+Completion: commit only this contract slice, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
+## Next Candidate Task
+
+Goal: implement the V2 Session Lifecycle domain objects after this contract is written and reviewed.
+
+Allowed files later: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
+
+Task later: build frozen dataclasses/enums for `SessionLifecycleState` and `SessionCommandPlan` with deterministic legality/executability helpers. Do not start until this docs contract is complete and no repair is routed.
+
 ## ~~Codex Repair Active Task - Reviews A Round 6~~
 
 **Completed by coordinator in `39c9ac8`; awaiting Codex review.**

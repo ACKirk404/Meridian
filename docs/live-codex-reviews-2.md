@@ -2,6 +2,42 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
+## Active Task
+
+Goal: review the recent Bifrost browser-first cockpit UI commits after Scott's declutter steering.
+
+Review commits:
+
+- `12e7966` - Enlarge and declutter Prime prompt cockpit
+- `2bee5ab` - Simplify Prime HUD core
+
+Allowed review files:
+
+- `bifrost/cockpit.py`
+- `bifrost/static/cockpit.css`
+- `tests/test_bifrost_cockpit.py`
+- `tests/test_bifrost_preview.py`
+- `docs/bifrost-v2-cockpit-extensions.md`
+- `docs/v2-detailed-build-plan.md`
+- `docs/v2-progress-tracker.md`
+
+Review expectations:
+
+- Verify the preview is browser-first and does not depend on Electron.
+- Verify the central HUD core is quiet: only `PRIMED` in the center window, with Provider Balance / Claude / OpenAI / DeepSeek / Prompt Payload / Queue / Proof / Prime / B1-B5 / ABH removed from that center HUD.
+- Verify the prompt window is large enough to function as the main interaction surface.
+- Verify visible UI noise was reduced: no redundant V1/tier/version/top-number noise in the cockpit content reviewed by these commits.
+- Verify tests match the intended UI behavior rather than preserving stale expectations.
+- Run `python -m pytest tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q`.
+
+Out of scope:
+
+- Do not redesign the cockpit in this review lane.
+- Do not implement UI changes.
+- Do not review non-Bifrost runtime/API work.
+
+Completion: record scope, proof, findings, and checkpoint updates in this file. If repair is needed, route it to the Bifrost UI owner / Build 5 queue rather than editing runtime/UI files here. Commit and push only this review queue unless routing a repair.
+
 Review A and Review B are a scaling prototype for Prime. When review pressure backs up, Prime should be able to spawn additional review capacity, assign bounded scope, and merge the results back into the shared checkpoint ledger.
 
 ## Q Polling Source of Truth
