@@ -530,6 +530,13 @@ def make_default_map() -> FileMap:
             notes="Owner: Build 1. Read before designing any Prime-state-to-cockpit data flow.",
         ),
         FileMapEntry(
+            path="meridian_core/cockpit_provider.py",
+            area=FileArea.BIFROST,
+            purpose="Pure factory layer for Prime cockpit snapshots: build_snapshot() validates inputs and returns an immutable PrimeCockpitSnapshot with lanes sorted attention-first; demo_snapshot() returns a deterministic sample for Bifrost preview wiring.",
+            related_tests=["tests/test_cockpit_provider.py"],
+            notes="No filesystem, no live queue reads, no CLI. Owner: Build 1 commit 6c9a397.",
+        ),
+        FileMapEntry(
             path="bifrost/__init__.py",
             area=FileArea.BIFROST,
             purpose="Bifrost package init: re-exports CockpitViewModel, render_cockpit_html, sample_cockpit_view_model, and related types from bifrost.cockpit.",

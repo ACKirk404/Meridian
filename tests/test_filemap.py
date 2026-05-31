@@ -51,11 +51,13 @@ _REQUIRED_PATHS = [
     "docs/v1-bifrost-live-data-contract.md",
     "docs/v1-bifrost-integration-sequence.md",
     "meridian_core/cockpit_state.py",
+    "meridian_core/cockpit_provider.py",
     "bifrost/__init__.py",
     "bifrost/cockpit.py",
     "bifrost/static/cockpit.css",
     "tests/test_bifrost_cockpit.py",
     "tests/test_cockpit_state.py",
+    "tests/test_cockpit_provider.py",
 ]
 
 
