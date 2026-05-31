@@ -473,6 +473,34 @@ def make_default_map() -> FileMap:
             related_tests=[],
             notes="V2 entry-point. Read before designing or implementing new harness types or multi-step workflow orchestration.",
         ),
+        FileMapEntry(
+            path="docs/session-lifecycle-v2-contract.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="Session Lifecycle V2 contract: Prime's typed session management for spawn, watch, steer, recover, transfer, and archive. Defines SessionLifecycleState, SessionHeartbeat, and per-lane fields for queue, role, worktree, model, cadence, and proof state.",
+            related_tests=[],
+            notes="V2 entry-point. Read before implementing Prime session lifecycle logic or Bifrost session rendering.",
+        ),
+        FileMapEntry(
+            path="docs/federation-harness-horizon.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="Federation Harness horizon plan: V2 planning boundary for connecting Meridian instances. Defines discovery, permission, Prime-to-Prime handoff, and shared-work principles without V3 runtime implementation.",
+            related_tests=[],
+            notes="V2 planning only. Do not pull Federation runtime into V0, V1, or V2 build.",
+        ),
+        FileMapEntry(
+            path="docs/session-card-queue-activation-contract.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="Session card queue activation contract: product/UI contract for Q-mode queue activation inherited from Polaris. Defines per-session queue binding, idle polling, heartbeat visibility, and Prime recovery without manual supervision.",
+            related_tests=[],
+            notes="V2 entry-point. Read before implementing session queue activation or queue polling behavior in Bifrost or Session Lifecycle.",
+        ),
+        FileMapEntry(
+            path="docs/deepseek-provider-validation-gate.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="DeepSeek provider validation gate: defines the staged validation process for DeepSeek as a candidate model provider. Starts in candidate state; Prime must not assign autonomous code-writing or orchestration authority until the gate is passed.",
+            related_tests=[],
+            notes="V2 entry-point. Read before adding DeepSeek to Relay routing or assigning autonomous coding lanes.",
+        ),
 
         FileMapEntry(
             path="docs/prime-orchestration-harness-prototype.md",
