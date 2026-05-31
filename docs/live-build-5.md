@@ -1,32 +1,27 @@
 # Live Build 5 Queue
 
-## Coordinator Override - Active Now
+## Codex Repair - Active Now
 
-Goal: write the JARVIS-source Bifrost V2 cockpit adoption contract.
+Goal: fix the Bifrost V2 contract queue/path contradictions found by Codex Reviews A for coordinator commit `39c9ac8`.
 
-Allowed files only: `docs/bifrost-v2-cockpit-extensions.md`, `docs/jarvis-ui-source-assessment.md`, `docs/live-build-5.md`.
+Allowed files only: `docs/live-build-5.md`, `docs/v2-detailed-build-plan.md`.
 
-Task: create or update `docs/bifrost-v2-cockpit-extensions.md` using `docs/jarvis-ui-source-assessment.md` as the starting point. Meridian should not keep freehanding a generic dashboard. Start from existing JARVIS/HUD interface repos and patterns, especially:
+Task:
 
-- https://github.com/dmrr35/Open.Jarvis
-- https://github.com/ethanplusai/jarvis
-- https://github.com/vierisid/jarvis
-- https://clawskills.sh/skills/jincocodev-jarvis-ui
-
-Define how the openable Electron cockpit should grow from V1 into a JARVIS-style V2 command center: Prime command center, configurable progress panel, review console tab, queue runway visibility, harness status strip, mission objectives call-up, provider balance, prompt payload visibility, and model/workflow dispatch indicators.
-
-Requirements:
-
-- Identify which source repo/pattern is the recommended visual base.
-- Verify or call out license/attribution questions before code reuse.
-- Map JARVIS/HUD concepts to Meridian concepts: orb/presence, wake sequence, status rings, command input, proof console, provider telemetry, queue lanes, and harness panels.
-- Keep this implementation-ready but docs-only.
-- Do not implement runtime code in this slice.
-- Do not invent a from-scratch cockpit design.
+- Remove, archive, or rewrite the lower stale `## Active Task` block that still assigns `docs/bifrost-v2-extensions-contract.md`, so Build 5 has only one executable active task.
+- Update `docs/v2-detailed-build-plan.md` so the likely-files list uses `docs/bifrost-v2-cockpit-extensions.md`, matching the current JARVIS-source runway and `docs/v2-progress-tracker.md`.
+- Preserve the source-first JARVIS/HUD requirement and the `docs/jarvis-ui-source-assessment.md` reference.
+- Do not implement runtime code.
 
 Tests: none required, docs-only.
 
-Completion: commit only this Bifrost contract slice, push, update Obsidian, and mark Ready for Codex Review.
+Completion: commit only the allowed repair files, push, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
+Stale displaced task follows for reference only; do not execute it until the repair above is complete and the queue is cleaned.
+
+## Coordinator Override - Paused Pending Repair
+
+Goal: write the JARVIS-source Bifrost V2 cockpit adoption contract.
 
 ## Next Candidate Task
 
