@@ -278,6 +278,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 Codex review result: pass/no actionable findings/f
 2026-05-31 09:30 -06:00 - Build 2 Codex review requested after commits 9d38314, e656027, 14315b3 (V0 prime_approve CLI gate, cockpit_state package API, cockpit_provider package API)
 2026-05-31 09:35 -06:00 - Build 2 Codex review finding: LOW x2 — missing blank lines in meridian_core/__init__.py between import blocks; repaired in place
 2026-05-31 09:35 -06:00 - Build 2 Codex review result: fixed; no blocking findings; cadence 3/3 cleared
+2026-06-04 15:25 -06:00 - Build 2 Codex review requested after commits e08e598, e9062d9, cd87702 (V2 CognitionPolicy package API export, Bifrost preview package policy note, V2 progress tracker)
 ```
 
 ## Active Task
