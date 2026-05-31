@@ -174,6 +174,9 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-05-31 16:25 CDT - Codex Reviews A checked queue; status: running; notes: starting Round 2 — Build 1 d2820d2 (WorkerLaneState code) + Build 2 46e4eb3 (Relay policy note); Build 3/4/5 owned by Codex Reviews B.
 2026-05-31 16:35 CDT - Codex Reviews A checked queue; status: idle (Round 2 A-portion complete); notes: 2 commits reviewed, both passed; 1 LOW observational + 1 LOW process note recorded; no repairs routed.
 2026-05-31 12:55 -06:00 - Codex Reviews A checked queue; status: running; notes: origin/main already current; coordinator override review scope still active; inspecting Build 1/2 Ready-for-review and cadence signals without executing build-lane product work.
+2026-05-31 12:57 -06:00 - Codex Reviews A checked queue; status: running; notes: origin/main already current; assigned review queue read; active coordinator override review scope remains executable; continuing Round 4 record update only in this queue.
+2026-05-31 12:58 -06:00 - Codex Reviews A checked queue; status: repair routed (Round 4 complete); notes: 7 coordinator override commits reviewed; no CRITICAL/HIGH findings; MEDIUM restart/resteer lane-role repair routed to Build 1; no build-lane product work executed.
+2026-05-31 13:02 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main already current at 3e13891; Build 1 repair marker exists but still says commit pending, so no committed repair slice is available for verification; no build-lane product work executed.
 ```
 
 ## Review Log
@@ -194,7 +197,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-05-30 15:30 CDT - Reviewed Build 5 commit d1d32af; result: pass; tests: docs-only (no tests required); notes: bifrost-v0-cockpit-layout-brief.md is a coherent 14-section V0 layout brief; cross-references both companion briefs (verified present); ASCII layout sketch + scaling rules + "leave out" list are scope-appropriate; cadence pause cleared.
 2026-05-31 16:30 CDT - Reviewed Build 1 commit d2820d2; result: pass; tests: pytest tests/test_lane_state.py 37/37 passed; notes: WorkerLaneState frozen dataclass + LaneStatus (9 states) + LaneReviewState (5 states); transition helpers (mark_running/mark_blocked/mark_ready_for_review/mark_review_passed) use dataclasses.replace and return new instances; pure domain — no I/O, no datetime parsing; mark_review_passed correctly clears active_task to "" using raw literal not the if-pattern.
 2026-05-31 16:30 CDT - Reviewed Build 2 commit 46e4eb3; result: pass; tests: docs-only (no tests required); notes: relay-package-api-policy-note.md correctly records assemble_relay_packet, RelayDispatchLane, RelayDispatchPlan, build_relay_dispatch_plan, count_tokens as intentional internals — verified by grep that none appear in meridian_core/__init__.py; package-api-surface-note.md updated with cross-reference and matching "What Stays Internal" entry; three-condition export gate (external need / stable shape / no undocumented dependencies) is reasonable and explicit; build_prompt_packet() correctly noted as already exported.
-2026-05-31 12:55 -06:00 - Reviewed Round 4 coordinator override commits 7d82b79, e5f3673, 27e1b1f, 8b4c8ac, b158550, 8430040, e874d3e; result: finding/repair-routed; tests: pytest tests/test_filemap.py tests/test_prompt_metrics.py tests/test_restart_resteer.py 110/110 passed; pytest tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py 108/108 passed; npm audit --audit-level=high found 0 vulnerabilities; notes: Bifrost shell/proof surface and V2 scope docs cleared; restart/resteer evaluator has one committed MEDIUM lane-role bug and one LOW contract/API signature mismatch; repair routed to Build 1.
+2026-05-31 12:58 -06:00 - Reviewed Round 4 coordinator override commits 7d82b79, e5f3673, 27e1b1f, 8b4c8ac, b158550, 8430040, e874d3e; result: finding/repair-routed; tests: `python -m pytest tests/test_filemap.py tests/test_prompt_metrics.py -q` 94 passed; `python -m pytest tests/test_restart_resteer.py tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q` 124 passed; `npm run proof:cockpit` 108 passed + 0 vulnerabilities; notes: Bifrost shell/proof surface and V2 scope docs cleared; restart/resteer evaluator has one committed MEDIUM lane-role bug and one LOW contract/API signature mismatch; repair routed to Build 1.
 ```
 
 ## Proof Log
@@ -212,7 +215,7 @@ YYYY-MM-DD HH:MM TZ - Proof for Build <n> commit <hash>; proof type: diff/test/r
 2026-05-30 15:30 CDT - Proof for Build 5 commits 818bb31..d1d32af; proof type: reference/manual; evidence: referenced cockpit/UI briefs exist and docs-only scope matched allowed files; result: pass
 2026-05-31 16:30 CDT - Proof for Build 1 commit d2820d2; proof type: test/diff; evidence: pytest tests/test_lane_state.py 37/37 passed; diff inspection confirms frozen dataclass, dataclasses.replace transitions, no I/O, all 9 LaneStatus + 5 LaneReviewState members and all 4 transition helpers present; result: pass
 2026-05-31 16:30 CDT - Proof for Build 2 commit 46e4eb3; proof type: reference/diff; evidence: `grep -n "assemble_relay_packet|RelayDispatchLane|RelayDispatchPlan|build_relay_dispatch_plan|count_tokens" meridian_core/__init__.py` returned zero matches; package-api-surface-note.md now contains cross-reference to relay-package-api-policy-note.md; result: pass
-2026-05-31 12:55 -06:00 - Proof for Round 4 commits 7d82b79, e5f3673, 27e1b1f, 8b4c8ac, b158550, 8430040, e874d3e; proof type: test/diff/reference; evidence: targeted pytest suites passed (110 restart/filemap/prompt-metrics tests and 108 Bifrost cockpit/preview tests), npm audit high found 0 vulnerabilities, diff inspection confirmed docs references exist and Bifrost package proof surface is wired; committed `restart_resteer.py` still emits `EMPTY_QUEUE` without checking `LaneRole.BUILD`; result: fail-repair-routed
+2026-05-31 12:58 -06:00 - Proof for Round 4 commits 7d82b79, e5f3673, 27e1b1f, 8b4c8ac, b158550, 8430040, e874d3e; proof type: test/diff/reference; evidence: filemap/prompt_metrics proof passed 94 tests; restart_resteer + Bifrost cockpit/preview proof passed 124 tests; `npm run proof:cockpit` passed 108 tests and `npm audit --audit-level=high` found 0 vulnerabilities; diff inspection confirmed docs references exist and Bifrost package proof surface is wired; committed `restart_resteer.py` still emits `EMPTY_QUEUE` without checking `LaneRole.BUILD`; result: fail-repair-routed
 ```
 
 Minimum proof expectations:
@@ -267,6 +270,19 @@ Proof:
 - Documentation inspection: `docs/planning-harness-council-brief.md` names `mattpocock/skills` and `skills/engineering/grill-with-docs`; `docs/meridian-pillars.md` adds Pillar 15 requiring docs/code/context interrogation before durable plans.
 
 ## Active Task
+
+Round 4 complete (2026-05-31 12:58 -06:00).
+
+- Scope: coordinator override commits `7d82b79`, `e5f3673`, `27e1b1f`, `8b4c8ac`, `b158550`, `8430040`, `e874d3e`, plus Build 1/Build 2 queue-marker inspection.
+- Findings: no CRITICAL/HIGH findings. One MEDIUM runtime finding in `meridian_core/restart_resteer.py`: `EMPTY_QUEUE` is emitted for idle non-build lanes. One LOW contract finding: `docs/prime-restart-resteer-contract.md` documents `choose_recovery_action(findings)` while runtime requires `choose_recovery_action(frame, findings)`.
+- Repair routing: Build 1 repair Active Task written to `docs/live-build-1.md`.
+- Proofs: filemap/prompt_metrics 94 passed; restart_resteer + Bifrost cockpit/preview 124 passed; `npm run proof:cockpit` 108 passed plus 0 high vulnerabilities.
+- Files changed by Reviews A: `docs/live-codex-reviews.md`, `docs/live-build-1.md`.
+- Commit: pending.
+- Push: pending.
+- Obsidian status: repair note already present at `Meridian_Build/2026-05-31 Restart Resteer Repair Ready.md`.
+
+Stale prior status follows.
 
 Planning Harness review complete (2026-05-30 15:12 MDT).
 
