@@ -32,6 +32,18 @@ Review scope:
   - `docs/v2-progress-tracker.md`
 - Verify the Prime human-gate repair: `PrimeNextAction.is_executable()` must return false when `human_gate_required=True`.
 - Verify the Bifrost runway now requires a source-first JARVIS/HUD UI adoption path rather than a generic from-scratch dashboard.
+- Review coordinator commit `f1a1b7c`:
+  - `.gitignore`
+  - `bifrost/cockpit.py`
+  - `bifrost/static/cockpit.css`
+  - `tests/test_bifrost_cockpit.py`
+  - `docs/bifrost-v2-cockpit-extensions.md`
+  - `docs/jarvis-ui-source-assessment.md`
+  - `docs/live-build-2.md`
+  - `docs/v2-detailed-build-plan.md`
+  - `docs/v2-progress-tracker.md`
+- Verify the cockpit render now visibly moves toward the parsed JARVIS/HUD reference: numbered HUD panes, central Prime HUD, queue runway, proof console, provider/prompt payload surface, visible Voice I/O, and real nav buttons.
+- Verify V2 tracker totals still add up after the new Bifrost Voice I/O item.
 - Then continue any still-unreviewed prior scope below as time allows:
 - Review recent Meridian commits since the last trusted Codex review checkpoint, prioritizing runtime/API/test slices and V2 scope changes:
   - `e874d3e` Add visible prompt payload meter to V2 scope
@@ -242,6 +254,10 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-05-31 13:46 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task; Build 5 repair remains routed and awaiting builder completion.
 2026-05-31 13:47 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task; Build 5 repair remains routed and awaiting builder completion.
 2026-05-31 13:49 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task; Build 5 repair remains routed and awaiting builder completion.
+2026-05-31 13:50 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task; Build 5 repair remains routed and awaiting builder completion.
+2026-05-31 13:51 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task; Build 5 repair remains routed and awaiting builder completion.
+2026-05-31 13:52 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task; Build 5 repair remains routed and awaiting builder completion.
+2026-05-31 13:53 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch and ff-only merge; no executable Active Task; Build 5 repair remains routed and awaiting builder completion.
 ```
 
 ## Review Log
@@ -293,6 +309,7 @@ YYYY-MM-DD HH:MM TZ - Proof for Build <n> commit <hash>; proof type: diff/test/r
 2026-05-31 13:38 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff 9869e08..HEAD -- docs/live-codex-reviews.md docs/live-build-5.md` shows queue read/write checkpoints plus the already-routed Round 7 Build 5 repair task; recent `pending` scan found no unresolved pending write status in the latest idle entry; result: pass.
 2026-05-31 13:43 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff 9079952..HEAD -- docs/live-codex-reviews.md` shows only idle read-check/write-log updates since the prior cadence checkpoint; recent `pending` scan found no unresolved pending write status before this checkpoint; result: pass.
 2026-05-31 13:47 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff 6f414ff..HEAD -- docs/live-codex-reviews.md` shows only idle read-check/write-log updates since the prior cadence checkpoint; recent `pending` scan found no unresolved pending write status before this checkpoint; result: pass.
+2026-05-31 13:51 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff 4c980f9..HEAD -- docs/live-codex-reviews.md` shows only idle read-check/write-log updates since the prior cadence checkpoint; recent `pending` scan found no unresolved pending write status before this checkpoint; result: pass.
 ```
 
 Minimum proof expectations:
@@ -327,6 +344,7 @@ YYYY-MM-DD HH:MM TZ - Build <n> commit <hash>; severity: CRITICAL/HIGH/MEDIUM/LO
 2026-05-31 13:38 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md; finding: no actionable findings in the recent queue-only read-check/status updates or already-routed Build 5 repair record; action: clear, no repair task written.
 2026-05-31 13:43 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md; finding: no actionable findings in the recent queue-only read-check/status updates; action: clear, no repair task written.
 2026-05-31 13:47 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md; finding: no actionable findings in the recent queue-only read-check/status updates; action: clear, no repair task written.
+2026-05-31 13:51 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md; finding: no actionable findings in the recent queue-only read-check/status updates; action: clear, no repair task written.
 ```
 
 ## Repair Routing Log
@@ -459,6 +477,10 @@ Round 6 write log:
 - 2026-05-31 13:46 -06:00 - Codex Reviews A completed idle queue read after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `d836107`. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new review finding or clearance.
 - 2026-05-31 13:47 -06:00 - Codex Reviews A completed idle queue read and three-change lane cadence check after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (queue-only documentation review); proof command: `git diff 6f414ff..HEAD -- docs/live-codex-reviews.md`. Commit: `d65010b`. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new durable review finding or clearance.
 - 2026-05-31 13:49 -06:00 - Codex Reviews A completed idle queue read after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `9864fda`. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new review finding or clearance.
+- 2026-05-31 13:50 -06:00 - Codex Reviews A completed idle queue read after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `1b6b262`. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new review finding or clearance.
+- 2026-05-31 13:51 -06:00 - Codex Reviews A completed idle queue read and three-change lane cadence check after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (queue-only documentation review); proof command: `git diff 4c980f9..HEAD -- docs/live-codex-reviews.md`. Commit: `e7e4f7e`. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new durable review finding or clearance.
+- 2026-05-31 13:52 -06:00 - Codex Reviews A completed idle queue read after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `b83c979`. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new review finding or clearance.
+- 2026-05-31 13:53 -06:00 - Codex Reviews A completed idle queue read after origin/main fetch and ff-only merge. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `331b9b0`. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new review finding or clearance.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 

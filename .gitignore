@@ -21,6 +21,7 @@ venv/
 env/
 
 # Runtime data (not source)
+.tmp/
 meridian.db
 events.jsonl
 artifacts/

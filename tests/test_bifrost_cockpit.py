@@ -136,9 +136,22 @@ def test_render_nav_skills():
     assert "Skills" in doc
 
 
+def test_render_nav_balance():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    assert "Balance" in doc
+    assert 'data-action="balance"' in doc
+
+
 def test_render_nav_harness():
     doc = render_cockpit_html(sample_cockpit_view_model())
     assert "Harness" in doc
+
+
+def test_render_nav_hud_title_plate():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    assert "SET" in doc
+    assert "HUD" in doc
+    assert "hud-title-plate" in doc
 
 
 # ── Prime panel ─────────────────────────────────────────────────────────────
@@ -184,6 +197,36 @@ def test_render_no_review_badge_when_zero():
 def test_render_prime_input_present():
     doc = render_cockpit_html(sample_cockpit_view_model())
     assert "prime-prompt" in doc
+
+
+def test_render_hud_command_core_present():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    assert "hud-stage" in doc
+    assert "Prime HUD command core" in doc
+    assert "PRIME" in doc
+    assert "ONLINE" in doc
+
+
+def test_render_hud_source_reference_surfaces():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    assert "Provider Balance" in doc
+    assert "Prompt Payload" in doc
+    assert "Voice I/O" in doc
+    assert "Delegation Map" in doc
+
+
+def test_render_hud_lane_nodes():
+    vm = sample_cockpit_view_model()
+    doc = render_cockpit_html(vm)
+    for lane in vm.lanes:
+        assert f"delegation-{lane.status}" in doc
+        assert lane.name in doc
+
+
+def test_render_hud_window_numbers():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    for label in ("01", "02", "03", "04", "05"):
+        assert label in doc
 
 
 # ── Harness dashboard ────────────────────────────────────────────────────────

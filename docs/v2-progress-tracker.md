@@ -16,9 +16,9 @@
 | Relay/Model Harness | 1 | 0 | 0 | 5 | 6 | 17% |
 | Aegis Harness | 2 | 0 | 0 | 0 | 2 | 100% |
 | Session Lifecycle Harness | 0 | 1 | 1 | 1 | 3 | 33% |
-| Bifrost Harness | 0 | 0 | 0 | 5 | 5 | 0% |
+| Bifrost Harness | 0 | 0 | 0 | 6 | 6 | 0% |
 | Federation Harness | 0 | 0 | 0 | 1 | 1 | 0% |
-| **Total V2** | **3** | **2** | **4** | **16** | **25** | **12% Clear + 8% Awaiting + 16% Baseline** |
+| **Total V2** | **3** | **2** | **4** | **17** | **26** | **12% Clear + 8% Awaiting + 15% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
@@ -99,6 +99,7 @@
 - [ ] **Bifrost + JARVIS-Source V2 Extensions:** source-first cockpit adaptation using existing JARVIS/HUD repo patterns, then view-model placeholders for Prime next action, Echo memory hits, Atlas retrieval hits, session lifecycle preview, Aegis policy result - module: `bifrost/cockpit.py` (extends v1 snapshot); tests: `tests/test_bifrost_cockpit.py`; source note: `docs/jarvis-ui-source-assessment.md`; contract: `docs/bifrost-v2-cockpit-extensions.md`.
 - [ ] **Bifrost + Balance Button:** Polaris-style provider balance and usage surface for Claude, OpenAI, DeepSeek, and aggregator/local adapters; must show provider health, remaining credit where available, token usage, estimated spend, and cost pressure warnings for Prime routing.
 - [ ] **Bifrost + Prompt Payload Visibility:** surface Relay prompt payload size, budget pressure, and growth/flat status next to model dispatch and queue-poll events so Scott and Prime can see prompt drag in real time.
+- [ ] **Bifrost + Voice I/O Surface:** visible microphone input, spoken Prime output, NASA-style boot/status audio state, mute controls, and listening/thinking/speaking indicators; runtime speech plumbing may follow the initial surface.
 - [ ] **Bifrost + Cockpit Render:** static render tests and HTML escaping tests for new V2 view-model fields.
 - [ ] **Bifrost + FileMap Integration:** FileMap registration of Bifrost cockpit extension surface by Build 3.
 

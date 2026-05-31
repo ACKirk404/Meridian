@@ -246,6 +246,8 @@ lanes should also show whether the latest prompt was flat or grew against the pr
 dispatch, because unexpected growth means Relay is replaying history instead of
 sending only the task packet.
 
+**Voice-first cockpit requirement:** Bifrost must expose Meridian as a fully voice-enabled cockpit, not only a typed prompt UI. V2 should define the visible voice state and control surface for microphone input, spoken Prime output, NASA-style boot/status audio, mute/voice toggles, and listening/thinking/speaking indicators. Runtime speech recognition/TTS can land in a later slice, but the cockpit architecture must reserve the surface and data model now.
+
 **First vertical slice:**
 
 - Add view-model placeholders for:

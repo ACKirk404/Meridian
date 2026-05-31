@@ -1,8 +1,10 @@
 # Live Build 2 Queue
 
-## Codex Repair Active Task - Reviews A Round 6
+## ~~Codex Repair Active Task - Reviews A Round 6~~
 
-Goal: repair PrimeNextAction human-gate executability semantics.
+**Completed by coordinator in `39c9ac8`; awaiting Codex review.**
+
+~~Goal: repair PrimeNextAction human-gate executability semantics.
 
 Allowed files only: `meridian_core/prime_autonomy.py`, `tests/test_prime_autonomy.py`, `docs/live-build-2.md`.
 
@@ -12,7 +14,7 @@ Task: make the executable predicate respect the human gate. The simplest accepta
 
 Tests: `python -m pytest tests/test_prime_autonomy.py -q`
 
-Completion: commit only the allowed repair files, push, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+Completion: commit only the allowed repair files, push, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.~~
 
 **Coordinator note:** Codex patched this repair directly in main while Claude lanes were capacity-blocked. `PrimeNextAction.is_executable()` now returns false when a human gate is pending, and `tests/test_prime_autonomy.py` was updated to prove high-risk human-gated actions are not executable. Proof: `python -m pytest tests/test_prime_autonomy.py -q` passed with 30 tests. This coordinator repair must be routed to Codex review after commit.
 
