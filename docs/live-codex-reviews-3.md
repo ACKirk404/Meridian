@@ -154,6 +154,7 @@ Reason: Build 1 marked provider-neutral Model Harness adapter contract Ready for
 2026-05-30 21:06 MDT - Codex Reviews C checked queue; status: idle; notes: queue unchanged since 639d9a7; Active Task still idle; prime_approve marker still awaiting delegation; no executable task
 2026-05-30 21:10 MDT - Codex Reviews C checked queue; status: idle; notes: queue unchanged since f0ef6f1; Active Task still idle; prime_approve marker still awaiting orchestrator delegation; no executable task
 2026-05-30 21:11 MDT - Codex Reviews C checked queue; status: idle; notes: queue unchanged since 1df5c3f; Active Task still idle; prime_approve marker still awaiting delegation; no executable task
+2026-05-31 00:45 MDT - Codex Reviews C checked queue; status: idle; notes: origin/main latest is 522ee51 (start V1 cockpit build wave — docs/live-build-1.md, live-build-4.md, live-build-5.md, v0-v1-progress-tracker.md, v1-startup-coordinator-note.md); Active Task still "No active task"; Build 2 prime_approve marker (9d38314 + d687b7f) present in live-build-2.md line 222 but no Review C delegation in live-codex-reviews.md; no executable task
 ```
 
 ## Review Log
