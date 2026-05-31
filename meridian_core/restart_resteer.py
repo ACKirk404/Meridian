@@ -327,7 +327,7 @@ def evaluate_lane_frame(
             RecoveryActionKind.RESTEER,
         )
 
-    if not frame.active_task_id and not frame.next_candidate_id:
+    if frame.lane_role is LaneRole.BUILD and not frame.active_task_id and not frame.next_candidate_id:
         add(
             HealthFindingKind.EMPTY_QUEUE,
             FindingSeverity.WARNING,

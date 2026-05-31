@@ -234,7 +234,7 @@ Build a deterministic module, suggested `meridian_core/restart_resteer.py`, with
 - frozen dataclasses for `LaneOperatingFrame`, `PrimeHealthFinding`, `RestartDirective`, `ResteerDirective`, and `EscalationGate`
 - enum coverage for finding kinds and directive kinds
 - `evaluate_lane_frame(frame) -> tuple[PrimeHealthFinding, ...]`
-- `choose_recovery_action(findings) -> RestartDirective | ResteerDirective | EscalationGate`
+- `choose_recovery_action(frame, findings) -> RestartDirective | ResteerDirective | EscalationGate`
 
 First tests:
 

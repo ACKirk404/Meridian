@@ -58,6 +58,20 @@ def test_empty_queue_action_queues_next_task():
     assert action.resteer_kind is ResteerKind.QUEUE_NEXT_TASK
 
 
+def test_empty_review_queue_does_not_trigger_build_runway_finding():
+    frame = _frame(
+        lane_id="codex-reviews-b",
+        lane_role=LaneRole.REVIEW,
+        assigned_queue_path="docs/live-codex-reviews-2.md",
+        current_queue_path="docs/live-codex-reviews-2.md",
+        expected_queue_path="docs/live-codex-reviews-2.md",
+        active_task_id="",
+        next_candidate_id="",
+    )
+
+    assert evaluate_lane_frame(frame) == ()
+
+
 def test_shared_worktree_escalates():
     frame = _frame()
     peer = _frame(lane_id="build-2", assigned_queue_path="docs/live-build-2.md")
