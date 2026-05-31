@@ -4,19 +4,53 @@ This file is the standing queue for a third specialized Codex Reviews session.
 
 Review C exists because review capacity became the bottleneck. It is a bounded specialist lane, not a duplicate of Review A or Review B.
 
+## Coordinator Override - Active Now
+
+Goal: verify the V2 PrimeNextAction human-gate repair and clear or re-route it.
+
+Scope:
+
+- Original Build 2 V2 Prime next-action domain object commit `40def3d`.
+- Coordinator repair commit `39c9ac8` for the human-gate executability finding.
+- Queue provenance: `docs/live-build-2.md` entries marking the repair completed and awaiting Codex review.
+
+Allowed review files:
+
+- `meridian_core/prime_autonomy.py`
+- `tests/test_prime_autonomy.py`
+- `docs/live-build-2.md` for provenance only.
+- `docs/v2-progress-tracker.md` for tracker implication only if the repair passes.
+
+Proof commands:
+
+- `python -m pytest tests/test_prime_autonomy.py -q`
+- `python -m pytest tests/test_prime_autonomy.py tests/test_filemap.py -q`
+
+Review expectations:
+
+- Verify `PrimeNextAction.is_executable()` returns `False` when `human_gate_required` is true, even with no blockers.
+- Verify blocker behavior still returns not executable.
+- Verify safe non-human-gated actions with no blockers remain executable.
+- Verify selectors/constructors preserve immutable/frozen evidence and blocker sets.
+- Verify no live execution, UI automation, session mutation, model call, filesystem mutation, or approval workflow was added.
+- If clean, record proof and mark the Prime Autonomy contract/runtime implication review-cleared in this queue.
+- If findings remain, route a focused repair back to Build 2 with allowed files and tests.
+
+Completion: commit and push only `docs/live-codex-reviews-3.md` unless routing a repair or updating tracker implication after a clean pass.
+
 ## Q Polling Source of Truth
 
 When the Polaris `Q` button is enabled for **Codex Reviews C**, the session must read this file first and treat this file as its executable queue. Build queue files are review inputs only: inspect them for `Ready for Codex Review` markers, cadence triggers, commit hashes, and repair status, but do not execute build-lane Active Tasks from a review session.
 
 ## Role
 
-Codex Reviews C owns V0 runtime-gate review slices assigned by Prime/Codex when Review A is overloaded.
+Codex Reviews C owns bounded runtime-gate review slices assigned by Prime/Codex when Review A is overloaded.
 
 Default split:
 
 - Review A (`docs/live-codex-reviews.md`) owns broad runtime, package API, tests, behavior, and code-level regression reviews.
 - Review B (`docs/live-codex-reviews-2.md`) owns docs, architecture, FileMap, Bifrost, and strategic consistency reviews.
-- Review C owns explicitly delegated V0 gate reviews: Mission Boot, Review Console visibility, Relay executor skeletons, Aegis/Relay gate wires, and narrow runtime readiness checks.
+- Review C owns explicitly delegated gate reviews: Mission Boot, Review Console visibility, Relay executor skeletons, Aegis/Relay gate wires, Prime autonomy repairs, and narrow runtime readiness checks.
 
 Review C must declare scope before reviewing. It must not silently broaden into Review A or Review B territory.
 
