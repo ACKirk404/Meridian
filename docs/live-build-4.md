@@ -59,11 +59,11 @@ Task: convert the workflow/sub-agent architecture note into an operational check
 
 ## Next Candidate Task
 
-Goal: write the Prime restart/resteer logic contract.
+Goal: write the DeepSeek validation benchmark plan.
 
-Allowed files only: `docs/prime-restart-resteer-contract.md`, `docs/live-build-4.md`.
+Allowed files only: `docs/deepseek-validation-benchmark-plan.md`, `docs/live-build-4.md`.
 
-Task: define how Prime detects stale sessions, bad queue routing, shared-worktree violations, vendor/model limits, failed pushes, and popup/launch errors, then restarts or resteers lanes without waiting for Scott.
+Task: define the benchmark plan Meridian will use before DeepSeek can move beyond candidate provider status. Cover direct API proof, Q-mode prompt-payload flatness, small coding tasks, docs tasks, failure modes, required Codex review proof, demotion triggers, and why DeepSeek cannot clear reviews, move branches, or receive autonomous coding authority until the gate passes.
 
 This file is the standing assignment queue for Build 4.
 

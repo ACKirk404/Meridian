@@ -42,6 +42,14 @@ Tests: none required, docs-only.
 
 Completion: commit only this Bifrost voice command contract slice, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
 
+## Next Candidate Task
+
+Goal: write the Bifrost provider balance and prompt payload visibility surface contract.
+
+Allowed files only: `docs/bifrost-balance-payload-surface-contract.md`, `docs/live-build-5.md`.
+
+Task: define how Bifrost should expose the Polaris-style Balance button and per-prompt payload meter for Claude, OpenAI, DeepSeek, and future adapters. Cover provider health, token/cost pressure, prompt-size label, growth/flat Q-mode state, warning/degraded states, and the rule that Bifrost displays structured Relay/Model Harness telemetry but does not make routing decisions.
+
 ## ~~Codex Repair - Active Now~~ (COMPLETED 2026-05-31 13:54 -06:00)
 
 Goal: fix the Bifrost V2 contract queue/path contradictions found by Codex Reviews A for coordinator commit `39c9ac8`.
