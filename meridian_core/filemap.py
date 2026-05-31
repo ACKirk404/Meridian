@@ -600,3 +600,4 @@ def make_default_map() -> FileMap:
         fm.add(entry)
 
     return fm
+
