@@ -120,6 +120,19 @@ from .planning import (
     build_planning_brief,
 )
 
+from .cockpit_state import (
+    CockpitStatus,
+    QueuePolicy,
+    ProgressEventCategory,
+    EventSeverity,
+    LaneCockpitStatus,
+    LaneSummary,
+    ProgressEvent,
+    PrimeCockpitSnapshot,
+    sort_lanes,
+    filter_events,
+    lane_summary_counts,
+)
 __all__ = [
     # -- Core domain models --------------------------------------------------
     "Portfolio",
@@ -245,4 +258,16 @@ __all__ = [
     "PlanningBrief",
     "PlanningContext",
     "build_planning_brief",
+    # -- Cockpit state --------------------------------------------------------
+    "CockpitStatus",
+    "QueuePolicy",
+    "ProgressEventCategory",
+    "EventSeverity",
+    "LaneCockpitStatus",
+    "LaneSummary",
+    "ProgressEvent",
+    "PrimeCockpitSnapshot",
+    "sort_lanes",
+    "filter_events",
+    "lane_summary_counts",
 ]
