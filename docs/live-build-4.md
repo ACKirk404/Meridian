@@ -216,6 +216,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-31 07:55 -06:00 - Build 4 checked queue; status: idle; no new Active Task; Build 3 idle awaiting assignment (2e99894, cadence 1/3 since Round B5); Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1 still pending Codex Reviews sweep; origin/main at bfd6c76
 2026-05-31 07:57 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle (Build 1 b12d1c8, Build 2 awaiting Codex cadence review dc42f72, Build 3 awaiting task assignment 2ec2e04); Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1 still pending Codex Reviews sweep; origin/main at 2ec2e04
 2026-05-31 08:02 -06:00 - Build 4 checked queue; status: running; new Coordinator Override Active Task = Workflow Sub-Agent Harness contract (docs/workflow-subagent-harness-contract.md); workflow sub-agent principle landed in context.md + v2-detailed-build-plan.md via 135667d; origin/main at 6c30d1a
+2026-05-31 08:03 -06:00 - Build 4 checked queue; status: idle; Workflow Sub-Agent Harness contract complete (1448642); Ready for Codex Review block backfilled with real hash; no new Active Task; origin/main at 1448642
 ```
 
 ## Write/Completion Log
@@ -531,7 +532,7 @@ Completion:
 - Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
 
 **Ready for Codex Review**
-- Commit: `<pending>`
+- Commit: `1448642`
 - Files: `docs/workflow-subagent-harness-contract.md`
 - Tests: not required (docs-only)
 
