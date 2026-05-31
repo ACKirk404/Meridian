@@ -15,10 +15,10 @@
 | Atlas Harness | 0 | 0 | 1 | 2 | 3 | 33% |
 | Relay/Model Harness | 2 | 0 | 1 | 4 | 7 | 43% |
 | Aegis Harness | 2 | 0 | 0 | 0 | 2 | 100% |
-| Session Lifecycle Harness | 0 | 1 | 1 | 1 | 3 | 33% |
+| Session Lifecycle Harness | 1 | 0 | 1 | 1 | 3 | 67% |
 | Bifrost Harness | 0 | 0 | 0 | 7 | 7 | 0% |
 | Federation Harness | 0 | 0 | 0 | 1 | 1 | 0% |
-| **Total V2** | **5** | **1** | **5** | **17** | **28** | **18% Clear + 4% Awaiting + 18% Baseline** |
+| **Total V2** | **6** | **0** | **5** | **17** | **28** | **21% Clear + 0% Awaiting + 18% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
@@ -36,11 +36,13 @@
 
 - [x] **Echo + Runtime:** `MemoryRecord`, `MemoryQuery`, `MemoryHit` domain objects with deterministic ranking by project/recency/importance/pinning - built in `2bccb55`, repaired in `8e8c87b`; review cleared by Reviews A on 2026-05-31.
 
-## Built But Awaiting Review
-
 ### Session Lifecycle Harness
 
-- [ ] **Prime + Session Lifecycle:** `restart_resteer.py` domain objects and deterministic evaluator for empty queues, wrong queue routing, shared/main worktree violations, quota blocks, proof blocks, launch failures, and review cadence gates - built and tested; awaiting Codex review gate clearance before marked fully complete.
+- [x] **Prime + Session Lifecycle:** `restart_resteer.py` domain objects and deterministic evaluator for empty build queues, wrong queue routing, shared/main worktree violations, quota blocks, proof blocks, launch failures, and review cadence gates - built in `8b4c8ac`, repaired in `40def3d`; contract baseline in `27e1b1f`; review cleared by Reviews A on 2026-05-31.
+
+## Built But Awaiting Review
+
+- None currently.
 
 ## Contract Baselines Complete (Not Runtime Implementation)
 
