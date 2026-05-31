@@ -1,5 +1,25 @@
 # Live Build 1 Queue
 
+## Coordinator Override - Active Now
+
+Goal: define the Prime queue runway policy.
+
+Allowed files only: `docs/prime-queue-runway-policy.md`, `docs/live-build-1.md`.
+
+Task: create `docs/prime-queue-runway-policy.md`. Define the no-empty-build-queue invariant: every build queue always carries one Active Task and one Next Candidate Task. Cover cadence gating, review gating, idle fallback, lane ownership, unique worktrees, local-only polling state, and why read-check-only commits are not useful progress.
+
+Tests: none required, docs-only.
+
+Completion: commit only this runway policy slice, push, update Obsidian, and mark Ready for Codex Review.
+
+## Next Candidate Task
+
+Goal: write a short Echo/Atlas handoff review note.
+
+Allowed files only: `docs/echo-atlas-handoff-review-note.md`, `docs/live-build-1.md`.
+
+Task: inspect the current Echo/Atlas handoff work if present, then write a short note identifying gaps, follow-up runtime objects, and how Prime should use Echo vs Atlas differently.
+
 ## Active Task
 
 (None currently assigned.)
@@ -454,6 +474,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-09 00:42 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; Next Candidate Task staged but not Active; cadence 2/3 since Reviews C5; awaiting next assignment)
 2026-06-09 00:52 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main at c1c6b84; Next Candidate Task staged but not Active; cadence 2/3 since Reviews C5; awaiting next assignment)
 2026-06-09 01:02 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main at 4e16390 (Build 3 heartbeat); no Cross-Check Activity affecting Build 1; cadence 2/3 since Reviews C5; awaiting next assignment)
+2026-06-09 01:12 -05:00 - Build 1 checked queue; status: running (Active Task found: Prime queue runway policy; executing task)
 ```
 
 ## Write/Completion Log
