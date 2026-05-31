@@ -55,7 +55,7 @@ Look for:
 | Build lane | Last reviewed commit | Last reviewed task | Review status | Pending finding / repair | Next action |
 | --- | --- | --- | --- | --- | --- |
 | Build 3 | 1378bda | FileMap repair — register 4 uncatalogued docs (Round B2) | passed | Round B1 MEDIUM repair verified closed; 1 new MEDIUM finding (live-codex-reviews-2.md still uncatalogued); 2 LOW prose-divergence carryovers from Round B1 still deferred | route 1-row FileMap follow-up to Build 3 for `docs/live-codex-reviews-2.md`; verify in Round B3 |
-| Build 4 | 1aa770d | Workflow Sub-Agent Harness contract (Round B13) | passed-with-findings | MEDIUM: 3 V2 architecture contracts need FileMap registration (echo-memory-contract.md, atlas-retrieval-contract.md, workflow-subagent-harness-contract.md — from Round B11 + B13 findings) | route consolidated 3-entry FileMap repair to Build 3; verify in next Build 3 cadence review |
+| Build 4 | c8b4738 | Prime Autonomy V2 contract (Round B14) | passed-with-findings | MEDIUM: 4 V2 architecture contracts need FileMap registration (echo-memory-contract.md, atlas-retrieval-contract.md, workflow-subagent-harness-contract.md, prime-autonomy-v2-contract.md — from Rounds B11+B13+B14 findings) | route consolidated 4-entry FileMap repair to Build 3; verify in next Build 3 cadence review |
 | Build 5 | 9328272 | V1 Harness Dashboard implementation | passed Round B8 | no findings; final V1 cockpit item cleared | V1 cockpit build is review-cleared |
 
 ## Review Round Scope
@@ -740,4 +740,107 @@ Tests: docs-only (no pytest required; test requirements defined for Build 1 runt
 
 **Next Action**
 - Route FileMap registration repair for three V2 architecture contracts to Build 3 (consolidated in single Build 3 FileMap work order if possible)
+- Return to idle polling for new Ready markers
+
+## Round B14 Documentation — V2 Prime Autonomy Contract
+
+**2026-05-31 08:47 - Round B14 Scope**
+Build lanes: Build 4
+Commit: Build 4 c8b4738 (backfill marker; actual contract at 3aa16fe)
+Reason: Monitor detected new Build 4 Ready marker for Prime Autonomy V2 contract — V2 first-wave autonomy selector
+Allowed files: docs/prime-autonomy-v2-contract.md, docs/live-build-4.md (provenance only)
+Tests: docs-only (no pytest required; test requirements defined for Build 1 runtime lane)
+
+**Review Summary**
+- Build 4: docs/prime-autonomy-v2-contract.md (291 lines)
+- Status: PASS-WITH-FINDINGS
+- Findings: 1 MEDIUM (FileMap registration gap; consolidates with B11/B13 findings)
+
+**Contract Overview**
+- Normative V2 first-wave contract defining deterministic selector that produces PrimeNextAction from project/backlog/lane/proof/gate state
+- Owned by Prime autonomy harness; consumes Echo, Atlas, Aegis, Session Lifecycle, Review Console, FileMap
+- Runtime implementation scope: Build 1 or equivalent (meridian_core/prime_autonomy.py)
+- Architectural principle: deterministic, pure-function selector with no model calls in first slice
+
+**Domain Shapes (frozen dataclasses)**
+✓ PrimeNextAction: action_id, project, objective_ref, action_type (8-value enum: BUILD/REVIEW/VERIFY/REPAIR/PLAN/OBSERVE/ESCALATE/MAINTENANCE), summary (≤200 chars), risk_tier (1-4), confidence (4-level enum: HIGH/MEDIUM/LOW/INSUFFICIENT), blockers tuple, required_human_gate (3-value enum: NONE/RECOMMENDED/REQUIRED), echo_inputs tuple, atlas_inputs tuple, cognition_policy_result, session_command_recommendation, proof_trail_required, created_at, selector_version
+
+✓ PrimeBlocker: kind (10+ enum values: STALE_LANE/OPEN_REVIEW_GATE/FAILED_PROOF/MISSING_PROOF/HUMAN_GATE/BRANCH_PERMISSION_REQUIRED/WORKTREE_COLLISION/MISSING_FILEMAP_ENTRY/MISSING_ECHO_CONTEXT/MISSING_ATLAS_CONTEXT/POLICY_DENIED), target, summary (≤200 chars), severity (HARD/SOFT)
+
+✓ PrimeSessionCommand: command_kind (7-value enum: SPAWN/STEER/WATCH/RECOVER/STOP/ARCHIVE/NONE), target_lane, branch_permission_object_required, input_packet_summary
+
+**Deterministic Selection Rules (9-rule priority order)**
+✓ Rule 1: Tier-4 work in flight without human gate → action_type=ESCALATE, required_human_gate=REQUIRED, confidence=HIGH (structural)
+✓ Rule 2: Open Review Console gate awaiting Scott → action_type=ESCALATE, HUMAN_GATE blocker (HARD), required_human_gate=REQUIRED
+✓ Rule 3: Failed proof on highest-priority tier-2+ item → action_type=REPAIR, FAILED_PROOF blocker (HARD), confidence HIGH if Echo+Atlas context available else MEDIUM with MISSING_* SOFT blockers
+✓ Rule 4: Stale active lane holding higher-priority objective → action_type=REPAIR (recovery), STALE_LANE blocker (HARD), session_command_recommendation.command_kind=RECOVER or WATCH based on Beacon staleness threshold
+✓ Rule 5: Worktree collision detected on next candidate's lane → action_type=OBSERVE, WORKTREE_COLLISION blocker (HARD)
+✓ Rule 6: Next ready backlog item, unblocked, Aegis policy ALLOW → action_type matches backlog type (BUILD/REVIEW/VERIFY/PLAN), session_command_recommendation.command_kind=SPAWN, confidence=HIGH if Echo+Atlas sufficient else step down per Confidence Rules
+✓ Rule 7: Next ready backlog but Aegis policy BLOCKED_BY_PROOF or BLOCKED_BY_HUMAN_GATE → action_type=OBSERVE or ESCALATE per blocker kind, HARD blocker added, required_human_gate=REQUIRED for human-gate variant
+✓ Rule 8: No ready backlog but maintenance available (FileMap gap, stale Echo cleanup, idle lane heartbeat) → action_type=MAINTENANCE, session_command_recommendation.command_kind=NONE, confidence=HIGH if maintenance fully specified else MEDIUM
+✓ Rule 9: None of the above → action_type=OBSERVE, summary describes wait state, session_command_recommendation.command_kind=NONE, confidence=HIGH (structural)
+
+**Prompt-Drag Guardrails (5 normative rules)**
+✓ Echo inputs: capped hard upper bound (≤25 hits), only summary/reason on PrimeNextAction, never MemoryRecord.body text
+✓ Atlas inputs: capped hard upper bound (≤25 hits), only excerpt on PrimeNextAction, never whole files
+✓ Selector MUST request CognitionPolicy from Aegis for (action_type, risk_tier, intent) and MUST honor requires_proof, requires_review, requires_human_gate
+✓ Rendered action caps Echo/Atlas to ≤5 each on PrimeNextAction (audit trail records top-N truncation)
+✓ If Echo/Atlas return more candidates than selector can use: take top-ranked subset, record truncated=True on telemetry; do NOT issue broader query for more context
+
+**Confidence Rules (Deterministic Stepping)**
+✓ Start: HIGH
+✓ Step down one level per SOFT blocker (floor at LOW)
+✓ Coerce to INSUFFICIENT if any HARD blocker present
+✓ Coerce to INSUFFICIENT if Aegis returns BLOCKED_BY_PROOF or BLOCKED_BY_HUMAN_GATE
+✓ INSUFFICIENT confidence means action is OBSERVE or ESCALATE; Prime will not propose execution
+
+**Stop Conditions (Must Route to Review Console via ESCALATE + REQUIRED gate)**
+✓ risk_tier == 4 (irreversible/public/financial/account/policy actions)
+✓ Aegis BLOCKED_BY_HUMAN_GATE for the action's policy
+✓ Failed proof on tier-2+ work and highest-confidence repair requires BRANCH_PERMISSION_REQUIRED blocker
+✓ Open Review Console gate older than stale-gate threshold
+✓ Tier-3 dual-lane disagreement that Council Chairman cannot resolve
+✓ Worktree collision on only viable lane for highest-priority objective
+✓ Stale active lane holding tier-3+ work and Beacon staleness exceeds escalate_threshold
+✓ Backlog item missing required FileMap entries and no candidate lane available
+✓ Two+ rules at same priority produce contradictory action_type values
+
+**Failure-Soft Behavior**
+✓ Empty backlog → action_type=OBSERVE, confidence=HIGH
+✓ Empty Echo store → echo_inputs=(), add MISSING_ECHO_CONTEXT SOFT blocker, no exception
+✓ Empty Atlas results → atlas_inputs=(), add MISSING_ATLAS_CONTEXT SOFT blocker if rule expected, no exception
+✓ Aegis policy failure → action_type=OBSERVE, POLICY_DENIED HARD blocker, no exception
+✓ Lane state snapshot unavailable → action_type=OBSERVE, STALE_LANE HARD blocker (target="all")
+✓ Review Console snapshot unavailable → action_type=OBSERVE, POLICY_DENIED HARD blocker (no guessing)
+✓ Selector internal error → action_type=ESCALATE, confidence=INSUFFICIENT, required_human_gate=REQUIRED, summary="selector failed; route to Scott"
+✓ No bare exceptions bubble to orchestrator; all failures produce typed PrimeNextAction
+
+**First Runtime Tests (test_prime_autonomy.py Scope)**
+✓ Domain shapes: frozen dataclasses, all enums, mutation raises FrozenInstanceError, tuple[...] fields are tuples not lists
+✓ Selector rule order: all 9 rules with correct outputs, blockers, confidence, session command recommendations
+✓ Determinism: identical inputs → identical PrimeNextAction (same except created_at)
+✓ Confidence stepping: 0 blockers→HIGH, 1 SOFT→MEDIUM, 2 SOFT→LOW, 3+ SOFT→LOW (floor), any HARD→INSUFFICIENT, policy blocks→INSUFFICIENT with blocker
+✓ Prompt-drag posture: echo_inputs/atlas_inputs rendered length ≤5, no MemoryRecord.body text anywhere, no file content in atlas_inputs
+✓ Stop conditions: all 8 conditions correctly route to ESCALATE + REQUIRED or OBSERVE with appropriate blocker
+✓ Failure-soft: empty backlog, empty Echo/Atlas, policy failure, lane state failure, selector crash all produce typed action; no exceptions
+✓ Tests use fake providers for backlog, lane state, Echo, Atlas, Aegis, Review Console; no live harness dependencies
+
+**Architectural Consistency**
+✓ Cross-references verified: v2-detailed-build-plan (Track 1), echo-memory-contract, atlas-retrieval-contract, workflow-subagent-harness-contract, review-console-surface-contract, prime-restart-resteer-logic.md
+✓ Out-of-scope section clear: no real session spawning (recommendation only), no backlog mutation, no gate bypass, no model calls, no prompt expansion via Echo/Atlas, no autonomous branch/worktree moves, no federation/public/vendor presets
+✓ Prompt-drag philosophy consistent with Echo/Atlas contracts: typed hits only, hard caps, no expansion, no re-ranking with models
+
+**Findings**
+- MEDIUM: docs/prime-autonomy-v2-contract.md needs FileMap registration (new V2 architecture contract)
+- Consolidated repair: 4 contracts now need FileMap entry (echo-memory-contract, atlas-retrieval-contract, workflow-subagent-harness-contract, prime-autonomy-v2-contract)
+- Action: Route consolidated 4-entry FileMap repair to Build 3
+
+**Proof**
+- `git show 3aa16fe --stat` confirms 291-line contract + live-build-4.md mark
+- Full contract read: domain shapes (PrimeNextAction/PrimeBlocker/PrimeSessionCommand frozen), 9-rule selector with priority order, confidence deterministic stepping (0/1/2/3+ SOFT, HARD, policy blocks), prompt-drag bounds (≤25 hard caps, ≤5 rendered, no body/file content), 8 stop conditions, failure-soft behavior, first runtime tests all clearly specified
+- Cross-references verified present and consistent
+- Out-of-scope section explicitly defers model calls, backlog mutation, gate bypass, autonomous branch/worktree moves, federation
+
+**Next Action**
+- Route consolidated 4-entry FileMap repair for B11+B13+B14 findings to Build 3
 - Return to idle polling for new Ready markers
