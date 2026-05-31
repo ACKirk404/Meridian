@@ -2,9 +2,11 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
-## Active Task
+## Completed / Passed
 
 Goal: review Build 4 workflow/sub-agent usage checklist.
+
+Status: passed by Codex Reviews B on 2026-05-31. The checklist turns the workflow/sub-agent architecture and contract into an operational Prime routing checklist without claiming runtime implementation. No repair routed.
 
 Scope:
 
@@ -32,7 +34,19 @@ Review expectations:
 - If clean, record proof and clear the docs slice. If findings exist, route a focused repair back to Build 4.
 - If clean, route FileMap registration for `docs/workflow-subagent-usage-checklist.md` to Build 3.
 
-Completion: commit and push only `docs/live-codex-reviews-2.md` unless routing a repair or FileMap follow-up.
+Review result:
+
+- Docs-only review; no tests required.
+- The checklist distinguishes direct Relay/Model Harness calls from bounded workflow/sub-agent work.
+- Echo, Atlas, Aegis, Relay, Bifrost, Beacon, and Session Lifecycle routing is covered.
+- Prompt-drag guardrails explicitly prohibit raw transcripts, raw logs, raw file bodies, raw search dumps, raw HTML/CSS dumps, and heartbeat history from returning to Prime.
+- Restart vs. resteer remains Prime/Session Lifecycle owned; workflows cannot restart or resteer themselves.
+- Build 4 has a valid next active task: `docs/deepseek-validation-benchmark-plan.md`.
+- Follow-up routed to Build 3 / coordinator: register `docs/workflow-subagent-usage-checklist.md` in FileMap and required-path coverage.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus FileMap follow-up registration. No Build 4 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
 ## Completed / Passed
 

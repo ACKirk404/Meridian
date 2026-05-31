@@ -180,7 +180,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Next Candidate Task
+## Completed / Ready For Codex Review
 
 Goal: register the next completed V2 checklist/benchmark docs in FileMap after they land.
 
@@ -198,6 +198,38 @@ Requirements:
 - Keep the registration mechanical and small.
 - Add required-path coverage for each registered file.
 - If none of the files exist when this candidate is promoted, stop and report that there is no valid FileMap target instead of inventing placeholder work.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion:
+
+- Coordinator registered the completed workflow usage checklist on 2026-05-31.
+- Registered file: `docs/workflow-subagent-usage-checklist.md`.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests run: `python -m pytest tests/test_filemap.py -q`.
+- Commit: pending.
+
+Ready for Codex Review.
+
+## Next Candidate Task
+
+Goal: register the next completed V2 checklist/benchmark docs in FileMap after they land.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: when Build 2 and/or Build 4 complete the remaining docs, register only the files that exist and are not already discoverable:
+
+- `docs/session-lifecycle-implementation-checklist.md`
+- `docs/deepseek-validation-benchmark-plan.md`
+
+Requirements:
+
+- Do not create the docs; only register completed docs after they exist.
+- Keep the registration mechanical and small.
+- Add required-path coverage for each registered file.
+- If neither file exists when this candidate is promoted, stop and report that there is no valid FileMap target instead of inventing placeholder work.
 
 Tests:
 

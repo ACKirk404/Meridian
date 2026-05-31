@@ -545,6 +545,13 @@ def make_default_map() -> FileMap:
             notes="Read before designing Prime workflow delegation, harness offloading, or context-window protection behavior.",
         ),
         FileMapEntry(
+            path="docs/workflow-subagent-usage-checklist.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="Operational checklist Prime uses to decide when bounded harness work should run in a workflow/sub-agent context instead of Prime's orchestrator window or a single Relay call.",
+            related_tests=[],
+            notes="V2 workflow operating guide. Read before dispatching Echo, Atlas, Aegis, Relay, Bifrost, Beacon, or Session Lifecycle work into workflow contexts.",
+        ),
+        FileMapEntry(
             path="docs/session-lifecycle-v2-contract.md",
             area=FileArea.BUILD_PROCESS,
             purpose="Session Lifecycle V2 contract: typed state and command-plan responsibilities for spawning, watching, steering, recovering, and handing off sessions.",
