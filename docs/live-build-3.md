@@ -206,6 +206,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-05-31 16:05 -06:00 - Build 3 completed FileMap hygiene (register v0-v1-progress-tracker.md; fix stale relay_executor claims in v0-build-readiness-map.md); commit 774695f; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/v0-v1-progress-tracker.md, docs/v0-build-readiness-map.md
 2026-05-31 21:05 -06:00 - Build 3 completed FileMap refresh (v1-capability-plan, v1-bifrost-cockpit-implementation-brief, v2-horizon-plan, v3-parking-lot); commit 330f200; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py
 2026-05-31 02:18 -06:00 - Coordinator review repair: `tests/test_cockpit_provider.py` was listed in `_REQUIRED_PATHS` and docs/FileMap.md but missing from make_default_map(); added the missing FileMapEntry; tests 69 passed (tests/test_filemap.py + tests/test_cockpit_provider.py); Ready for Codex Review after commit
+2026-05-31 04:24 -06:00 - Coordinator assigned FileMap registration for `docs/v2-detailed-build-plan.md`; commit pending; tests pending (`python -m pytest tests/test_filemap.py -q`)
 ```
 
 ## Cross-Check Activity
@@ -249,13 +250,14 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 Current Active Task:
 
-Goal: register the new Prime cockpit provider files in FileMap.
+Goal: register the V2 detailed build plan in FileMap.
 
 Context:
 
-- Build 1 completed the V1 Prime cockpit snapshot provider/factory in commit `6c9a397`.
-- New files are not yet registered in FileMap.
+- Codex coordinator completed the V2 detailed build plan in commit `71b8d5f`.
+- `docs/v2-detailed-build-plan.md` is a new architecture/build-planning document and is not yet registered in FileMap.
 - Build 3 owns FileMap registration.
+- The previous Prime cockpit provider FileMap task is already complete: `meridian_core/cockpit_provider.py` and `tests/test_cockpit_provider.py` are present in `docs/FileMap.md`, `meridian_core/filemap.py`, and `_REQUIRED_PATHS`.
 
 Allowed files only:
 
@@ -267,15 +269,14 @@ Allowed files only:
 Task:
 
 - Add FileMap coverage for:
-  - `meridian_core/cockpit_provider.py`
-  - `tests/test_cockpit_provider.py`
-- Use the established Bifrost/Prime cockpit taxonomy near `meridian_core/cockpit_state.py`.
-- Add required-path coverage in `tests/test_filemap.py` if needed.
-- Do not edit the provider implementation or tests.
+  - `docs/v2-detailed-build-plan.md`
+- Use the established architecture/build-planning taxonomy near `docs/v2-horizon-plan.md`, `docs/v1-capability-plan.md`, and `docs/v3-parking-lot.md`.
+- Add required-path coverage in `tests/test_filemap.py`.
+- Do not edit the V2 plan content.
 
 Tests:
 
-- `python -m pytest tests/test_filemap.py tests/test_cockpit_provider.py -q`
+- `python -m pytest tests/test_filemap.py -q`
 
 Completion:
 
@@ -286,7 +287,7 @@ Completion:
 
 Poll every 30 seconds. When a new task is written here, begin immediately.
 
-Last completed: FileMap registration (Bifrost cockpit scaffold + integration docs + cockpit_state); commits ca6f55f + e89df81; tests 95/95; cleared by Codex Reviews B Round B5.
+Last completed: Prime cockpit provider FileMap registration was already present and review-repaired; next active assignment is the V2 detailed build plan FileMap entry.
 
 ## Completed Task Archive
 

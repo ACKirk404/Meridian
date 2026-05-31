@@ -227,7 +227,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 completed <task>; commit <hash>; tests <result>
 2026-05-31 01:48 -06:00 - Build 4 completed V3 parking lot (docs/v3-parking-lot.md); commit pending; tests not required (docs-only); Ready for Codex Review after commit
 2026-05-31 10:45 -06:00 - Build 4 completed V1 Bifrost live-data integration contract (docs/v1-bifrost-live-data-contract.md); commit pending; tests not required (docs-only); Ready for Codex Review after commit
 2026-05-31 02:00 -06:00 - Build 4 completed V1 Bifrost cockpit runtime acceptance checklist (docs/v1-bifrost-runtime-acceptance-checklist.md); commit ec66081; tests not required (docs-only); Ready for Codex Review after commit
-2026-05-31 04:21 -06:00 - Codex coordinator completed V2 detailed build plan (docs/v2-detailed-build-plan.md); commit pending; tests not required (docs-only); Ready for Codex Review after commit
+2026-05-31 04:21 -06:00 - Codex coordinator completed V2 detailed build plan (docs/v2-detailed-build-plan.md); commit 71b8d5f; tests not required (docs-only); Ready for Codex Review
 ```
 
 ## Cross-Check Activity
@@ -521,7 +521,7 @@ Completion:
 - Tests: not required (docs-only)
 
 **Ready for Codex Review**
-- Commit: pending
+- Commit: `71b8d5f`
 - Files: `docs/v2-detailed-build-plan.md`, `docs/live-build-4.md`
 - Tests: not required (docs-only)
 

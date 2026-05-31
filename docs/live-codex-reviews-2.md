@@ -460,3 +460,25 @@ Write log:
   - Update Review Ledger, Review Log, Proof Log, Findings, and Repair Routing Log.
   - If clean, mark Build 5 `e1bf9db` passed and clear the Build 5 cadence pause.
   - If actionable findings exist, route repairs to Build 5.
+
+## Coordinator Addendum - Round B9 V2 Plan Review Queued
+
+2026-05-31 04:24 MDT - Round B9 scope queued by coordinator.
+
+- Build 4: `71b8d5f` V2 detailed build plan.
+- Ledger override: treat Build 4 `71b8d5f` as the current pending docs/architecture review target even if the older checkpoint row still names `1d17fa1`.
+- Files:
+  - `docs/v2-detailed-build-plan.md`
+  - `docs/live-build-4.md` for provenance only.
+- Required proof:
+  - Inspect `git show 71b8d5f -- docs/v2-detailed-build-plan.md docs/live-build-4.md`.
+  - Confirm the V2 success test is concrete: Prime should run multiple project threads with less Scott intervention while preserving proof, memory, retrieval, and review discipline.
+  - Confirm every planned item is framed as Prime or harness ownership.
+  - Confirm V2 starts with Prime Autonomy, Echo Memory, Atlas Retrieval, Session Lifecycle, Relay hardening, and Aegis cognition policy before federation or public-account strategy.
+  - Confirm the plan does not reopen V1 cockpit work except for Bifrost V2 extensions that consume typed domain objects.
+  - Confirm `docs/v2-detailed-build-plan.md` needs FileMap registration and route/verify that follow-up through Build 3.
+- Output:
+  - Declare Round B9 scope.
+  - Update Checkpoint Ledger, Review Log, Proof Log, Findings, and Repair Routing Log.
+  - If clean, mark Build 4 `71b8d5f` passed and unblock the first V2 implementation wave.
+  - If actionable findings exist, route repairs to Build 4 for plan/doc issues or Build 3 for FileMap.
