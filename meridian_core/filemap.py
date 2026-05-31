@@ -33,6 +33,7 @@ class FileArea:
     OBJECTIVES       = "Mission Objectives recall"
     RISK_ENGINE      = "Risk Tier Engine"
     COUNCIL          = "Council cognition"
+    PRIME_AUTONOMY   = "Prime Autonomy"
     PLANNING         = "Planning harness"
     RELAY_ROUTING    = "Relay routing"
     RELAY_DISPATCH   = "Relay dispatch"
@@ -363,11 +364,39 @@ def make_default_map() -> FileMap:
             notes="Domain-only. Measures Relay overhead vs. vendor baseline. See docs/relay-prompt-metrics-integration-brief.md.",
         ),
         FileMapEntry(
+            path="meridian_core/prompt_payload_meter.py",
+            area=FileArea.PROMPT_METRICS,
+            purpose="Relay prompt payload visibility helper: PromptPayloadSnapshot and PayloadStatus classify prompt size, budget pressure, growth deltas, and Q-mode prompt drag.",
+            related_tests=["tests/test_prompt_payload_meter.py"],
+            notes="V2 helper for visible prompt payload meter. Pure deterministic logic; no model calls, filesystem reads, or live dispatch.",
+        ),
+        FileMapEntry(
+            path="tests/test_prompt_payload_meter.py",
+            area=FileArea.PROMPT_METRICS,
+            purpose="Regression tests for PromptPayloadSnapshot and PayloadStatus, including zero/invalid budget failure-soft behavior and queue-mode growth detection.",
+            related_tests=[],
+            notes="Read before changing prompt payload thresholds or display-label semantics.",
+        ),
+        FileMapEntry(
             path="docs/relay-prompt-metrics-integration-brief.md",
             area=FileArea.PROMPT_METRICS,
             purpose="Architectural plan for wiring PromptMetricSample collection into Relay dispatch, including Polaris-style visible prompt payload size, budget pressure, and growth/flat status in Bifrost/Compass surfaces.",
             related_tests=[],
             notes="Planning only; no runtime changes yet.",
+        ),
+        FileMapEntry(
+            path="meridian_core/prime_autonomy.py",
+            area=FileArea.PRIME_AUTONOMY,
+            purpose="Prime next-action domain model: immutable PrimeNextAction with action type, confidence, risk tier, source, targets, blockers, human gate, rationale, and evidence refs.",
+            related_tests=["tests/test_prime_autonomy.py"],
+            notes="V2 Prime Autonomy seed. Human-gated actions are not executable until a later approval model records approval.",
+        ),
+        FileMapEntry(
+            path="tests/test_prime_autonomy.py",
+            area=FileArea.PRIME_AUTONOMY,
+            purpose="Regression tests for PrimeNextAction, fallback/strict constructors, immutable evidence/blocker sets, confidence/risk mappings, and human-gate executability.",
+            related_tests=[],
+            notes="Read before changing PrimeNextAction execution semantics or public constructor behavior.",
         ),
         FileMapEntry(
             path="meridian_core/prompt_packet.py",
