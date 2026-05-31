@@ -79,7 +79,7 @@ Completion:
 - Coordinator completed this docs-only benchmark plan on 2026-05-31.
 - Files changed: `docs/deepseek-validation-benchmark-plan.md`, `docs/live-build-4.md`.
 - Tests: not required (docs-only).
-- Commit: pending.
+- Commit: `d25bc24`.
 
 Ready for Codex Review.
 

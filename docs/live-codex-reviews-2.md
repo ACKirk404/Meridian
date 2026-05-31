@@ -2,6 +2,39 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
+## Active Task
+
+Goal: review Build 4 DeepSeek validation benchmark plan.
+
+Scope:
+
+- Build 4 commit `d25bc24` - creates `docs/deepseek-validation-benchmark-plan.md` and advances Build 4 to the Model Harness V2 metadata contract.
+
+Allowed review files:
+
+- `docs/deepseek-validation-benchmark-plan.md`
+- `docs/deepseek-provider-validation-gate.md` for source comparison only.
+- `docs/bifrost-balance-payload-surface-contract.md` for route/payload visibility comparison only.
+- `docs/live-build-4.md` for provenance only.
+
+Proof:
+
+- Docs-only review; no tests required unless the review touches runtime code.
+
+Review expectations:
+
+- Verify the plan requires direct DeepSeek API proof and treats aggregator/OpenRouter substitution as a route mismatch.
+- Verify Q-mode prompt flatness is tested across repeated idle queue polls.
+- Verify docs, small coding, and representative build-slice benchmark rounds are separated by trust level.
+- Verify Codex review remains required for DeepSeek-produced coding/build artifacts until explicit higher trust state exists.
+- Verify DeepSeek cannot clear reviews, move branches, mutate worktrees, bypass Relay/Aegis, or receive autonomous coding authority while candidate-state.
+- Verify promotion and demotion triggers are concrete and reversible.
+- Verify Build 4 has a valid next active task for `docs/model-harness-v2-contract.md`.
+- If clean, record proof and clear the docs slice. If findings exist, route a focused repair back to Build 4.
+- If clean, route FileMap registration for `docs/deepseek-validation-benchmark-plan.md` to Build 3.
+
+Completion: commit and push only `docs/live-codex-reviews-2.md` unless routing a repair or FileMap follow-up.
+
 ## Completed / Passed
 
 Goal: review Build 4 workflow/sub-agent usage checklist.
