@@ -6,9 +6,11 @@ This file is the standing queue for a second specialized Codex Reviews session.
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Active Task
+## Completed / Passed
 
 Goal: review Build 3 Bifrost balance/payload contract FileMap registration.
+
+Status: passed by Codex Reviews B on 2026-05-31. The Bifrost balance/payload contract is discoverable through runtime FileMap and required-path coverage. No repair routed.
 
 Scope:
 
@@ -30,6 +32,17 @@ Review expectations:
 - Verify the FileMap entry is under the Bifrost area and does not claim provider routing or billing API implementation.
 - Verify Build 3 is not left with an executable stale implementation task after completion.
 - If clean, record proof and clear the FileMap slice. If findings exist, route a focused repair back to Build 3.
+
+Review result:
+
+- `python -m pytest tests/test_filemap.py -q` passed with 46 tests.
+- `docs/bifrost-balance-payload-surface-contract.md` is present in both `make_default_map()` and `_REQUIRED_PATHS`.
+- The FileMap entry is under the Bifrost area and describes a UI/product contract, not provider routing or billing API implementation.
+- Build 3 is back to awaiting the next FileMap assignment and should not create read-check-only commits.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus tracker reconciliation. No Build 3 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
 ## Completed / Passed With Follow-Up
 

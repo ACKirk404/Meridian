@@ -16,9 +16,9 @@
 | Relay/Model Harness | 2 | 0 | 1 | 6 | 9 | 33% |
 | Aegis Harness | 2 | 0 | 0 | 0 | 2 | 100% |
 | Session Lifecycle Harness | 1 | 0 | 1 | 2 | 4 | 50% |
-| Bifrost Harness | 0 | 0 | 0 | 7 | 7 | 0% |
+| Bifrost Harness | 0 | 0 | 2 | 7 | 9 | 0% |
 | Federation Harness | 0 | 0 | 0 | 1 | 1 | 0% |
-| **Total V2** | **10** | **0** | **5** | **17** | **32** | **31% Clear + 0% Awaiting + 16% Baseline** |
+| **Total V2** | **10** | **0** | **7** | **17** | **34** | **29% Clear + 0% Awaiting + 21% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
@@ -72,6 +72,11 @@
 ### Relay/Model Harness
 
 - [x] **Model Harness + DeepSeek Validation Gate:** `docs/deepseek-provider-validation-gate.md` - DeepSeek is a primary provider candidate, but not trusted for autonomous coding/review-clearing until direct API routing, prompt payload metering, bounded Q-mode behavior, and coding benchmark proof are recorded.
+
+### Bifrost Harness
+
+- [x] **Bifrost + Voice Command Contract:** `docs/bifrost-voice-command-contract.md` - voice input/output states, typed voice command intents, dictation, read-aloud controls, and proof/status command families defined; review-cleared and FileMap-registered on 2026-05-31.
+- [x] **Bifrost + Balance/Payload Contract:** `docs/bifrost-balance-payload-surface-contract.md` - provider balance, prompt payload visibility, Q-mode prompt-drag warnings, and DeepSeek route/trust display contract defined; review-cleared and FileMap-registered on 2026-05-31.
 
 ## In Progress / Stabilizing
 
