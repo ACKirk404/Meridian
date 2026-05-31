@@ -2,6 +2,38 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
+## Active Task
+
+Goal: review Build 4 workflow/sub-agent usage checklist.
+
+Scope:
+
+- Build 4 commit `0bf573f` - creates `docs/workflow-subagent-usage-checklist.md` and advances Build 4 to the DeepSeek validation benchmark plan.
+
+Allowed review files:
+
+- `docs/workflow-subagent-usage-checklist.md`
+- `docs/workflow-subagent-harness-contract.md` for source comparison only.
+- `docs/workflows-subagent-harness-architecture.md` for source comparison only.
+- `docs/live-build-4.md` for provenance only.
+
+Proof:
+
+- Docs-only review; no tests required unless the review touches runtime code.
+
+Review expectations:
+
+- Verify the checklist converts the workflow/sub-agent architecture into operational Prime decisions rather than duplicating the whole contract.
+- Verify it distinguishes normal Relay/model calls from bounded workflow/sub-agent work.
+- Verify Echo, Atlas, Aegis, Relay, Bifrost, Beacon, and Session Lifecycle routing is covered.
+- Verify prompt-drag guardrails prohibit raw transcripts, raw logs, raw file bodies, raw search dumps, and heartbeat history from returning to Prime.
+- Verify restart vs. resteer remains Prime/Session Lifecycle owned; workflows do not restart or resteer themselves.
+- Verify Build 4 has a valid next active task for the DeepSeek validation benchmark plan.
+- If clean, record proof and clear the docs slice. If findings exist, route a focused repair back to Build 4.
+- If clean, route FileMap registration for `docs/workflow-subagent-usage-checklist.md` to Build 3.
+
+Completion: commit and push only `docs/live-codex-reviews-2.md` unless routing a repair or FileMap follow-up.
+
 ## Completed / Passed
 
 Goal: review Build 3 Bifrost V2 UI docs FileMap registration.
