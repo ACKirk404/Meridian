@@ -195,6 +195,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-05-31 13:02 -06:00 - Codex Reviews A checked queue; status: running; notes: origin/main current; Build 1 repair marker found for Round 4 restart/resteer repair; verifying commit 40def3d and checking for scope drift.
 2026-05-31 13:06 -06:00 - Codex Reviews A checked queue; status: repair routed (Round 6 complete); notes: Build 2 Prime Autonomy commit 40def3d reviewed; MEDIUM human-gate executability repair routed; Bifrost integration Active Task not executed.
 2026-05-31 13:09 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current; no executable Active Task remains in this review queue; Build 2 repair remains routed and awaiting builder completion.
+2026-05-31 13:10 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task in this review queue; Build 1/2 queue read found build-lane work only, with Build 2 repair still awaiting builder completion.
 ```
 
 ## Review Log
@@ -371,6 +372,7 @@ Round 5 write log:
 Round 6 write log:
 
 - 2026-05-31 13:09 -06:00 - Codex Reviews A finalized Build 2 Prime Autonomy repair routing and idle read check. Files changed: `docs/live-codex-reviews.md`, `docs/live-build-2.md`. Tests run: `python -m pytest tests/test_prime_autonomy.py -q` (30 passed), `python -m pytest tests/test_prime_autonomy.py tests/test_filemap.py -q` (76 passed). Commit: `752d4a3` for `docs/live-build-2.md`; `edb97bd`, `8e7446f`, and `39a68ee` for `docs/live-codex-reviews.md`. Push status: pushed to `origin/main`. Obsidian update status: updated `Meridian_Build/2026-05-31 Prime Autonomy Human Gate Review Finding.md`.
+- 2026-05-31 13:10 -06:00 - Codex Reviews A completed idle queue read after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: pending. Push status: pending. Obsidian update status: not updated; no new review finding or clearance.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
