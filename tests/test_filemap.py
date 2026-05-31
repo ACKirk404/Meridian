@@ -346,3 +346,4 @@ class TestDefaultMap:
         entry = fm.require("meridian_core/relay.py")
         assert "council_plan" in entry.notes, \
             "relay.py notes should reference the council_plan field"
+
