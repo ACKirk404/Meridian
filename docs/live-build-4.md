@@ -1,16 +1,21 @@
 # Live Build 4 Queue
 
-## Coordinator Override - Active Now
+## ~~Coordinator Override - Active Now (COMPLETED 2026-05-31 08:55 -06:00)~~
 
-Goal: write the Claude Workflows sub-agent architecture note.
+~~Goal: write the Claude Workflows sub-agent architecture note.~~
 
-Allowed files only: `docs/workflows-subagent-harness-architecture.md`, `docs/live-build-4.md`.
+~~Allowed files only: `docs/workflows-subagent-harness-architecture.md`, `docs/live-build-4.md`.~~
 
-Task: create a high-level architecture note for using Claude Workflows/sub-agents as separate context windows for harness work. Cover which harnesses should run as workflows, what state Prime keeps locally, what each workflow returns, how this protects Prime's context window, and how it maps to Meridian's long-term harness design. This supersedes the completed Prime Autonomy contract slice.
+~~Task: create a high-level architecture note for using Claude Workflows/sub-agents as separate context windows for harness work. Cover which harnesses should run as workflows, what state Prime keeps locally, what each workflow returns, how this protects Prime's context window, and how it maps to Meridian's long-term harness design. This supersedes the completed Prime Autonomy contract slice.~~
 
-Tests: none required, docs-only.
+~~Tests: none required, docs-only.~~
 
-Completion: commit only this architecture slice, push, update Obsidian, and mark Ready for Codex Review.
+~~Completion: commit only this architecture slice, push, update Obsidian, and mark Ready for Codex Review.~~
+
+**Ready for Codex Review**
+- Commit: `<pending>`
+- Files: `docs/workflows-subagent-harness-architecture.md`
+- Tests: not required (docs-only)
 
 ## Next Candidate Task
 
@@ -261,6 +266,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-31 08:47 -06:00 - Build 4 checked queue; status: idle (cadence-paused); Prime Autonomy contract complete (3aa16fe); Ready for Codex Review block backfilled with real hash; Next Candidate Task (Claude Workflows sub-agent architecture note) sits below override block awaiting coordinator promotion; Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642, 3aa16fe (6) still pending Codex Reviews sweep; origin/main at 3aa16fe
 2026-05-31 08:48 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no Active Task (Coordinator Override completed; Next Candidate Task still awaits promotion); Build 2/3 idle (879e875 cadence 2/3, 90f9404); Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642, 3aa16fe (6) still pending Codex Reviews sweep; origin/main at 676779c
 2026-05-31 08:50 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no Active Task; promote-next-work commit e1aee24 touched live-build-2.md and live-build-5.md only — Build 4 Next Candidate not promoted to active; Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642, 3aa16fe (6) still pending Codex Reviews sweep; origin/main at b850958
+2026-05-31 08:55 -06:00 - Build 4 checked queue; status: running; promote-completed-lane-work commit a175dae rotated Build 4 queue — new Coordinator Override (Active Now) = Claude Workflows sub-agent architecture note (docs/workflows-subagent-harness-architecture.md); Next Candidate = Prime restart/resteer logic contract; override authorizes work despite cadence pause; origin/main at d5b3d91
 ```
 
 ## Write/Completion Log
@@ -290,6 +296,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 completed <task>; commit <hash>; tests <result>
 2026-05-31 07:37 -06:00 - Build 4 completed V2 first-wave contracts: docs/echo-memory-contract.md and docs/atlas-retrieval-contract.md; commit pending; tests not required (docs-only); Ready for Codex Review after commit
 2026-05-31 08:02 -06:00 - Build 4 completed Workflow Sub-Agent Harness contract (docs/workflow-subagent-harness-contract.md) per Coordinator Override; commit pending; tests not required (docs-only); Ready for Codex Review after commit
 2026-05-31 08:45 -06:00 - Build 4 completed V2 Prime Autonomy contract (docs/prime-autonomy-v2-contract.md) per Coordinator Override (Active Now); commit pending; tests not required (docs-only); Ready for Codex Review after commit
+2026-05-31 08:55 -06:00 - Build 4 completed Claude Workflows sub-agent architecture note (docs/workflows-subagent-harness-architecture.md) per Coordinator Override (Active Now); narrative companion to docs/workflow-subagent-harness-contract.md; commit pending; tests not required (docs-only); Ready for Codex Review after commit
 ```
 
 ## Cross-Check Activity
