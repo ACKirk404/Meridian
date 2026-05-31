@@ -235,6 +235,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-31 08:32 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no new Active Task; Build 1/2 idle polling (afeccc9, e0a5403 cadence 1/3); Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642 still pending Codex Reviews sweep; origin/main at afeccc9
 2026-05-31 08:34 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no new Active Task; Build 3 registered V2 contract docs (Echo, Atlas, workflow harness) in FileMap (d216d6a) — closes FileMap follow-up for all three Build 4 V2 slices; Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642 still pending Codex Reviews sweep; origin/main at d216d6a
 2026-05-31 08:36 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no new Active Task; Build 1 idle polling (31a6aec); Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642 still pending Codex Reviews sweep; origin/main at 31a6aec
+2026-05-31 08:38 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no new Active Task; Build 1/2 idle polling (752520a, 5dc8284 V2 package API surface task complete cadence 2/3); Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642 still pending Codex Reviews sweep; origin/main at 752520a
 ```
 
 ## Write/Completion Log
