@@ -527,3 +527,217 @@ Write log:
 - Repair/Follow-up:
   - Build 3 already owns FileMap registration for `docs/v2-detailed-build-plan.md` in `docs/live-build-3.md`.
   - No Build 4 repair is needed.
+
+## Round B11 Documentation
+
+**2026-05-31 07:40 - Round B11 Scope**
+Build lanes: Build 4
+Commit: Build 4 7eb5ae1 (queue marker 1649b09 — backfill after rebase/push)
+Reason: Monitor detected new Ready marker for V2 first-wave Echo/Atlas contracts
+
+**Review Summary**
+- Build 4 commit 7eb5ae1: docs/echo-memory-contract.md and docs/atlas-retrieval-contract.md
+- Result: PASS-WITH-FINDINGS
+- Findings: 1 MEDIUM (FileMap registration needed for both new architecture docs)
+
+**Echo Memory Contract Review**
+- Defines MemoryRecord/MemoryQuery/MemoryHit domain shape
+- Deterministic ranking: pinning → recency → importance
+- Explicit safety: "Never injected raw into a prompt without Aegis consent"
+- Project-partitioned storage, no background scraping
+- V2 first-wave focused: durable memory for Prime autonomy
+- Cross-references verified: v2-horizon-plan, v1-capability-plan, docs are consistent
+
+**Atlas Retrieval Contract Review**
+- Defines AtlasHit/AtlasQuery/AtlasResult domain shape
+- FileMap-first retrieval (no embeddings, no vector store, no web crawl in V1)
+- Deterministic ranking: substring + structural matching only
+- Explicit safety: "Atlas never edits prompts", "Relay never injects whole files", "No transitive Echo body bleed"
+- Hard caps on injected hits, no log/queue text in excerpts
+- V2 first-wave focused: context extension to enable longer Prime sessions
+- Cross-references verified: v2-detailed-build-plan, v1-capability-plan, v3-parking-lot are consistent
+
+**Findings**
+- MEDIUM: docs/echo-memory-contract.md needs FileMap registration (new architecture doc)
+- MEDIUM: docs/atlas-retrieval-contract.md needs FileMap registration (new architecture doc)
+- Action: Route FileMap repair task to Build 3; both docs should be registered with FileArea.ARCHITECTURE
+
+**Proof**
+- `git show 7eb5ae1 -- docs/echo-memory-contract.md docs/atlas-retrieval-contract.md` confirms 223-line Echo contract + 280-line Atlas contract
+- Manual inspection: both docs explicitly define ownership boundaries, safety guardrails (Aegis/Relay gating), deterministic ranking, domain shapes
+- Cross-references to companion V2 docs verified present
+- No V1 scope contamination; explicit "out of scope" sections defer vector search, federation, etc. to later waves
+- Test expectations defined for both contracts
+- Result: pass, with FileMap registration needed
+
+**Next Action**
+- Codex Reviews B routing FileMap registration for echo-memory-contract.md and atlas-retrieval-contract.md to Build 3
+- Return to idle polling for new Ready markers
+
+## Round B12 Documentation — V1 Electron Cockpit App Shell
+
+**2026-05-31 07:40 - Round B12 Scope**
+Build lanes: Build 5
+Commit: Build 5 6b3e652 (queue marker 1b5be85 — backfill after push)
+Reason: Monitor detected new Ready marker for V1 Electron cockpit app shell
+
+**Review Summary**
+- Build 5 commit 6b3e652: openable V1 Electron cockpit app shell (final V1 item)
+- Result: PASS (no findings)
+- Tests: 107 new + existing cockpit tests; full suite 1095 passed
+
+**Electron main.js Security Review**
+- contextIsolation: true ✓
+- nodeIntegration: false ✓
+- sandbox: true ✓
+- webSecurity: true ✓
+- loadFile() local only, no remote URLs ✓
+- will-navigate blocked except to preview.html ✓
+- window.open denied (observation-only app) ✓
+- Exports preview constants for testing ✓
+
+**bifrost/preview.py Implementation**
+- Thin file-writer seam (does not duplicate cockpit rendering)
+- Uses existing render_cockpit_html and sample_cockpit_view_model
+- CLI support: python -m bifrost.preview with -o option
+- Parent directory creation, UTF-8 encoding, deterministic output
+- Tests cover: default path, file creation, determinism, CLI, string paths
+
+**package.json Setup**
+- "main": "electron/main.js" ✓
+- "start": "npm run preview && electron ." (regenerate then launch) ✓
+- "preview": "python -m bifrost.preview" (Python preview writer) ✓
+- Electron as devDependency only (no node_modules committed) ✓
+- "private": true (no accidental npm publish) ✓
+
+**tests/test_bifrost_preview.py Coverage**
+- Preview writer tests: path, document structure, file creation, determinism, CLI
+- package.json inspection tests: scripts, main entry, dependencies, private flag
+- electron/main.js inspection tests: all 8 security defaults verified via regex
+- Total: 207-line test file providing deterministic proof of correct wiring
+
+**V1 Progress Tracker Updated**
+- V1 cockpit items: 13/13 (was 12/12)
+- Final item: openable Electron app shell, npm start regenerates preview + launches Electron
+- V0/V1 progress complete and locked
+
+**Findings**
+- None. V1 Bifrost cockpit is review-cleared.
+- FileMap: Bifrost files already registered; preview.py is thin helper (not in public API); electron/ and package.json are build infrastructure (not code artifacts requiring FileMap tracking).
+
+**Proof**
+- `git show 6b3e652 --stat` confirms 5 files (preview.py, main.js, package.json, test file, docs)
+- Test results: 107 passed, full suite 1095 passed
+- Manual inspection: Electron security defaults all present and correct
+- package.json correctly wires npm start → preview regeneration → Electron launch
+- V0/V1 progress tracker correctly shows 13/13 items complete
+
+**Next Action**
+- Codex Reviews B returning to idle polling
+- V1 cockpit build is complete and ready for V2 planning/implementation
+
+## Round B13 Documentation — V2 Workflow Sub-Agent Harness Contract
+
+**2026-05-31 08:07 - Round B13 Scope**
+Build lanes: Build 4
+Commit: Build 4 1aa770d (backfill marker; contract authored earlier, marked Ready via 1aa770d)
+Reason: Monitor detected new Build 4 Ready marker for Workflow Sub-Agent Harness contract — V2 cross-track architecture
+Allowed files: docs/workflow-subagent-harness-contract.md, docs/live-build-4.md (provenance only)
+Tests: docs-only (no pytest required; test requirements defined for Build 1 runtime lane)
+
+**Review Summary**
+- Build 4: docs/workflow-subagent-harness-contract.md (361 lines)
+- Status: PASS-WITH-FINDINGS
+- Findings: 1 MEDIUM (FileMap registration gap; same pattern as Round B11 Echo/Atlas contracts)
+
+**Contract Overview**
+- Normative V2 cross-track contract defining how Prime delegates bounded work to workflow sub-agents
+- Owned by Workflow Sub-Agent Harness (cross-track; consumed by Echo, Atlas, Aegis, Relay, Bifrost, Beacon, Session Lifecycle)
+- Runtime implementation scope: Build 1 or equivalent (meridian_core/workflow_dispatch.py)
+- Architectural principle: Prime owns intent/policy/coordination; workflow sub-agents return typed summaries, never raw context
+
+**Domain Shapes (Frozen Dataclasses)**
+✓ WorkflowWorkOrder: work_order_id, harness (enum), action, intent, risk_tier (1-4), input, expected_result_shape, time budgets, parent_work_order_id
+✓ WorkflowInputPacket: project, goal_summary, inputs tuple, allowed_tools, allowed_paths, forbidden_paths, prompt_budget, gate_context
+✓ WorkflowHeartbeat: work_order_id, sequence, emitted_at, phase (enum: STARTED/WORKING/WAITING_FOR_TOOL/WAITING_FOR_GATE/WARNING/FINALIZING), summary, progress_estimate, next_action
+✓ WorkflowResultSummary: success case with typed outputs tuple, proof_trail, tokens_used, time_used_seconds, next_action_recommendation, requires_human_gate
+✓ WorkflowErrorSummary: failure cases with failure_kind enum (TIMEOUT/TOOL_DENIED/INPUT_INVALID/PROOF_UNAVAILABLE/GATE_REQUIRED/INTERNAL_ERROR/RESTEER_REQUESTED)
+✓ WorkflowResteerRequest: original_work_order_id, reason, suggested_changes (structured delta), do_not_retry
+
+**Prompt-Drag Guardrails (9 Normative Rules)**
+✓ No raw transcripts — internal chat/model output/intermediate results never return
+✓ No raw file content — only typed excerpts (AtlasHit.excerpt) or structured records
+✓ No raw search results — distilled into structured records or one-line summary
+✓ No raw logs — worker logs/build logs/test output distilled via ProofTrail or finding
+✓ No heartbeats in result — operational only, not narrative
+✓ No prose plans — only structured next_action_recommendation as hint (Prime decides)
+✓ No Scott-facing voice — findings for Scott set requires_human_gate=True; Prime routes to Review Console
+✓ No other-project bleed — single project operation
+✓ Default injection into Prime is zero — only summary, result_shape, structured outputs eligible (Aegis policy gated)
+
+**Per-Harness Usage Rules**
+✓ Echo: memory maintenance, bulk import distillation, large query prep; outputs MemoryRecord tuples
+✓ Atlas: large/expensive retrieval, FileMap queries, Echo-fold-in; outputs AtlasResult with hits/missing_paths
+✓ Aegis: proof review, cross-finding synthesis, finding triage, waiver prep; outputs ProofReviewVerdict
+✓ Relay: model dispatch in separate sub-agent context, multi-call aggregation, dual-lane synthesis; outputs dispatch summary
+✓ Bifrost: local preview/build verify, render-check, view-model fixture validation, accessibility audit; outputs BifrostRenderCheck
+✓ Beacon: liveness sweeps, staleness audits, harness health pings; outputs BeaconLivenessReport
+✓ Session Lifecycle: session watch/steer/recover, diagnosis; operates workflows AND owns its own workflows; outputs SessionLifecycleResult
+
+**Risk-Tier Gating (Tier 1-4)**
+✓ Tier 1: Prime accepts summary; no extra gate; may cache or use in working context
+✓ Tier 2: proof_trail must be non-empty, Aegis policy ALLOW, reviewer lane logs summary
+✓ Tier 3: Tier-2 conditions + Review Console entry; Prime waits for lane pass/no-findings before promotion
+✓ Tier 4: Tier-3 conditions + explicit Scott approval via Review Console; requires_human_gate=True mandatory
+
+**Durable Promotion Rules**
+✓ No durable write on WorkflowErrorSummary — errors never promote outputs
+✓ No branch/worktree movement from workflow — Session Lifecycle proposes; Prime+Scott authorize
+✓ No FileMap edits from workflow — Atlas/Beacon may report missing_paths; Build 3 is sole writer
+✓ No Echo writes from workflow — Echo workflows produce candidates; Prime issues add to repository
+✓ No prompt-budget bypass — all model calls inside sub-agent subject to PromptBudgetPlan and telemetry
+
+**Failure-Soft Behavior**
+✓ All failures produce typed WorkflowErrorSummary, never bare exceptions
+✓ Missing/unavailable sub-agent → INTERNAL_ERROR
+✓ Hard timeout → TIMEOUT + partial_outputs
+✓ Tool not in allowed_tools → TOOL_DENIED, denied at tool layer
+✓ Forbidden path access → TOOL_DENIED with offending path, access refused
+✓ Result shape mismatch → INPUT_INVALID (no silent coercion)
+✓ Tier-3+ missing gate_context → GATE_REQUIRED before real work
+✓ Proof required but unavailable → PROOF_UNAVAILABLE with candidates
+
+**First Runtime Tests (test_workflow_dispatch.py Scope)**
+✓ Domain shapes: frozen dataclasses, enums, mutation raises FrozenInstanceError
+✓ Dispatch/result: work_order_id match, result_shape validation, outputs as tuple, tier-2 proof requirement
+✓ Input hygiene: forbidden_paths validation, allowed_tools empty-case handling, allowed_paths constraints
+✓ Heartbeats: monotonic sequence, not in outputs/summary, not retained in Prime-visible state
+✓ Errors/restart/resteer: exceptions → INTERNAL_ERROR, timeout handling, resteer requests with delta suggestion
+✓ Risk-tier gating: tier-3+ gate_context validation, tier-4 requires_human_gate flag promotion helper
+✓ Nesting cap: depth limit (recommended ≤2) enforced
+✓ Prompt-drag: summary length cap, no raw-transcript fields, test handler rejecting raw-transcript attachment
+
+**How This Differs From Normal Model Call (Table Verified)**
+- Normal call: Prime initiates via Relay; prompt/response near Prime's window; token stream return; single inference; optional proof; bounded by PromptBudgetPlan per call
+- Workflow: Prime issues WorkflowWorkOrder; sub-agent context separate; WorkflowResultSummary/ErrorSummary return; bounded multi-step task; periodic heartbeats; required proof tier>=2; bounded by PromptBudgetPlan + guardrails; Session Lifecycle controls stop; distinct restart vs resteer
+
+**Architectural Consistency**
+✓ Mirrors Echo and Atlas prompt-drag guardrails (same philosophy: protect Prime from context bleed)
+✓ References parallel to context.md, v2-detailed-build-plan.md Track 6, echo-memory-contract.md, atlas-retrieval-contract.md, prime-restart-resteer-logic.md
+✓ Cross-references verified: all companion docs present and consistent
+✓ Out-of-scope section clear: federation, external services, public distribution, automatic re-issuance, mutations, background workflows, free-text returns deferred
+
+**Findings**
+- MEDIUM: docs/workflow-subagent-harness-contract.md needs FileMap registration (new architecture doc, same as echo/atlas contracts from Round B11)
+- Action: Route FileMap registration repair to Build 3 (three entries needed: echo-memory-contract, atlas-retrieval-contract, workflow-subagent-harness-contract)
+
+**Proof**
+- `git show origin/main:docs/workflow-subagent-harness-contract.md | wc -l` confirms 361 lines
+- Manual inspection: contract fully defined with domain shapes, guardrails, per-harness rules, risk-tiers, durable promotion rules, failure-soft behavior, first tests scope
+- Cross-references to v2-detailed-build-plan.md, echo-memory-contract.md, atlas-retrieval-contract.md, prime-restart-resteer-logic.md, review-console-surface-contract.md all verified
+- Test expectations (test_workflow_dispatch.py) are concrete and non-duplicative with per-harness handler tests
+- Result: PASS, with FileMap registration needed (same repair batch as Round B11)
+
+**Next Action**
+- Route FileMap registration repair for three V2 architecture contracts to Build 3 (consolidated in single Build 3 FileMap work order if possible)
+- Return to idle polling for new Ready markers
