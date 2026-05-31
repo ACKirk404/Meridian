@@ -4,6 +4,42 @@ This file is the standing queue for Codex Reviews A, the runtime/code review ses
 
 The build lanes build. Review lanes review.
 
+## Coordinator Override - Active Now
+
+Goal: review and clear or repair the V2 Prime Session Lifecycle restart/resteer runtime slice.
+
+Scope:
+
+- Runtime commit `8b4c8ac` - `meridian_core/restart_resteer.py`, `tests/test_restart_resteer.py`.
+- Contract commit `27e1b1f` - `docs/prime-restart-resteer-contract.md`.
+- Tracker implication: `docs/v2-progress-tracker.md` currently marks this slice built-awaiting-review.
+
+Allowed review files:
+
+- `meridian_core/restart_resteer.py`
+- `tests/test_restart_resteer.py`
+- `docs/prime-restart-resteer-contract.md`
+- `docs/live-build-1.md` and `docs/live-build-2.md` for provenance only.
+- `docs/v2-progress-tracker.md` for tracker implication only.
+
+Proof commands:
+
+- `python -m pytest tests/test_restart_resteer.py -q`
+- `python -m pytest tests/test_filemap.py tests/test_restart_resteer.py -q`
+
+Review expectations:
+
+- Verify empty build queues route to resteer without treating empty review queues as build-runway failures.
+- Verify wrong-queue findings distinguish build lanes reading review queues and review lanes reading build queues.
+- Verify shared/main worktree findings are blocking and preserve the Prime Directive that every worker/review session uses a unique worktree.
+- Verify branch movement, quota blocks, launch/popup failures, proof blocks, and stale/polling findings produce deterministic directives without performing live side effects.
+- Verify the module is pure: no subprocess, filesystem mutation, network calls, branch movement, or UI automation.
+- Verify the contract remains aligned with the runtime object names and safety posture.
+- If clean, record proof and mark the V2 tracker implication as review-cleared.
+- If findings exist, route a focused repair back to the owning build lane with allowed files and tests.
+
+Completion: commit and push only `docs/live-codex-reviews.md` unless routing a repair or updating tracker implication after a clean pass.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: verify Build 1 repair commit `8e8c87b` closes the V2 runtime/code MEDIUM findings.
