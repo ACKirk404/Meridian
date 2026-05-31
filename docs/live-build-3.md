@@ -150,11 +150,28 @@ Ready for Codex Review.
 
 ## Active Task
 
-Goal: await next FileMap assignment.
+Goal: register the active Bifrost V2 cockpit/JARVIS source docs in FileMap.
 
-Allowed files only: `docs/live-build-3.md`.
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
-Task: no executable FileMap implementation task is currently assigned. Continue polling and do not create read-check-only commits. If a new V2/V3 doc lands without FileMap coverage, record the gap in the Cross-Check Activity section and wait for Prime/Codex to assign the exact registration slice.
+Task: add FileMap coverage for the active Bifrost V2 UI direction documents:
+
+- `docs/bifrost-v2-cockpit-extensions.md`
+- `docs/jarvis-ui-source-assessment.md`
+
+Requirements:
+
+- Keep the registration mechanical and small.
+- Add concise Bifrost-area entries in `make_default_map()` and mirror them in `docs/FileMap.md`.
+- Add both paths to required-path coverage in `tests/test_filemap.py`.
+- Do not edit the Bifrost docs themselves, runtime cockpit code, CSS, or tests outside FileMap coverage.
+- Preserve the distinction that these are source/contract docs, not proof of completed runtime UI implementation.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
 
 This file is the standing assignment queue for Build 3.
 

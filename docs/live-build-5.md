@@ -68,11 +68,29 @@ Ready for Codex Review.
 
 ## Active Task
 
-Goal: await next Bifrost assignment.
+Goal: implement the Bifrost V2 browser-first HUD shell for the latest UI direction.
 
-Allowed files only: `docs/live-build-5.md`.
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
 
-Task: no executable Bifrost implementation task is currently assigned. Continue polling and do not create read-check-only commits. If Reviews B routes a repair or Prime/Codex assigns the next Bifrost V2 surface slice, execute that scoped task.
+Task: move the current Bifrost preview toward the latest Scott-approved HUD-grid direction, using `docs/bifrost-v2-cockpit-extensions.md` as the source of truth.
+
+Requirements:
+
+- Keep the cockpit browser-first HTML/CSS; do not add Electron-only dependencies.
+- Make the central Prime command bay the dominant surface. The prompt/input area must be large enough for real conversation, not a small widget.
+- Keep the center presence core quiet: only `PRIMED` plus a pulsing orb/state. Do not put provider balance, Claude/OpenAI/DeepSeek, prompt payload, queue, proof, Prime, B1-B5, ABH, tier, version, or numbered HUD labels inside that core.
+- Remove permanent top navigation noise. Panels should be summonable through Prime/voice or scoped controls, not a top row of buttons.
+- Make the left rail project-first: show project names first; when a project is selected, reveal that project's sessions and let unrelated lane contents disappear from that rail.
+- Bottom harness/system controls should open focused harness windows with their own scoped prompt to interact with Meridian about that harness.
+- Keep Voice I/O visibly first-class: listening/thinking/speaking/muted state, text prompt, microphone affordance, spoken-output affordance.
+- Use sample/static view-model data only; Bifrost displays state and does not make Prime/Relay/Aegis routing decisions.
+- Add or update focused render tests proving the old noisy labels and top-nav text are absent, the large prompt is present, project drilldown/session state renders, harness scoped prompts render, and voice state renders.
+
+Tests:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
 
 ## ~~Codex Repair - Active Now~~ (COMPLETED 2026-05-31 13:54 -06:00)
 
