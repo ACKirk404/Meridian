@@ -24,13 +24,13 @@ Cover:
 
 Tests: none required, docs-only.
 
-Completion: coordinator completed this Federation planning slice; commit pending.
+Completion: coordinator completed this Federation planning slice in `e37030e`.
 
 Ready for Codex Review:
 
 - Files: `docs/federation-harness-horizon.md`, `docs/live-build-4.md`
 - Tests: not required (docs-only)
-- Commit: pending coordinator commit
+- Commit: `e37030e`
 
 ## Coordinator Override - Active Now
 

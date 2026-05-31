@@ -24,13 +24,13 @@ Cover:
 
 Tests: none required, docs-only.
 
-Completion: coordinator completed this contract slice; commit pending.
+Completion: coordinator completed this contract slice in `e37030e`.
 
 Ready for Codex Review:
 
 - Files: `docs/session-lifecycle-v2-contract.md`, `docs/live-build-2.md`
 - Tests: not required (docs-only)
-- Commit: pending coordinator commit
+- Commit: `e37030e`
 
 ## Coordinator Override - Active Now
 

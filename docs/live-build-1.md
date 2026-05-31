@@ -1,6 +1,6 @@
 # Live Build 1 Queue
 
-## Codex Review Repair Completed - Awaiting Review Verification
+## Codex Review Repair Completed / Verified
 
 2026-05-31 14:45 -06:00 - Codex Reviews A routed MEDIUM repairs from the V2 runtime/code review sweep.
 
@@ -31,8 +31,8 @@ Tests:
 Completion:
 
 - Repair committed and pushed in `8e8c87b`.
-- Marked Ready for Codex Review below.
-- Normal Build 1 work may proceed only after Reviews A verifies or routes follow-up repair.
+- Reviews A verified the repair in `3279251` / `cc52bf2` / `c6ec003`.
+- Normal Build 1 work may proceed to the FileMap registration task below.
 
 ## Queue Authority
 
@@ -651,6 +651,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 - Tests run: `python -m pytest tests/test_echo.py -q` (23 passed); `python -m pytest tests/test_prompt_payload_meter.py -q` (25 passed); `python -m pytest tests/test_echo.py tests/test_atlas.py tests/test_prompt_payload_meter.py tests/test_relay_executor.py -q` (136 passed); `python -m pytest tests/test_cognition_policy.py tests/test_aegis.py tests/test_relay_executor.py -q` (157 passed).
 - Commit: `8e8c87b`.
 - Notes: `PromptPayloadSnapshot` now treats zero/negative budgets as no usable budget instead of crashing; Echo normalizes naive datetimes to UTC for deterministic query/filter/ranking behavior.
+- Review result: passed by Reviews A on 2026-05-31 14:57 -06:00; no follow-up repair routed.
 
 2026-05-31 13:01 -06:00 - Build 1 repair ready for Codex Review.
 

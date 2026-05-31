@@ -22,13 +22,13 @@ Cover:
 
 Tests: none required, docs-only.
 
-Completion: coordinator completed this session-card queue activation contract slice; commit pending.
+Completion: coordinator completed this session-card queue activation contract slice in `e37030e`.
 
 Ready for Codex Review:
 
 - Files: `docs/session-card-queue-activation-contract.md`, `docs/live-build-5.md`
 - Tests: not required (docs-only)
-- Commit: pending coordinator commit
+- Commit: `e37030e`
 
 ## Active Task
 

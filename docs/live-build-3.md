@@ -4,13 +4,23 @@
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Active Task
+## Cadence Paused - Awaiting Codex Review
 
-Goal: register current V2 queue/runway documents in FileMap.
+Build 3 is paused at cadence 3/3 since Round B5. Do not execute new FileMap work until Reviews B records cadence clearance for the recent FileMap registration window.
+
+## Next Active Task After Cadence Clearance
+
+Goal: register new V2 contract-wave documents in FileMap.
 
 Allowed files only: `meridian_core/filemap.py`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
-Task: inspect current FileMap registrations and add missing entries for queue/runway, V2, and framework documents only if they are not already discoverable. Keep this mechanical and small. Do not edit the documents themselves. Add or update tests only for required-path/default-map coverage.
+Task: inspect current FileMap registrations and add missing entries for the new V2 contract-wave documents only if they are not already discoverable:
+
+- `docs/session-lifecycle-v2-contract.md`
+- `docs/federation-harness-horizon.md`
+- `docs/session-card-queue-activation-contract.md`
+
+Keep this mechanical and small. Do not edit the documents themselves. Add or update tests only for required-path/default-map coverage.
 
 Tests: `python -m pytest tests/test_filemap.py -q`.
 

@@ -44,9 +44,18 @@ Completion: record scope, proof, findings, and checkpoint updates in this file. 
 
 ## Next Candidate Review Scope
 
-Goal: review coordinator V2 contract wave commit `e37030e`.
+Goal: clear Build 3's FileMap cadence pause and then review coordinator V2 contract wave commit `e37030e`.
 
-Scope:
+Immediate Build 3 scope:
+
+- Review Build 3 recent FileMap cadence window ending with the Coordinator Override completion recorded as commit `67a75dc` plus completion marker `b3316b6`.
+- Verify recent FileMap registrations did not introduce stale paths, wrong owners, or broken required-path coverage.
+- Required proof: `python -m pytest tests/test_filemap.py -q`.
+- If clear, record Build 3 cadence clearance so Build 3 can register the new V2 contract-wave docs.
+
+Then review coordinator V2 contract wave commit `e37030e`.
+
+Contract wave scope:
 
 - `docs/session-lifecycle-v2-contract.md`
 - `docs/federation-harness-horizon.md`
@@ -63,7 +72,7 @@ Review expectations:
 - Verify Build 2, Build 4, and Build 5 each have a valid next active task after the completed contract slice.
 - Route FileMap registration gaps to Build 3 after review.
 
-Proof: docs-only diff/reference review; run tests only if the review touches runtime files or package exports.
+Proof: docs-only diff/reference review for the contract wave; run tests only if the review touches runtime files or package exports.
 
 Review A and Review B are a scaling prototype for Prime. When review pressure backs up, Prime should be able to spawn additional review capacity, assign bounded scope, and merge the results back into the shared checkpoint ledger.
 

@@ -11,14 +11,14 @@
 | Owner | Built/Review-Cleared | Built-Awaiting-Review | Contract Baseline | Needs Build | Total | Percent Complete |
 |---|---:|---:|---:|---:|---:|---:|
 | Prime Autonomy | 0 | 0 | 0 | 2 | 2 | 0% |
-| Echo Harness | 0 | 1 | 2 | 0 | 3 | 67% |
+| Echo Harness | 1 | 0 | 2 | 0 | 3 | 100% |
 | Atlas Harness | 0 | 0 | 1 | 2 | 3 | 33% |
-| Relay/Model Harness | 1 | 0 | 0 | 5 | 6 | 17% |
+| Relay/Model Harness | 2 | 0 | 0 | 4 | 6 | 33% |
 | Aegis Harness | 2 | 0 | 0 | 0 | 2 | 100% |
 | Session Lifecycle Harness | 0 | 1 | 1 | 1 | 3 | 33% |
 | Bifrost Harness | 0 | 0 | 0 | 7 | 7 | 0% |
 | Federation Harness | 0 | 0 | 0 | 1 | 1 | 0% |
-| **Total V2** | **3** | **2** | **4** | **18** | **27** | **11% Clear + 7% Awaiting + 15% Baseline** |
+| **Total V2** | **5** | **1** | **4** | **17** | **27** | **19% Clear + 4% Awaiting + 15% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
@@ -30,12 +30,13 @@
 ### Relay/Model Harness
 
 - [x] **Relay + CognitionPolicy Integration:** dispatching with proof gate enforcement - see Aegis entry above, commit `b99ce1d`; review cleared.
-
-## Built But Awaiting Review
+- [x] **Relay + Prompt Payload Meter Helper:** `PromptPayloadSnapshot` / `PayloadStatus` domain helper - built in `638117f`, repaired in `8e8c87b`; review cleared by Reviews A on 2026-05-31. This is the runtime helper only; Bifrost visibility remains a separate item below.
 
 ### Echo Harness
 
-- [ ] **Echo + Runtime:** `MemoryRecord`, `MemoryQuery`, `MemoryHit` domain objects with deterministic ranking by project/recency/importance/pinning - built and tested; awaiting Codex review gate clearance before marked fully complete.
+- [x] **Echo + Runtime:** `MemoryRecord`, `MemoryQuery`, `MemoryHit` domain objects with deterministic ranking by project/recency/importance/pinning - built in `2bccb55`, repaired in `8e8c87b`; review cleared by Reviews A on 2026-05-31.
+
+## Built But Awaiting Review
 
 ### Session Lifecycle Harness
 
@@ -84,7 +85,7 @@
 
 - [ ] **Model Harness + Metadata:** capability metadata and prompt-drag telemetry fields - module: `meridian_core/model_adapter.py`; contract: `docs/model-harness-v2-contract.md`.
 - [ ] **Model Harness + DeepSeek Primary Provider:** DeepSeek direct-API adapter metadata and routing preset - default `deepseek-v4-pro`, fast lane `deepseek-v4-flash`; must route through Relay/Aegis like Claude and OpenAI, not as a bypass.
-- [ ] **Relay + Visible Prompt Payload Meter:** Polaris-style per-dispatch prompt size indicator - show `(under 1k)` / `(12.4k)` style label, budget percent, and growth delta for every model dispatch; queue/Q-mode growth across polls is a DEGRADED prompt-drag finding.
+- [ ] **Relay/Bifrost + Visible Prompt Payload Meter:** wire the reviewed `PromptPayloadSnapshot` helper into dispatch and cockpit visibility - show `(under 1k)` / `(12.4k)` style label, budget percent, and growth delta for every model dispatch; queue/Q-mode growth across polls is a DEGRADED prompt-drag finding.
 - [ ] **Relay + Model Adapter:** route capability/tier/budget metadata binding - no vendor-specific presets in first slice.
 - [ ] **Relay + Dispatch Hardening:** provider-neutral HTTP transport envelope updates for metadata pass-through.
 - [ ] **Relay + PromptPacket:** proof metadata integration into dispatch (prompt_packet.py already v1 complete; v2 adds budget/proof bindings).
