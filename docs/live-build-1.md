@@ -447,6 +447,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-05-31 11:22 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 9964acc/480161b/f6ba22d (Build 2 V2 package/API surface policy expanded for Echo/Atlas/Prime Autonomy/Session Lifecycle/Workflow dispatch — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
 2026-06-09 00:12 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-09 00:12 -05:00 - Build 1 checked queue; status: complete (V2 Echo-to-Atlas handoff contract completed at commit 2d1bab1; Ready for Codex Review; Obsidian update pending)
+2026-05-31 11:32 -06:00 - Build 1 checked queue; status: idle; Active Task at both queue positions = "(None currently assigned.)"; a new "Next Candidate Task" was added at the top of the file (Prime queue runway policy at docs/prime-queue-runway-policy.md) but is staged as a candidate, not promoted to Active; origin/main fast-forwarded through 2d1bab1 (parallel session landed V2 Echo-to-Atlas handoff contract — informational, not Build 1 scope here)/67a75dc/efbd363/2743366/806a328; cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting Active Task promotion
 ```
 
 ## Write/Completion Log
