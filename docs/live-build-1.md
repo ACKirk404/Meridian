@@ -315,7 +315,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-03 ~16:40 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-03 ~16:50 CDT - Build 1 checked queue; status: idle (no active task; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-03 ~17:00 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-06-03 ~17:10 CDT - Build 1 checked queue; status: idle (no active task; cadence 1/3 since Reviews C5; awaiting next assignment)
+2026-06-03 ~17:10 CDT - Build 1 checked queue; status: idle (bifrost/cockpit.py landed by parallel session; no active task; awaiting next assignment)
 ```
 
 ## Write/Completion Log
