@@ -2,11 +2,27 @@
 
 ## Coordinator Override - Active Now
 
-Goal: write the Bifrost V2 cockpit extensions contract.
+Goal: write the JARVIS-source Bifrost V2 cockpit adoption contract.
 
-Allowed files only: `docs/bifrost-v2-cockpit-extensions.md`, `docs/live-build-5.md`.
+Allowed files only: `docs/bifrost-v2-cockpit-extensions.md`, `docs/jarvis-ui-source-assessment.md`, `docs/live-build-5.md`.
 
-Task: create `docs/bifrost-v2-cockpit-extensions.md`. Define how the openable Electron cockpit should grow from V1 into V2: Prime command center, configurable progress panel, review console tab, queue runway visibility, harness status strip, mission objectives call-up, and model/workflow dispatch indicators. Keep it implementation-ready but docs-only.
+Task: create or update `docs/bifrost-v2-cockpit-extensions.md` using `docs/jarvis-ui-source-assessment.md` as the starting point. Meridian should not keep freehanding a generic dashboard. Start from existing JARVIS/HUD interface repos and patterns, especially:
+
+- https://github.com/dmrr35/Open.Jarvis
+- https://github.com/ethanplusai/jarvis
+- https://github.com/vierisid/jarvis
+- https://clawskills.sh/skills/jincocodev-jarvis-ui
+
+Define how the openable Electron cockpit should grow from V1 into a JARVIS-style V2 command center: Prime command center, configurable progress panel, review console tab, queue runway visibility, harness status strip, mission objectives call-up, provider balance, prompt payload visibility, and model/workflow dispatch indicators.
+
+Requirements:
+
+- Identify which source repo/pattern is the recommended visual base.
+- Verify or call out license/attribution questions before code reuse.
+- Map JARVIS/HUD concepts to Meridian concepts: orb/presence, wake sequence, status rings, command input, proof console, provider telemetry, queue lanes, and harness panels.
+- Keep this implementation-ready but docs-only.
+- Do not implement runtime code in this slice.
+- Do not invent a from-scratch cockpit design.
 
 Tests: none required, docs-only.
 

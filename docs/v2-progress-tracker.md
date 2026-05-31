@@ -96,7 +96,7 @@
 
 ### Bifrost Harness
 
-- [ ] **Bifrost + V2 Extensions:** view-model placeholders for Prime next action, Echo memory hits, Atlas retrieval hits, session lifecycle preview, Aegis policy result - module: `bifrost/cockpit.py` (extends v1 snapshot); tests: `tests/test_bifrost_cockpit.py`; contract: `docs/bifrost-v2-extensions-contract.md`.
+- [ ] **Bifrost + JARVIS-Source V2 Extensions:** source-first cockpit adaptation using existing JARVIS/HUD repo patterns, then view-model placeholders for Prime next action, Echo memory hits, Atlas retrieval hits, session lifecycle preview, Aegis policy result - module: `bifrost/cockpit.py` (extends v1 snapshot); tests: `tests/test_bifrost_cockpit.py`; source note: `docs/jarvis-ui-source-assessment.md`; contract: `docs/bifrost-v2-cockpit-extensions.md`.
 - [ ] **Bifrost + Balance Button:** Polaris-style provider balance and usage surface for Claude, OpenAI, DeepSeek, and aggregator/local adapters; must show provider health, remaining credit where available, token usage, estimated spend, and cost pressure warnings for Prime routing.
 - [ ] **Bifrost + Prompt Payload Visibility:** surface Relay prompt payload size, budget pressure, and growth/flat status next to model dispatch and queue-poll events so Scott and Prime can see prompt drag in real time.
 - [ ] **Bifrost + Cockpit Render:** static render tests and HTML escaping tests for new V2 view-model fields.

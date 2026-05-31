@@ -233,6 +233,8 @@ First wave deliverable:
 
 **Objective:** Extend the cockpit only where V2 capabilities need visible operation.
 
+**Source-first UI requirement:** Bifrost V2 should not continue as a from-scratch generic dashboard. Start from existing JARVIS/HUD interface repositories and patterns, then adapt them to Meridian's Prime command-center model. The current source assessment lives in `docs/jarvis-ui-source-assessment.md` and includes Open.Jarvis, ethanplusai/jarvis, vierisid/jarvis, and the OpenClaw `jarvis-ui` HUD reference. Code reuse requires license and attribution verification; visual and interaction patterns may be adapted before direct code import.
+
 **Why it matters:** V2 should not become invisible backend work. Scott should see Prime's memory, retrieval, autonomy, and lifecycle state.
 
 **Balance button requirement:** Bifrost must expose the Meridian version of Polaris's Balance button. It should show provider/account health, remaining credits where available, token usage by provider/model, estimated spend, and cost pressure warnings that Prime can use when routing work across Claude, OpenAI, DeepSeek, and future adapters.
@@ -259,6 +261,7 @@ sending only the task packet.
 - `bifrost/cockpit.py`
 - `bifrost/static/cockpit.css`
 - `tests/test_bifrost_cockpit.py`
+- `docs/jarvis-ui-source-assessment.md`
 - `docs/bifrost-v2-extensions-contract.md`
 
 **Proof/test expectation:**

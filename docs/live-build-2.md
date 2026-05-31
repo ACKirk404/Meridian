@@ -14,6 +14,8 @@ Tests: `python -m pytest tests/test_prime_autonomy.py -q`
 
 Completion: commit only the allowed repair files, push, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
 
+**Coordinator note:** Codex patched this repair directly in main while Claude lanes were capacity-blocked. `PrimeNextAction.is_executable()` now returns false when a human gate is pending, and `tests/test_prime_autonomy.py` was updated to prove high-risk human-gated actions are not executable. Proof: `python -m pytest tests/test_prime_autonomy.py -q` passed with 30 tests. This coordinator repair must be routed to Codex review after commit.
+
 ## Coordinator Override - Active Now
 
 Goal: write the V2 Bifrost integration contract for Prime next action and prompt payload telemetry.

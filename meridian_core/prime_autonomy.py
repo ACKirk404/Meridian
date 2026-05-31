@@ -76,8 +76,8 @@ class PrimeNextAction:
         return bool(self.blockers)
 
     def is_executable(self) -> bool:
-        """Return True if action can execute: not blocked and no human gate, or human gate pending."""
-        return not self.is_blocked()
+        """Return True only when no blocker or pending human gate prevents execution."""
+        return not self.is_blocked() and not self.human_gate_required
 
 
 def select_prime_next_action(

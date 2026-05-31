@@ -190,8 +190,8 @@ class TestPrimeNextActionBlockerHandling:
         )
         assert action.is_executable() is False
 
-    def test_is_executable_with_human_gate_still_executable(self):
-        """Human gate doesn't block execution; it's a process flag."""
+    def test_is_executable_with_human_gate_is_not_executable(self):
+        """Human-gated actions must wait for approval before execution."""
         action = PrimeNextAction(
             action_type=PrimeActionType.ADVANCE_COGNITION,
             confidence=PrimeActionConfidence.HIGH,
@@ -200,7 +200,7 @@ class TestPrimeNextActionBlockerHandling:
             blockers=frozenset(),
             human_gate_required=True,
         )
-        assert action.is_executable() is True
+        assert action.is_executable() is False
 
 
 class TestPrimeNextActionHumanGateAndRisk:
@@ -215,6 +215,7 @@ class TestPrimeNextActionHumanGateAndRisk:
         )
         assert action.risk_tier == PrimeActionRiskTier.HIGH
         assert action.human_gate_required is True
+        assert action.is_executable() is False
 
     def test_safe_action_no_human_gate_by_default(self):
         action = make_prime_next_action(
