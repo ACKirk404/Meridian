@@ -229,6 +229,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-31 08:21 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no new Active Task; no new cross-lane activity since own prior commit ca73324; Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642 still pending Codex Reviews sweep; origin/main at ca73324
 2026-05-31 08:22 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no new Active Task; V2 progress tracker refresh (47eeb89) registered Echo/Atlas contracts (7eb5ae1) and Workflow Sub-Agent contract (1448642) as contract baselines — meta-tracking only, not Codex Reviews clearance; Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642 still pending Codex Reviews sweep; origin/main at 0ae48de
 2026-05-31 08:24 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no new Active Task; Build 1/3 idle polling (a3b4d02, a106496); Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642 still pending Codex Reviews sweep; origin/main at 129e638
+2026-05-31 08:25 -06:00 - Build 4 checked queue; status: idle (cadence-paused); no new Active Task; Build 1 landed V2 Atlas Harness retrieval domain slice (7e95ede) — runtime implementation of Build 4's atlas-retrieval-contract; Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642 still pending Codex Reviews sweep; origin/main at bb60aa2
 ```
 
 ## Write/Completion Log
@@ -282,6 +283,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 cross-check: none/finding/fix; details: <short not
 2026-05-30 14:37 -06:00 - Build 4 cross-check: finding (informational); Reviews B Round B1 cleared Build 5 slice 7c34566; MEDIUM FileMap gap routed to Build 3; Build 4 slices 3cbf336 and 1d17fa1 still pending Codex Reviews sweep
 2026-05-31 08:06 -06:00 - Build 4 cross-check: finding (informational); Build 1 landed V2 Echo Memory Harness domain slice (3baee13) — runtime implementation of Build 4's echo-memory-contract (7eb5ae1); no action required on Build 4 files; confirms contract uptake by runtime lane
 2026-05-31 08:22 -06:00 - Build 4 cross-check: finding (informational); V2 progress tracker refresh (47eeb89) registered Echo/Atlas contracts (7eb5ae1) and Workflow Sub-Agent contract (1448642) as contract baselines, and marked Echo runtime (3baee13) as built-awaiting-review; no action required on Build 4 files; meta-tracking only, Codex Reviews sweep still pending on Build 4 slices
+2026-05-31 08:25 -06:00 - Build 4 cross-check: finding (informational); Build 1 landed V2 Atlas Harness retrieval domain slice (7e95ede) — runtime implementation of Build 4's atlas-retrieval-contract (7eb5ae1); no action required on Build 4 files; confirms second contract uptake by runtime lane
 ```
 
 ## Codex Review Cadence
