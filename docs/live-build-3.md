@@ -241,6 +241,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-01 10:00 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 2/3 since Round B3; awaiting next assignment
 2026-06-01 10:10 -06:00 - Build 3 checked queue; status: active tasks found (Codex Reviews C cockpit_state + Coordinator Override Bifrost scaffold FileMap); executing combined registration
 2026-05-31 00:57 -06:00 - Build 3 checked queue; status: active tasks found (Round C5 + Coordinator Override — 8-entry FileMap registration); executed; commit e89df81; cadence 3/3 since Round B3 — awaiting Codex review
+2026-06-01 20:35 -06:00 - Build 3 checked queue; status: idle; stale "commit pending" markers resolved to ca6f55f + e89df81; cadence 3/3 since Round B3 — Codex review (Round B5) required before next task
 ```
 
 ## Write/Completion Log
@@ -271,7 +272,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-05-31 16:05 -06:00 - Build 3 completed FileMap hygiene (register v0-v1-progress-tracker.md; fix stale relay_executor claims in v0-build-readiness-map.md); commit 774695f; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/v0-v1-progress-tracker.md, docs/v0-build-readiness-map.md
 2026-05-31 21:05 -06:00 - Build 3 completed FileMap refresh (v1-capability-plan, v1-bifrost-cockpit-implementation-brief, v2-horizon-plan, v3-parking-lot); commit 330f200; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py
 2026-05-31 00:48 -06:00 - Build 3 completed Round B4 FileMap repair (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md — 3 missing rows added to docs/FileMap.md only); commit c388f47; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md. Cadence: 2/3 since Round B3.
-2026-05-31 00:57 -06:00 - Build 3 completed FileMap registration (8 entries: bifrost/__init__.py, bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py, tests/test_cockpit_state.py, meridian_core/cockpit_state.py, docs/v1-bifrost-live-data-contract.md, docs/v1-bifrost-integration-sequence.md); commit e89df81; tests 95/95 (46 filemap + 49 bifrost_cockpit); Obsidian pending; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py. Cadence: 3/3 since Round B3 — Codex review required before next task.
+2026-05-31 00:57 -06:00 - Build 3 completed FileMap registration (8 entries: bifrost/__init__.py, bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py, tests/test_cockpit_state.py, meridian_core/cockpit_state.py, docs/v1-bifrost-live-data-contract.md, docs/v1-bifrost-integration-sequence.md); commits ca6f55f + e89df81 (via concurrent lane merge); tests 95/95 (46 filemap + 49 bifrost_cockpit); Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py. Cadence: 3/3 since Round B3 — Codex review required before next task.
 ```
 
 ## Cross-Check Activity
