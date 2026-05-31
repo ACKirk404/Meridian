@@ -406,7 +406,53 @@ YYYY-MM-DD HH:MM TZ - Build 1 Codex review result: pass/no actionable findings/f
 
 Current Active Task:
 
-None. Poll for next assignment.
+Goal: add a policy-aware Relay executor wrapper for V2 CognitionPolicy.
+
+Context:
+
+- V2 is active.
+- `meridian_core/cognition_policy.py` landed in commit `3cdc74d`.
+- Coordinator review found the domain model clean: 102 Aegis+cognition_policy tests passed.
+- Build 1 owns runtime/domain code.
+- This is a small Haiku-safe slice: wire the existing cognition policy into Relay execution without changing the legacy executor functions.
+
+Allowed files only:
+
+- `meridian_core/relay_executor.py`
+- `tests/test_relay_executor.py`
+- `docs/live-build-1.md`
+
+Task:
+
+- Add a new helper in `meridian_core/relay_executor.py` named `execute_relay_dispatch_plan_with_policy`.
+- The helper should:
+  - accept the same `plan`, `model_call`, and optional `proof_trail` used by `execute_relay_dispatch_plan`
+  - also accept `human_gate_approved: bool = False`
+  - call `evaluate_cognition_policy(plan.route.risk_tier, proof_trail=proof_trail, human_gate_approved=human_gate_approved)`
+  - if the policy result cannot dispatch, raise `RelayProofGateError` before any model call
+  - include the policy blocking reasons in the error message
+  - otherwise delegate to the existing `execute_relay_dispatch_plan(...)`
+- Do not change behavior of existing `execute_relay_dispatch_plan(...)` or `execute_relay_plan_with_registry(...)`.
+- Do not export from package root; Build 2 owns package API.
+- Do not edit FileMap; Build 3 owns FileMap.
+- Keep the implementation deterministic and model-free.
+
+Tests:
+
+- Add focused tests in `tests/test_relay_executor.py` for:
+  - tier 3 missing proof blocks before model call
+  - tier 3 clean proof allows dispatch
+  - tier 4 clean proof without human approval blocks before model call
+  - tier 4 clean proof with human approval allows dispatch
+  - tier 2 still dispatches without proof
+- Run `python -m pytest tests/test_relay_executor.py tests/test_cognition_policy.py tests/test_aegis.py -q`.
+
+Completion:
+
+- Commit only this slice.
+- Push to `origin/main`.
+- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
 
 Last completed: V2 Aegis CognitionPolicy domain model; commit `3cdc74d`; files: meridian_core/cognition_policy.py, tests/test_cognition_policy.py, docs/live-build-1.md; tests: 15 cognition_policy passed, 102 aegis+cognition_policy passed; Ready for Codex Review.
 
