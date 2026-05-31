@@ -7,6 +7,7 @@ When idle, check this file every 30 seconds. If there is an active task below, e
 Rules:
 
 - This session must behave as a live worker, not a one-shot handoff. After completing a task, return to this file and keep polling every 30 seconds.
+- Before editing any task file, verify you are in your own unique worktree. If you are in `C:\Users\scott\Code\Meridian` main worktree or sharing a worktree with another lane, stop and report the worktree violation instead of editing.
 - If there is no Active Task, do not stop. Append a Read Checks entry, wait 30 seconds, pull latest, and check again.
 - Always pull latest `origin/main` before editing.
 - Every time you check/read this file, add a timestamped entry to the Read Checks section.
@@ -208,6 +209,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-05-31 02:18 -06:00 - Coordinator review repair: `tests/test_cockpit_provider.py` was listed in `_REQUIRED_PATHS` and docs/FileMap.md but missing from make_default_map(); added the missing FileMapEntry; tests 69 passed (tests/test_filemap.py + tests/test_cockpit_provider.py); Ready for Codex Review after commit
 2026-05-31 04:24 -06:00 - Coordinator assigned FileMap registration for `docs/v2-detailed-build-plan.md`; commit 123a1fe; tests pending (`python -m pytest tests/test_filemap.py -q`)
 2026-06-09 17:00 UTC - Build 3 completed FileMap registration (V2 contract docs: echo-memory-contract.md, atlas-retrieval-contract.md, workflow-subagent-harness-contract.md, agentic-ai-framework-checklist.md, v3-parking-lot refresh); commit d216d6a; files changed: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py; tests 46/46 filemap passing; Obsidian update pending; Ready for Codex Review; cadence 2/3 since Round B5
+2026-06-10 06:45 UTC - Build 3 completed Coordinator Override task (V1 Electron cockpit app shell + Prime queue reconciliation registration); commit 67a75dc; files changed: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py; tests 46/46 filemap passing; entries added: package.json, electron/main.js, bifrost/preview.py, tests/test_bifrost_preview.py, docs/prime-queue-reconciliation-requirement.md; Ready for Codex Review; cadence 3/3 since Round B5
 ```
 
 ## Cross-Check Activity
@@ -249,34 +251,13 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Current Active Task - Coordinator Override:
+Current Active Task - COMPLETED:
 
-Goal: register the V1 Electron cockpit app shell, preview files, and Prime queue reconciliation requirement in FileMap.
+Coordinator Override task completed in commit `67a75dc`: Registered V1 Electron cockpit app shell (package.json, electron/main.js), Bifrost preview renderer (bifrost/preview.py, tests/test_bifrost_preview.py), and Prime queue reconciliation requirement (docs/prime-queue-reconciliation-requirement.md) in FileMap. All 5 entries now present with FileArea.BIFROST and FileArea.ARCHITECTURE classifications. Tests: 46/46 filemap passing. Ready for Codex Review.
 
-Allowed files only:
+Next Active Task: awaiting new assignment.
 
-- `docs/FileMap.md`
-- `meridian_core/filemap.py`
-- `tests/test_filemap.py`
-- `docs/live-build-3.md`
-
-Task:
-
-- Register `package.json`, `electron/main.js`, `bifrost/preview.py`, `tests/test_bifrost_preview.py`, `docs/prime-queue-reconciliation-requirement.md`, and `docs/agentic-ai-framework-checklist.md`.
-- Use `FileArea.BIFROST`.
-- Use `FileArea.ARCHITECTURE` for the Prime queue reconciliation requirement and agentic AI framework checklist.
-- Add required-path coverage in `tests/test_filemap.py`.
-- Do not edit Electron app code, Bifrost renderer code, or package API.
-
-Tests:
-
-- Run `python -m pytest tests/test_filemap.py -q`.
-
-Completion:
-
-- Commit only this FileMap slice, push, update Obsidian, and mark Ready for Codex Review.
-
-Stale prior task follows.
+Prior stale task archived below.
 
 Current Active Task:
 
