@@ -522,6 +522,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-05-31 15:45 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current at `8af784b`; top Reviews A task remains completed/passed and no executable Active Task remains; build-lane Active Tasks were not executed.
 2026-05-31 15:47 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current at `0d6d6de`; top Reviews A task remains completed/passed and no executable Active Task remains.
 2026-05-31 15:48 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current at `370bb65`; top Reviews A task remains completed/passed and no executable Active Task remains.
+2026-05-31 15:50 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current at `df69809`; top Reviews A task remains completed/passed and no executable Active Task remains; Build 2 has an unpromoted Ready for Codex Review marker that was not executed because Reviews A scope is assigned by this queue.
 ```
 
 ## Review Log
@@ -830,6 +831,7 @@ Round 6 write log:
 - 2026-05-31 15:45 -06:00 - Codex Reviews A completed idle queue read and three-change queue-only cadence check after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (queue-only documentation review); proof commands: `git diff --check 8af784b..HEAD -- docs/live-codex-reviews.md`, `git diff 8af784b..HEAD -- docs/live-codex-reviews.md`. Findings/fixes: duplicate `15:44` read-check line corrected; no remaining actionable findings. Commit: `6dc5638`; status-update commits: `35b014b`, `2d67315`, this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or durable review finding.
 - 2026-05-31 15:47 -06:00 - Codex Reviews A completed idle queue read after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `5f5fd08`; status-update commit: `7a2cd4d`; push-status commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or durable review finding.
 - 2026-05-31 15:48 -06:00 - Codex Reviews A completed idle queue read after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `474ca53`; status-update commit: `73ee24d`; push-status commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or durable review finding.
+- 2026-05-31 15:50 -06:00 - Codex Reviews A completed idle queue read after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: pending. Push status: pending. Obsidian update status: not updated; no active review task or durable review finding.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
