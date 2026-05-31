@@ -1,29 +1,24 @@
 # Live Build 4 Queue
 
-## ~~Coordinator Override - Active Now (COMPLETED 2026-05-31 08:45 -06:00)~~
-
-~~Goal: write the V2 Prime Autonomy contract.~~
-
-~~Allowed files only: `docs/prime-autonomy-v2-contract.md`, `docs/v2-detailed-build-plan.md`, `docs/live-build-4.md`.~~
-
-~~Task: create `docs/prime-autonomy-v2-contract.md`. Define `PrimeNextAction` and its first V2 autonomy surface: action type/category, project/objective reference, confidence, risk tier, blockers, required human gate status, Echo inputs, Atlas inputs, Aegis/CognitionPolicy result, and Session Lifecycle command recommendation. Specify deterministic selection rules for backlog priority, stale lanes, open review gates, failed proofs, human gates, and prompt-drag avoidance. Include proof/test expectations for later runtime work in `meridian_core/prime_autonomy.py` and `tests/test_prime_autonomy.py`. Include stop conditions where Prime routes to Review Console instead of acting.~~
-
-~~Tests: none required, docs-only.~~
-
-~~Completion: commit only this architecture slice, push, update Obsidian, and mark Ready for Codex Review.~~
-
-**Ready for Codex Review**
-- Commit: `3aa16fe`
-- Files: `docs/prime-autonomy-v2-contract.md`
-- Tests: not required (docs-only)
-
-## Next Candidate Task
+## Coordinator Override - Active Now
 
 Goal: write the Claude Workflows sub-agent architecture note.
 
 Allowed files only: `docs/workflows-subagent-harness-architecture.md`, `docs/live-build-4.md`.
 
-Task: create a high-level architecture note for using Claude Workflows/sub-agents as separate context windows for harness work. Cover which harnesses should run as workflows, what state Prime keeps locally, what each workflow returns, how this protects Prime's context window, and how it maps to Meridian's long-term harness design.
+Task: create a high-level architecture note for using Claude Workflows/sub-agents as separate context windows for harness work. Cover which harnesses should run as workflows, what state Prime keeps locally, what each workflow returns, how this protects Prime's context window, and how it maps to Meridian's long-term harness design. This supersedes the completed Prime Autonomy contract slice.
+
+Tests: none required, docs-only.
+
+Completion: commit only this architecture slice, push, update Obsidian, and mark Ready for Codex Review.
+
+## Next Candidate Task
+
+Goal: write the Prime restart/resteer logic contract.
+
+Allowed files only: `docs/prime-restart-resteer-contract.md`, `docs/live-build-4.md`.
+
+Task: define how Prime detects stale sessions, bad queue routing, shared-worktree violations, vendor/model limits, failed pushes, and popup/launch errors, then restarts or resteers lanes without waiting for Scott.
 
 This file is the standing assignment queue for Build 4.
 

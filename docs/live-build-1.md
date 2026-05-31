@@ -2,15 +2,15 @@
 
 ## Coordinator Override - Active Now
 
-Goal: define the Prime queue runway policy.
+Goal: write a short Echo/Atlas handoff review note.
 
-Allowed files only: `docs/prime-queue-runway-policy.md`, `docs/live-build-1.md`.
+Allowed files only: `docs/echo-atlas-handoff-review-note.md`, `docs/live-build-1.md`.
 
-Task: create `docs/prime-queue-runway-policy.md`. Define the no-empty-build-queue invariant: every build queue always carries one Active Task and one Next Candidate Task. Cover cadence gating, review gating, idle fallback, lane ownership, unique worktrees, local-only polling state, and why read-check-only commits are not useful progress.
+Task: inspect the current Echo/Atlas handoff work if present, then write a short note identifying gaps, follow-up runtime objects, and how Prime should use Echo vs Atlas differently. This supersedes the completed Prime queue runway policy slice.
 
 Tests: none required, docs-only.
 
-Completion: commit only this runway policy slice, push, update Obsidian, and mark Ready for Codex Review.
+Completion: commit only this review note slice, push, update Obsidian, and mark Ready for Codex Review.
 
 ## Next Candidate Task
 
