@@ -451,6 +451,13 @@ def make_default_map() -> FileMap:
             notes="Owner: Build 4. V1 = cockpit UI live, wired to V0 domain. Read before planning any V1 capability or Bifrost integration.",
         ),
         FileMapEntry(
+            path="docs/v2-detailed-build-plan.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="V2 detailed build plan: phased roadmap for Echo integration, Atlas context retrieval, stronger Prime autonomy, and expanded model harnesses. Refines the v2-horizon-plan with concrete phases and decision gates.",
+            related_tests=[],
+            notes="Owner: Build 4. Read before planning V2 implementation phases or making architecture decisions about persistence and context.",
+        ),
+        FileMapEntry(
             path="docs/v2-horizon-plan.md",
             area=FileArea.ARCHITECTURE,
             purpose="V2 horizon plan: persistent memory via Echo, context retrieval via Atlas, stronger Prime autonomy, richer model harnesses. Not active V1 scope — start detailed V2 planning only after V1 cockpit is locked.",

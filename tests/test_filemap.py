@@ -43,6 +43,7 @@ _REQUIRED_PATHS = [
     "docs/v0-v1-progress-tracker.md",
     "docs/v1-capability-plan.md",
     "docs/v1-bifrost-cockpit-implementation-brief.md",
+    "docs/v2-detailed-build-plan.md",
     "docs/v2-horizon-plan.md",
     "docs/v3-parking-lot.md",
     "docs/prime-status-console-cli-brief.md",
