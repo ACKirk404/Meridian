@@ -1,7 +1,11 @@
 """Static HTML renderer for the Bifrost cockpit surface.
 
-Dependency-free: only Python standard library. Returns a complete, self-contained
-HTML document from a CockpitViewModel. All user-visible strings are escaped.
+Dependency-free rendering path: only Python standard library. Returns a complete,
+self-contained HTML document from a CockpitViewModel. All user-visible strings
+are escaped.
+
+view_model_from_snapshot() maps meridian_core.PrimeCockpitSnapshot → CockpitViewModel
+and is the only place that imports from meridian_core.
 """
 
 from __future__ import annotations
@@ -9,6 +13,10 @@ from __future__ import annotations
 import html
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from meridian_core.cockpit_state import PrimeCockpitSnapshot
 
 _CSS_PATH = Path(__file__).parent / "static" / "cockpit.css"
 
@@ -102,6 +110,86 @@ def sample_cockpit_view_model() -> CockpitViewModel:
             version="v1.0",
             clock="--:--",
         ),
+    )
+
+
+# ── Snapshot → ViewModel mapping ───────────────────────────────────────────
+
+
+def _prime_status_to_instrument_status(status: object) -> str:
+    from meridian_core.cockpit_state import CockpitStatus
+    return {
+        CockpitStatus.ONLINE: "ok",
+        CockpitStatus.THINKING: "ok",
+        CockpitStatus.WAITING_ON_SCOTT: "warn",
+        CockpitStatus.BLOCKED: "error",
+        CockpitStatus.DEGRADED: "warn",
+        CockpitStatus.OFFLINE: "error",
+    }.get(status, "warn")  # type: ignore[call-overload]
+
+
+def _lane_cockpit_status_to_display(status: object) -> str:
+    from meridian_core.cockpit_state import LaneCockpitStatus
+    return {
+        LaneCockpitStatus.RUNNING: "running",
+        LaneCockpitStatus.POLLING: "running",
+        LaneCockpitStatus.IDLE: "idle",
+        LaneCockpitStatus.BLOCKED: "blocked",
+        LaneCockpitStatus.STALE: "paused",
+        LaneCockpitStatus.OFFLINE: "idle",
+    }.get(status, "idle")  # type: ignore[call-overload]
+
+
+def view_model_from_snapshot(snapshot: PrimeCockpitSnapshot) -> CockpitViewModel:
+    """Map a PrimeCockpitSnapshot to a CockpitViewModel for rendering.
+
+    Read-only and deterministic. Does not read files, env vars, or prompts.
+    """
+    from meridian_core.cockpit_state import ProgressEvent as _CoreProgressEvent
+
+    lanes = [
+        LaneRow(
+            name=lane.lane_id,
+            status=_lane_cockpit_status_to_display(lane.status),
+            label=lane.lane_id[:3].upper(),
+        )
+        for lane in snapshot.lanes
+    ]
+
+    events = [
+        ProgressEvent(
+            timestamp=ev.timestamp,
+            source=ev.category.value,
+            summary=ev.message,
+        )
+        for ev in snapshot.progress_events
+    ]
+
+    instrument_status = _prime_status_to_instrument_status(snapshot.prime_status)
+
+    try:
+        tier = int(snapshot.risk_tier)
+    except (ValueError, TypeError):
+        tier = 1
+
+    instrument = InstrumentBand(
+        beacon=instrument_status,
+        relay="ok",
+        aegis="ok",
+        compass="ok",
+        queue_state=snapshot.queue_policy.value.upper(),
+        tier=tier,
+        version="v1.0",
+        clock="--:--",
+    )
+
+    return CockpitViewModel(
+        project=snapshot.project,
+        bearing=snapshot.bearing,
+        review_count=snapshot.review_gate_count,
+        lanes=lanes,
+        progress_events=events,
+        instrument=instrument,
     )
 
 

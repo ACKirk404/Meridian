@@ -7,6 +7,7 @@ from .cockpit import (
     ProgressEvent,
     render_cockpit_html,
     sample_cockpit_view_model,
+    view_model_from_snapshot,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "ProgressEvent",
     "render_cockpit_html",
     "sample_cockpit_view_model",
+    "view_model_from_snapshot",
 ]

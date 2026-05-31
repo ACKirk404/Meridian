@@ -11,6 +11,17 @@ from bifrost.cockpit import (
     ProgressEvent,
     render_cockpit_html,
     sample_cockpit_view_model,
+    view_model_from_snapshot,
+)
+from meridian_core.cockpit_state import (
+    CockpitStatus,
+    LaneCockpitStatus,
+    LaneSummary,
+    PrimeCockpitSnapshot,
+    ProgressEvent as CoreProgressEvent,
+    ProgressEventCategory,
+    EventSeverity,
+    QueuePolicy,
 )
 
 
@@ -367,3 +378,161 @@ def test_custom_view_model_rendered():
     assert "PAUSED" in doc
     assert "v0.9" in doc
     assert "09:01" in doc
+
+
+# ── view_model_from_snapshot ──────────────────────────────────────────────────
+
+
+def _make_snapshot(
+    *,
+    project: str = "TestProject",
+    bearing: str = "Alpha",
+    risk_tier: str = "2",
+    prime_status: CockpitStatus = CockpitStatus.ONLINE,
+    queue_policy: QueuePolicy = QueuePolicy.ON,
+    lanes: tuple = (),
+    progress_events: tuple = (),
+    review_gate_count: int = 0,
+) -> PrimeCockpitSnapshot:
+    return PrimeCockpitSnapshot(
+        project=project,
+        bearing=bearing,
+        risk_tier=risk_tier,
+        prime_status=prime_status,
+        queue_policy=queue_policy,
+        lanes=lanes,
+        progress_events=progress_events,
+        review_gate_count=review_gate_count,
+    )
+
+
+def test_snapshot_maps_project_and_bearing():
+    vm = view_model_from_snapshot(_make_snapshot(project="Meridian", bearing="V1"))
+    assert vm.project == "Meridian"
+    assert vm.bearing == "V1"
+
+
+def test_snapshot_maps_review_gate_count():
+    vm = view_model_from_snapshot(_make_snapshot(review_gate_count=4))
+    assert vm.review_count == 4
+
+
+def test_snapshot_maps_lanes():
+    lanes = (
+        LaneSummary("B1", "build", LaneCockpitStatus.RUNNING, "10:00", "abc", False),
+        LaneSummary("B2", "review", LaneCockpitStatus.IDLE, "10:01", "def", False),
+        LaneSummary("B3", "codex", LaneCockpitStatus.BLOCKED, "10:02", "ghi", True),
+    )
+    vm = view_model_from_snapshot(_make_snapshot(lanes=lanes))
+    assert len(vm.lanes) == 3
+    assert vm.lanes[0].name == "B1"
+    assert vm.lanes[1].name == "B2"
+    assert vm.lanes[2].name == "B3"
+
+
+def test_snapshot_lane_status_running():
+    lane = LaneSummary("B1", "build", LaneCockpitStatus.RUNNING, "10:00", "abc", False)
+    vm = view_model_from_snapshot(_make_snapshot(lanes=(lane,)))
+    assert vm.lanes[0].status == "running"
+
+
+def test_snapshot_lane_status_polling_maps_to_running():
+    lane = LaneSummary("B1", "build", LaneCockpitStatus.POLLING, "10:00", "abc", False)
+    vm = view_model_from_snapshot(_make_snapshot(lanes=(lane,)))
+    assert vm.lanes[0].status == "running"
+
+
+def test_snapshot_lane_status_idle():
+    lane = LaneSummary("B2", "build", LaneCockpitStatus.IDLE, "10:00", "abc", False)
+    vm = view_model_from_snapshot(_make_snapshot(lanes=(lane,)))
+    assert vm.lanes[0].status == "idle"
+
+
+def test_snapshot_lane_status_blocked():
+    lane = LaneSummary("B3", "build", LaneCockpitStatus.BLOCKED, "10:00", "abc", True)
+    vm = view_model_from_snapshot(_make_snapshot(lanes=(lane,)))
+    assert vm.lanes[0].status == "blocked"
+
+
+def test_snapshot_lane_status_stale_maps_to_paused():
+    lane = LaneSummary("B4", "build", LaneCockpitStatus.STALE, "10:00", "abc", False)
+    vm = view_model_from_snapshot(_make_snapshot(lanes=(lane,)))
+    assert vm.lanes[0].status == "paused"
+
+
+def test_snapshot_lane_label_is_first_three_chars():
+    lane = LaneSummary("Build5", "build", LaneCockpitStatus.IDLE, "10:00", "abc", False)
+    vm = view_model_from_snapshot(_make_snapshot(lanes=(lane,)))
+    assert vm.lanes[0].label == "BUI"
+
+
+def test_snapshot_maps_progress_events():
+    events = (
+        CoreProgressEvent(ProgressEventCategory.COMPLETION, EventSeverity.INFO, "14:00", "task done"),
+        CoreProgressEvent(ProgressEventCategory.BLOCKER, EventSeverity.ERROR, "14:01", "lane blocked"),
+    )
+    vm = view_model_from_snapshot(_make_snapshot(progress_events=events))
+    assert len(vm.progress_events) == 2
+    assert vm.progress_events[0].timestamp == "14:00"
+    assert vm.progress_events[0].source == "completion"
+    assert vm.progress_events[0].summary == "task done"
+    assert vm.progress_events[1].source == "blocker"
+
+
+def test_snapshot_instrument_queue_state_on():
+    vm = view_model_from_snapshot(_make_snapshot(queue_policy=QueuePolicy.ON))
+    assert vm.instrument.queue_state == "ON"
+
+
+def test_snapshot_instrument_queue_state_paused():
+    vm = view_model_from_snapshot(_make_snapshot(queue_policy=QueuePolicy.PAUSED))
+    assert vm.instrument.queue_state == "PAUSED"
+
+
+def test_snapshot_instrument_tier_from_risk_tier():
+    vm = view_model_from_snapshot(_make_snapshot(risk_tier="3"))
+    assert vm.instrument.tier == 3
+
+
+def test_snapshot_instrument_tier_defaults_to_1_on_bad_value():
+    vm = view_model_from_snapshot(_make_snapshot(risk_tier="unknown"))
+    assert vm.instrument.tier == 1
+
+
+def test_snapshot_prime_status_online_maps_beacon_ok():
+    vm = view_model_from_snapshot(_make_snapshot(prime_status=CockpitStatus.ONLINE))
+    assert vm.instrument.beacon == "ok"
+
+
+def test_snapshot_prime_status_blocked_maps_beacon_error():
+    vm = view_model_from_snapshot(_make_snapshot(prime_status=CockpitStatus.BLOCKED))
+    assert vm.instrument.beacon == "error"
+
+
+def test_snapshot_prime_status_degraded_maps_beacon_warn():
+    vm = view_model_from_snapshot(_make_snapshot(prime_status=CockpitStatus.DEGRADED))
+    assert vm.instrument.beacon == "warn"
+
+
+def test_snapshot_relay_aegis_compass_default_ok():
+    vm = view_model_from_snapshot(_make_snapshot())
+    assert vm.instrument.relay == "ok"
+    assert vm.instrument.aegis == "ok"
+    assert vm.instrument.compass == "ok"
+
+
+def test_snapshot_instrument_clock_placeholder():
+    vm = view_model_from_snapshot(_make_snapshot())
+    assert vm.instrument.clock == "--:--"
+
+
+def test_snapshot_result_is_renderable():
+    lane = LaneSummary("B1", "build", LaneCockpitStatus.RUNNING, "10:00", "abc", False)
+    event = CoreProgressEvent(ProgressEventCategory.ROUTINE_PROGRESS, EventSeverity.INFO, "10:00", "all good")
+    vm = view_model_from_snapshot(_make_snapshot(
+        project="Meridian", bearing="V1", lanes=(lane,), progress_events=(event,),
+    ))
+    doc = render_cockpit_html(vm)
+    assert "Meridian" in doc
+    assert "B1" in doc
+    assert "all good" in doc

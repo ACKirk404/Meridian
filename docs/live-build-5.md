@@ -188,6 +188,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 checked queue; status: idle/running/blocked
 2026-05-31 16:10 -06:00 - Build 5 checked queue; status: idle (cleared); no change — Active Task still stale (cockpit scaffold d13f1d1 complete); Build 1 (e03f2a4) and Build 3 (ed54725) heartbeats landed, not Build 5 scope; no repair routed, no new Cross-Check Activity; cadence 1/3; awaiting orchestrator reassignment; origin/main at e03f2a4
 2026-05-31 16:20 -06:00 - Build 5 checked queue; status: idle (cleared); no change — Active Task still stale (cockpit scaffold d13f1d1 complete); Reviews C cadence clearances and Build 1 merge activity landed (5128d54 etc.), not Build 5 scope; no repair routed, no new Cross-Check Activity; cadence 1/3; awaiting orchestrator reassignment; origin/main at 5b8a048
 2026-05-31 16:30 -06:00 - Build 5 checked queue; status: idle (cleared); no change — Active Task still stale (cockpit scaffold d13f1d1 complete); Build 1 cadence cleared (65102d5), not Build 5 scope; no repair routed, no new Cross-Check Activity; cadence 1/3; awaiting orchestrator reassignment; origin/main at 7e29f78
+2026-05-31 17:30 -06:00 - Build 5 checked queue; status: running; new Active Task = map PrimeCockpitSnapshot into CockpitViewModel; origin/main at 3a94a66 (refill V1 cockpit build queues); implementing view_model_from_snapshot(); 1012 tests pass; origin/main at 3a94a66
 ```
 
 ## Write/Completion Log
@@ -205,6 +206,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 completed <task>; commit <hash>; tests <result>
 2026-05-30 13:09 -06:00 - Build 5 completed Bifrost configurable progress and proof surface brief at docs/bifrost-configurable-progress-surface-brief.md; commit pending; tests not required
 2026-05-30 13:32 -06:00 - Build 5 completed V1 Bifrost cockpit implementation brief at docs/v1-bifrost-cockpit-implementation-brief.md; commit pending; tests not required
 2026-05-31 12:15 -06:00 - Build 5 completed Bifrost cockpit scaffold at bifrost/__init__.py, bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py; commit pending; tests: 49 passed (test_bifrost_cockpit.py), 965 passed full suite
+2026-05-31 17:30 -06:00 - Build 5 completed PrimeCockpitSnapshot → CockpitViewModel mapping at bifrost/cockpit.py, bifrost/__init__.py, tests/test_bifrost_cockpit.py; commit pending; tests: 69 passed (test_bifrost_cockpit.py), 1012 passed full suite
 ```
 
 ## Ready for Codex Review
@@ -219,6 +221,7 @@ Append entries here when a completed slice is ready for the Codex Reviews lane t
 2026-05-30 13:09 -06:00 - Build 5 slice Ready for Codex Review; commit a412e90; files: docs/bifrost-configurable-progress-surface-brief.md, docs/live-build-5.md; tests: none (docs-only); note: 2nd task-changing commit in current cadence window (after d1d32af cleared)
 2026-05-30 13:32 -06:00 - Build 5 slice Ready for Codex Review; commit 0629e0c; files: docs/v1-bifrost-cockpit-implementation-brief.md, docs/live-build-5.md; tests: none (docs-only); note: 3rd task-changing commit in current cadence window — Build 5 pauses normal build work per rule 21 until Codex Reviews lane records a cadence review result
 2026-05-31 12:15 -06:00 - Build 5 slice Ready for Codex Review; commit d13f1d1; files: bifrost/__init__.py, bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py, docs/live-build-5.md; tests: 49 passed (tests/test_bifrost_cockpit.py), 965 passed full suite; note: 1st task-changing commit in new cadence window (cadence cleared by Reviews B Round B3)
+2026-05-31 17:30 -06:00 - Build 5 slice Ready for Codex Review; commit TBD; files: bifrost/cockpit.py, bifrost/__init__.py, tests/test_bifrost_cockpit.py, docs/live-build-5.md; tests: 69 passed (tests/test_bifrost_cockpit.py), 1012 passed full suite; note: 2nd task-changing commit in current cadence window
 ```
 
 ## Cross-Check Activity
