@@ -10,6 +10,33 @@ Build 3 cadence for commit `67a75dc` plus marker `b3316b6` was cleared by Codex 
 
 ## Completed / Ready For Codex Review
 
+Goal: register the DeepSeek validation benchmark plan in FileMap.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: add FileMap coverage for `docs/deepseek-validation-benchmark-plan.md`, which was created by Build 4/coordinator in commit `a9695d1` and cleared by Reviews B with FileMap follow-up.
+
+Requirements:
+
+- Add a concise `FileMapEntry` under the Model Harness area.
+- Add the path to `docs/FileMap.md`.
+- Add the path to `_REQUIRED_PATHS` in `tests/test_filemap.py`.
+- Do not edit `docs/deepseek-validation-benchmark-plan.md`.
+- Keep the change mechanical and small.
+
+Tests: `python -m pytest tests/test_filemap.py -q`.
+
+Completion:
+
+- Coordinator completed this FileMap registration on 2026-05-31.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests run: `python -m pytest tests/test_filemap.py -q` (46 passed).
+- Commit: pending.
+
+Ready for Codex Review after tests and commit hash are recorded.
+
+## Completed / Ready For Codex Review
+
 Goal: register new V2 contract-wave documents plus Echo/Atlas runtime files in FileMap.
 
 Allowed files only: `meridian_core/filemap.py`, `tests/test_filemap.py`, `docs/live-build-3.md`.

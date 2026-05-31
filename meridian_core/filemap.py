@@ -350,6 +350,13 @@ def make_default_map() -> FileMap:
             notes="DeepSeek remains candidate-gated until direct API, prompt-payload flatness, benchmark, and Codex review proof pass.",
         ),
         FileMapEntry(
+            path="docs/deepseek-validation-benchmark-plan.md",
+            area=FileArea.MODEL_HARNESS,
+            purpose="DeepSeek validation benchmark plan: repeatable proof ladder for direct API routing, Q-mode prompt flatness, coding trust, promotion, and demotion.",
+            related_tests=[],
+            notes="Use before promoting DeepSeek beyond candidate state or routing DeepSeek build-lane queue work.",
+        ),
+        FileMapEntry(
             path="meridian_core/restart_resteer.py",
             area=FileArea.DOMAIN_MODEL,
             purpose="Prime restart/resteer domain objects and evaluator: detects empty queues, wrong queue routing, shared/main worktree violations, quota blocks, proof blocks, launch failures, and review cadence gates.",

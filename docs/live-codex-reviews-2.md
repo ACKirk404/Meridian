@@ -2,9 +2,11 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
-## Active Task
+## Completed / Passed
 
 Goal: review Build 4 DeepSeek validation benchmark plan.
+
+Status: passed by Codex Reviews B/coordinator on 2026-05-31. The benchmark plan creates a concrete DeepSeek proof ladder without granting autonomous coding, review-clearing, branch movement, or worktree authority. No repair routed.
 
 Scope:
 
@@ -30,10 +32,21 @@ Review expectations:
 - Verify DeepSeek cannot clear reviews, move branches, mutate worktrees, bypass Relay/Aegis, or receive autonomous coding authority while candidate-state.
 - Verify promotion and demotion triggers are concrete and reversible.
 - Verify Build 4 has a valid next active task for `docs/model-harness-v2-contract.md`.
-- If clean, record proof and clear the docs slice. If findings exist, route a focused repair back to Build 4.
-- If clean, route FileMap registration for `docs/deepseek-validation-benchmark-plan.md` to Build 3.
+Review result:
 
-Completion: commit and push only `docs/live-codex-reviews-2.md` unless routing a repair or FileMap follow-up.
+- Docs-only review; no tests required for the benchmark plan itself.
+- Direct DeepSeek API proof is mandatory; aggregator/OpenRouter substitution is treated as a route mismatch.
+- Q-mode prompt flatness is tested across repeated idle queue polls and additive growth blocks queue usage.
+- Docs tasks, small coding patch drafts, and representative Meridian build slices are separated by validation level.
+- DeepSeek-produced coding/build artifacts continue to require Codex review until an explicit higher trust state exists.
+- DeepSeek cannot clear reviews, move branches, mutate worktrees, bypass Relay/Aegis, or receive autonomous coding authority while candidate-state.
+- Promotion and demotion triggers are concrete, evidence-based, and reversible.
+- Build 4 has a valid next active task: `docs/model-harness-v2-contract.md`.
+- Follow-up completed by coordinator: register `docs/deepseek-validation-benchmark-plan.md` in FileMap and required-path coverage.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus FileMap follow-up registration. No Build 4 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
 ## Completed / Passed
 

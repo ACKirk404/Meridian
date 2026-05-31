@@ -30,6 +30,7 @@ _REQUIRED_PATHS = [
     "docs/bifrost-v2-cockpit-extensions.md",
     "docs/jarvis-ui-source-assessment.md",
     "docs/deepseek-provider-validation-gate.md",
+    "docs/deepseek-validation-benchmark-plan.md",
     "meridian_core/models.py",
     "meridian_core/mission.py",
     "meridian_core/wake.py",
