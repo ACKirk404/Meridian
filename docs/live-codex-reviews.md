@@ -54,7 +54,7 @@ Completion: commit and push only `docs/live-codex-reviews.md` unless routing a r
 
 ## Completed / Stale Prior Scope
 
-## Coordinator Override - Active Review Scope
+## Archived Prior Review Scope - Do Not Execute
 
 Round 7 complete (2026-05-31 13:30 -06:00).
 
@@ -454,7 +454,7 @@ Proof:
 - Diff inspection: `meridian_core/planning.py` is deterministic/domain-only, Council-owned, package-exported, FileMap-registered, and has no file/network/vendor calls.
 - Documentation inspection: `docs/planning-harness-council-brief.md` names `mattpocock/skills` and `skills/engineering/grill-with-docs`; `docs/meridian-pillars.md` adds Pillar 15 requiring docs/code/context interrogation before durable plans.
 
-## Active Task
+## Archived Prior Active Review Task - Do Not Execute
 
 Round 4 complete (2026-05-31 12:58 -06:00).
 

@@ -1,5 +1,9 @@
 # Live Build 4 Queue
 
+## Queue Authority
+
+Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
+
 ## Coordinator Override - Active Now
 
 Goal: write the Federation Harness horizon plan as the V2 planning entry point for later multi-Meridian and multi-user collaboration.
@@ -381,7 +385,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 2026-05-31 08:58 -06:00 - Build 4 Codex review result (recorded from review lane log live-codex-reviews-2.md d43cb34): V2 first-wave architecture slices reviewed across Rounds B11–B15 — 7eb5ae1 (Echo/Atlas contracts B11), 1448642 (Workflow sub-agent contract B13), 3aa16fe (Prime Autonomy contract B14), 17d8d90 (Workflows architecture note B15) — all PASS-WITH-FINDINGS; consolidated 5-entry FileMap registration MEDIUM routed to Build 3; no Build 4 repair task issued; cadence pause for V2 cycle cleared
 ```
 
-## Active Task
+## Archived Prior Active Task - Do Not Execute
 
 ~~Current Active Task - Coordinator Override (COMPLETED 2026-05-31 08:02 -06:00):~~
 

@@ -1,5 +1,37 @@
 # Live Build 5 Queue
 
+## Active Task
+
+Goal: write the session-card queue activation product contract.
+
+Allowed files only: `docs/session-card-queue-activation-contract.md`, `docs/live-build-5.md`.
+
+Task: create `docs/session-card-queue-activation-contract.md` as the V2 product contract for the Meridian equivalent of Polaris Q mode.
+
+Cover:
+
+- Queue activation belongs to Prime/Session Lifecycle, not to ad hoc per-session prompting.
+- Each session card must know its assigned project, queue file, role, worktree, branch, model/provider, status, and last read/write heartbeat.
+- Q mode must poll only the assigned queue: build sessions read build queues; review sessions read review queues.
+- Idle does not mean done: a session with Q enabled should keep polling, surface stale/no-active conditions, and request or accept a next task without Scott manually nudging it.
+- Read-check-only commits are not work and must not spam `main`; heartbeats should be visible in the UI/status layer instead of creating noise commits.
+- The UI must expose last queue read, last queue write, active task, next candidate, cadence/review gate, proof status, and blocker summary.
+- Prime may force-poll, pause, resume, reassign, archive, or restart/resteer a session, but branch movement requires Scott or Prime permission and every session must use a unique worktree.
+- Degraded states: wrong queue, stale active task, shared worktree, provider/model limit, failed pull/push, lost heartbeat, and review gate blocked.
+- This is a product/UI contract only. Do not implement runtime code.
+
+Tests: none required, docs-only.
+
+Completion: commit only this session-card queue activation contract slice, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
+## Next Candidate Task
+
+Goal: write a Bifrost voice-control command palette contract.
+
+Allowed files later: `docs/bifrost-voice-command-contract.md`, `docs/live-build-5.md`.
+
+Task later: define the voice-first commands for opening harness panels, switching projects, focusing prompt/harness windows, starting/stopping dictation, and reading Prime output aloud. Keep it UI contract only.
+
 ## ~~Codex Repair - Active Now~~ (COMPLETED 2026-05-31 13:54 -06:00)
 
 Goal: fix the Bifrost V2 contract queue/path contradictions found by Codex Reviews A for coordinator commit `39c9ac8`.
@@ -23,7 +55,7 @@ Repair complete. Stale displaced task follows for reference only; do not execute
 
 Goal: write the JARVIS-source Bifrost V2 cockpit adoption contract.
 
-## Next Candidate Task
+## Archived Prior Next Candidate Task - Promoted Above
 
 Goal: write the session-card queue activation product contract.
 

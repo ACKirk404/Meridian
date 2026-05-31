@@ -1,5 +1,9 @@
 # Live Build 2 Queue
 
+## Queue Authority
+
+Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
+
 ## Coordinator Override - Active Now
 
 Goal: write the V2 Session Lifecycle contract so Prime can spawn, watch, steer, recover, and hand off sessions through typed state instead of ad hoc UI supervision.
@@ -48,7 +52,7 @@ Completion: commit only the allowed repair files, push, update Obsidian, and mar
 
 **Coordinator note:** Codex patched this repair directly in main while Claude lanes were capacity-blocked. `PrimeNextAction.is_executable()` now returns false when a human gate is pending, and `tests/test_prime_autonomy.py` was updated to prove high-risk human-gated actions are not executable. Proof: `python -m pytest tests/test_prime_autonomy.py -q` passed with 30 tests. This coordinator repair must be routed to Codex review after commit.
 
-## Coordinator Override - Active Now
+## Archived Prior Active Task - Do Not Execute
 
 Goal: write the V2 Bifrost integration contract for Prime next action and prompt payload telemetry.
 
@@ -89,7 +93,7 @@ Tests: none required, docs-only.
 
 Completion: commit only this maturity policy slice, push, update Obsidian, and mark Ready for Codex Review.
 
-## Coordinator Override - Active Now
+## Archived Prior Active Task - Do Not Execute
 
 Goal: write the V2 package/API surface policy for Echo, Atlas, and Prime Autonomy.
 
@@ -507,7 +511,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 Codex review result: pass/no actionable findings/f
 2026-06-04 15:25 -06:00 - Build 2 Codex review requested after commits e08e598, e9062d9, cd87702 (V2 CognitionPolicy package API export, Bifrost preview package policy note, V2 progress tracker)
 ```
 
-## Active Task
+## Archived Prior Active Task - Do Not Execute
 
 Current Active Task - Coordinator Override:
 
