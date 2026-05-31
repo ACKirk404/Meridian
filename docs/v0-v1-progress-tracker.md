@@ -46,11 +46,11 @@
 
 | Status | Count | Percent |
 |---|---:|---:|
-| Built | 12 | 100% |
+| Built | 13 | 100% |
 | In Progress | 0 | 0% |
 | Planned / designed | 0 | 0% |
 | Needs planning | 0 | 0% |
-| Total V1 cockpit items | 12 | 100% |
+| Total V1 cockpit items | 13 | 100% |
 
 ### Built
 
@@ -66,6 +66,7 @@
 - [x] **Bifrost Harness + Prime:** runtime acceptance checklist - built in `ec66081`.
 - [x] **Bifrost Harness + Aegis Harness:** configurable progress/proof surface - built in `e1bf9db`; cleared by Reviews B Round B7.
 - [x] **Bifrost Harness:** harness dashboard implementation - built in `9328272`; cleared by Reviews B Round B8.
+- [x] **Bifrost Harness:** openable V1 Electron cockpit app shell - built in this Build 5 slice; `npm start` regenerates the preview via `python -m bifrost.preview` and launches `electron/main.js` which loads `bifrost/preview.html` with context isolation, sandbox, and remote-navigation blocking.
 
 ### In Progress
 

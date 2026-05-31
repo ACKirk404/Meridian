@@ -1,0 +1,14 @@
+{
+  "name": "meridian-cockpit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Electron app shell for the Meridian Bifrost V1 cockpit preview.",
+  "main": "electron/main.js",
+  "scripts": {
+    "preview": "python -m bifrost.preview",
+    "start": "npm run preview && electron ."
+  },
+  "devDependencies": {
+    "electron": "^31.0.0"
+  }
+}
