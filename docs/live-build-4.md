@@ -215,6 +215,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-31 07:53 -06:00 - Build 4 checked queue; status: idle; no new Active Task; two cross-lane merge commits since last check (dc582ae, c9853a6) — informational, no Build 4 impact; Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1 still pending Codex Reviews sweep; origin/main at c9853a6
 2026-05-31 07:55 -06:00 - Build 4 checked queue; status: idle; no new Active Task; Build 3 idle awaiting assignment (2e99894, cadence 1/3 since Round B5); Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1 still pending Codex Reviews sweep; origin/main at bfd6c76
 2026-05-31 07:57 -06:00 - Build 4 checked queue; status: idle; no new Active Task; all lanes idle (Build 1 b12d1c8, Build 2 awaiting Codex cadence review dc42f72, Build 3 awaiting task assignment 2ec2e04); Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1 still pending Codex Reviews sweep; origin/main at 2ec2e04
+2026-05-31 08:02 -06:00 - Build 4 checked queue; status: running; new Coordinator Override Active Task = Workflow Sub-Agent Harness contract (docs/workflow-subagent-harness-contract.md); workflow sub-agent principle landed in context.md + v2-detailed-build-plan.md via 135667d; origin/main at 6c30d1a
 ```
 
 ## Write/Completion Log
@@ -242,6 +243,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 completed <task>; commit <hash>; tests <result>
 2026-05-31 04:21 -06:00 - Codex coordinator completed V2 detailed build plan (docs/v2-detailed-build-plan.md); commit 71b8d5f; tests not required (docs-only); Ready for Codex Review
 2026-05-31 05:02 -06:00 - Coordinator assigned V2 first-wave Echo/Atlas contract docs; commit pending; tests not required (docs-only)
 2026-05-31 07:37 -06:00 - Build 4 completed V2 first-wave contracts: docs/echo-memory-contract.md and docs/atlas-retrieval-contract.md; commit pending; tests not required (docs-only); Ready for Codex Review after commit
+2026-05-31 08:02 -06:00 - Build 4 completed Workflow Sub-Agent Harness contract (docs/workflow-subagent-harness-contract.md) per Coordinator Override; commit pending; tests not required (docs-only); Ready for Codex Review after commit
 ```
 
 ## Cross-Check Activity
@@ -288,9 +290,9 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 
 ## Active Task
 
-Current Active Task - Coordinator Override:
+~~Current Active Task - Coordinator Override (COMPLETED 2026-05-31 08:02 -06:00):~~
 
-Goal: write the Workflow Sub-Agent Harness contract for V2.
+~~Goal: write the Workflow Sub-Agent Harness contract for V2.~~
 
 Allowed files only:
 
@@ -527,6 +529,11 @@ Completion:
 - Push to `origin/main`.
 - Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
 - Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+**Ready for Codex Review**
+- Commit: `<pending>`
+- Files: `docs/workflow-subagent-harness-contract.md`
+- Tests: not required (docs-only)
 
 **Ready for Codex Review**
 - Commit: `7eb5ae1`
