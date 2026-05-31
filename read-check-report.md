@@ -160,3 +160,33 @@ Three lanes (Build 3, 4, 5) have executable Active Tasks. This session remains *
 ### Action
 **Reporting IDLE.** Three executable tasks exist across Build 3/4/5. Awaiting lane/queue assignment from Prime/Scott. 
 
+---
+
+## Read Check — 2026-07-16 ~22:30 UTC
+
+### Status: IDLE — No Lane Assignment
+
+### Pull
+- `git pull origin/main` — SUCCESS (already up to date)
+- HEAD: `0078999` — "docs: mark Session Lifecycle implementation checklist complete, update Build 2 queue"
+
+### Full Five-Lane Queue Inspection (fresh reads, all five queues)
+
+| Lane | Active Task | Line | Output | Verdict |
+|------|------------|------|--------|---------|
+| Build 1 | "implement the Prime project-state next-action selector" | 119 | Code exists, committed at `b7c8ad3` by Scott | **STALE** — completed |
+| Build 2 | None — all blocks "Completed / Ready For Codex Review" | — | Session Lifecycle contract (`e37030e`) + checklist (`78d9bdd`) done | **NO ACTIVE TASK** |
+| Build 3 | "register new V2 contract-wave documents in FileMap" | 13 | Target docs (`session-lifecycle-v2-contract.md`, `federation-harness-horizon.md`, `session-card-queue-activation-contract.md`, `deepseek-provider-validation-gate.md`) not yet registered | **EXECUTABLE** — cadence cleared, not completed |
+| Build 4 | None — workflow/sub-agent checklist struck through as COMPLETED (2026-05-31) | 35 | `docs/workflow-subagent-usage-checklist.md` EXISTS on disk (commit `dc86d68`) | **NO ACTIVE TASK** |
+| Build 5 | "write a Bifrost voice-control command palette contract" | 33 | `docs/bifrost-voice-command-contract.md` **MISSING** | **EXECUTABLE** — not completed |
+
+### Corrections vs prior read check
+- **Build 4**: Prior check reported "EXECUTABLE — output file MISSING." File now present at `dc86d68`; task struck through; verdict corrected to NO ACTIVE TASK.
+- **Build 1**: Confirmed stale at `b7c8ad3` (Scott's commit).
+
+### Verdict
+Two lanes (Build 3, Build 5) have executable Active Tasks. This session (`s_1780252771590`) remains **unassigned** to any Build 1–5 lane. No `assigned_queue` field maps this session to a queue file.
+
+### Action
+**Reporting IDLE.** Two executable tasks exist (Build 3: FileMap registration; Build 5: Bifrost voice command contract). Awaiting lane/queue assignment from Prime/Scott.
+
