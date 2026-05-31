@@ -224,6 +224,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; files changed: <l
 2026-05-31 01:45 -06:00 - Build 2 completed cockpit_state package API surface; commits e656027 (meridian_core/__init__.py, Build 4) + b314b5b (tests/test_package_api.py, Build 3) [committed by other sessions before Build 2 executed — anomaly, code correct and verified]; tests 992 passed; cadence count: 2 of 3 since 9c3e1a3; Ready for Codex Review
 2026-05-31 09:30 -06:00 - Build 2 completed V1 cockpit_provider package API surface; commit 14315b3 (Build 1 — anomaly, code correct); files changed: meridian_core/__init__.py, tests/test_package_api.py; tests 1036 passed; cadence count: 3 of 3 since 9c3e1a3; Ready for Codex Review
 2026-06-01 10:20 -06:00 - Build 2 completed V2 CognitionPolicy package API surface; commit e08e598 (merged to main as b04c465); files changed: meridian_core/__init__.py, tests/test_package_api.py; tests 32 passed (cognition_policy + package_api); cadence count: 1 of 3 since 9c3e1a3; Ready for Codex Review
+2026-06-02 15:10 -06:00 - Build 2 completed Bifrost Electron/preview package surface policy note; commit e9062d9; files changed: docs/bifrost-preview-package-api-note.md, docs/package-api-surface-note.md, docs/live-build-2.md; tests 17 passed (package_api sanity check); cadence count: 2 of 3 since 9c3e1a3; Ready for Codex Review
 ```
 
 ## Cross-Check Activity
