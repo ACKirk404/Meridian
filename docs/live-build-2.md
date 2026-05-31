@@ -1,5 +1,17 @@
 # Live Build 2 Queue
 
+## Coordinator Override - Active Now
+
+Goal: write the V2 package/API surface policy for Echo, Atlas, and Prime Autonomy.
+
+Allowed files only: `docs/package-api-surface-note.md`, `docs/v2-package-api-surface-note.md`, `docs/live-build-2.md`.
+
+Task: create `docs/v2-package-api-surface-note.md` defining which V2 harness objects should eventually be public package exports and which should stay internal. Cover Echo (`MemoryRecord`, `MemoryQuery`, `MemoryHit`), Atlas (`AtlasQuery`, `AtlasHit`, `AtlasResult`), Prime Autonomy (`PrimeNextAction`), Session Lifecycle, and Workflow dispatch. Update `docs/package-api-surface-note.md` with a short pointer to the V2 note. Do not edit runtime code, package exports, FileMap, or tests.
+
+Tests: none required, docs-only.
+
+Completion: commit only this package/API policy slice, push, update Obsidian, and mark Ready for Codex Review.
+
 This file is the standing assignment queue for Build 2.
 
 When idle, check this file every 10 minutes. If there is an active task below, execute it. If the task is complete, commit and push your slice, update Obsidian, then report completion in your session and return to polling this file.
@@ -293,6 +305,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-06-04 22:00 -06:00 - Build 2 checked queue; status: idle (no new Active Task; cadence 1 of 3; polling)
 2026-06-04 22:10 -06:00 - Build 2 checked queue; status: idle (no new Active Task; cadence 1 of 3; polling)
 2026-06-04 22:20 -06:00 - Build 2 checked queue; status: idle (no new Active Task; cadence 1 of 3; polling)
+2026-06-04 22:30 -06:00 - Build 2 checked queue; status: idle (no new Active Task; cadence 1 of 3; polling)
 ```
 
 ## Write/Completion Log
