@@ -158,6 +158,7 @@ Reason: Build 1 marked provider-neutral Model Harness adapter contract Ready for
 2026-05-31 00:47 MDT - Codex Reviews C checked queue; status: idle; notes: origin/main now at 503719e; new doc commit 56f626d (V1 Bifrost live-data integration contract — docs-only, Build 4 scope); Active Task unchanged "No active task. Codex Reviews C is idle"; no Review C delegation for prime_approve or any other runtime-gate slice; no executable task
 2026-05-31 00:50 MDT - Codex Reviews C checked queue; status: idle; notes: origin/main now at 3b8e4b4; Reviews B Round B4 complete (commit 5e0facb PASS-WITH-MEDIUM; MEDIUM repair routed to Build 3 for FileMap.md rows); no Review C delegation in live-codex-reviews.md or live-codex-reviews-2.md; Active Task still "No active task. Codex Reviews C is idle"; no executable task
 2026-05-31 01:00 MDT - Codex Reviews C checked queue; status: idle; notes: origin/main now at 7e81bf6; Build 1 commit f56af55 (feat(cockpit_state): Prime cockpit snapshot/event domain shape for V1 Bifrost) marked Ready for Codex Review in live-build-1.md (files: meridian_core/cockpit_state.py, tests/test_cockpit_state.py; 25 targeted + 941 full passed); no Active Task written to this queue delegating f56af55 to Review C; no executable task — awaiting explicit delegation
+2026-05-31 01:05 MDT - Codex Reviews C checked queue; status: idle; notes: origin/main now at f3ca90c (Build 4 idle check 12:15 -06:00; Round B4 FileMap repair c388f47 also landed); Build 1 f56af55 cockpit_state marker confirmed in live-build-1.md; no Review C delegation for f56af55 or prime_approve in live-codex-reviews.md; Active Task still "No active task. Codex Reviews C is idle"; no executable task
 ```
 
 ## Review Log
@@ -229,6 +230,45 @@ Proof:
 - Diff inspection confirmed `AdapterRegistry`/`execute_relay_plan_with_registry()` preserve payload-only dispatch.
 - Diff inspection confirmed HTTP JSON transport is env-gated, stdlib-only, SDK-free, and account-automation-free.
 - Repair `f353c8d` corrected the default HTTP helper to send provider/model/input JSON and parse response `text`.
+
+Current Active Task:
+
+Goal: perform Codex Reviews C Round C5 for Build 1 cockpit-state domain shape.
+
+Scope trigger:
+
+- Build 1 completed the Prime cockpit snapshot/event domain shape for V1 Bifrost.
+
+Immediate scope:
+
+- Build 1 commit `f56af55` - `meridian_core/cockpit_state.py` and `tests/test_cockpit_state.py`.
+- Build 1 queue marker `7e81bf6` is provenance only; do not review it as product code.
+
+Allowed review files:
+
+- `meridian_core/cockpit_state.py`
+- `tests/test_cockpit_state.py`
+- `docs/live-build-1.md` for provenance only.
+
+Required proof:
+
+- Inspect `git show f56af55 -- meridian_core/cockpit_state.py tests/test_cockpit_state.py`.
+- Run or verify:
+  - `python -m pytest tests/test_cockpit_state.py -q`
+  - `python -m pytest -q`
+- Confirm the module is dependency-free, frozen/immutable where appropriate, and has no filesystem, CLI, browser, or prompt-injection behavior.
+- Confirm lane sorting, progress filtering, and summary counts match the V1 cockpit need for typed summaries rather than raw queue-file/log content.
+- Confirm the tests cover sorting, filtering, immutability, and summary counts.
+- Check whether `meridian_core/cockpit_state.py` and `tests/test_cockpit_state.py` need FileMap registration. If yes, route a Build 3 FileMap task instead of editing FileMap here.
+
+Output:
+
+- Declare Round C5 scope.
+- Update Review Log, Proof Log, Findings, and Active Task status.
+- If clean, mark Build 1 commit `f56af55` passed and Build 1 unblocked.
+- If actionable findings exist, route repair work to Build 1.
+
+Stale prior idle status:
 
 No active task. Codex Reviews C is idle - continue polling for Build 1/Build 2 runtime-gate review markers.
 

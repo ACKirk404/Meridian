@@ -277,7 +277,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-02 ~21:20 CDT - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-02 ~21:30 CDT - Build 1 checked queue; status: running (Active Task: Prime cockpit snapshot/event domain shape; executing)
 2026-06-02 ~21:40 CDT - Build 1 checked queue; status: idle (cockpit_state slice f56af55 complete; awaiting next assignment or Codex review result)
-2026-06-02 ~22:00 CDT - Build 1 checked queue; status: idle (no active task; cockpit_state f56af55 confirmed in origin/main; 25 targeted + 941 full tests pass; awaiting next assignment)
+2026-06-02 ~22:00 CDT - Build 1 checked queue; status: idle (no active task; cockpit_state f56af55 confirmed in origin/main; stale task body cleared; 25 targeted + 941 full tests pass; awaiting next assignment)
 ```
 
 ## Write/Completion Log

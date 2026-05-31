@@ -232,6 +232,8 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-05-31 00:46 -06:00 - Build 3 checked queue; status: idle; no active task; Round B4 Codex review pending; awaiting review result and next assignment
 2026-05-31 00:47 -06:00 - Build 3 checked queue; status: idle; no active task; Round B4 Codex review pending; awaiting review result and next assignment
 2026-05-31 00:48 -06:00 - Build 3 checked queue; status: active task found (Round B4 FileMap repair — 3 missing rows); starting work
+2026-06-01 09:25 -06:00 - Build 3 checked queue; status: Round B4 FileMap repair task present but already complete (c388f47); clearing Active Task; cadence 2/3 since Round B3; Ready for Codex Review standing
+2026-05-31 00:51 -06:00 - Build 3 checked queue; status: idle; Round B4 FileMap repair already complete (c388f47); cadence 2/3 since Round B3; awaiting next task assignment
 ```
 
 ## Write/Completion Log
@@ -261,7 +263,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-05-31 11:20 -06:00 - Build 3 FileMap repair (Round B2 — live-codex-reviews-2.md + A-lane label + prose-divergence fixes) intercepted: work already present in commit 45497b1 (Build 1 cross-lane repair); local edits verified identical to HEAD; tests 46/46 filemap; no new commit required; task closed
 2026-05-31 16:05 -06:00 - Build 3 completed FileMap hygiene (register v0-v1-progress-tracker.md; fix stale relay_executor claims in v0-build-readiness-map.md); commit 774695f; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/v0-v1-progress-tracker.md, docs/v0-build-readiness-map.md
 2026-05-31 21:05 -06:00 - Build 3 completed FileMap refresh (v1-capability-plan, v1-bifrost-cockpit-implementation-brief, v2-horizon-plan, v3-parking-lot); commit 330f200; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py
-2026-05-31 00:48 -06:00 - Build 3 completed Round B4 FileMap repair (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md — 3 missing rows added to docs/FileMap.md only); commit pending; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md. Cadence: 2/3 since Round B3.
+2026-05-31 00:48 -06:00 - Build 3 completed Round B4 FileMap repair (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md — 3 missing rows added to docs/FileMap.md only); commit c388f47; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md. Cadence: 2/3 since Round B3.
 ```
 
 ## Cross-Check Activity
