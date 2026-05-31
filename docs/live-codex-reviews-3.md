@@ -436,3 +436,31 @@ Durable proof trail also captured in Obsidian: `G:\My Drive\Aesop Academy\Obsidi
 - Closure: Build 3/FileMap work in `ca6f55f` + `e89df81` registers the cockpit_state module and its test file.
 - Proof: `python -m pytest tests/test_bifrost_cockpit.py tests/test_filemap.py -q` -> 95/95 passed.
 - Result: Build 1 `f56af55` remains passed; MEDIUM FileMap finding closed; no remaining Build 1 repair.
+
+## Round C6 Completion - 2026-05-31 05:08 MDT
+
+**Checkpoint Ledger Update:**
+Build 1 | 3cdc74d + b99ce1d | V2 Aegis CognitionPolicy domain shape + policy-aware Relay executor wrapper (Round C6) | passed | none | Await next Ready for Codex Review marker
+
+**Read Checks:**
+2026-05-31 05:05 MDT - Codex Reviews C checked queue; status: running; notes: Active Task found - V2 Aegis CognitionPolicy domain model + policy-aware Relay executor wrapper; starting review of Build 1 commits 3cdc74d + b99ce1d
+2026-05-31 05:10 MDT - Codex Reviews C checked queue; status: complete; notes: Round C6 complete - 3cdc74d + b99ce1d passed; 102 + 157 targeted tests passed (combined 259); no actionable findings; tier routing to lanes, proof blocking, human gate, and Tier 2 review-only all verified correct
+
+**Review Log:**
+2026-05-31 05:08 MDT - Reviewed Build 1 commit 3cdc74d; result: pass; tests: tests/test_cognition_policy.py + tests/test_aegis.py 102/102 pass; notes: CognitionPolicy tier mapping correct (Tier 0→LOCAL, Tier 1→BUILDER, Tier 2→BUILDER+REVIEWER, Tier 3→BUILDER+REVIEWER+VERIFIER, Tier 4→all+HUMAN); Tier 2 requires review but no proof; Tier 3+ require proof; Tier 4 requires human gate; no model calls, no mutations, no API code
+2026-05-31 05:08 MDT - Reviewed Build 1 commit b99ce1d; result: pass; tests: tests/test_relay_executor.py + tests/test_cognition_policy.py + tests/test_aegis.py 157/157 pass; notes: new execute_relay_dispatch_plan_with_policy wraps policy evaluation before dispatch; Tier 3 clean proof allows dispatch; Tier 4 clean proof still requires human gate (blocks before model_call); Tier 2 still dispatches without proof (review-oriented); RelayProofGateError raised for policy blocks before any model call; payload-only boundary preserved; Relay stays provider-neutral
+
+**Proof Log:**
+2026-05-31 05:08 MDT - Proof for Build 1 commit 3cdc74d; proof type: test; evidence: python -m pytest tests/test_cognition_policy.py tests/test_aegis.py -q -> 102 passed in 0.33s; result: pass
+2026-05-31 05:08 MDT - Proof for Build 1 commit 3cdc74d; proof type: diff; evidence: cognition_policy.py imports only aegis/relay/risk modules; cognition_policy_for_tier returns frozen CognitionPolicy with correct lane tuples per tier; evaluate_cognition_policy calls ProofTrail.blocking() only if policy.requires_proof is True; Tier 2 has requires_proof=False; Tier 3+ have requires_proof=True; result: pass
+2026-05-31 05:08 MDT - Proof for Build 1 commit 3cdc74d; proof type: reference; evidence: rg found only import statements and enum/dataclass definitions; no cognition_policy calls to Relay executor, no model calls, no exports to package API; result: pass
+2026-05-31 05:08 MDT - Proof for Build 1 commit b99ce1d; proof type: test; evidence: python -m pytest tests/test_relay_executor.py tests/test_cognition_policy.py tests/test_aegis.py -q -> 157 passed in 0.29s; result: pass
+2026-05-31 05:08 MDT - Proof for Build 1 commit b99ce1d; proof type: diff; evidence: relay_executor.py imports evaluate_cognition_policy; new function execute_relay_dispatch_plan_with_policy calls evaluate_cognition_policy before any model call; if policy_result.can_dispatch is False, raises RelayProofGateError with blocking_reasons before calling execute_relay_dispatch_plan; result: pass
+2026-05-31 05:08 MDT - Proof for Build 1 commit b99ce1d; proof type: reference; evidence: execute_relay_dispatch_plan_with_policy calls execute_relay_dispatch_plan(plan, model_call, proof_trail) only after policy allows; _assert_proof_gate_clear still checks tier < 3 and blocks on tier 3+ with blocking proof; Relay executor preserves payload-only boundary; result: pass
+
+**Findings:**
+2026-05-31 05:08 MDT - Build 1 commit 3cdc74d; severity: none; file: meridian_core/cognition_policy.py; finding: V2 Aegis CognitionPolicy domain model is deterministic, tier-routable, proof-aware, and tier-2-review-only; Tier 3+ block dispatch on missing/blocking proof before Relay executor; Tier 4 blocks on missing human gate approval; action: clear
+2026-05-31 05:08 MDT - Build 1 commit b99ce1d; severity: none; file: meridian_core/relay_executor.py; finding: policy-aware Relay executor wrapper correctly integrates CognitionPolicy checks before model calls; RelayProofGateError raised before any dispatch on policy block; existing executor functions unchanged; payload-only boundary preserved; Relay stays provider-neutral; action: clear
+
+**Repair Routing:**
+2026-05-31 05:08 MDT - No repair routed for Round C6 — Build 1 3cdc74d and b99ce1d clear; cognition_policy domain shape passed; policy-aware executor wrapper passed; no actionable findings; tier routing, proof blocking, human gate, and Tier 2 review-only all correct; Relay executor payload-only boundary preserved.
