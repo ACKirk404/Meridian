@@ -191,6 +191,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 checked queue; status: idle/running/blocked
 2026-05-31 17:30 -06:00 - Build 5 checked queue; status: running; new Active Task = map PrimeCockpitSnapshot into CockpitViewModel; origin/main at 3a94a66 (refill V1 cockpit build queues); implementing view_model_from_snapshot(); 1012 tests pass; origin/main at 3a94a66
 2026-05-31 17:45 -06:00 - Build 5 checked queue; status: idle (cleared); snapshot mapping committed at 5c89e87 (cadence 2/3); Build 1/4/Reviews C heartbeats landed, not Build 5 scope; no repair routed, no new Cross-Check Activity; awaiting orchestrator reassignment; origin/main at 59c9c92
 2026-05-31 17:55 -06:00 - Build 5 checked queue; status: idle (cleared); no change — Active Task still stale (snapshot mapping 5c89e87 complete); no repair routed, no new Cross-Check Activity; cadence 2/3; awaiting orchestrator reassignment; origin/main at f56920e
+2026-05-31 18:05 -06:00 - Build 5 checked queue; status: idle (cleared); no change — Active Task still stale (snapshot mapping 5c89e87 complete); Build 4/Reviews C heartbeats, not Build 5 scope; no repair routed, no new Cross-Check Activity; cadence 2/3; awaiting orchestrator reassignment; origin/main at eb202d8
 ```
 
 ## Write/Completion Log
