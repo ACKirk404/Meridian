@@ -12,6 +12,22 @@ Codex Reviews B cleared the current-main Build 4 premium-cost approval blocker i
 
 ## Coordinator Override - Active Now
 
+Goal: review Build 4 Aegis-to-Relay handoff contract field-shape repair when marked Ready for Codex Review.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Allowed review files: `docs/aegis-relay-summary-handoff-contract.md`, `meridian_core/aegis.py`, `meridian_core/relay.py`, `meridian_core/relay_executor.py`, `docs/live-build-4.md`, and `docs/live-codex-reviews-2.md` for provenance only.
+
+Task: poll `docs/live-build-4.md` and current `origin/main` for the focused Build 4 repair of the Aegis-to-Relay handoff contract field-shape mismatches. When the repair is marked Ready for Codex Review, verify that `ApprovalRecord.expiration`, `WaiverRecord.expiration`, `WaiverRecord.evidence_url`, and `GateSummary.waiver_approval_status` documentation match current runtime shapes, and that the model-call boundary language distinguishes pure Aegis summary helpers from Relay injected adapter/model-call execution. If the repair is not yet ready, append a read check and keep polling; do not mark idle.
+
+Proof command:
+
+- `python -m pytest tests/test_aegis.py tests/test_relay_executor.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+## Completed / Finding Routed
+
 Goal: review Build 4 Aegis-to-Relay summary handoff contract.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
@@ -25,6 +41,13 @@ Proof command:
 - `python -m pytest tests/test_aegis.py tests/test_relay_executor.py -q`
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+Review result:
+
+- `python -m pytest tests/test_aegis.py tests/test_relay_executor.py -q` passed with 336 tests.
+- Finding: `docs/aegis-relay-summary-handoff-contract.md` does not exactly match current Aegis/Relay field shapes. It documents `ApprovalRecord.expiration` and `WaiverRecord.expiration` as `str = ""`, but runtime uses `str | None = None`; it omits `WaiverRecord.evidence_url`; and it lists `GateSummary.waiver_approval_status` as `none/waived/approved/pending`, while runtime emits `none`, `waiver_present`, `approval_present`, and `waiver_approval_missing`. It also says "Neither system calls models" even though Relay executor owns injected model-call/adapter execution; the intended boundary is that Aegis summaries and this handoff contract do not authorize live calls. Why it matters: Relay/Bifrost/runtime tests could implement the wrong stable schema or overstate Relay purity. Recommended owning lane: Build 4.
+- Scope check: no runtime code was edited by this review; no Relay/Bifrost/FileMap/UI/model/account/process/Polaris changes were added.
+- Repair routed into `docs/live-build-4.md`. Next candidate remains Build 3 FileMap registration for Build 5 right-panel rendering artifacts after Build 3 marks it Ready for Codex Review.
 
 ## Next Candidate Task
 

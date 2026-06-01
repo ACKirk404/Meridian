@@ -8,6 +8,25 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: repair Aegis-to-Relay summary handoff contract field-shape mismatches found by Codex Reviews B.
+
+Allowed files only: `docs/aegis-relay-summary-handoff-contract.md`, `docs/live-build-4.md`.
+
+Task: update `docs/aegis-relay-summary-handoff-contract.md` so its documented shapes match current `meridian_core/aegis.py` and Relay boundaries exactly. Required repairs:
+
+- `ApprovalRecord.expiration` must be documented as `str | None = None`, not `str = ""`.
+- `WaiverRecord.expiration` must be documented as `str | None = None`, and `WaiverRecord.evidence_url: str | None = None` must be included.
+- `GateSummary.waiver_approval_status` values must match runtime strings: `none`, `waiver_present`, `approval_present`, and `waiver_approval_missing`.
+- Clarify that Aegis summary helpers are pure and do not call models/accounts; Relay's execution boundary may call injected adapters/model-call functions, but the handoff contract itself does not authorize live model calls, account inspection, process control, UI work, branch movement, or Polaris dependency.
+
+Proof command:
+
+- `python -m pytest tests/test_aegis.py tests/test_relay_executor.py -q`
+
+Completion: commit the docs repair, push to `origin/main`, and mark Ready for Codex Review with the exact commit hash and proof count.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Aegis-to-Relay summary handoff contract docs after premium-cost approval gate repair clears review.
