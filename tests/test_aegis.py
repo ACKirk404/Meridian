@@ -989,9 +989,14 @@ class TestGateCostExposure:
         result = gate_cost_exposure("STANDARD", False, 2)
         assert result.decision is GateDecision.ALLOW
 
-    def test_premium_cost_justified_allows(self):
-        result = gate_cost_exposure("PREMIUM", True, 2)
+    def test_premium_cost_justified_tier0_allows(self):
+        result = gate_cost_exposure("PREMIUM", True, 0)
         assert result.decision is GateDecision.ALLOW
+
+    def test_premium_cost_justified_tier2_blocks(self):
+        # Tier 2+ premium cost requires approval record, not just cost_justified
+        result = gate_cost_exposure("PREMIUM", True, 2)
+        assert result.decision is GateDecision.BLOCK
 
     def test_premium_cost_tier0_allows(self):
         result = gate_cost_exposure("PREMIUM", False, 0)
