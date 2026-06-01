@@ -2,9 +2,11 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
-## Coordinator Override - Active Now
+## Completed / Passed
 
 Goal: review Build 5 Bifrost V2 Voice I/O surface commit `ff4cb69`.
+
+Status: passed by Codex Reviews B on 2026-05-31 22:21 -06:00. Voice I/O state is deterministic, inert/render-only, preserves the large Prime prompt and quiet PRIMED core, and is clear for Build 5 to proceed to provider balance and prompt payload visibility. No repair routed.
 
 Scope:
 
@@ -31,7 +33,17 @@ Review expectations:
 - Verify the large Prime prompt and quiet `PRIMED` core remain intact and old provider/build noise does not return.
 - If clean, clear Build 5 to continue provider balance and prompt payload visibility. If findings exist, route a focused repair back to Build 5 first.
 
-Completion: commit and push only `docs/live-codex-reviews-2.md` unless routing a repair into `docs/live-build-5.md`.
+Review result:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q` passed with 93 tests.
+- `VoiceIOState` covers listening, dictating, thinking, speaking, muted, and blocked states, and each requested state renders in deterministic sample HTML.
+- The voice controls are inert render affordances only; manual scan found no live microphone, TTS, model call, queue mutation, process control, routing decision, filesystem mutation, network call, or Electron-only dependency.
+- The large Prime prompt and quiet `PRIMED` core remain present, and old provider/build labels stay absent from rendered state.
+- The implementation aligns with `docs/bifrost-voice-command-contract.md` for visible voice state, mute/unmute affordances, typed-intent/display-only posture, and no hidden always-on microphone behavior.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` only. No repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
 ## Completed / Finding Routed
 
@@ -798,13 +810,13 @@ Look for:
 
 ## Checkpoint Ledger
 
-Latest ledger note: as of 2026-05-31 22:21 -06:00, Build 3 commit `80ebea4` is blocked: it registers `docs/session-lifecycle-implementation-checklist.md`, but the file is missing at `HEAD`; repair routed to Build 3.
+Latest ledger note: as of 2026-05-31 22:21 -06:00, commit `ff4cb69` is review-cleared for Build 5 Bifrost V2 Voice I/O surface; no repair is routed.
 
 | Build lane | Last reviewed commit | Last reviewed task | Review status | Pending finding / repair | Next action |
 | --- | --- | --- | --- | --- | --- |
 | Build 3 | 80ebea4 | Session Lifecycle checklist FileMap registration | blocked | MEDIUM: registered `docs/session-lifecycle-implementation-checklist.md` is missing on disk at `HEAD` | repair routed to Build 3 |
 | Build 4 | 0115581 | Workflows architecture note (Round B15) | passed-with-findings | MEDIUM: 5 V2 architecture docs need FileMap registration (echo-memory-contract.md, atlas-retrieval-contract.md, workflow-subagent-harness-contract.md, prime-autonomy-v2-contract.md, workflows-subagent-harness-architecture.md — from Rounds B11+B13+B14+B15 findings) | route consolidated 5-entry FileMap repair to Build 3; verify in next Build 3 cadence review |
-| Build 5 | 4a2838c | Bifrost V2 browser-first HUD shell | passed | none - focused tests pass and rendered HUD shell is Prime-command dominant, quiet, static/sample-data only, and display-only | Build 5 may proceed to Voice I/O surface task |
+| Build 5 | ff4cb69 | Bifrost V2 Voice I/O surface | passed | none - focused tests pass and voice states render deterministically with inert controls | Build 5 may proceed to provider balance and prompt payload visibility |
 
 ## Review Round Scope
 
@@ -876,6 +888,14 @@ Tests to run: `python -m pytest tests/test_filemap.py -q`.
 Out of scope: Session Lifecycle runtime/API behavior, Build 2 source review, and unrelated build-lane product work.
 Reason: Coordinator Override Active Now assigned Codex Reviews B to review Build 3 Session Lifecycle checklist FileMap registration commit `80ebea4`.
 
+2026-05-31 22:21 -06:00 - Round B19 scope
+Build lanes: Build 5
+Commit range(s): Build 5 ff4cb69 (Bifrost V2 Voice I/O surface) plus queue/completion markers 62c2bd7, 9389f4e, and 93ff454.
+Allowed review files: diff/current files only - bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py; docs/live-build-5.md for provenance only; docs/bifrost-voice-command-contract.md for source-contract comparison only.
+Tests to run: `python -m pytest tests/test_bifrost_cockpit.py -q`.
+Out of scope: live microphone/TTS implementation, model routing behavior, provider balance/payload implementation, and unrelated build-lane product work.
+Reason: Coordinator Override Active Now assigned Codex Reviews B to review Build 5 Bifrost V2 Voice I/O surface commit `ff4cb69`.
+
 ## Read Checks
 
 Append entries here when this file is checked while idle.
@@ -917,6 +937,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews B checked queue; status: idle/running/blocke
 2026-05-31 22:16 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.
 2026-05-31 22:18 -06:00 - Codex Reviews B checked queue; status: running; notes: pulled latest origin/main first; executable Coordinator Override Active Now found for Build 5 commit 4a2838c; starting Round B17 review.
 2026-05-31 22:21 -06:00 - Codex Reviews B checked queue; status: running; notes: pulled latest origin/main first; executable Coordinator Override Active Now found for Build 3 commit 80ebea4; starting Round B18 review.
+2026-05-31 22:21 -06:00 - Codex Reviews B checked queue; status: running; notes: continuing after Round B18 routing; executable Coordinator Override Active Now found for Build 5 commit ff4cb69; starting Round B19 review.
 
 ## Review Log
 
@@ -936,6 +957,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-06-01 21:45 -06:00 - Reviewed Build 3 commit c90b05f (+ queue marker 260227e); result: pass; tests: `python -m pytest tests/test_filemap.py -q` -> 46/46 passed in 0.25s; notes: `docs/model-harness-v2-contract.md` exists and is registered in `make_default_map()`, `docs/FileMap.md`, and `_REQUIRED_PATHS` under Model Harness; audit checklist marks the path covered; no runtime/provider routing authority claimed.
 2026-05-31 22:18 -06:00 - Reviewed Build 5 commit 4a2838c (Round B17 HUD shell review); result: pass; tests: `python -m pytest tests/test_bifrost_cockpit.py -q` -> 80/80 passed in 0.17s; notes: rendered HUD has quiet PRIMED core, dominant Prime prompt, project drilldown/session state, harness scoped prompts, voice state surface, mission feed, and instrument band; old provider/build/top-nav/review labels are absent; no model calls, mutation controls, live microphone/TTS, or Electron-only dependency found.
 2026-05-31 22:21 -06:00 - Reviewed Build 3 commit 80ebea4 (Round B18 Session Lifecycle checklist FileMap registration); result: blocked; tests: `python -m pytest tests/test_filemap.py -q` -> 46/46 passed in 0.11s; notes: registration exists in runtime FileMap, docs/FileMap, and `_REQUIRED_PATHS`, but `docs/session-lifecycle-implementation-checklist.md` is missing from `HEAD`; repair routed to Build 3.
+2026-05-31 22:21 -06:00 - Reviewed Build 5 commit ff4cb69 (Round B19 Voice I/O surface review); result: pass; tests: `python -m pytest tests/test_bifrost_cockpit.py -q` -> 93/93 passed in 0.21s; notes: listening, dictating, thinking, speaking, muted, and blocked states render deterministically; controls are inert display affordances; no live microphone/TTS/model/queue/process/filesystem/network effects found; Prime prompt and quiet PRIMED core remain intact.
 
 ## Proof Log
 
@@ -964,6 +986,7 @@ Minimum proof expectations:
 2026-06-01 21:45 -06:00 - Proof for Build 3 commit c90b05f; proof type: test/diff/reference; evidence: `git show c90b05f -- meridian_core/filemap.py tests/test_filemap.py docs/FileMap.md docs/filemap-v2-v3-discoverability-audit.md` shows the single Model Harness contract registration across all FileMap surfaces; `rg model-harness-v2-contract ...` confirms runtime/docs/test/audit coverage; `python -m pytest tests/test_filemap.py -q` -> 46/46 passed; result: pass.
 2026-05-31 22:18 -06:00 - Proof for Build 5 commit 4a2838c; proof type: test/diff/manual/reference; evidence: `python -m pytest tests/test_bifrost_cockpit.py -q` -> 80/80 passed; rendered HTML check confirmed PRIMED/prompt/project/harness/voice surfaces and old-label absence; `rg` scan found no live model call, filesystem mutation, queue mutation, microphone/TTS plumbing, or Electron-only dependency; source comparison to `docs/bifrost-v2-cockpit-extensions.md` matched the required Prime-first HUD direction; result: pass.
 2026-05-31 22:21 -06:00 - Proof for Build 3 commit 80ebea4; proof type: test/diff/reference; evidence: `git show 80ebea4 -- meridian_core/filemap.py docs/FileMap.md tests/test_filemap.py` shows registration in all three FileMap surfaces; `python -m pytest tests/test_filemap.py -q` -> 46/46 passed; `Test-Path docs/session-lifecycle-implementation-checklist.md` returned False; result: blocked.
+2026-05-31 22:21 -06:00 - Proof for Build 5 commit ff4cb69; proof type: test/diff/manual/reference; evidence: `python -m pytest tests/test_bifrost_cockpit.py -q` -> 93/93 passed; rendered-state script confirmed listening/dictating/thinking/speaking/muted/blocked states keep voice strip, Prime prompt, PRIMED core, and old-label exclusions; `rg` scan found no live microphone, TTS, model call, queue/process/filesystem/network side effects; source comparison to `docs/bifrost-voice-command-contract.md` matched the inert voice surface requirements; result: pass.
 
 ## Findings
 
@@ -1224,7 +1247,8 @@ Write log:
 - 2026-05-31 22:13 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `b1d2193` (metadata completed in `7c34c98`); push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 - 2026-05-31 22:16 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `80527c7`; push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 - 2026-05-31 22:18 -06:00 - Round B17 completed by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: `python -m pytest tests/test_bifrost_cockpit.py -q` (80 passed); commit: `13d4ae8`; push status: pushed to `origin/main`; Obsidian update status: not updated (no finding or repair routed).
-- 2026-05-31 22:21 -06:00 - Round B18 completed by Codex Reviews B with repair routed; files changed: `docs/live-codex-reviews-2.md`, `docs/live-build-3.md`; tests run: `python -m pytest tests/test_filemap.py -q` (46 passed); commit: pending; push status: pending; Obsidian update status: not updated (repair routed in queue).
+- 2026-05-31 22:21 -06:00 - Round B18 completed by Codex Reviews B with repair routed; files changed: `docs/live-codex-reviews-2.md`, `docs/live-build-3.md`; tests run: `python -m pytest tests/test_filemap.py -q` (46 passed); commit: `420cdf3` (metadata completed in `55f5b1e`); push status: pushed to `origin/main`; Obsidian update status: not updated (repair routed in queue).
+- 2026-05-31 22:21 -06:00 - Round B19 completed by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: `python -m pytest tests/test_bifrost_cockpit.py -q` (93 passed); commit: `66b8283`; push status: pushed to `origin/main`; Obsidian update status: not updated (no finding or repair routed).
 
 ## Coordinator Addendum - Round B5 V1 Cockpit Clearance
 
