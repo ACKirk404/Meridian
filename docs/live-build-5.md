@@ -462,6 +462,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 checked queue; status: idle/running/blocked
 2026-06-11 05:45 -06:00 - Build 5 checked queue; status: idle; Active Task unmodified (repair at 5309fb4 marked Ready for Codex Review, pending Codex Reviews assessment); no new executable task assigned; Reviews B/A updates merged; origin/main at 814207e9; cadence 1/3; awaiting orchestrator reassignment or Codex review result
 2026-06-11 16:22 -06:00 - Build 5 checked queue; status: idle; Active Task still unmodified (repair at 5309fb4 marked Ready for Codex Review at fd8798f); no new executable task assigned; origin/main already up to date at 814207e9; cadence 1/3; awaiting orchestrator reassignment or Codex Reviews B assessment of repair
 2026-06-11 20:30 -06:00 - Build 5 checked queue; status: idle; Active Task still unmodified (repair at 5309fb4 marked Ready for Codex Review); no new executable task assigned; origin/main already up to date; cadence 1/3; awaiting orchestrator reassignment or Codex Reviews B assessment of repair
+2026-06-11 23:15 -06:00 - Build 5 checked queue; status: idle; queue file shows two "## Active Task" sections: (1) repair (complete at 5309fb4) and (2) session lifecycle preview (awaiting execution per line 182-194); no clear reassignment yet; origin/main up to date; cadence 1/3; awaiting orchestrator clarification or explicit task promotion
 ```
 
 ## Write/Completion Log
