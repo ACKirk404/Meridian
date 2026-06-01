@@ -2356,3 +2356,11 @@ Next Candidate:
 ## Write / Completion Log
 
 - 2026-06-01 17:13 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because this was a queue poll and the routed Build 3 repair is not yet marked Ready for Codex Review. Commit hash: pending at write time; see final handoff for pushed commit. Push status: pending at write time. Obsidian update status: not updated; queue provenance only.
+
+## Read Checks
+
+- 2026-06-01 17:15 -06:00 — pulled latest `origin/main` (`Already up to date`) and read `docs/live-codex-reviews-2.md` plus `docs/live-build-3.md`. Reviews B remains blocked on the routed Build 3 duplicate `docs/ui-integration-checklist.md` FileMap row repair; Build 3 still shows that repair as its active task, not `Completed / Ready For Codex Review`. Keep polling and do not run the Build 4 Relay model-selection logic review until the Build 3 repair clears.
+
+## Write / Completion Log
+
+- 2026-06-01 17:15 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because this was a queue poll and the routed Build 3 repair is not yet marked Ready for Codex Review. Commit hash: pending at write time; see final handoff for pushed commit. Push status: pending at write time. Obsidian update status: not updated; queue provenance only.
