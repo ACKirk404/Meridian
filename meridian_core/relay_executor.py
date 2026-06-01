@@ -33,6 +33,43 @@ ModelCallFn = ModelAdapter
 
 
 @dataclass(frozen=True)
+class RelayDecisionRecord:
+    """Provider-neutral decision record capturing route selection rationale for Prime explanation.
+
+    Exposes the audit fields needed for Prime to understand: route class, session action,
+    context health, dual-lane requirement, trust/proof blockers, account-vs-API precedence,
+    cost/privacy pressure, fallback blockers, and explanation for Prime.
+    """
+
+    heartbeat_id: str  # from packet.packet_id
+    project: str | None = None  # context-dependent metadata
+    surface_mode: str | None = None  # context-dependent metadata
+    intent: str | None = None  # context-dependent metadata
+    role: str = "builder"  # primary builder role
+    risk_tier: int = 0
+    session_action: str = "no_session"
+    route_class: str | None = None
+    vendor: str | None = None  # provider-neutral: always None
+    model_id: str | None = None  # provider-neutral: always None
+    account_or_api_source: str = "unknown"
+    context_health: str = "unknown"
+    prompt_payload_status: str | None = None
+    dual_lane_required: bool = False
+    lane_independence_reason: str = ""
+    trust_state: str = "unknown"
+    proof_required: tuple[str, ...] = ()
+    human_gate_required: bool = False
+    cost_posture: str = "standard"
+    latency_posture: str = "standard"
+    privacy_notes: str = "unknown"
+    fallback_allowed: bool = True
+    fallback_blockers: tuple[str, ...] = ()
+    observability_fields: tuple[str, ...] = ()
+    telemetry_required: tuple[str, ...] = ()
+    explanation_for_prime: str = ""
+
+
+@dataclass(frozen=True)
 class RelayExecutionResult:
     """Successful output for one lane with optional payload snapshot and adapter metadata."""
 
@@ -58,6 +95,7 @@ class RelayExecutionSummary:
 
     results: tuple[RelayExecutionResult, ...]
     errors: tuple[RelayExecutionError, ...]
+    decision_record: RelayDecisionRecord | None = None
 
 
 class RelayProofGateError(RuntimeError):
@@ -131,11 +169,84 @@ def relay_execution_summary_to_proof_trail(
     return trail
 
 
+def _build_decision_record(
+    plan: RelayDispatchPlan,
+    payload_snapshot: PromptPayloadSnapshot | None = None,
+) -> RelayDecisionRecord:
+    """Generate a provider-neutral decision record from a dispatch plan.
+
+    Exposes audit fields for Prime to understand route selection rationale:
+    route class, session action, context health, dual-lane requirement,
+    trust/proof blockers, account-vs-API precedence, cost/privacy, and
+    fallback blockers.
+    """
+    from .prompt_payload_meter import PayloadStatus
+
+    route = plan.route
+    audit = route.audit
+    packet = plan.packet
+
+    fallback_blockers = audit.fallback_blockers
+    fallback_allowed = len(fallback_blockers) == 0
+
+    lane_independence_reason = ""
+    if route.requires_independence and len(fallback_blockers) > 0:
+        if "dual_lane_independence_required" in fallback_blockers:
+            lane_independence_reason = (
+                "Tier 3 dual-lane independence required for meaningful decisions"
+            )
+
+    prompt_payload_status = None
+    if payload_snapshot is not None:
+        prompt_payload_status = payload_snapshot.status.value
+
+    account_or_api_source = "unknown"
+    if audit.route_precedence:
+        account_or_api_source = audit.route_precedence[0].value
+
+    explanation = (
+        f"Risk tier {route.risk_tier}: {route.reason}. "
+        f"Route: {audit.route_class.value if audit.route_class else 'unknown'}. "
+        f"Context: {route.context_health.value}. "
+        f"Session: {audit.session_action.value}."
+    )
+
+    return RelayDecisionRecord(
+        heartbeat_id=packet.packet_id,
+        project=None,
+        surface_mode=None,
+        intent=None,
+        role="builder",
+        risk_tier=route.risk_tier,
+        session_action=audit.session_action.value,
+        route_class=audit.route_class.value if audit.route_class else None,
+        vendor=None,
+        model_id=None,
+        account_or_api_source=account_or_api_source,
+        context_health=route.context_health.value,
+        prompt_payload_status=prompt_payload_status,
+        dual_lane_required=route.requires_independence,
+        lane_independence_reason=lane_independence_reason,
+        trust_state=audit.trust_state.value,
+        proof_required=audit.proof_required,
+        human_gate_required=route.requires_human_gate,
+        cost_posture=route.cost_posture.value,
+        latency_posture=route.latency_posture.value,
+        privacy_notes=route.privacy_level.value,
+        fallback_allowed=fallback_allowed,
+        fallback_blockers=fallback_blockers,
+        observability_fields=audit.telemetry_required,
+        telemetry_required=audit.telemetry_required,
+        explanation_for_prime=explanation,
+    )
+
+
 def execute_relay_dispatch_plan(
     plan: RelayDispatchPlan,
     model_call: ModelCallFn,
     proof_trail: ProofTrail | None = None,
     payload_snapshots: tuple[PromptPayloadSnapshot | None, ...] | None = None,
+    include_decision_record: bool = False,
 ) -> RelayExecutionSummary:
     """
     Execute every lane in *plan* by calling model_call(lane.payload).
@@ -147,6 +258,9 @@ def execute_relay_dispatch_plan(
 
     Optional payload_snapshots tuple provides PromptPayloadSnapshot metadata per lane
     for inclusion in execution results and proof trail evidence.
+
+    If include_decision_record is True, generates a RelayDecisionRecord exposing
+    audit fields for Prime to explain the route selection.
     """
     _assert_proof_gate_clear(plan, proof_trail)
 
@@ -174,9 +288,15 @@ def execute_relay_dispatch_plan(
                 )
             )
 
+    decision_record = None
+    if include_decision_record:
+        first_snapshot = snapshots[0] if snapshots else None
+        decision_record = _build_decision_record(plan, first_snapshot)
+
     return RelayExecutionSummary(
         results=tuple(results),
         errors=tuple(errors),
+        decision_record=decision_record,
     )
 
 
@@ -185,6 +305,7 @@ def execute_relay_plan_with_registry(
     registry: AdapterRegistry,
     proof_trail: ProofTrail | None = None,
     payload_snapshots: tuple[PromptPayloadSnapshot | None, ...] | None = None,
+    include_decision_record: bool = False,
 ) -> RelayExecutionSummary:
     """
     Execute a plan with per-lane adapter resolution from the registry.
@@ -196,6 +317,9 @@ def execute_relay_plan_with_registry(
 
     Optional payload_snapshots tuple provides PromptPayloadSnapshot metadata per lane
     for inclusion in execution results and proof trail evidence.
+
+    If include_decision_record is True, generates a RelayDecisionRecord exposing
+    audit fields for Prime to explain the route selection.
     """
     _assert_proof_gate_clear(plan, proof_trail)
 
@@ -228,9 +352,15 @@ def execute_relay_plan_with_registry(
                 )
             )
 
+    decision_record = None
+    if include_decision_record:
+        first_snapshot = snapshots[0] if snapshots else None
+        decision_record = _build_decision_record(plan, first_snapshot)
+
     return RelayExecutionSummary(
         results=tuple(results),
         errors=tuple(errors),
+        decision_record=decision_record,
     )
 
 
@@ -240,6 +370,7 @@ def execute_relay_dispatch_plan_with_policy(
     proof_trail: ProofTrail | None = None,
     human_gate_approved: bool = False,
     payload_snapshots: tuple[PromptPayloadSnapshot | None, ...] | None = None,
+    include_decision_record: bool = False,
 ) -> RelayExecutionSummary:
     """
     Execute a plan after evaluating V2 CognitionPolicy against the risk tier.
@@ -249,6 +380,9 @@ def execute_relay_dispatch_plan_with_policy(
     before calling model_call. Otherwise delegates to execute_relay_dispatch_plan.
 
     Optional payload_snapshots tuple provides PromptPayloadSnapshot metadata per lane.
+
+    If include_decision_record is True, generates a RelayDecisionRecord exposing
+    audit fields for Prime to explain the route selection.
     """
     policy_result = evaluate_cognition_policy(
         plan.route.risk_tier,
@@ -263,7 +397,7 @@ def execute_relay_dispatch_plan_with_policy(
         )
 
     return execute_relay_dispatch_plan(
-        plan, model_call, proof_trail, payload_snapshots
+        plan, model_call, proof_trail, payload_snapshots, include_decision_record
     )
 
 

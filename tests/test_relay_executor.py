@@ -17,6 +17,7 @@ from meridian_core.relay import ModelRole, route_from_tier
 from meridian_core.relay_dispatch import RelayDispatchLane, RelayDispatchPlan
 from meridian_core.cognition_policy import evaluate_cognition_policy
 from meridian_core.relay_executor import (
+    RelayDecisionRecord,
     RelayExecutionError,
     RelayExecutionResult,
     RelayExecutionSummary,
@@ -1059,3 +1060,398 @@ class TestAdapterMetadata:
         )
         with pytest.raises((AttributeError, TypeError)):
             metadata.provider_name = "anthropic"  # type: ignore[misc]
+
+
+class TestRelayDecisionRecord:
+    """Tests for provider-neutral decision records exposing route rationale for Prime."""
+
+    def test_decision_record_none_by_default(self) -> None:
+        """Decision record is None when include_decision_record not set."""
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(plan, _constant_model_call("ok"))
+        assert summary.decision_record is None
+
+    def test_decision_record_generated_when_requested(self) -> None:
+        """Decision record is generated when include_decision_record=True."""
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert summary.decision_record is not None
+        assert isinstance(summary.decision_record, RelayDecisionRecord)
+
+    def test_decision_record_captures_heartbeat_id(self) -> None:
+        """Decision record heartbeat_id matches packet_id."""
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert summary.decision_record.heartbeat_id == plan.packet.packet_id
+
+    def test_decision_record_captures_risk_tier(self) -> None:
+        """Decision record risk_tier matches route."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.risk_tier == tier
+
+    def test_decision_record_captures_session_action(self) -> None:
+        """Decision record session_action maps from route.audit.session_action."""
+        for tier in (1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.session_action == plan.route.audit.session_action.value
+
+    def test_decision_record_captures_route_class(self) -> None:
+        """Decision record route_class maps from route.audit.route_class."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            expected = plan.route.audit.route_class.value if plan.route.audit.route_class else None
+            assert summary.decision_record.route_class == expected
+
+    def test_decision_record_context_health_from_route(self) -> None:
+        """Decision record context_health maps from route."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.context_health == plan.route.context_health.value
+
+    def test_decision_record_latency_posture_from_route(self) -> None:
+        """Decision record latency_posture maps from route."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.latency_posture == plan.route.latency_posture.value
+
+    def test_decision_record_privacy_notes_from_route(self) -> None:
+        """Decision record privacy_notes maps from route.privacy_level."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.privacy_notes == plan.route.privacy_level.value
+
+    def test_decision_record_cost_posture_from_route(self) -> None:
+        """Decision record cost_posture maps from route."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.cost_posture == plan.route.cost_posture.value
+
+    def test_decision_record_trust_state_from_audit(self) -> None:
+        """Decision record trust_state maps from audit."""
+        plan = _make_plan(2)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert summary.decision_record.trust_state == plan.route.audit.trust_state.value
+
+    def test_decision_record_proof_required_from_audit(self) -> None:
+        """Decision record proof_required captures audit tuple."""
+        for tier in (1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.proof_required == plan.route.audit.proof_required
+
+    def test_decision_record_fallback_blockers_from_audit(self) -> None:
+        """Decision record fallback_blockers captures audit tuple."""
+        for tier in (1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.fallback_blockers == plan.route.audit.fallback_blockers
+
+    def test_decision_record_human_gate_required_from_route(self) -> None:
+        """Decision record human_gate_required matches route requirement."""
+        plan = _make_plan(4)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert summary.decision_record.human_gate_required == plan.route.requires_human_gate
+
+    def test_decision_record_dual_lane_required_from_route(self) -> None:
+        """Decision record dual_lane_required matches route.requires_independence."""
+        plan2 = _make_plan(2)
+        summary2 = execute_relay_dispatch_plan(
+            plan2,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert summary2.decision_record.dual_lane_required == plan2.route.requires_independence
+
+        plan3 = _make_plan(3)
+        summary3 = execute_relay_dispatch_plan(
+            plan3,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert summary3.decision_record.dual_lane_required == plan3.route.requires_independence
+
+    def test_decision_record_lane_independence_reason_for_tier3(self) -> None:
+        """Decision record lane_independence_reason populated for Tier 3 with blockers."""
+        plan = _make_plan(3)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        if plan.route.requires_independence and "dual_lane_independence_required" in plan.route.audit.fallback_blockers:
+            assert "Tier 3" in summary.decision_record.lane_independence_reason
+            assert "dual-lane independence" in summary.decision_record.lane_independence_reason
+
+    def test_decision_record_vendor_is_none_provider_neutral(self) -> None:
+        """Decision record vendor is None (provider-neutral)."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.vendor is None
+
+    def test_decision_record_model_id_is_none_provider_neutral(self) -> None:
+        """Decision record model_id is None (provider-neutral)."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.model_id is None
+
+    def test_decision_record_project_is_none_context_dependent(self) -> None:
+        """Decision record project is None (context-dependent metadata)."""
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert summary.decision_record.project is None
+
+    def test_decision_record_surface_mode_is_none_context_dependent(self) -> None:
+        """Decision record surface_mode is None (context-dependent metadata)."""
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert summary.decision_record.surface_mode is None
+
+    def test_decision_record_intent_is_none_context_dependent(self) -> None:
+        """Decision record intent is None (context-dependent metadata)."""
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert summary.decision_record.intent is None
+
+    def test_decision_record_account_or_api_source_from_precedence(self) -> None:
+        """Decision record account_or_api_source maps from route_precedence."""
+        for tier in (1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            if plan.route.audit.route_precedence:
+                expected = plan.route.audit.route_precedence[0].value
+            else:
+                expected = "unknown"
+            assert summary.decision_record.account_or_api_source == expected
+
+    def test_decision_record_fallback_allowed_matches_blockers(self) -> None:
+        """Decision record fallback_allowed=False when fallback_blockers present."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            has_blockers = len(plan.route.audit.fallback_blockers) > 0
+            assert summary.decision_record.fallback_allowed == (not has_blockers)
+
+    def test_decision_record_observability_fields_from_telemetry(self) -> None:
+        """Decision record observability_fields maps from audit.telemetry_required."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.observability_fields == plan.route.audit.telemetry_required
+
+    def test_decision_record_telemetry_required_from_audit(self) -> None:
+        """Decision record telemetry_required captures audit tuple."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert summary.decision_record.telemetry_required == plan.route.audit.telemetry_required
+
+    def test_decision_record_explanation_includes_risk_tier(self) -> None:
+        """Decision record explanation_for_prime includes risk tier."""
+        for tier in (0, 1, 2, 3, 4):
+            plan = _make_plan(tier)
+            summary = execute_relay_dispatch_plan(
+                plan,
+                _constant_model_call("ok"),
+                include_decision_record=True,
+            )
+            assert f"Risk tier {tier}" in summary.decision_record.explanation_for_prime
+
+    def test_decision_record_explanation_includes_route_reason(self) -> None:
+        """Decision record explanation_for_prime includes route reason."""
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert plan.route.reason in summary.decision_record.explanation_for_prime
+
+    def test_decision_record_explanation_includes_context_health(self) -> None:
+        """Decision record explanation_for_prime includes context health."""
+        plan = _make_plan(2)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        assert plan.route.context_health.value in summary.decision_record.explanation_for_prime
+
+    def test_decision_record_prompt_payload_status_when_snapshot_present(self) -> None:
+        """Decision record prompt_payload_status maps from snapshot when available."""
+        plan = _make_plan(1)
+        snapshot = PromptPayloadSnapshot(
+            raw_prompt_chars=1000,
+            estimated_tokens=300,
+            budget_tokens=4000,
+        )
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            payload_snapshots=(snapshot,),
+            include_decision_record=True,
+        )
+        assert summary.decision_record.prompt_payload_status == snapshot.status.value
+
+    def test_decision_record_immutable(self) -> None:
+        """Decision record is frozen and immutable."""
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        with pytest.raises((AttributeError, TypeError)):
+            summary.decision_record.risk_tier = 999  # type: ignore[misc]
+
+    def test_decision_record_with_registry(self) -> None:
+        """Decision record generated correctly with registry-based execution."""
+        plan = _make_plan(2)
+        registry = _make_registry_for_tier(2)
+        summary = execute_relay_plan_with_registry(
+            plan,
+            registry,
+            include_decision_record=True,
+        )
+        assert summary.decision_record is not None
+        assert summary.decision_record.risk_tier == 2
+
+    def test_decision_record_with_policy(self) -> None:
+        """Decision record generated correctly with policy-based execution."""
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan_with_policy(
+            plan,
+            _constant_model_call("ok"),
+            proof_trail=ProofTrail(),
+            include_decision_record=True,
+        )
+        assert summary.decision_record is not None
+        assert summary.decision_record.risk_tier == 1
+
+    def test_backward_compatible_execution_without_decision_record(self) -> None:
+        """Existing code without include_decision_record still works."""
+        plan = _make_plan(2)
+        summary = execute_relay_dispatch_plan(plan, _constant_model_call("ok"))
+        assert len(summary.results) == len(plan.lanes)
+        assert summary.decision_record is None
+
+    def test_decision_record_all_fields_assigned(self) -> None:
+        """Decision record has all required fields with non-None or sensible defaults."""
+        plan = _make_plan(2)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            include_decision_record=True,
+        )
+        record = summary.decision_record
+        assert record.heartbeat_id is not None
+        assert record.risk_tier is not None
+        assert record.session_action is not None
+        assert record.context_health is not None
+        assert record.cost_posture is not None
+        assert record.latency_posture is not None
+        assert record.privacy_notes is not None
+        assert isinstance(record.dual_lane_required, bool)
+        assert isinstance(record.human_gate_required, bool)
+        assert isinstance(record.fallback_allowed, bool)
+        assert isinstance(record.proof_required, tuple)
+        assert isinstance(record.fallback_blockers, tuple)
+        assert isinstance(record.observability_fields, tuple)
+        assert isinstance(record.telemetry_required, tuple)
