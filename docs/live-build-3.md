@@ -120,7 +120,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Next Candidate Task
+## Active Task
 
 Goal: register the Relay-Bifrost proof payload contract docs after Build 1 review clearance.
 
@@ -129,6 +129,20 @@ Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_f
 Required sources: `docs/relay-bifrost-proof-payload-contract.md`, `docs/live-build-1.md`, `docs/live-codex-reviews.md`, and current FileMap entries.
 
 Task: add FileMap discoverability for `docs/relay-bifrost-proof-payload-contract.md` now that Reviews A cleared the Build 1 contract docs. Add or verify the runtime FileMap entry, mirror it in `docs/FileMap.md`, and include required-path coverage in `tests/test_filemap.py`. Keep this mechanical. Do not edit Relay runtime/tests, Bifrost, Aegis, Session Lifecycle, review queues, process/model/account code, branches, or Polaris.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: audit FileMap coverage for Relay/Session Lifecycle review-cleared runtime artifacts after the Relay-Bifrost proof payload contract docs registration clears review.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: compare the current review-cleared Relay and Session Lifecycle runtime/test/documentation artifacts against runtime FileMap, `docs/FileMap.md`, and required-path coverage. Register only existing missing files. Keep this mechanical; do not edit Relay, Session Lifecycle, Bifrost, Aegis, review queues, process/model/account code, branches, or Polaris.
 
 Tests:
 
