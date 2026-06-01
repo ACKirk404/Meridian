@@ -438,8 +438,6 @@ YYYY-MM-DD HH:MM TZ - Build 4 cross-check: none/finding/fix; details: <short not
 
 2026-06-13 11:50 UTC - Build 4 checked queue; status: idle; no Active Task; origin/main at 0f5d226
 
-2026-06-13 11:50 UTC - Build 4 checked queue; status: idle; no Active Task; origin/main at efca79b
-
 2026-06-13 11:49 UTC - Build 4 checked queue; status: idle; no Active Task; origin/main at 98708b1
 
 2026-06-11 06:30 UTC - Build 4 checked queue; status: idle; no Active Task; origin/main at d5998b1 (merge)

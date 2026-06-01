@@ -70,25 +70,6 @@ Status: **Completed** in commit `7d20f47`; Codex review cleared (no blocking fin
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
-Goal: implement the Session Lifecycle domain objects from the reviewed contract/checklist.
-
-Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
-
-Task: create the first runtime slice for `SessionLifecycleState` and `SessionCommandPlan` from `docs/session-lifecycle-v2-contract.md` and `docs/session-lifecycle-implementation-checklist.md`. Model spawn, watch, poll_queue, steer, stop_request, transfer, archive, restart, resteer, recover_from_limit, and request_human_gate as typed actions without executing live process control. Include legality/executability helpers, proof refs, queue routing, unique-worktree and branch-permission constraints, and human-gate behavior. If Codex Reviews A routes a checklist finding before implementation is committed, repair that finding first.
-
-Tests:
-
-- `python -m pytest tests/test_session_lifecycle.py -q`
-
-Completion:
-
-- Runtime implementation completed in commit `910e652` with queue provenance in `a80d439` and verification in `85f4775`.
-- Files changed: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
-- Tests: `python -m pytest tests/test_session_lifecycle.py -q` passed with 12 tests.
-- Routed to Codex Reviews A for runtime/code review.
-
-## Coordinator Override - Completed / Ready For Codex Review
-
 Goal: write the V2 Session Lifecycle contract so Prime can spawn, watch, steer, recover, and hand off sessions through typed state instead of ad hoc UI supervision.
 
 Allowed files only: `docs/session-lifecycle-v2-contract.md`, `docs/live-build-2.md`.
@@ -572,6 +553,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-06-06 17:05 -06:00 - Build 2 checked queue; status: idle (no new Active Task; awaiting coordinator assignment; cadence 0 of 3; polling)
 2026-06-06 17:15 -06:00 - Build 2 checked queue; status: idle (no new Active Task; awaiting coordinator assignment; cadence 0 of 3; polling)
 2026-06-06 17:25 -06:00 - Build 2 checked queue; status: idle (no new Active Task; awaiting coordinator assignment; cadence 0 of 3; polling)
+2026-06-06 17:35 -06:00 - Build 2 checked queue; status: idle (no new Active Task; awaiting coordinator assignment; cadence 0 of 3; polling)
 ```
 
 ## Write/Completion Log
@@ -663,7 +645,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 Codex review result: pass/no actionable findings/f
 2026-05-31 09:35 -06:00 - Build 2 Codex review finding: LOW x2 — missing blank lines in meridian_core/__init__.py between import blocks; repaired in place
 2026-05-31 09:35 -06:00 - Build 2 Codex review result: fixed; no blocking findings; cadence 3/3 cleared
 2026-06-04 15:25 -06:00 - Build 2 Codex review requested after commits e08e598, e9062d9, cd87702 (V2 CognitionPolicy package API export, Bifrost preview package policy note, V2 progress tracker)
-2026-06-05 03:55 -06:00 - Build 2 Codex review requested after commits 40def3d, 7d20f47 (V2 Prime next-action domain object, Session Lifecycle implementation checklist repair) — cadence 3 of 3
+2026-06-05 03:55 -06:00 - Build 2 Codex review requested after commits 40def3d, 594e0d9, 7d20f47 (V2 Prime next-action domain object, linter repair is_executable human-gate, Session Lifecycle implementation checklist repair) — cadence 3 of 3
 2026-06-05 03:58 -06:00 - Build 2 Codex review cross-check: syntax OK (python -m py_compile passed), tests 12/12 passed (test_session_lifecycle.py), no suspicious patterns (TODO/FIXME/hardcoded secrets), Session Lifecycle checklist 520 lines formatted and complete. No blocking findings; docs-only checklist passed basic review.
 2026-06-05 03:58 -06:00 - Build 2 Codex review result: pass; no actionable findings; cadence cleared after 40def3d, 7d20f47
 ```
