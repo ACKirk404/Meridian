@@ -2195,3 +2195,11 @@ Tests: docs-only (narrative architecture, no pytest required)
 **Next Action**
 - Route consolidated 5-entry FileMap repair for B11+B13+B14+B15 findings to Build 3
 - Return to idle polling for new Ready markers
+
+## Read Checks
+
+- 2026-06-01 16:49 -06:00 — pulled latest `origin/main` with fast-forward to `4581c51c`; read `docs/live-codex-reviews-2.md` and `docs/live-build-4.md`. Active Reviews B task remains polling Build 4 Aegis-to-Relay handoff contract field-shape repair. Build 4 repair content is present in `docs/aegis-relay-summary-handoff-contract.md`, but `docs/live-build-4.md` still shows the repair as the active task and is not marked `Completed / Ready For Codex Review`; no review disposition executed yet, keep polling and do not mark idle.
+
+## Write / Completion Log
+
+- 2026-06-01 16:49 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because Build 4 repair is not yet marked Ready for Codex Review. Commit hash: pending. Push status: pending. Obsidian update status: not updated; queue provenance only.
