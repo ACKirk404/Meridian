@@ -64,13 +64,13 @@ Use this as the working UI checklist. Every visible icon, selector, session cont
 | SK1 | Spark center image | Visual voice/core of Prime; toggles session panel visibility through nearby core toggle. | partial | Center image remains visible after refresh. |
 | SK2 | Toggle session panels | Opens/closes or reveals session panel mode without changing session data. | partial | Click toggle; panels visibility changes predictably. |
 | SK3 | Settings | Opens settings surface for UI/model/project/session options. | planned | Track `SET-*` subitems before wiring the surface. |
-| SK4 | Filter | Filters current visible work/session content. | planned | Until wired, it must not imply active filtering. |
+| SK4 | Filter | Controls how much data is included in a session prompt/context stream. | planned | Track `FIL-*` subitems before wiring the surface. |
 | SK5 | Models | Opens model selector/settings surface. | planned | Until wired, model selection remains in explicit selector. |
 | SK6 | Backlog | Opens backlog/task surface. | planned | Until wired, it must not show fake backlog items. |
-| SK7 | Skills | Opens skills/tool capability surface. | planned | Until wired, it must not show fake skills. |
+| SK7 | Skills | Opens searchable skill/capability registry by model, project, and global scope. | planned | Track `SKL-*` subitems before wiring the surface. |
 | SK8 | Crosscheck | Starts or opens review/cross-check surface. | planned | Until wired, it must not claim review is complete. |
-| SK9 | Close | Closes the active overlay/panel, not the whole browser tab. | planned | Click closes only intended UI surface. |
-| SK10 | Archive | Archives or opens archive flow for selected item/session. | planned | Until wired, no destructive archive action. |
+| SK9 | Close | Closes targeted session/surface after forcing write-through and Obsidian capture when applicable. | planned | Track `CLS-*` subitems before wiring the surface. |
+| SK10 | Archive | Opens reloadable session archive and preserves context for future session revival. | planned | Track `ARC-*` subitems before wiring the surface. |
 | SK11 | Reset | Clears session prompts/transcripts and hard reloads UI. | partial | Send text, click Reset, confirm both panels empty after reload. |
 | SK12 | Reload | Hard reloads UI without promising to clear session state. | partial | Click Reload; page reloads with cache-bust. |
 | SK13 | Routines | Opens routine/automation surface. | planned | Until wired, no fake routine status. |
@@ -102,6 +102,25 @@ These are the first-pass settings subitems carried forward from Meridian's Polar
 | SET18 | Diagnostic log visibility | Controls whether per-session diagnostic event logs are visible by default. | planned | Toggle setting; diagnostic log opens/closes without losing events. |
 | SET19 | Public CLI setup guidance | Exposes setup status/help for Codex and Max/Claude CLIs in public builds. | planned | Missing CLI/auth shows install/login guidance. |
 | SET20 | Non-exposed harness internals | Confirms heartbeat thresholds, capability toggles, and cross-harness routing internals stay hidden unless explicitly promoted. | planned | Settings surface does not expose these controls. |
+
+### Filter Surface Subitems
+
+Filter is not primarily for finding session cards in this interface. It controls how much information Prime or another session receives in prompt/context, from sparse response-only mode to verbose work/debug mode.
+
+| ID | Filter Item | Intended Behavior | Current Status | Verification |
+|---|---|---|---|---|
+| FIL1 | Response visibility | Include/exclude model response text from the session context view. | planned | Toggle changes context preview without deleting transcript. |
+| FIL2 | Tool visibility | Include/exclude tool calls and tool results. | planned | Tool details appear only when enabled. |
+| FIL3 | Token usage visibility | Include/exclude token usage and budget telemetry. | planned | Token data appears as telemetry, not prose injected into the prompt. |
+| FIL4 | Inbound messages | Include/exclude inbound user/session messages. | planned | Context preview marks inbound content separately. |
+| FIL5 | Outbound messages | Include/exclude outbound model/session messages. | planned | Context preview marks outbound content separately. |
+| FIL6 | Work statements | Include/exclude work statements, intentions, and status summaries. | planned | Work statements can be shown without raw logs. |
+| FIL7 | Proof/evidence summaries | Include/exclude proof links and compact evidence summaries. | planned | Evidence links appear without dumping full artifacts. |
+| FIL8 | Diagnostic events | Include/exclude error/info diagnostic events. | planned | Diagnostic events are structured and filterable. |
+| FIL9 | Verbosity preset | Provides compact, normal, verbose, and debug presets. | planned | Presets change multiple filter toggles predictably. |
+| FIL10 | Scope target | Applies filter to Prime, User/session panel, selected harness, or current project. | planned | Filter state clearly names its target scope. |
+| FIL11 | Context preview | Shows what would be included before sending or saving context. | planned | Preview changes with toggles and does not send automatically. |
+| FIL12 | No destructive filtering | Filtering limits visibility/context but never deletes source session data. | planned | Turning filter off restores hidden content. |
 
 ### Models Surface Subitems
 
@@ -198,11 +217,87 @@ The Routines icon owns recurring or repeatable work patterns. It should make rou
 | ROU11 | Routine archive/history | Shows previous runs and outcomes without cluttering main panels. | planned | History is inspectable by routine. |
 | ROU12 | Public automation boundary | Public build explains what automation needs local permissions/accounts. | planned | Missing permission/account gets readable setup state. |
 
+### Skills Surface Subitems
+
+Skills is a searchable registry of available skills and capabilities. It should explain what each skill does, what arguments it needs, and where it is available: globally, for a project, or for a specific model/backend.
+
+| ID | Skills Item | Intended Behavior | Current Status | Verification |
+|---|---|---|---|---|
+| SKL1 | Search skills | Dynamically search skills by name, purpose, provider, project, or keyword. | planned | Search narrows results while typing. |
+| SKL2 | Global skills | Shows skills available across all projects. | planned | Global scope is clearly labeled. |
+| SKL3 | Project skills | Shows skills available for the active project. | planned | Switching project changes project-scoped skills. |
+| SKL4 | Model/backend skills | Shows which skills are available by Codex, Max/Claude, or other backend. | planned | Skill availability names the backend. |
+| SKL5 | Skill description | Explains what each skill does in user-readable language. | planned | Description is concise and not raw config. |
+| SKL6 | Arguments schema | Shows required and optional arguments for each skill. | planned | Arguments are named with type/meaning/defaults where known. |
+| SKL7 | Usage example | Shows a short example command or prompt pattern. | planned | Example does not execute automatically. |
+| SKL8 | Permission boundary | Shows whether the skill reads files, writes files, uses network, or affects accounts. | planned | Risk/account effects are visible before use. |
+| SKL9 | Install/setup status | Shows missing dependencies or login/setup requirements. | planned | Missing setup gives actionable guidance. |
+| SKL10 | Run/request path | Provides a clear path to invoke or request the skill when supported. | planned | Invocation target is explicit and scoped. |
+| SKL11 | Skill provenance | Shows whether skill is built-in, project-local, plugin-provided, or user-defined. | planned | Provenance is visible in detail view. |
+| SKL12 | Favorite/pin skill | Allows important skills to be pinned for the active project/user. | planned | Pinned skills persist in the correct scope. |
+
+### Archive Surface Subitems
+
+Archive preserves reloadable sessions. It differs from long-term knowledge because the user expects a session may be reopened and run again, while Echo/Atlas knowledge is extracted memory or retrieval context.
+
+| ID | Archive Item | Intended Behavior | Current Status | Verification |
+|---|---|---|---|---|
+| ARC1 | Session archive list | Shows archived sessions that can be inspected later. | planned | Archive list is real or empty; no fake sessions. |
+| ARC2 | Reload session | Restores an archived session into an active/reopened state where supported. | planned | Reloaded session preserves identity/source metadata. |
+| ARC3 | Run again | Allows rerun/resume/restart from archived session context where backend supports it. | planned | Action names the actual steering mode used. |
+| ARC4 | Archive metadata | Stores project, model/backend, role, timestamps, status, and source session id. | planned | Metadata is visible without opening full transcript. |
+| ARC5 | Context reference | Allows Prime/session to reference archived context intentionally. | planned | Reference creates explicit context link, not hidden prompt drag. |
+| ARC6 | Search archived sessions | Searches archive by project, role, model, status, date, and text summary. | planned | Search results are scoped and fast. |
+| ARC7 | Archive summary | Stores compact session summary for scanability. | planned | Summary is visible without loading full transcript. |
+| ARC8 | Transcript access | Allows full transcript access when available and authorized. | planned | Full transcript opens on demand only. |
+| ARC9 | Archive to knowledge handoff | Allows extracting durable lessons/memory into Echo/Atlas separately. | planned | Extraction is explicit and does not replace archive. |
+| ARC10 | Restore proof/artifacts | Links archived session to proof, files, or artifacts created. | planned | Evidence links remain inspectable. |
+| ARC11 | Archive retention | Supports retention/archive policy once storage model exists. | planned | Retention state is visible and reversible where possible. |
+| ARC12 | Safe deletion boundary | Deleting an archive is separate from closing or filtering and requires explicit intent. | planned | No archive deletion from one-click close. |
+
+### Close Surface Subitems
+
+Close is a targeted session-control action, not merely closing a panel. It should preserve the useful Polaris behavior: target a session, force write-through, update Obsidian where applicable, then close intentionally.
+
+| ID | Close Item | Intended Behavior | Current Status | Verification |
+|---|---|---|---|---|
+| CLS1 | Target selection | Lets user/Prime choose the session or surface to close. | planned | Target is explicit before action runs. |
+| CLS2 | Write-through before close | Forces pending session state/transcript/metadata write before closing. | planned | Close records a final saved state event. |
+| CLS3 | Obsidian capture | Writes or queues an Obsidian update before close when applicable. | planned | Obsidian result is visible as success/failure. |
+| CLS4 | Close summary | Captures concise close summary with status, next action, blockers, and proof refs. | planned | Summary appears in archive/session history. |
+| CLS5 | Archive option | Offers archive-on-close for sessions worth reopening. | planned | Archived close appears in Archive list. |
+| CLS6 | No silent data loss | Blocks close or warns when write-through fails. | planned | Failed write-through leaves session open or visibly recoverable. |
+| CLS7 | Stop-before-close check | Detects running work before close and asks for stop/archive/leave-running path. | planned | Running session cannot be silently killed. |
+| CLS8 | Close overlay mode | Closes transient UI overlays without affecting sessions. | planned | Overlay close is visually distinct from session close. |
+| CLS9 | Close status event | Emits structured event for session lifecycle/history. | planned | Event is visible to Beacon/Session Lifecycle. |
+| CLS10 | Restore after close | Closed sessions can be found through recent/Archive where applicable. | planned | Recently closed item is recoverable. |
+| CLS11 | Permission gate | Higher-risk close actions require explicit confirmation. | planned | Public/account/build-critical sessions do not close accidentally. |
+| CLS12 | Orchestrator-led close | Prime can propose routine close but must expose reason and saved state. | planned | Proposed close includes reason and target. |
+
 ### Speech / Voice
 
 | ID | Control / Feature | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
-| VO1 | Speech mode icon | Enables/disables voice or speech mode once voice layer exists. | planned | Until wired, must not imply live microphone/model speech is active. |
+| VO1 | Speech mode icon | Enables/disables first-class spoken interaction with Prime through Spark. | planned | Track `VOC-*` subitems before wiring the surface. |
+
+### Speech / Voice Subitems
+
+Speech/Voice is first-class planning now. The user should be able to speak with Prime and be spoken to through Spark, with clear listening/thinking/speaking states.
+
+| ID | Voice Item | Intended Behavior | Current Status | Verification |
+|---|---|---|---|---|
+| VOC1 | Push-to-talk | Lets user hold/click to speak to Prime. | planned | Speech capture starts/stops with visible state. |
+| VOC2 | Wake/listening state | Shows when Spark is listening, idle, thinking, or speaking. | planned | State changes are visible and not faked. |
+| VOC3 | Speech-to-text | Converts spoken user input into prompt text before send. | planned | Transcribed text is visible/editable before or after send by mode. |
+| VOC4 | Voice submit mode | Supports spoken prompt submission to Prime. | planned | Voice prompt follows same routing as typed Prime prompt. |
+| VOC5 | Read-aloud response | Speaks Prime/model responses through Spark. | planned | Response can be heard and muted. |
+| VOC6 | Mute output | Mutes spoken responses without disabling typed responses. | planned | Mute state persists in UI session. |
+| VOC7 | Interrupt speech | Allows user to stop current spoken response. | planned | Speech stops without losing transcript. |
+| VOC8 | Voice selection | Chooses Spark voice once voice provider exists. | planned | Selected voice is visible and persistent. |
+| VOC9 | Dictation correction | Allows correction of misheard text before/after sending. | planned | Correction updates prompt/transcript metadata. |
+| VOC10 | Voice command intents | Recognizes command families such as reset, reload, open, close, filter, and crosscheck. | planned | Recognized command previews intended action before risky execution. |
+| VOC11 | Privacy indicator | Makes microphone capture state obvious. | planned | Capture state cannot be hidden or ambiguous. |
+| VOC12 | Public setup guidance | Explains microphone/browser permissions and speech provider setup in public builds. | planned | Missing permission/provider shows readable setup guidance. |
 
 ### Harness Dock Buttons
 
