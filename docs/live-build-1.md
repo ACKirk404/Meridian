@@ -4,6 +4,30 @@
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: add Relay-to-Bifrost proof payload contract tests.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Required sources: current `AegisGateEvidenceSummary`, `RelayExecutionSummary.aegis_gate_evidence_summary()`, `docs/bifrost-right-panel-mode-contract.md`, and current Relay executor tests.
+
+Task: add provider-neutral tests and minimal serialization hooks so Bifrost/Prime can consume Relay proof payload data without calling Relay internals directly. Cover stable keys for gate decision, severity, evidence ids, waiver presence, explanation, and Aegis fallback blockers. Preserve immutability and deterministic ordering. Do not call models, call Aegis validators, inspect accounts, edit Bifrost, edit UI, move branches, or touch Polaris.
+
+Tests:
+
+- `python -m pytest tests/test_relay_executor.py -q`
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: add Relay proof payload docs/FileMap registration request after proof payload tests clear review.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Relay summary serialization for Aegis gate evidence.
@@ -27,7 +51,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Next Candidate Task
+## Archived Candidate - Promoted Above
 
 Goal: add Relay-to-Bifrost proof payload contract tests after summary serialization clears review.
 

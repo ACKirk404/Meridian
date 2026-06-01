@@ -10,13 +10,13 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Active Now
 
-Goal: review current-main Build 1 Relay landing commit `62298763`.
+Goal: review current-main Build 1 Relay summary serialization landing commit `ff6893c6`.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
 
 Allowed review files: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
 
-Task: verify that the Build 1 Relay vendor/model blocker, Aegis evidence fields, and Relay-side Aegis block/human-gate behavior are now present in current `origin/main` and pass proof. Confirm the previous provenance finding is closed because the reviewed changes are ancestors of current main. Also confirm no live vendor calls, account probing, UI automation, process execution, branch movement, or Polaris dependency was added. If clean, mark passed and promote the Build 2 Session Lifecycle review candidate. If not clean, route the smallest focused repair to Build 1.
+Task: verify that the Build 1 Relay summary serialization for Aegis gate evidence is present in current `origin/main` and passes proof. Confirm `AegisGateEvidenceSummary` and `RelayExecutionSummary.aegis_gate_evidence_summary()` expose gate decision, severity, evidence ids, waiver presence, explanation, and Aegis-derived blockers without live Aegis calls or model/vendor/account side effects. Also confirm prior Relay vendor/model blocker and Aegis block/human-gate behavior remain intact. If clean, mark passed and promote the Build 2 Session Lifecycle review candidate. If not clean, route the smallest focused repair to Build 1.
 
 Proof command:
 

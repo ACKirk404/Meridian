@@ -6,9 +6,15 @@ This file is the standing queue for a second specialized Codex Reviews session.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
-## Coordinator Override - Active Now
+## Coordinator Note - Current Finding
+
+Codex Reviews B has already identified the remaining current-main Build 4 blocker: `gate_cost_exposure()` still allows Tier 2+ premium cost from bare `cost_justified=True` before requiring structured `ApprovalRecord`. The focused repair is now Active in `docs/live-build-4.md`; continue the review lane on the current Active Now item below and route only new findings.
+
+## Completed / Finding Routed
 
 Goal: review current-main Build 4 Aegis and Build 5 Bifrost landing commits.
+
+Status: blocked by Codex Reviews B on 2026-06-01 16:19 -06:00. Build 4 includes selected model/vendor evidence for Tier 2 aggregator routes and Aegis gate summary helpers, and Build 5 right-panel rendering/mode-switching is present at current `HEAD`; however `gate_cost_exposure()` still allows Tier 2+ premium cost from bare `cost_justified=True` without structured `ApprovalRecord`. Focused repair is already active in Build 4.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
 
@@ -21,6 +27,15 @@ Proof commands:
 - `python -m pytest tests/test_aegis.py tests/test_bifrost_cockpit.py -q`
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+Review result:
+
+- `python -m pytest tests/test_aegis.py tests/test_bifrost_cockpit.py -q` passed with 356 tests.
+- Build 4 pass: `gate_aggregator_authority()` requires `selected_model_evidence` for Tier 2 aggregator allowance, and gate summary/aggregate summary helpers are present with focused tests.
+- Build 5 pass: current `HEAD` includes right-panel render helpers, CSS, mode-specific tests, and mode-switching tests; Settings and Harness remain full-panel non-prompt surfaces.
+- Finding: `meridian_core/aegis.py` `gate_cost_exposure()` still returns ALLOW for Tier 2+ premium cost when `cost_justified=True`, before requiring `ApprovalRecord`, and `tests/test_aegis.py` still asserts that path. Why it matters: premium-cost approval can still bypass the structured actor/scope/timestamp/reason audit record required for Tier 2+ cost exposure. Recommended owning lane: Build 4.
+
+Completion: focused repair is active in `docs/live-build-4.md`. No Build 5 repair routed. Next candidate remains Build 3 FileMap registration for Build 5 right-panel rendering artifacts after Build 3 marks it Ready for Codex Review.
 
 ## Next Candidate Task
 
@@ -1152,6 +1167,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews B checked queue; status: idle/running/blocke
 2026-06-01 16:01 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; top queue remains completed Build 4 finding routed plus non-executable Build 5 and Build 3 next candidates only.
 2026-06-01 16:03 -06:00 - Codex Reviews B checked queue; status: running; notes: pulled latest origin/main first; executable Coordinator Override Active Now found for Build 4 Aegis repair and Build 5 Bifrost right-panel rendering review.
 2026-06-01 16:09 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; top queue remains completed Build 4/Build 5 finding routed plus non-executable Build 3 next candidate only.
+2026-06-01 16:19 -06:00 - Codex Reviews B checked queue; status: running; notes: pulled latest origin/main first; executable Coordinator Override Active Now found for current-main Build 4 Aegis and Build 5 Bifrost landing commit review.
 2026-06-01 16:11 -06:00 - Codex Reviews B checked queue; status: running; notes: pulled latest origin/main first; executable Coordinator Override Active Now found for current-main Build 4 Aegis and Build 5 Bifrost landing commit review.
 2026-06-01 09:20 -06:00 - Codex Reviews B Round B4 executed; status: PASS-WITH-MEDIUM-FINDING; commit reviewed: 5e0facb; tests: python -m pytest tests/test_filemap.py -q → 46/46 in 0.09s; finding: 3 docs registered in filemap.py and _REQUIRED_PATHS but absent from docs/FileMap.md (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md); repair task written to Build 3 Active Task; results in Obsidian (2026-06-01 Codex Reviews B Round B4 Result.md); cadence 2/3 since Round B3; awaiting Round B5 trigger.
 2026-05-31 22:13 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.
