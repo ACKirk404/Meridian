@@ -2348,3 +2348,11 @@ Next Candidate:
 ## Write / Completion Log
 
 - 2026-06-01 17:09 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance/disposition and `docs/live-build-3.md` repair routing only. Tests run: `python -m pytest tests/test_filemap.py -q` (46 passed). Commit hash: pending at write time; see final handoff for pushed commit. Push status: pending at write time. Obsidian update status: not updated; queue provenance/routing only.
+
+## Read Checks
+
+- 2026-06-01 17:13 -06:00 — pulled latest `origin/main` (`Already up to date`) and read `docs/live-codex-reviews-2.md`, `docs/live-build-3.md`, and `docs/live-build-4.md`. Reviews B has already completed/finding-routed the Build 5 right-panel FileMap review. Build 3 now has the duplicate `docs/ui-integration-checklist.md` FileMap row repair as its active task; the Build 4 Relay model-selection logic review remains the next candidate after that repair clears. Keep polling; do not rerun the completed review.
+
+## Write / Completion Log
+
+- 2026-06-01 17:13 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because this was a queue poll and the routed Build 3 repair is not yet marked Ready for Codex Review. Commit hash: pending at write time; see final handoff for pushed commit. Push status: pending at write time. Obsidian update status: not updated; queue provenance only.
