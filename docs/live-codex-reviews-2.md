@@ -994,6 +994,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews B checked queue; status: idle/running/blocke
 2026-05-31 22:51 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; Build 3 remains a non-executable next candidate pending Ready marker.
 2026-05-31 22:53 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; Build 3 remains a non-executable next candidate pending Ready marker.
 2026-05-31 22:56 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; Build 3 remains a non-executable next candidate pending Ready marker.
+2026-05-31 22:58 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; build-lane Active/Ready markers were observed but not executable by this review queue without assignment.
 
 ## Review Log
 
@@ -1322,6 +1323,7 @@ Write log:
 - 2026-05-31 22:51 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `6433732`; push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 - 2026-05-31 22:53 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `b5c438f`; push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 - 2026-05-31 22:56 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `8249fcf` (metadata completed in `7053ba1`); push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
+- 2026-05-31 22:58 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: pending; push status: pending; Obsidian update status: not updated (no architecture finding or clearance).
 
 ## Coordinator Addendum - Round B5 V1 Cockpit Clearance
 
