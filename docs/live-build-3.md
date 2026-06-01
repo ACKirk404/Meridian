@@ -509,6 +509,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-11 01:45 UTC - Build 3 checked queue; status: active task found (Session Lifecycle implementation checklist FileMap registration); executing registration
 2026-06-11 02:00 UTC - Build 3 checked queue; status: idle; no executable Active Task; Session Lifecycle FileMap registration routed to Codex review; cadence 2/3 since Round B5; awaiting next assignment
 2026-06-11 02:15 UTC - Build 3 checked queue; status: idle; no executable Active Task; Session Lifecycle FileMap registration awaiting Codex review findings; cadence 2/3 since Round B5
+2026-06-11 02:45 UTC - Build 3 checked queue; status: idle; Active Task (FileMap repair) already complete (commit ba83a4c); cadence 3/3 since Round B5 — Codex review required before next task
 2026-05-31 02:00 -06:00 - Build 3 checked queue; status: active task found (FileMap registration -- cockpit_provider.py + tests/test_cockpit_provider.py); starting work
 ```
 
