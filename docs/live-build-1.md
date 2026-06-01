@@ -771,3 +771,7 @@ Historical record of Build 1 V0 completed slices (most recent first). Do not re-
 [COMPLETED 2026-05-31 ~17:05 CDT] V0 Relay executor skeleton — commit `190e527`; 811 tests pass; Ready for Codex Review.
 
 [COMPLETED 2026-05-31 ~04:30 CDT] WorkerLaneState domain model — commit `d2820d2`; 785 tests pass; Ready for Codex Review.
+
+[COMPLETED 2026-05-31 ~22:15 -05:00] Model Harness metadata fields for provider capability and prompt-drag telemetry — commit `a8922c3`; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 31 targeted passed; Ready for Codex Review.
+
+2026-05-31 22:25 -05:00 - Build 1 checked queue; status: running (Prompt payload snapshot metadata task — Active Now)
