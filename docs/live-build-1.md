@@ -790,6 +790,13 @@ Tests:
 - PrimeCockpitSnapshot task verified already complete (29/29 tests pass); no new implementation required
 - Build 1 idle and polling for next task assignment
 
+**Build 1 Read Check** — 2026-06-01 16:01 -06:00
+- Status: queue poll complete; no Active Now task
+- Significant pull: 198 insertions across queue files, codex review files, filemap updates from other builds
+- Completed 2 substantial Relay executor tasks (vendor/model_id unknowns + Aegis evidence fields)
+- Codex review (claude-sonnet-4-6) provided verdict: APPROVE with minor code quality notes
+- Build 1 idle and polling for next task assignment
+
 Goal: make `PrimeCockpitSnapshot` preserve its promised immutable snapshot shape when callers pass mutable lane/event sequences.
 
 Allowed files only: `meridian_core/cockpit_state.py`, `tests/test_cockpit_state.py`, `docs/live-build-1.md`.
