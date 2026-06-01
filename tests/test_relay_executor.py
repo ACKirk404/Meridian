@@ -1692,6 +1692,9 @@ class TestRelayDecisionRecord:
         # Explanation should include Aegis context
         assert "Aegis" in record.explanation_for_prime
         assert "human_gate" in record.explanation_for_prime
+        # Note: human_gate_required field represents route base requirement only;
+        # Aegis gate decisions are captured separately in fallback_blockers and explanation.
+        # The explicit "aegis_human_gate_required" blocker serves as the downstream signal.
 
     def test_decision_record_aegis_demote_adds_explanation_only(self) -> None:
         """Decision record treats Aegis 'demote' decision as non-silent demotion."""
