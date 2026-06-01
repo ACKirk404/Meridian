@@ -2302,3 +2302,11 @@ Next Candidate:
 ## Write / Completion Log
 
 - 2026-06-01 17:04 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because the Build 3 Build 5 FileMap registration slice is not yet marked Ready for Codex Review. Commit hash: pending at write time; see final handoff for pushed commit. Push status: pending at write time. Obsidian update status: not updated; queue provenance only.
+
+## Read Checks
+
+- 2026-06-01 17:07 -06:00 — pulled latest `origin/main` (`Already up to date`) and read `docs/live-codex-reviews-2.md` plus `docs/live-build-3.md`. Active Reviews B task remains the Build 3 FileMap registration review for Build 5 right-panel rendering artifacts. `docs/live-build-3.md` still shows that Build 5 FileMap registration as the first `Active Task`, not a `Completed / Ready For Codex Review` slice; keep polling and do not mark idle.
+
+## Write / Completion Log
+
+- 2026-06-01 17:07 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because the Build 3 Build 5 FileMap registration slice is not yet marked Ready for Codex Review. Commit hash: pending at write time; see final handoff for pushed commit. Push status: pending at write time. Obsidian update status: not updated; queue provenance only.
