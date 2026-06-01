@@ -31,7 +31,7 @@ Tests:
 
 Completion: landed on current `origin/main` in commit `558af555` (`feat: complete Session Lifecycle routing-action coverage`). Files changed: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`. Proof: `python -m pytest tests/test_session_lifecycle.py -q` passed with 24 tests on 2026-06-01. Ready for Codex Review.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Prime command-plan tests that consume the new Session Lifecycle routing reasons after review clears.
 
@@ -47,7 +47,7 @@ Tests:
 
 - `python -m pytest tests/test_session_lifecycle.py -q`
 
-Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review with commit hash, files changed, and tests run, and leave a concrete Next Candidate.
+Completion: Build 2 completed Prime command-plan tests consuming new routing actions/reasons; commit f69d6683; files changed: tests/test_session_lifecycle.py (added 12 focused tests covering ARCHIVE/REQUEST_HUMAN_GATE/SUMMARIZE_RESET/TRANSFER commands and CONTEXT_FILL/REVIEW_GATE/PERMISSION_BOUNDARY routing signals, proving Prime-facing command-plan behavior); tests 34 passed (22 prior + 12 new Prime command-plan tests exercising archive, human-gate, transfer, and summarize-reset routing decisions); push f69d6683 to origin/main via worktree; Obsidian: not required (code-only); cadence 2 of 3; Ready for Codex Review.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
@@ -921,6 +921,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-06-12 14:10 -06:00 - Build 2 checked queue; status: idle (no Active Now task assigned by coordinator; routing-action coverage repair marked Ready for Codex Review; Next Candidate task pending review clearance; cadence 1 of 3; awaiting next task; polling)
 2026-06-12 14:20 -06:00 - Build 2 checked queue; status: idle (no Active Now task; routing-action coverage repair task complete and Ready for Codex Review; new Aegis-Relay handoff contract created on main; cadence 1 of 3; awaiting orchestrator assignment; polling)
 2026-06-12 14:30 -06:00 - Build 2 completed Prime command-plan tests consuming routing actions/reasons (Coordinator Override - Active Now); commit f69d6683; 12 new tests added covering ARCHIVE/REQUEST_HUMAN_GATE/SUMMARIZE_RESET/TRANSFER and routing signals; all 34 tests passing; push complete; cadence 2 of 3; marking Ready for Codex Review; awaiting next assignment
+2026-06-12 14:40 -06:00 - Build 2 checked queue; status: running (Prime command-plan tests task marked Completed / Ready For Codex Review in queue; Active Now task transitioned to completed status; cadence 2 of 3; awaiting next task or Codex review signals; polling)
 ```
 
 ## Write/Completion Log
