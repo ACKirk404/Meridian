@@ -35,7 +35,7 @@ class GateSummary:
     severity: str                   # "info", "warning", "error"
     reason: str                     # explanation for downstream display
     required_evidence: str          # type of proof needed for this gate
-    waiver_approval_status: str     # "none", "waived", "approved", "pending"
+    waiver_approval_status: str     # "none", "waiver_present", "approval_present", "waiver_approval_missing"
     downstream_action: str          # deterministic action Relay/Bifrost should take
 ```
 
@@ -80,7 +80,7 @@ class ApprovalRecord:
     scope: str                 # what was approved: "PREMIUM_COST_ROUTE", "TIER_2_ROUTE", etc.
     timestamp: str             # ISO 8601: when approval was granted
     reason: str                # why premium cost is acceptable for this session
-    expiration: str = ""       # ISO 8601: when approval expires (optional)
+    expiration: str | None = None  # ISO 8601: when approval expires (optional)
 ```
 
 **Validation:** Aegis gates check `is_valid()` — all required fields must be non-empty strings.  
@@ -98,7 +98,8 @@ class WaiverRecord:
     scope: str                 # what was waived: "DUAL_LANE_REQUIREMENT", "PROOF_GAP", etc.
     timestamp: str             # when waiver was granted
     reason: str                # justification for exception
-    expiration: str = ""       # optional: when waiver expires
+    expiration: str | None = None  # optional: when waiver expires
+    evidence_url: str | None = None  # optional: URL to evidence supporting waiver
 ```
 
 **Validation:** `is_valid()` ensures all required fields are non-empty.  
@@ -195,6 +196,7 @@ selected_model_evidence: {
 - No session state mutation (no side effects).
 - No UI rendering (structured output only).
 - No async/polling (synchronous evaluation).
+- **Summary helpers are pure functions:** `summarize_gate_result()`, `summarize_gate_results()`, and `summarize_aggregate_route_gates()` take gate evaluation outputs and produce deterministic summaries. They do not call models, inspect accounts, or perform I/O. Relay's execution boundary may invoke adapters or model-call functions, but the handoff contract itself does not authorize live model calls, account inspection, process control, branch movement, or Polaris dependencies.
 
 ### Relay Stays Deterministic
 
