@@ -392,7 +392,13 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && req.url === '/api/recent-calls') {
-    sendJson(res, 200, { ok: true, calls: recentCalls.slice().reverse() }, req);
+    sendJson(res, 200, {
+      ok: true,
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      calls: recentCalls.slice().reverse(),
+    }, req);
     return;
   }
 

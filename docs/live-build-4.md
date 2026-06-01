@@ -10,6 +10,24 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Active Now
 
+Goal: repair remaining Aegis gate review findings before gate summary helper work continues.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
+
+Required sources: `docs/relay-aegis-risk-proof-gates.md`, current `meridian_core/aegis.py`, and Codex Reviews B finding routed on 2026-06-01 16:03 -06:00.
+
+Task: close the remaining Aegis repair gaps found by Codex Reviews B. `gate_cost_exposure()` must not allow Tier 2+ premium cost from a bare `cost_justified=True`; Tier 2+ premium-cost allowance must require a valid structured `ApprovalRecord`. `gate_aggregator_authority()` must require explicit selected model/vendor evidence for Tier 2 aggregator allowance before returning allow. Keep helpers pure, deterministic, and provider-neutral. Do not edit Relay, Bifrost, FileMap, review queues, move branches, or touch Polaris.
+
+Tests:
+
+- `python -m pytest tests/test_aegis.py -q`
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave the gate summary helper task as the next candidate.
+
+## Routed / Paused Until Repair Clears Review
+
 Goal: add Aegis gate summary helpers for Relay/Bifrost display.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.

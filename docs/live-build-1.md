@@ -54,6 +54,10 @@ Completion:
 
 Ready for Codex Review.
 
+Reviews A result:
+
+- 2026-06-01 16:04 -06:00 - Codex Reviews A could not clear commit `c3d91214` because it is not an ancestor of current `HEAD`/`origin/main`; the required proof command therefore ran against unrepaired Relay code. Required repair: land or requeue the current-main review target through the approved branch path before this Ready marker is accepted.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: bind Aegis route-gate evidence into Relay decision records after the Aegis runtime gate slice lands.
@@ -76,6 +80,10 @@ Completion:
 - Push: successful to worktree branch; ready for merge.
 
 Ready for Codex Review.
+
+Reviews A result:
+
+- 2026-06-01 16:04 -06:00 - Codex Reviews A could not clear commit `69e9ff55` because it is not an ancestor of current `HEAD`/`origin/main`; current `RelayDecisionRecord` still lacks the Aegis evidence fields from that commit. Required repair: land or requeue the current-main review target through the approved branch path before this Ready marker is accepted.
 
 ## Next Candidate Task
 
