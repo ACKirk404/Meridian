@@ -121,6 +121,32 @@ class TestSessionLifecycleState:
         assert action == SessionAction.TRANSFER
         assert reason == SessionActionReason.DUAL_LANE_NEEDED
 
+    def test_suggest_routing_action_archive_context_fill(self, healthy_state):
+        """Test routing suggests ARCHIVE when context should be filled."""
+        action, reason = healthy_state.suggest_routing_action(should_archive=True)
+        assert action == SessionAction.ARCHIVE
+        assert reason == SessionActionReason.CONTEXT_FILL
+
+    def test_suggest_routing_action_human_gate_review_pending(self, healthy_state):
+        """Test routing suggests REQUEST_HUMAN_GATE when review is gated."""
+        action, reason = healthy_state.suggest_routing_action(review_gate_pending=True)
+        assert action == SessionAction.REQUEST_HUMAN_GATE
+        assert reason == SessionActionReason.REVIEW_GATE
+
+    def test_suggest_routing_action_human_gate_permission_boundary(self, healthy_state):
+        """Test routing suggests REQUEST_HUMAN_GATE at permission boundary."""
+        action, reason = healthy_state.suggest_routing_action(
+            permission_boundary_crossed=True
+        )
+        assert action == SessionAction.REQUEST_HUMAN_GATE
+        assert reason == SessionActionReason.PERMISSION_BOUNDARY
+
+    def test_suggest_routing_action_start_new_context_fill(self, healthy_state):
+        """Test routing suggests START_NEW when context needs filling."""
+        action, reason = healthy_state.suggest_routing_action(context_needs_fill=True)
+        assert action == SessionAction.START_NEW
+        assert reason == SessionActionReason.CONTEXT_FILL
+
     def test_routing_fields_in_serialization(self, healthy_state):
         """Test routing fields are included in to_dict()."""
         state_with_routing = SessionLifecycleState(
