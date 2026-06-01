@@ -33,7 +33,7 @@ Use this as the working UI checklist. Every visible icon, selector, session cont
 | SP4 | User Session prompt input | Same prompt behavior as Prime panel, but only in User Session mode. | wired | In User Session mode, type three lines; Enter sends and clears. |
 | SP5 | Prime response window | Displays Prime/model output below Prime prompt. | partial | Prompt text remains yellow; response text appears below it. |
 | SP6 | User Session response window | Displays routed session/model output below User prompt only in User Session mode. | partial | User Session mode shows prompt/response; Settings/Harness modes do not. |
-| SP7 | Prime text-size slider | Single shared slider starts at minimum on first load, persists the chosen size, and controls Prime, User, and harness/Relay panel text. | wired | Drag Prime slider right, reload/reset, and confirm visible panel text keeps the chosen size. |
+| SP7 | Prime text-size slider | Single shared slider starts at minimum on first load, persists the chosen size on input/change, and controls Prime, User, and harness/Relay panel text. | wired | Drag Prime slider right, release it, reload/reset, and confirm visible panel text keeps the chosen size. |
 | SP8 | User text-size slider | Removed as a duplicate control; text size is owned by the Prime slider. | wired | Right panel has no separate slider, and the Prime slider still controls right-panel text. |
 | SP9 | User prompt color | User-entered transcript text is bright yellow anywhere it appears. | wired | Send prompt from either panel; transcript prompt is yellow. |
 | SP10 | Path/file highlighting | File paths and filenames in output render bright orange. | wired | Ask model for working directory; path is orange. |
@@ -507,7 +507,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | MB1 | Model selector defaults to Codex until Prime/Relay auto-routing exists. | Served page contains `value="codex" selected`; saved `auto` falls back to Codex. |
 | MB2 | Auto remains unavailable until Prime/Relay harness logic owns routing. | Served page contains disabled Auto option or equivalent unavailable state. |
 | MB3 | Selecting Codex sends through the Meridian bridge, not Polaris. | Request goes to `http://127.0.0.1:8767/api/message`; no Polaris path or process is touched. |
-| MB4 | Selecting Max sends through the Meridian bridge when the Claude CLI is available. | `/api/models` reports Max availability before sending; unavailable state gives setup guidance. |
+| MB4 | Selecting Max sends through the Meridian bridge when the Claude CLI is available. | `/api/models` reports Max availability; bridge invokes Claude with print/json/no-session-persistence over stdin and parses the JSON result. |
 | MB5 | Public setup errors are readable. | Missing CLI or auth failure returns install/login guidance instead of a silent hang. |
 | MB6 | Request metadata is tracked without logging prompt text. | `/api/recent-calls` shows bridge version/capabilities plus request id, channel, backend, model label, duration, status, and visible-context counts only. |
 | MB7 | Model/context label appears below or near the response area when known. | Manual: send a follow-up request and confirm displayed model/source plus visible context count. |
@@ -516,6 +516,8 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | MB10 | Bridge restart endpoint | Local bridge exposes a same-port restart endpoint for Reset recovery. | `POST /api/restart` returns accepted, then `/health` and `/api/models` come back with visible-context capability. |
 | MB11 | Bridge capability parity | `/health` and `/api/models` advertise the same bridge version and capability flags, and the UI readiness line shows the active bridge generation. | Both endpoints report `visibleTranscriptContext`, `recentCallContextDiagnostics`, and `samePortRestart`; session status includes the bridge version. |
 | MB12 | Local-origin bridge access | Browser access to bridge endpoints is limited to the Meridian local UI origins. | Disallowed origins get `403`; command-line checks without an Origin header still work. |
+| MB13 | Bridge readiness self-heal | UI rechecks bridge readiness when the page regains focus or visibility. | Restart bridge externally, return to the page, and status refreshes without manual reload. |
+| MB14 | Relay bridge visibility | Relay panel shows and refreshes live bridge access status from `/health`, not static copy. | Open Relay; Bridge route shows online/offline, version, visible-context state, and reset recovery state; focus/visibility refresh updates it. |
 
 ## Harness UI Rules
 

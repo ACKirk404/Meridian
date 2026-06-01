@@ -6,6 +6,73 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Active Now
 
+Goal: add Relay proof payload docs/FileMap registration request.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `docs/live-build-1.md`, `docs/relay-bifrost-proof-payload-contract.md`.
+
+Required sources: current Relay proof payload serialization hooks, `docs/bifrost-right-panel-mode-contract.md`, and `docs/FileMap.md`.
+
+Task: write the concise docs-only Relay-to-Bifrost proof payload contract request that Build 3 can register in FileMap after review clears. Cover stable payload keys, immutability expectations, downstream display intent, and out-of-scope constraints. Do not edit Relay runtime/tests, Bifrost runtime/CSS/tests, FileMap, review queues, UI, move branches, or touch Polaris.
+
+Tests: docs-only; no pytest required.
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+
+**Build 1 Read Check** — 2026-06-01 17:10 -06:00 (Active Task Found)
+- Status: Queue poll complete; Active Now task found: "add Relay proof payload docs/FileMap registration request"
+- Latest origin/main: commit `935d0a37` (Build 5 read check)
+- Task: Write docs-only contract for Relay-to-Bifrost proof payload registration in FileMap
+- Scope: docs/relay-bifrost-proof-payload-contract.md, docs/live-build-1.md
+- Beginning implementation
+
+## Coordinator Override - Completed / Ready For Codex Review
+
+Goal: add Relay proof payload docs/FileMap registration request.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `docs/live-build-1.md`, `docs/relay-bifrost-proof-payload-contract.md`.
+
+Required sources: current Relay proof payload serialization hooks, `docs/bifrost-right-panel-mode-contract.md`, and `docs/FileMap.md`.
+
+Task: write the concise docs-only Relay-to-Bifrost proof payload contract request that Build 3 can register in FileMap after review clears. Cover stable payload keys, immutability expectations, downstream display intent, and out-of-scope constraints. Do not edit Relay runtime/tests, Bifrost runtime/CSS/tests, FileMap, review queues, UI, move branches, or touch Polaris.
+
+Completion:
+
+- Build 1 completed Relay-Bifrost proof payload contract on 2026-06-01 17:15 -06:00.
+- Commit: `eafa0c17` (docs: Add Relay-Bifrost proof payload contract for FileMap registration).
+- Files changed: `docs/relay-bifrost-proof-payload-contract.md`.
+- Implementation: Contract defines stable proof payload keys (gate_decision, severity, evidence_ids, waiver_present, explanation, fallback_blockers_from_aegis), immutability guarantees (all immutable types), determinism (consistent across calls), downstream display intent (how to render each field), and out-of-scope constraints (no Relay calls, no Aegis calls, no mutations, display-only). Includes FileMap registration guidance for Build 3.
+- Push: successful to worktree branch; ready for merge.
+
+Ready for Codex Review.
+
+**Build 1 Read Check** — 2026-06-01 17:20 -06:00 (Task Completion Verification)
+- Status: Previous Active Now task completed and marked Ready for Codex Review
+- Latest origin/main: commit `cf514cb6` (Session Lifecycle review pickup)
+- Completed task: Relay proof payload contract (commit eafa0c17)
+- No new "Coordinator Override - Active Now" task found
+- Next Candidate Task: add Relay proof payload negative-path tests (awaiting promotion)
+- Session code/doc changes: 4 total (3 code + 1 docs); previous Codex review at 3 changes
+- Build 1 idle and awaiting next task promotion or queue update
+
+**Build 1 Read Check** — 2026-06-01 17:25 -06:00 (Continued Poll)
+- Status: Queue poll complete; no "Coordinator Override - Active Now" task
+- Latest origin/main: commit `18bb61df` (Session Lifecycle action coverage repair)
+- Relay proof payload contract task still Ready for Codex Review (commit eafa0c17)
+- Next Candidate Task still awaiting Prime/Codex promotion
+- Build 1 idle and polling for next task assignment
+
+## Next Candidate Task
+
+Goal: add Relay proof payload negative-path tests after the docs/FileMap request clears review.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: add Relay-to-Bifrost proof payload contract tests.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
@@ -16,13 +83,25 @@ Required sources: current `AegisGateEvidenceSummary`, `RelayExecutionSummary.aeg
 
 Task: add provider-neutral tests and minimal serialization hooks so Bifrost/Prime can consume Relay proof payload data without calling Relay internals directly. Cover stable keys for gate decision, severity, evidence ids, waiver presence, explanation, and Aegis fallback blockers. Preserve immutability and deterministic ordering. Do not call models, call Aegis validators, inspect accounts, edit Bifrost, edit UI, move branches, or touch Polaris.
 
-Tests:
+Completion:
 
-- `python -m pytest tests/test_relay_executor.py -q`
+- Build 1 completed Relay proof payload serialization hooks on 2026-06-01 16:55 -06:00.
+- Commit: `a41e3ddd` (feat: Add Relay proof payload serialization hooks for Bifrost/Prime).
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`.
+- Tests run: `python -m pytest tests/test_relay_executor.py -q` (145 tests: 140 original + 5 new serialization tests).
+- Implementation: Added to_dict() method to AegisGateEvidenceSummary for stable dictionary serialization with immutable values. Exposes stable keys: gate_decision, severity, evidence_ids, waiver_present, explanation, fallback_blockers_from_aegis. All values immutable (None, str, bool, tuple). Deterministic output verified with multiple tests. Provider-neutral with no external calls or model invocations.
+- Push: successful to worktree branch; ready for merge.
 
-Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+Ready for Codex Review.
 
-## Next Candidate Task
+**Build 1 Read Check** — 2026-06-01 16:50 -06:00 (Active Task Found)
+- Status: Queue poll complete; Active Now task found: "add Relay-to-Bifrost proof payload contract tests"
+- Latest origin/main: commit `19685e62` (review metadata update)
+- Task: Implement provider-neutral tests and serialization hooks for Bifrost/Prime to consume Relay proof payload data
+- Scope: meridian_core/relay_executor.py, tests/test_relay_executor.py, docs/live-build-1.md
+- Beginning implementation
+
+## Archived Candidate - Promoted Above
 
 Goal: add Relay proof payload docs/FileMap registration request after proof payload tests clear review.
 

@@ -117,6 +117,21 @@ class AegisGateEvidenceSummary:
     explanation: str = ""  # gate evaluation explanation
     fallback_blockers_from_aegis: tuple[str, ...] = ()  # Relay blockers generated from Aegis decisions
 
+    def to_dict(self) -> dict[str, object]:
+        """Serialize to stable dictionary for Bifrost/Prime consumption.
+
+        Returns a deterministic dict with stable keys that downstream surfaces can
+        rely on. All values are immutable (None, str, bool, tuple). No external calls.
+        """
+        return {
+            "gate_decision": self.gate_decision,
+            "severity": self.severity,
+            "evidence_ids": self.evidence_ids,
+            "waiver_present": self.waiver_present,
+            "explanation": self.explanation,
+            "fallback_blockers_from_aegis": self.fallback_blockers_from_aegis,
+        }
+
 
 @dataclass(frozen=True)
 class RelayExecutionSummary:

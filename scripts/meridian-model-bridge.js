@@ -45,10 +45,11 @@ if (process.argv.includes('--self-test')) {
     emptyPrompt.entries === 0 &&
     emptyPrompt.prompt === 'Fresh question'
   );
+  const maxJsonOk = normalizeModelText('max', JSON.stringify({ result: 'max clean ok' })) === 'max clean ok';
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
   const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart;
   const originOk = isAllowedOrigin({ headers: { origin: 'http://127.0.0.1:5500' } }) && !isAllowedOrigin({ headers: { origin: 'https://example.com' } });
-  console.log(JSON.stringify({ ok: setupOk && contextOk && capabilitiesOk && originOk, samples, setupFlags, contextOk, capabilitiesOk, originOk }, null, 2));
+  console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && capabilitiesOk && originOk, samples, setupFlags, contextOk, maxJsonOk, capabilitiesOk, originOk }, null, 2));
   process.exit(0);
 }
 
@@ -103,8 +104,8 @@ function commandForBackend(backend, prompt) {
     const bin = process.env.MERIDIAN_CLAUDE_BIN || 'claude';
     return {
       bin,
-      args: ['-p', prompt],
-      stdin: null,
+      args: ['-p', '--no-session-persistence', '--output-format', 'json', '--permission-mode', 'dontAsk'],
+      stdin: prompt,
       model: process.env.MERIDIAN_CLAUDE_MODEL || 'Claude Max',
     };
   }
@@ -159,6 +160,15 @@ function promptWithVisibleSession(prompt, transcript) {
 
 function normalizeModelText(backend, stdout) {
   const text = stdout.trim();
+  if (backend === 'max') {
+    try {
+      const item = JSON.parse(text);
+      if (item?.result) return String(item.result).trim();
+    } catch {
+      // Fall through to raw text if Claude output is not JSON.
+    }
+    return text;
+  }
   if (backend !== 'codex') return text;
   const lines = text.split(/\r?\n/).filter(Boolean);
   const messages = [];

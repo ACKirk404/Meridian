@@ -91,6 +91,8 @@ class SessionAction(Enum):
     START_NEW = "start_new"
     SUMMARIZE_RESET = "summarize_reset"
     TRANSFER = "transfer"
+    ARCHIVE = "archive"
+    REQUEST_HUMAN_GATE = "request_human_gate"
     AVOID = "avoid"
 
 
@@ -206,6 +208,10 @@ class SessionLifecycleState:
         tool_or_auth_broken: bool = False,
         defect_found: bool = False,
         tier_3_needs_independence: bool = False,
+        context_needs_fill: bool = False,
+        review_gate_pending: bool = False,
+        permission_boundary_crossed: bool = False,
+        should_archive: bool = False,
     ) -> tuple[SessionAction, SessionActionReason]:
         """Suggest routing action based on session state signals.
 
@@ -213,6 +219,14 @@ class SessionLifecycleState:
         """
         if tool_or_auth_broken:
             return (SessionAction.AVOID, SessionActionReason.TOOL_MISMATCH)
+        if permission_boundary_crossed:
+            return (SessionAction.REQUEST_HUMAN_GATE, SessionActionReason.PERMISSION_BOUNDARY)
+        if review_gate_pending:
+            return (SessionAction.REQUEST_HUMAN_GATE, SessionActionReason.REVIEW_GATE)
+        if should_archive:
+            return (SessionAction.ARCHIVE, SessionActionReason.CONTEXT_FILL)
+        if context_needs_fill:
+            return (SessionAction.START_NEW, SessionActionReason.CONTEXT_FILL)
         if payload_near_limit:
             return (SessionAction.SUMMARIZE_RESET, SessionActionReason.PAYLOAD_BUDGET)
         if context_health_degraded or self.heartbeat_stale():
