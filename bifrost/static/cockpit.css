@@ -79,6 +79,7 @@ summary {
 .project-strip,
 .prime-panel,
 .harness-dashboard,
+.session-lifecycle,
 .progress-surface,
 .instrument-band {
   border: 1px solid var(--line);
@@ -89,7 +90,7 @@ summary {
 .cockpit-main {
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(500px, 1.55fr) minmax(176px, 0.52fr);
+  grid-template-rows: minmax(500px, 1.55fr) minmax(140px, 0.38fr);
   gap: 10px;
 }
 
@@ -676,6 +677,135 @@ summary {
 .instr-warn { color: var(--amber); border-color: rgba(255, 203, 107, 0.35); }
 .instr-error { color: var(--red); border-color: rgba(255, 111, 123, 0.35); }
 .instr-clock { margin-left: auto; color: var(--text); }
+
+.session-lifecycle {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
+  padding: 12px;
+}
+
+.session-header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.session-header-main h3 {
+  margin: 0;
+  color: var(--cyan);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.session-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  min-height: 0;
+  overflow: auto;
+}
+
+.session-card {
+  border: 1px solid rgba(93, 157, 255, 0.24);
+  background: rgba(4, 12, 22, 0.74);
+  border-radius: 6px;
+  padding: 9px;
+  display: grid;
+  gap: 6px;
+}
+
+.session-card.session-active {
+  border: 1px solid rgba(65, 217, 255, 0.52);
+  background: rgba(8, 22, 42, 0.82);
+  box-shadow: 0 0 16px rgba(65, 217, 255, 0.16);
+}
+
+.session-card.session-status-polling { border-left: 3px solid var(--cyan); }
+.session-card.session-status-running { border-left: 3px solid var(--green); }
+.session-card.session-status-waiting { border-left: 3px solid var(--amber); }
+.session-card.session-status-blocked { border-left: 3px solid var(--red); }
+.session-card.session-status-review_gated { border-left: 3px solid var(--violet); }
+.session-card.session-status-stale { border-left: 3px solid var(--amber); }
+.session-card.session-status-stopped { border-left: 3px solid var(--red); }
+
+.session-health-healthy { opacity: 1; }
+.session-health-degraded { opacity: 0.88; }
+.session-health-stale { opacity: 0.76; }
+.session-health-failed { opacity: 0.64; outline: 1px solid rgba(255, 111, 123, 0.45); }
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.session-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.session-role {
+  color: var(--blue);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.session-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.session-project {
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.session-status {
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.session-health {
+  text-transform: uppercase;
+}
+
+.session-lifecycle-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.session-queue-read,
+.session-cadence,
+.session-proof {
+  text-transform: uppercase;
+}
+
+.session-queue-read { color: var(--green); }
+.session-cadence { color: var(--blue); }
+.session-proof { color: var(--violet); }
+
+.session-blocker {
+  display: block;
+  margin-top: 4px;
+  padding: 4px 6px;
+  background: rgba(255, 111, 123, 0.12);
+  border-left: 2px solid var(--red);
+  color: var(--red);
+  font-size: 10px;
+  line-height: 1.3;
+}
 
 @keyframes hud-pulse {
   0%, 100% {

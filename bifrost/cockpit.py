@@ -122,6 +122,26 @@ class PromptPayloadView:
 
 
 @dataclass
+class SessionLifecycleItem:
+    session_id: str
+    session_name: str
+    project_name: str
+    harness_role: str
+    status: str
+    health_state: str
+    blocker_summary: str = ""
+    last_queue_read_label: str = ""
+    review_cadence_state: str = "none"
+    proof_state: str = "no_proof"
+
+
+@dataclass
+class SessionLifecycleView:
+    sessions: list[SessionLifecycleItem] = field(default_factory=list)
+    active_session_id: str = ""
+
+
+@dataclass
 class InstrumentBand:
     beacon: str       # "ok" | "warn" | "error"
     relay: str        # "ok" | "warn" | "error"
@@ -146,6 +166,7 @@ class CockpitViewModel:
     voice: VoiceIOState = field(default_factory=VoiceIOState)
     provider_balance: ProviderBalanceView = field(default_factory=ProviderBalanceView)
     prompt_payload: PromptPayloadView = field(default_factory=PromptPayloadView)
+    session_lifecycle: SessionLifecycleView = field(default_factory=SessionLifecycleView)
     instrument: InstrumentBand = field(
         default_factory=lambda: InstrumentBand(
             beacon="ok", relay="ok", aegis="ok", compass="ok",
@@ -351,6 +372,47 @@ def sample_cockpit_view_model() -> CockpitViewModel:
                 ["retrieval", "knowledge"],
             ),
         ],
+        session_lifecycle=SessionLifecycleView(
+            sessions=[
+                SessionLifecycleItem(
+                    session_id="build-5-bifrost",
+                    session_name="Build 5 Bifrost",
+                    project_name="Meridian",
+                    harness_role="build",
+                    status="polling",
+                    health_state="healthy",
+                    blocker_summary="",
+                    last_queue_read_label="2m ago",
+                    review_cadence_state="cleared",
+                    proof_state="executed",
+                ),
+                SessionLifecycleItem(
+                    session_id="reviews-codex-b",
+                    session_name="Reviews Codex B",
+                    project_name="Meridian",
+                    harness_role="review",
+                    status="running",
+                    health_state="healthy",
+                    blocker_summary="",
+                    last_queue_read_label="now",
+                    review_cadence_state="cleared",
+                    proof_state="executed",
+                ),
+                SessionLifecycleItem(
+                    session_id="prime-main",
+                    session_name="Prime Main",
+                    project_name="Meridian",
+                    harness_role="coordinator",
+                    status="running",
+                    health_state="healthy",
+                    blocker_summary="",
+                    last_queue_read_label="now",
+                    review_cadence_state="cleared",
+                    proof_state="executed",
+                ),
+            ],
+            active_session_id="build-5-bifrost",
+        ),
         instrument=InstrumentBand(
             beacon="ok",
             relay="ok",
@@ -725,6 +787,54 @@ def _render_instrument_band(inst: InstrumentBand) -> str:
     )
 
 
+def _render_session_lifecycle(lifecycle: SessionLifecycleView) -> str:
+    if not lifecycle.sessions:
+        return ""
+
+    session_cards = []
+    for session in lifecycle.sessions:
+        is_active = session.session_id == lifecycle.active_session_id
+        active_class = "session-active" if is_active else ""
+        status_class = f"session-status-{_e(session.status)}"
+        health_class = f"session-health-{_e(session.health_state)}"
+        role_class = f"session-role-{_e(session.harness_role)}"
+
+        blocker_html = ""
+        if session.blocker_summary:
+            blocker_html = f'<span class="session-blocker">{_e(session.blocker_summary)}</span>'
+
+        session_cards.append(
+            f'<div class="session-card {active_class} {status_class} {health_class} {role_class}" data-session-id="{_e(session.session_id)}">'
+            f'<div class="session-header">'
+            f'<span class="session-name">{_e(session.session_name)}</span>'
+            f'<span class="session-role">[{_e(session.harness_role)}]</span>'
+            f"</div>"
+            f'<div class="session-context">'
+            f'<span class="session-project">{_e(session.project_name)}</span>'
+            f'<span class="session-status">{_e(session.status)}</span>'
+            f'<span class="session-health">{_e(session.health_state)}</span>'
+            f"</div>"
+            f'<div class="session-lifecycle">'
+            f'<span class="session-queue-read">{_e(session.last_queue_read_label)}</span>'
+            f'<span class="session-cadence">{_e(session.review_cadence_state)}</span>'
+            f'<span class="session-proof">{_e(session.proof_state)}</span>'
+            f"</div>"
+            f"{blocker_html}"
+            f"</div>"
+        )
+
+    return (
+        '<section class="session-lifecycle" aria-label="Session Lifecycle Preview">'
+        '<div class="session-header-main">'
+        '<h3>Session Lifecycle</h3>'
+        "</div>"
+        '<div class="session-cards">'
+        + "".join(session_cards)
+        + "</div>"
+        + "</section>"
+    )
+
+
 # ── Public API ──────────────────────────────────────────────────────────────
 
 
@@ -737,6 +847,7 @@ def render_cockpit_html(vm: CockpitViewModel) -> str:
 
     prime = _render_prime_panel(vm)
     harness_dashboard = _render_harness_dashboard(vm.harnesses)
+    session_lifecycle = _render_session_lifecycle(vm.session_lifecycle)
     projects = _render_project_strip(vm.projects, vm.lanes)
     progress = _render_progress_surface(vm.progress_events)
     instrument = _render_instrument_band(vm.instrument)
@@ -757,6 +868,7 @@ def render_cockpit_html(vm: CockpitViewModel) -> str:
         '<main class="cockpit-main">\n'
         f"{prime}\n"
         f"{harness_dashboard}\n"
+        f"{session_lifecycle}\n"
         "</main>\n"
         f"{progress}\n"
         "</div>\n"
