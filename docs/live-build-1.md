@@ -12,7 +12,17 @@ Tests:
 
 - `python -m pytest tests/test_relay_executor.py tests/test_model_adapter.py -q`
 
-Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status. If Codex Reviews A routes a repair before this slice is committed, complete that repair first.
+Completion:
+
+- Build 1 completed Relay model-adapter metadata binding on 2026-06-01 04:30 -05:00.
+- Commit: `cf5debf`.
+- Files changed: `meridian_core/model_adapter.py`, `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`.
+- Tests run: `python -m pytest tests/test_relay_executor.py tests/test_model_adapter.py -q` (95 passed).
+- Implementation: Extended ModelAdapter protocol implementations (FakeModelAdapter, EnvConfiguredModelAdapter, HttpJsonModelAdapter) to accept optional metadata parameter in __init__. Updated RelayExecutionResult with adapter_metadata field. Modified execute_relay_plan_with_registry to extract adapter.metadata and bind it into results. Added TestAdapterMetadata class with 11 new tests verifying metadata binding, immutability, and backward compatibility.
+- PR: https://github.com/AesopScott/Meridian/pull/1
+- Push: successful to `origin/main` (worktree-build-1-v2-relay).
+
+Ready for Codex Review.
 
 ## Next Candidate Task
 
