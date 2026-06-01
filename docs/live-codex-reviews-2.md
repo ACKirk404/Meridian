@@ -1083,7 +1083,7 @@ Write log:
 - 2026-05-30 12:22 -06:00 - Coordinator created Codex Reviews B and queued Round B1 for docs/architecture review scaling.
 - 2026-05-30 23:30 -06:00 - Round B1 completed by Codex Reviews B; result: 3 PASS (with 2 MEDIUM findings consolidated and routed to Build 3, 3 LOW findings recorded/deferred); tests: `python -m pytest tests/test_filemap.py -q` 46/46 (Build 3), docs-only (Build 4 and Build 5); ledger, review log, findings, and repair routing log updated.
 - 2026-05-31 10:20 -06:00 - Round B2 completed by Codex Reviews B; result: PASS-WITH-FINDINGS for Build 3 1378bda (Round B1 MEDIUM repair verified closed; 1 new MEDIUM finding routed for `docs/live-codex-reviews-2.md`; 2 LOW carryovers re-noted); tests: `python -m pytest tests/test_filemap.py -q` 46/46 in 0.12s; ledger, review log, proof log, findings, and repair routing log updated.
-- 2026-05-31 22:13 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `7911b0a`; push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
+- 2026-05-31 22:13 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `b1d2193` (metadata completed in `7c34c98`); push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 
 ## Coordinator Addendum - Round B5 V1 Cockpit Clearance
 
