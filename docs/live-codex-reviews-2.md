@@ -994,6 +994,8 @@ YYYY-MM-DD HH:MM TZ - Routed repair to Build <n>; queue: docs/live-build-<n>.md;
 2026-05-30 23:30 -06:00 - Routed repair to Build 3; queue: docs/live-build-3.md; finding: register four uncatalogued docs in FileMap.md and filemap.py — `docs/v0-build-readiness-map.md`, `docs/prime-orchestration-state-model.md`, `docs/bifrost-v0-cockpit-layout-brief.md`, `docs/bifrost-harness-dashboard-brief.md`. Opportunistically reconcile LOW prose-divergence findings on the Build 3 4075ef4 entries; status: closed in Round B2 (Build 3 commit 1378bda — 4 docs registered, tests 46/46; LOW reconciliation deferred).
 2026-05-31 10:20 -06:00 - Routed repair to Build 3; queue: docs/live-build-3.md; finding: register `docs/live-codex-reviews-2.md` in FileMap.md and meridian_core/filemap.py (one row + one FileMapEntry under FileArea.BUILD_PROCESS, parallel to the existing `docs/live-codex-reviews.md` entry) and add the path to `_REQUIRED_PATHS` in tests/test_filemap.py. Opportunistically (still permitted, not required) reconcile the two LOW prose-divergence carryovers on the existing `live-codex-reviews.md` and `prime-orchestration-harness-prototype.md` entries; status: pending.
 
+2026-05-31 22:21 -06:00 - Routed repair to Build 3; queue: docs/live-build-3.md; finding: `80ebea4` registers `docs/session-lifecycle-implementation-checklist.md`, but that file is missing on disk at `HEAD`; restore/add the checklist or remove/defer registration until the file lands; status: pending.
+
 ## Archived Prior Active Task - Do Not Execute
 
 Current Active Task - Coordinator Override:
@@ -1222,6 +1224,7 @@ Write log:
 - 2026-05-31 22:13 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `b1d2193` (metadata completed in `7c34c98`); push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 - 2026-05-31 22:16 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `80527c7`; push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 - 2026-05-31 22:18 -06:00 - Round B17 completed by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: `python -m pytest tests/test_bifrost_cockpit.py -q` (80 passed); commit: `13d4ae8`; push status: pushed to `origin/main`; Obsidian update status: not updated (no finding or repair routed).
+- 2026-05-31 22:21 -06:00 - Round B18 completed by Codex Reviews B with repair routed; files changed: `docs/live-codex-reviews-2.md`, `docs/live-build-3.md`; tests run: `python -m pytest tests/test_filemap.py -q` (46 passed); commit: pending; push status: pending; Obsidian update status: not updated (repair routed in queue).
 
 ## Coordinator Addendum - Round B5 V1 Cockpit Clearance
 
