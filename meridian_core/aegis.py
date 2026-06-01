@@ -921,3 +921,165 @@ def format_gate_summary_for_display(summary: GateSummary) -> str:
         f"  waiver/approval: {summary.waiver_approval_status}\n"
         f"  action: {summary.downstream_action}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Aegis Aggregate Route-Gate Summary Helpers
+# ---------------------------------------------------------------------------
+
+
+def _highest_severity(severities: list[str]) -> str:
+    """Determine highest severity from a list: error > warning > info."""
+    severity_order = {"error": 3, "warning": 2, "info": 1}
+    return max(severities, key=lambda s: severity_order.get(s, 0))
+
+
+def _aggregate_downstream_action(summaries: list[GateSummary]) -> str:
+    """
+    Determine aggregate downstream action from multiple gates.
+
+    Priority: route_blocked > route_demoted > route_allowed
+    """
+    actions = [s.downstream_action for s in summaries]
+
+    # If any gate blocks, the route is blocked
+    if any("blocked" in action for action in actions):
+        return "route_blocked"
+
+    # If any gate demotes, find the lowest tier demotion
+    demote_actions = [a for a in actions if "demoted" in a]
+    if demote_actions:
+        # Extract tier numbers and return the lowest
+        tiers = []
+        for action in demote_actions:
+            try:
+                tier = int(action.split("_")[-1])
+                tiers.append(tier)
+            except (ValueError, IndexError):
+                pass
+        if tiers:
+            return f"route_demoted_to_tier_{min(tiers)}"
+        return "route_demoted"
+
+    return "route_allowed"
+
+
+def _aggregate_evidence_status(summaries: list[GateSummary]) -> dict[str, list[str]]:
+    """
+    Aggregate evidence/waiver/approval status across gates.
+
+    Returns dict with keys: evidence_required, waivers_present, approvals_present
+    """
+    evidence_required = []
+    waivers_present = []
+    approvals_present = []
+
+    for summary in summaries:
+        evidence_required.append(f"{summary.gate_id}: {summary.required_evidence}")
+        if summary.waiver_approval_status == "waiver_present":
+            waivers_present.append(summary.gate_id)
+        elif summary.waiver_approval_status == "approval_present":
+            approvals_present.append(summary.gate_id)
+
+    return {
+        "evidence_required": evidence_required,
+        "waivers_present": waivers_present,
+        "approvals_present": approvals_present,
+    }
+
+
+@dataclass
+class AggregateGateSummary:
+    """Aggregate summary of multiple gate results for route decisions."""
+    gate_count: int
+    highest_severity: str
+    aggregate_action: str
+    blocked_gates: list[str]
+    demoted_gates: list[str]
+    allowed_gates: list[str]
+    evidence_required: list[str]
+    waivers_present: list[str]
+    approvals_present: list[str]
+    gate_details: list[GateSummary]
+
+
+def summarize_aggregate_route_gates(summaries: list[GateSummary]) -> AggregateGateSummary:
+    """
+    Produce an aggregate summary of multiple gate results.
+
+    Pure, deterministic function for route-level decision display.
+    Combines individual gate results to show:
+    - Highest severity across all gates
+    - Aggregate downstream action (blocked > demoted > allowed)
+    - Which gates block/demote/allow
+    - Evidence/waiver/approval requirements across all gates
+    """
+    if not summaries:
+        return AggregateGateSummary(
+            gate_count=0,
+            highest_severity="info",
+            aggregate_action="route_allowed",
+            blocked_gates=[],
+            demoted_gates=[],
+            allowed_gates=[],
+            evidence_required=[],
+            waivers_present=[],
+            approvals_present=[],
+            gate_details=[],
+        )
+
+    # Determine highest severity
+    severities = [s.severity for s in summaries]
+    highest_sev = _highest_severity(severities)
+
+    # Determine aggregate action
+    agg_action = _aggregate_downstream_action(summaries)
+
+    # Categorize gates by decision
+    blocked = [s.gate_id for s in summaries if "blocked" in s.downstream_action]
+    demoted = [s.gate_id for s in summaries if "demoted" in s.downstream_action]
+    allowed = [s.gate_id for s in summaries if "allowed" in s.downstream_action]
+
+    # Aggregate evidence/waiver/approval status
+    evidence_status = _aggregate_evidence_status(summaries)
+
+    return AggregateGateSummary(
+        gate_count=len(summaries),
+        highest_severity=highest_sev,
+        aggregate_action=agg_action,
+        blocked_gates=blocked,
+        demoted_gates=demoted,
+        allowed_gates=allowed,
+        evidence_required=evidence_status["evidence_required"],
+        waivers_present=evidence_status["waivers_present"],
+        approvals_present=evidence_status["approvals_present"],
+        gate_details=summaries,
+    )
+
+
+def format_aggregate_summary_for_display(aggregate: AggregateGateSummary) -> str:
+    """Format an AggregateGateSummary for human-readable display."""
+    lines = [
+        f"Route-Gate Aggregate Summary ({aggregate.gate_count} gates)",
+        f"  highest severity: {aggregate.highest_severity}",
+        f"  aggregate action: {aggregate.aggregate_action}",
+    ]
+
+    if aggregate.blocked_gates:
+        lines.append(f"  blocked gates: {', '.join(aggregate.blocked_gates)}")
+    if aggregate.demoted_gates:
+        lines.append(f"  demoted gates: {', '.join(aggregate.demoted_gates)}")
+    if aggregate.allowed_gates:
+        lines.append(f"  allowed gates: {', '.join(aggregate.allowed_gates)}")
+
+    if aggregate.evidence_required:
+        lines.append("  evidence required:")
+        for ev in aggregate.evidence_required:
+            lines.append(f"    - {ev}")
+
+    if aggregate.waivers_present:
+        lines.append(f"  waivers present: {', '.join(aggregate.waivers_present)}")
+    if aggregate.approvals_present:
+        lines.append(f"  approvals present: {', '.join(aggregate.approvals_present)}")
+
+    return "\n".join(lines)
