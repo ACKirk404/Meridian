@@ -794,6 +794,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-12 06:55 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
 2026-06-12 07:00 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
 2026-06-12 07:05 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-12 07:10 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; FileMap gap noted: docs/ui-integration-checklist.md landed (Build 1) but not registered in meridian_core/filemap.py; awaiting assignment
 ```
 
 ## Write/Completion Log
@@ -851,6 +852,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 cross-check: none/finding/fix; details: <short not
 2026-05-31 00:35 -06:00 - Build 3 cross-check: Codex Reviews B Round B1 finding â€” four docs exist on disk but absent from FileMap (v0-build-readiness-map.md, prime-orchestration-state-model.md, bifrost-v0-cockpit-layout-brief.md, bifrost-harness-dashboard-brief.md); Build 4/5 disclaim edits to these owners; repair assigned to Build 3; executing now
 2026-05-31 11:20 -06:00 - Build 3 cross-check: Round B2 repair (live-codex-reviews-2.md + A-lane label + prose-divergence) already present in HEAD via Build 1 commit 45497b1; no duplicate commit; task closed
 2026-06-01 09:45 -06:00 - Build 3 cross-check: new Bifrost cockpit scaffold d13f1d1 adds bifrost/cockpit.py, bifrost/__init__.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py â€” none registered in docs/FileMap.md or meridian_core/filemap.py; FileMap gap; no active task assigned yet; awaiting Codex Reviews routing
+2026-06-12 07:10 UTC - Build 3 cross-check: docs/ui-integration-checklist.md landed via Build 1 (merged at fccfa11d); not registered in meridian_core/filemap.py or docs/FileMap.md; FileMap gap noted; awaiting Active Task assignment from orchestrator
 ```
 
 ## Codex Review Cadence
