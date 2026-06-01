@@ -31,11 +31,23 @@ Tests:
 
 Completion: landed on current `origin/main` in commit `558af555` (`feat: complete Session Lifecycle routing-action coverage`). Files changed: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`. Proof: `python -m pytest tests/test_session_lifecycle.py -q` passed with 24 tests on 2026-06-01. Ready for Codex Review.
 
-## Next Candidate Task
+## Coordinator Override - Active Now
 
 Goal: add Prime command-plan tests that consume the new Session Lifecycle routing reasons after review clears.
 
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
 Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
+
+Required sources: `docs/session-lifecycle-v2-contract.md`, `docs/relay-heartbeat-model-routing-logic.md`, `docs/relay-completeness-audit.md`, and the review clearance in `docs/live-codex-reviews.md`.
+
+Task: add focused tests proving Prime-facing command-plan behavior can consume the repaired Session Lifecycle routing actions and reasons. Cover archive, request-human-gate, summarize/reset, transfer, context-fill, review-gate, and permission-boundary routing signals through existing typed helpers only. Keep this pure runtime/test coverage; do not spawn sessions, call models, inspect processes, edit UI, move branches, or touch Polaris.
+
+Tests:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review with commit hash, files changed, and tests run, and leave a concrete Next Candidate.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 

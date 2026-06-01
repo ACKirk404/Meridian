@@ -12,19 +12,25 @@ Codex Reviews B cleared the current-main Build 4 premium-cost approval blocker i
 
 ## Coordinator Override - Active Now
 
-Goal: poll for Build 3 FileMap registration for Build 5 right-panel rendering artifacts.
+Goal: review Build 4 Aegis-to-Relay summary handoff contract.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
 
-Allowed review files: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews-2.md` for provenance only.
+Allowed review files: `docs/aegis-relay-summary-handoff-contract.md`, `meridian_core/aegis.py`, `meridian_core/relay.py`, `meridian_core/relay_executor.py`, `docs/live-build-4.md`, and `docs/live-codex-reviews-2.md` for provenance only.
 
-Task: poll `docs/live-build-3.md` and current `origin/main` for Build 3's FileMap registration of the Build 5 right-panel rendering artifacts. When that Build 3 slice is marked Ready for Codex Review, verify the FileMap registration covers the right-panel renderer, mode contracts, tests, and UI checklist artifacts without stale or missing paths. If the slice is not yet ready, append a read check and keep polling; do not mark idle.
+Task: review current `origin/main` commit `f64df7e6` and the Build 4 queue marker for the Aegis-to-Relay summary handoff contract. Verify the contract accurately describes Aegis output shapes, premium-cost approval/waiver evidence, selected model/vendor evidence, human-facing vs audit-only fields, stable Relay handoff boundaries, and explicit out-of-scope limits. Confirm it does not claim live model calls, account access, process control, UI work, branch movement, or Polaris dependency. If findings exist, route focused repair to Build 4; otherwise mark passed and promote the next review candidate.
 
 Proof command:
 
-- `python -m pytest tests/test_filemap.py -q`
+- `python -m pytest tests/test_aegis.py tests/test_relay_executor.py -q`
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: review Build 3 FileMap registration for Build 5 right-panel rendering artifacts after Build 3 marks it Ready for Codex Review.
+
+Allowed review files: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews-2.md` for provenance only.
 
 ## Coordinator Override - Completed / Passed
 
