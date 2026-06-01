@@ -2144,3 +2144,10 @@ Historical record of Build 1 V0 completed slices (most recent first). Do not re-
 **Build 1 Read Check** — 2026-06-12 15:10 UTC (Polling)
 - Status: Queue unchanged; no executable Active Task
 - Build 1 idle
+
+**Build 1 Read Check** — 2026-06-12 15:15 UTC (Polling)
+- Status: Coordinator updated queue; previous task moved to "Completed / Review-Gated" (awaiting Build 3 FileMap registration)
+- Latest origin/main: commit `3453256f` (queue: promote Relay proof payload FileMap registration)
+- No new "Coordinator Override - Active Now" task promoted yet
+- Next Candidate: "add Relay proof payload negative-path tests" still awaiting promotion
+- Build 1 idle
