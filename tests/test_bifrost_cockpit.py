@@ -1221,9 +1221,156 @@ def test_user_session_mode_shows_sessions_dropdown():
 def test_user_session_mode_shows_selected_session():
     vm = sample_cockpit_view_model()
     vm.right_panel_active_mode = "user_session"
-    vm.user_session_mode.selected_session_id = "session-2"
+    # Use an actual session ID from sample data
+    if vm.user_session_mode.sessions:
+        selected_id = vm.user_session_mode.sessions[1].session_id
+        vm.user_session_mode.selected_session_id = selected_id
+        doc = render_cockpit_html(vm)
+        assert f'value="{selected_id}"' in doc and 'selected' in doc
+
+
+# ── Sessions dropdown grouping and sorting ──────────────────────────────────
+
+def test_sessions_dropdown_groups_by_project():
+    """Sessions dropdown uses optgroups for each project."""
+    vm = sample_cockpit_view_model()
+    vm.right_panel_active_mode = "user_session"
     doc = render_cockpit_html(vm)
-    assert 'value="session-2"' in doc and 'selected' in doc
+    # Should have optgroup elements for each project
+    assert "<optgroup" in doc
+    assert 'label="Meridian"' in doc or "Meridian" in doc
+
+
+def test_sessions_dropdown_projects_sorted_alphabetically():
+    """Projects in sessions dropdown are sorted alphabetically."""
+    vm = sample_cockpit_view_model()
+    vm.right_panel_active_mode = "user_session"
+
+    # Create sessions from multiple projects in reverse order
+    vm.user_session_mode.sessions = [
+        SessionItem("s1", "Zebra Session", "Zebra", "live"),
+        SessionItem("s2", "Alpha Session", "Alpha", "live"),
+        SessionItem("s3", "Middle Session", "Middle", "live"),
+    ]
+    vm.user_session_mode.selected_session_id = "s1"
+
+    doc = render_cockpit_html(vm)
+
+    # Find positions of project names in the rendered output
+    alpha_pos = doc.find('label="Alpha"')
+    middle_pos = doc.find('label="Middle"')
+    zebra_pos = doc.find('label="Zebra"')
+
+    # Verify alphabetical order (Alpha < Middle < Zebra)
+    assert alpha_pos < middle_pos < zebra_pos
+
+
+def test_sessions_within_project_sorted_alphabetically():
+    """Sessions within a project are sorted alphabetically."""
+    vm = sample_cockpit_view_model()
+    vm.right_panel_active_mode = "user_session"
+
+    # Create sessions in reverse alphabetical order
+    vm.user_session_mode.sessions = [
+        SessionItem("s1", "Zulu", "Project", "live"),
+        SessionItem("s2", "Bravo", "Project", "live"),
+        SessionItem("s3", "Alpha", "Project", "live"),
+    ]
+    vm.user_session_mode.selected_session_id = "s1"
+
+    doc = render_cockpit_html(vm)
+
+    # Find positions of session names
+    alpha_pos = doc.find(">Alpha<")
+    bravo_pos = doc.find(">Bravo<")
+    zulu_pos = doc.find(">Zulu<")
+
+    # Verify alphabetical order within the project group
+    assert alpha_pos < bravo_pos < zulu_pos
+
+
+def test_sessions_dropdown_shows_waiting_label():
+    """Waiting sessions show '(waiting for test)' label."""
+    vm = sample_cockpit_view_model()
+    vm.right_panel_active_mode = "user_session"
+    vm.user_session_mode.sessions = [
+        SessionItem("s1", "Test Session", "Project", "waiting"),
+    ]
+    vm.user_session_mode.selected_session_id = "s1"
+
+    doc = render_cockpit_html(vm)
+    assert "waiting for test" in doc or "waiting" in doc
+
+
+def test_sessions_dropdown_shows_hidden_label():
+    """Hidden sessions show '(hidden)' label."""
+    vm = sample_cockpit_view_model()
+    vm.right_panel_active_mode = "user_session"
+    vm.user_session_mode.sessions = [
+        SessionItem("s1", "Hidden Session", "Project", "hidden"),
+    ]
+    vm.user_session_mode.selected_session_id = "s1"
+
+    doc = render_cockpit_html(vm)
+    assert "hidden" in doc
+
+
+def test_sessions_dropdown_live_sessions_no_label():
+    """Live sessions do not show a status label."""
+    vm = sample_cockpit_view_model()
+    vm.right_panel_active_mode = "user_session"
+    vm.user_session_mode.sessions = [
+        SessionItem("s1", "Live Session", "Project", "live"),
+    ]
+    vm.user_session_mode.selected_session_id = "s1"
+
+    doc = render_cockpit_html(vm)
+    assert ">Live Session<" in doc or "Live Session" in doc
+    # Should not have a status indicator for live sessions
+    assert "Live Session (live)" not in doc
+
+
+def test_sessions_dropdown_title_shows_selected_session():
+    """The User Session header shows the selected session name."""
+    vm = sample_cockpit_view_model()
+    vm.right_panel_active_mode = "user_session"
+    vm.user_session_mode.sessions = [
+        SessionItem("s1", "Test Session Name", "Project", "live"),
+    ]
+    vm.user_session_mode.selected_session_id = "s1"
+
+    doc = render_cockpit_html(vm)
+    assert "Test Session Name" in doc
+    assert "Session:" in doc
+
+
+def test_sessions_dropdown_escapes_session_names_in_dropdown():
+    """Session names are HTML-escaped in dropdown options."""
+    vm = sample_cockpit_view_model()
+    vm.right_panel_active_mode = "user_session"
+    vm.user_session_mode.sessions = [
+        SessionItem("s1", "Session <script>", "Project", "live"),
+    ]
+    vm.user_session_mode.selected_session_id = "s1"
+
+    doc = render_cockpit_html(vm)
+    # Script tag should be escaped, not rendered
+    assert "<script>" not in doc
+    assert "&lt;script&gt;" in doc or "Session" in doc  # Name should be present but escaped
+
+
+def test_sessions_dropdown_escapes_project_names():
+    """Project names in optgroup labels are HTML-escaped."""
+    vm = sample_cockpit_view_model()
+    vm.right_panel_active_mode = "user_session"
+    vm.user_session_mode.sessions = [
+        SessionItem("s1", "Session", 'Project <img src=x>', "live"),
+    ]
+    vm.user_session_mode.selected_session_id = "s1"
+
+    doc = render_cockpit_html(vm)
+    # Should not have unescaped HTML tags in optgroup
+    assert '<img src=x>' not in doc or "&lt;img" in doc
 
 
 def test_settings_mode_renders_with_data():

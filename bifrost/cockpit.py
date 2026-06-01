@@ -508,26 +508,52 @@ def sample_cockpit_view_model() -> CockpitViewModel:
         ),
         user_session_mode=UserSessionModeView(
             sessions=[
+                # Meridian project sessions (alphabetically ordered)
                 SessionItem(
-                    session_id="session-1",
-                    session_name="Plan Session",
+                    session_id="session-meridian-cockpit",
+                    session_name="Cockpit Development",
                     project_name="Meridian",
                     status="live",
                 ),
                 SessionItem(
-                    session_id="session-2",
-                    session_name="Review Session",
+                    session_id="session-meridian-core",
+                    session_name="Core Integration",
+                    project_name="Meridian",
+                    status="live",
+                ),
+                SessionItem(
+                    session_id="session-meridian-test",
+                    session_name="Test Session",
                     project_name="Meridian",
                     status="waiting",
                 ),
                 SessionItem(
-                    session_id="session-3",
-                    session_name="Debug Session",
+                    session_id="session-meridian-archive",
+                    session_name="Archive Review",
+                    project_name="Meridian",
+                    status="hidden",
+                ),
+                # Polaris project sessions (alphabetically ordered)
+                SessionItem(
+                    session_id="session-polaris-debug",
+                    session_name="Debug Sandbox",
+                    project_name="Polaris",
+                    status="live",
+                ),
+                SessionItem(
+                    session_id="session-polaris-review",
+                    session_name="Review Queue",
+                    project_name="Polaris",
+                    status="waiting",
+                ),
+                SessionItem(
+                    session_id="session-polaris-old",
+                    session_name="Old Session",
                     project_name="Polaris",
                     status="hidden",
                 ),
             ],
-            selected_session_id="session-1",
+            selected_session_id="session-meridian-cockpit",
             prompt_text="",
             response_text="",
         ),
@@ -1065,22 +1091,57 @@ def _render_user_session_mode(mode: UserSessionModeView) -> str:
     if not mode.sessions:
         return ""
 
-    session_options = []
+    # Group sessions by project, sorting projects and sessions alphabetically
+    sessions_by_project: dict[str, list[SessionItem]] = {}
     for session in mode.sessions:
-        selected = " selected" if session.session_id == mode.selected_session_id else ""
-        status_label = f" ({session.status})" if session.status != "live" else ""
-        session_options.append(
-            f'<option value="{_e(session.session_id)}"{selected}>'
-            f'{_e(session.session_name)}{status_label}</option>'
+        if session.project_name not in sessions_by_project:
+            sessions_by_project[session.project_name] = []
+        sessions_by_project[session.project_name].append(session)
+
+    # Sort projects alphabetically, sort sessions within each project alphabetically
+    sorted_projects = sorted(sessions_by_project.keys())
+    for project in sessions_by_project:
+        sessions_by_project[project].sort(key=lambda s: s.session_name)
+
+    # Find currently selected session for title display
+    selected_session_name = ""
+    for session in mode.sessions:
+        if session.session_id == mode.selected_session_id:
+            selected_session_name = session.session_name
+            break
+
+    # Build optgroups for each project
+    optgroups = []
+    for project in sorted_projects:
+        group_options = []
+        for session in sessions_by_project[project]:
+            selected = " selected" if session.session_id == mode.selected_session_id else ""
+            status_label = ""
+            if session.status == "waiting":
+                status_label = " (waiting for test)"
+            elif session.status == "hidden":
+                status_label = " (hidden)"
+            elif session.status != "live":
+                status_label = f" ({session.status})"
+
+            group_options.append(
+                f'<option value="{_e(session.session_id)}"{selected}>'
+                f'{_e(session.session_name)}{status_label}</option>'
+            )
+
+        optgroups.append(
+            f'<optgroup label="{_e(project)}">'
+            + "".join(group_options)
+            + "</optgroup>"
         )
 
     return (
         '<div class="right-panel-user-session" aria-label="User Session Mode">'
         '<div class="right-panel-header">'
-        '<h3>User Session</h3>'
+        f'<h3>Session: {_e(selected_session_name) if selected_session_name else "Select..."}</h3>'
         '<div class="sessions-dropdown">'
         '<select aria-label="Select session">'
-        + "".join(session_options)
+        + "".join(optgroups)
         + "</select>"
         "</div>"
         "</div>"
