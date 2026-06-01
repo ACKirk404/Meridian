@@ -1,0 +1,3161 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bifrost Cockpit - Meridian</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #000;
+  color: #dffbff;
+  font-family: "Cascadia Code", "JetBrains Mono", monospace;
+}
+
+.harness-screen {
+  --harness-width: min(1120px, calc(100vw - 48px));
+  --harness-left: calc(24px + ((100vw - 48px - var(--harness-width)) / 2));
+  min-height: 100vh;
+  display: grid;
+  align-items: end;
+  position: relative;
+  padding: 24px 24px 34px;
+  background:
+    radial-gradient(circle at 50% 88%, rgba(35, 220, 255, 0.09), transparent 34rem),
+    #000;
+}
+
+.brand-lockup {
+  position: absolute;
+  left: max(18px, calc(var(--harness-left) - 180px));
+  top: 28px;
+  z-index: 3;
+  width: min(430px, calc(100vw - 36px));
+  isolation: isolate;
+}
+
+.brand-primary {
+  display: block;
+}
+
+.brand-copy {
+  min-width: 0;
+  text-align: center;
+}
+
+.brand-name {
+  font-family: "Segoe UI", "Inter", system-ui, sans-serif;
+  font-size: clamp(37px, 4.8vw, 54px);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: 0;
+  color: var(--cyan);
+  background: linear-gradient(90deg, #41d9ff 0%, #64f6ff 28%, #5d9dff 52%, #38e9ff 76%, #41d9ff 100%);
+  background-size: 240% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 18px rgba(65, 217, 255, 0.24);
+  animation: brand-name-aqua-flow 28s ease-in-out infinite;
+}
+
+.brand-tagline {
+  margin-top: 4px;
+  font-family: "Cascadia Code", "JetBrains Mono", monospace;
+  font-size: clamp(14px, 1.68vw, 22px);
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  background: linear-gradient(90deg, #41d9ff 0%, #64f6ff 28%, #5d9dff 52%, #38e9ff 76%, #41d9ff 100%);
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brand-tagline-color-flow 28s ease-in-out infinite;
+}
+
+.speech-mode-button {
+  position: absolute;
+  right: 28px;
+  top: 28px;
+  z-index: 4;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 84, 84, 0.62);
+  background:
+    linear-gradient(135deg, rgba(255, 84, 84, 0.1), rgba(20, 4, 8, 0.22)),
+    radial-gradient(circle at 50% 50%, rgba(255, 84, 84, 0.1), transparent 60%);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  color: #dffbff;
+  padding: 8px;
+  cursor: pointer;
+  outline: none;
+  box-shadow:
+    0 0 12px rgba(255, 84, 84, 0.24),
+    inset 0 0 12px rgba(255, 84, 84, 0.08);
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.speech-mode-button::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 7px;
+  height: 7px;
+  background: #ff5454;
+  box-shadow: 0 0 8px rgba(255, 84, 84, 0.9);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.speech-mode-button svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: rgba(255, 112, 112, 0.95);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 7px rgba(255, 84, 84, 0.54));
+  transition: filter 140ms ease, stroke 140ms ease, transform 140ms ease;
+}
+
+.speech-mode-button[aria-pressed="true"] {
+  border-color: rgba(79, 255, 147, 0.68);
+  background:
+    linear-gradient(135deg, rgba(79, 255, 147, 0.12), rgba(3, 20, 12, 0.24)),
+    radial-gradient(circle at 50% 50%, rgba(79, 255, 147, 0.12), transparent 60%);
+  box-shadow:
+    0 0 14px rgba(79, 255, 147, 0.3),
+    inset 0 0 12px rgba(79, 255, 147, 0.08);
+}
+
+.speech-mode-button[aria-pressed="true"]::after {
+  background: #4fff93;
+  box-shadow: 0 0 9px rgba(79, 255, 147, 0.95);
+}
+
+.speech-mode-button[aria-pressed="true"] svg {
+  stroke: rgba(157, 255, 194, 0.96);
+  filter: drop-shadow(0 0 8px rgba(79, 255, 147, 0.62));
+}
+
+.speech-mode-button:hover,
+.speech-mode-button:focus-visible {
+  border-color: rgba(223, 251, 255, 0.72);
+}
+
+.speech-mode-button:hover svg,
+.speech-mode-button:focus-visible svg {
+  stroke: #dffbff;
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 12px currentColor);
+}
+
+.date-orb {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  z-index: 8;
+  width: 118px;
+  height: 118px;
+  transform: translateX(-50%);
+  color: #dffbff;
+  border-radius: 50%;
+  background: radial-gradient(circle, #000 0 64%, rgba(0, 0, 0, 0.96) 65% 100%);
+  filter:
+    drop-shadow(0 0 10px rgba(87, 239, 255, 0.34))
+    drop-shadow(0 0 24px rgba(87, 239, 255, 0.14));
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.date-orb::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    #ff3d7f,
+    #ffb000,
+    #fff45c,
+    #56ff8a,
+    #39f7ff,
+    #5d9dff,
+    #b264ff,
+    #ff3d7f
+  );
+  opacity: 0;
+  transform: scale(0.78);
+  filter: blur(1px) drop-shadow(0 0 14px rgba(87, 239, 255, 0.4));
+  mask: radial-gradient(circle, transparent 57%, #000 59% 65%, transparent 68%);
+  pointer-events: none;
+}
+
+.date-orb-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.date-orb-outer,
+.date-orb-inner,
+.date-orb-tick-ring,
+.date-orb-hour-fill,
+.date-orb-slick-track {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.date-orb-outer {
+  stroke: rgba(87, 239, 255, 0.8);
+  stroke-width: 2;
+}
+
+.date-orb-inner {
+  stroke: rgba(87, 239, 255, 0.42);
+  stroke-width: 1.5;
+}
+
+.date-orb-tick-ring {
+  stroke: rgba(87, 239, 255, 0.22);
+  stroke-width: 7;
+  stroke-dasharray: 1 8;
+}
+
+.date-orb-slick-track {
+  stroke: rgba(87, 239, 255, 0.13);
+  stroke-width: 10;
+  stroke-dasharray: 18 82;
+  transform: rotate(-90deg);
+  transform-origin: 60px 60px;
+}
+
+.date-orb-hour-fill {
+  stroke: rgba(57, 247, 255, 0.68);
+  stroke-width: 7;
+  stroke-dasharray: var(--date-hour-progress, 0 100);
+  stroke-dashoffset: 0;
+  transform: rotate(-90deg);
+  transform-origin: 60px 60px;
+  filter:
+    drop-shadow(0 0 6px rgba(87, 239, 255, 0.7))
+    drop-shadow(0 0 12px rgba(87, 239, 255, 0.28));
+  transition: stroke-dasharray 420ms linear;
+}
+
+.date-orb.is-countdown {
+  animation: date-orb-countdown-pulse var(--date-pulse-duration, 1400ms) ease-in-out infinite;
+}
+
+.date-orb.is-countdown .date-orb-outer,
+.date-orb.is-countdown .date-orb-inner,
+.date-orb.is-countdown .date-orb-tick-ring,
+.date-orb.is-countdown .date-orb-hour-fill,
+.date-orb.is-countdown .date-orb-cut,
+.date-orb.is-countdown .date-orb-hour,
+.date-orb.is-countdown .date-orb-copy {
+  animation: date-orb-color-pressure var(--date-pulse-duration, 1400ms) ease-in-out infinite;
+}
+
+.date-orb.is-hour-burst::before {
+  animation: date-orb-rainbow-burst 1.8s ease-out;
+}
+
+.date-orb-cut {
+  fill: none;
+  stroke: rgba(223, 251, 255, 0.72);
+  stroke-width: 2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px rgba(87, 239, 255, 0.56));
+}
+
+.date-orb-hour {
+  fill: #dffbff;
+  stroke: rgba(87, 239, 255, 0.54);
+  stroke-width: 0.8;
+  paint-order: stroke fill;
+  font-family: "Segoe UI", "Inter", system-ui, sans-serif;
+  font-size: calc(22px * var(--date-hour-scale, 1));
+  font-weight: 900;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  filter:
+    drop-shadow(0 0 7px rgba(87, 239, 255, 0.86))
+    drop-shadow(0 0 12px rgba(87, 239, 255, 0.38));
+  transition: font-size 220ms ease;
+}
+
+.date-orb.is-q1 .date-orb-cut-2,
+.date-orb.is-q2 .date-orb-cut-3,
+.date-orb.is-q3 .date-orb-cut-4 {
+  stroke: #39f7ff;
+  stroke-width: 3;
+  filter:
+    drop-shadow(0 0 7px rgba(87, 239, 255, 0.9))
+    drop-shadow(0 0 12px rgba(87, 239, 255, 0.44));
+}
+
+.date-orb-copy {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 0 9px rgba(87, 239, 255, 0.78);
+}
+
+.date-orb-month {
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  color: rgba(185, 251, 255, 0.82);
+}
+
+.date-orb-day {
+  margin-top: 4px;
+  color: #dffbff;
+  font-family: "Segoe UI", "Inter", system-ui, sans-serif;
+  font-size: 31px;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: 0;
+}
+
+.spark-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(468px, 62.4vw);
+  transform: translate(-50%, -54%);
+  z-index: 2;
+}
+
+.spark-stage::after {
+  content: "";
+  position: absolute;
+  left: -116px;
+  right: -116px;
+  top: -116px;
+  bottom: -116px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.spark-icon-strikes {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  transition: opacity 120ms ease;
+}
+
+.spark-stage.spark-menu-open .spark-icon-strikes,
+.spark-stage:focus-within .spark-icon-strikes {
+  opacity: 1;
+}
+
+.spark-icon-bolt-main,
+.spark-icon-bolt-fork {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.spark-icon-bolt-main {
+  stroke: var(--bolt-color, #57efff);
+  stroke-width: 1.7;
+  filter: drop-shadow(0 0 4px var(--bolt-color, #57efff)) drop-shadow(0 0 12px rgba(87, 239, 255, 0.62));
+  animation: spark-icon-bolt-main 260ms ease-out forwards;
+}
+
+.spark-icon-bolt-fork {
+  stroke: var(--bolt-fork-color, #dffbff);
+  stroke-width: 0.95;
+  opacity: 0.82;
+  filter: drop-shadow(0 0 7px rgba(223, 251, 255, 0.58));
+  animation: spark-icon-bolt-fork 210ms ease-out forwards;
+}
+
+@keyframes spark-icon-bolt-main {
+  0% { opacity: 0; stroke-dasharray: 0 420; }
+  14% { opacity: 1; stroke-dasharray: 180 420; }
+  54% { opacity: 0.86; stroke-dasharray: 420 420; }
+  100% { opacity: 0; stroke-dasharray: 420 420; }
+}
+
+@keyframes spark-icon-bolt-fork {
+  0% { opacity: 0; stroke-dasharray: 0 90; }
+  26% { opacity: 0.86; stroke-dasharray: 70 90; }
+  100% { opacity: 0; stroke-dasharray: 90 90; }
+}
+.spark-restart-core {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 30%, rgba(0, 0, 0, 0.08) 48%, rgba(0, 0, 0, 0.95) 78%),
+    url("static/media/spark-restart-inner.jpg") center / 139% auto no-repeat;
+  box-shadow:
+    0 0 0 1px rgba(185, 251, 255, 0.18),
+    0 0 28px rgba(87, 239, 255, 0.32),
+    0 0 62px rgba(87, 239, 255, 0.14),
+    inset 0 0 46px rgba(0, 0, 0, 0.88);
+  animation: restart-image-breathe 8.6s ease-in-out infinite, core-drift 13s ease-in-out infinite;
+  opacity: 1;
+  filter: brightness(0.94) saturate(1.12) contrast(1.05);
+  transform-origin: 50% 52%;
+  pointer-events: auto;
+}
+
+.spark-restart-core::before,
+.spark-restart-core::after,
+.spark-restart-core .restart-inner-void,
+.spark-restart-core .restart-inward-flow,
+.spark-restart-core .restart-scan-ring {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.spark-restart-core::before,
+.spark-restart-core::after,
+.spark-restart-core .restart-inner-void,
+.spark-restart-core .restart-inward-flow,
+.spark-restart-core .restart-scan-ring {
+  display: block;
+}
+
+.spark-restart-core::before {
+  z-index: 2;
+  width: 94%;
+  aspect-ratio: 1;
+  background:
+    repeating-conic-gradient(from -4deg, transparent 0deg 8deg, rgba(223, 251, 255, 0.32) 8deg 8.8deg, rgba(87, 239, 255, 0.24) 8.8deg 10.4deg, transparent 10.4deg 17deg),
+    radial-gradient(circle, transparent 0 45%, rgba(87, 239, 255, 0.18) 46% 48%, transparent 49% 100%);
+  mask: radial-gradient(circle, transparent 0 24%, rgba(0, 0, 0, 0.45) 25% 52%, #000 53% 88%, transparent 89%);
+  filter: drop-shadow(0 0 9px rgba(87, 239, 255, 0.46));
+  animation: restart-inward-clean 5.8s ease-in-out infinite, restart-ring-spin 54s linear infinite;
+}
+
+.spark-restart-core::after {
+  z-index: 5;
+  width: 27%;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle, #000 0 58%, rgba(1, 10, 14, 0.98) 59% 76%, rgba(0, 0, 0, 0.9) 77% 100%);
+  box-shadow:
+    0 0 0 7px rgba(0, 0, 0, 0.86),
+    0 0 20px rgba(87, 239, 255, 0.18),
+    inset 0 0 16px #000;
+  animation: restart-center-strip-breathe 8.2s ease-in-out infinite;
+}
+
+.spark-restart-core .restart-inward-flow,
+.spark-restart-core .restart-scan-ring,
+.spark-restart-core .restart-inner-void {
+  display: none;
+}
+
+.spark-restart-core::before {
+  z-index: 1;
+  width: 82%;
+  aspect-ratio: 1;
+  background:
+    repeating-conic-gradient(from 0deg, rgba(223, 251, 255, 0.72) 0deg 1deg, rgba(87, 239, 255, 0.38) 1deg 1.8deg, transparent 1.8deg 5.6deg),
+    radial-gradient(circle, transparent 0 69%, rgba(87, 239, 255, 0.32) 70% 73%, transparent 74%);
+  mask: radial-gradient(circle, transparent 0 58%, #000 59% 86%, transparent 87%);
+  filter:
+    drop-shadow(0 0 8px rgba(87, 239, 255, 0.82))
+    drop-shadow(0 0 18px rgba(93, 157, 255, 0.28));
+  animation: restart-ring-spin 34s linear infinite, restart-ring-breathe 6.4s ease-in-out infinite;
+}
+
+.spark-restart-core::after {
+  z-index: 2;
+  width: 70%;
+  aspect-ratio: 1;
+  background:
+    repeating-conic-gradient(from 8deg, rgba(87, 239, 255, 0.88) 0deg 4deg, rgba(223, 251, 255, 0.70) 4deg 6deg, transparent 6deg 10deg);
+  mask: radial-gradient(circle, transparent 0 74%, #000 75% 83%, transparent 84%);
+  filter: drop-shadow(0 0 11px rgba(87, 239, 255, 0.76));
+  animation: restart-ring-spin-reverse 24s linear infinite, restart-ring-breathe 5.6s ease-in-out infinite;
+}
+
+.spark-restart-core .restart-inward-flow {
+  z-index: 3;
+  width: 78%;
+  aspect-ratio: 1;
+  background:
+    repeating-conic-gradient(from -2deg, transparent 0deg 9deg, rgba(223, 251, 255, 0.46) 9deg 10deg, rgba(87, 239, 255, 0.34) 10deg 11.4deg, transparent 11.4deg 18deg);
+  mask: radial-gradient(circle, transparent 0 20%, rgba(0, 0, 0, 0.28) 21% 45%, #000 46% 78%, transparent 79%);
+  filter: drop-shadow(0 0 9px rgba(87, 239, 255, 0.46));
+  animation: restart-inward-pulse 4.8s ease-in-out infinite, restart-ring-spin 42s linear infinite;
+}
+
+.spark-restart-core .restart-scan-ring {
+  z-index: 4;
+  width: 53%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(185, 251, 255, 0.34);
+  background:
+    conic-gradient(from 0deg, transparent 0 54deg, rgba(185, 251, 255, 0.22) 54deg 61deg, transparent 61deg 180deg, rgba(87, 239, 255, 0.18) 180deg 188deg, transparent 188deg);
+  box-shadow:
+    inset 0 0 18px rgba(0, 0, 0, 0.8),
+    0 0 14px rgba(87, 239, 255, 0.28);
+  animation: restart-ring-spin-reverse 18s linear infinite;
+}
+
+.spark-restart-core .restart-inner-void {
+  z-index: 6;
+  width: 24%;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle, rgba(0, 0, 0, 1) 0 54%, rgba(1, 10, 14, 0.98) 55% 76%, rgba(0, 0, 0, 0.92) 77% 100%);
+  box-shadow:
+    0 0 0 5px rgba(0, 0, 0, 0.82),
+    0 0 18px rgba(87, 239, 255, 0.22),
+    inset 0 0 14px #000;
+  animation: restart-void-breathe 7.2s ease-in-out infinite;
+}
+
+.core-animation {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(8, 24, 30, 0.96) 0 25%, rgba(3, 10, 14, 0.98) 26% 42%, rgba(0, 0, 0, 1) 43% 100%);
+  box-shadow:
+    0 0 0 1px rgba(185, 251, 255, 0.22),
+    0 0 18px rgba(87, 239, 255, 0.34),
+    0 0 48px rgba(87, 239, 255, 0.15),
+    inset 0 0 38px rgba(0, 0, 0, 0.94);
+  animation: core-drift 11s ease-in-out infinite, spark-base-alive 8.4s ease-in-out infinite;
+  transform-origin: 50% 52%;
+  pointer-events: auto;
+}
+
+.core-animation::before {
+  content: "";
+  position: absolute;
+  inset: 3.5%;
+  border-radius: 50%;
+  background:
+    linear-gradient(112deg, transparent 0 43%, rgba(185, 251, 255, 0.15) 44% 45%, transparent 46% 100%),
+    linear-gradient(22deg, transparent 0 54%, rgba(87, 239, 255, 0.12) 55% 56%, transparent 57% 100%);
+  opacity: 0.72;
+  filter: drop-shadow(0 0 7px rgba(87, 239, 255, 0.26));
+  animation: spark-glass-sweep 17s ease-in-out infinite;
+}
+.core-animation::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: var(--spark-splash-size, 86%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background:
+    repeating-conic-gradient(from var(--spark-splash-angle, -2deg), rgba(223, 251, 255, 0.88) 0deg var(--spark-splash-width, 0.8deg), rgba(87, 239, 255, 0.54) var(--spark-splash-width, 0.8deg) calc(var(--spark-splash-width, 0.8deg) + 0.9deg), transparent calc(var(--spark-splash-width, 0.8deg) + 0.9deg) var(--spark-splash-gap, 9deg)),
+    radial-gradient(circle, transparent 0 61%, rgba(87, 239, 255, 0.24) 62% 64%, transparent 65% 100%);
+  mask: radial-gradient(circle, transparent 0 var(--spark-splash-hole, 66%), #000 calc(var(--spark-splash-hole, 66%) + 1%) var(--spark-splash-reach, 94%), transparent calc(var(--spark-splash-reach, 94%) + 1%) 100%);
+  filter:
+    drop-shadow(0 0 6px rgba(223, 251, 255, 0.82))
+    drop-shadow(0 0 18px rgba(87, 239, 255, 0.44));
+  opacity: var(--spark-splash-opacity, 0.82);
+  animation: spark-data-splash var(--spark-splash-pulse, 6.4s) ease-in-out infinite, spark-base-spin var(--spark-splash-spin, 54s) linear infinite;
+  pointer-events: none;
+}
+
+.spark-base-ring,
+.spark-base-plus-one,
+.spark-plus-ring,
+.spark-plus-lens {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.spark-base-ring-outer {
+  width: 97%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(185, 251, 255, 0.35);
+  background:
+    repeating-conic-gradient(from 2deg, rgba(223, 251, 255, 0.40) 0deg 1deg, transparent 1deg 14deg),
+    conic-gradient(from 0deg, transparent 0deg 14deg, rgba(87, 239, 255, 0.16) 14deg 18deg, transparent 18deg 42deg, rgba(93, 157, 255, 0.15) 42deg 46deg, transparent 46deg 360deg);
+  mask: radial-gradient(circle, transparent 0 64%, #000 65% 82%, transparent 83% 100%);
+  filter: drop-shadow(0 0 9px rgba(87, 239, 255, 0.38));
+  animation: spark-base-spin 62s linear infinite;
+}
+
+.spark-base-ring-panels {
+  width: 86%;
+  aspect-ratio: 1;
+  background:
+    repeating-conic-gradient(from -4deg, rgba(223, 251, 255, 0.25) 0deg 8deg, rgba(10, 24, 29, 0.72) 8deg 12deg, transparent 12deg 20deg),
+    radial-gradient(circle, transparent 0 63%, rgba(87, 239, 255, 0.18) 64% 66%, transparent 67% 100%);
+  mask: radial-gradient(circle, transparent 0 68%, #000 69% 82%, transparent 83% 100%);
+  animation: spark-base-spin-reverse 48s linear infinite;
+}
+
+.spark-base-ring-spectrum {
+  width: 74%;
+  aspect-ratio: 1;
+  background:
+    repeating-conic-gradient(from 0deg, rgba(223, 251, 255, 0.84) 0deg 0.7deg, rgba(87, 239, 255, 0.42) 0.7deg 1.5deg, transparent 1.5deg 3.6deg),
+    radial-gradient(circle, transparent 0 77%, rgba(87, 239, 255, 0.35) 78% 80%, transparent 81%);
+  mask: radial-gradient(circle, transparent 0 56%, #000 57% 79%, transparent 80%);
+  filter:
+    drop-shadow(0 0 7px rgba(87, 239, 255, 0.9))
+    drop-shadow(0 0 18px rgba(87, 239, 255, 0.36));
+  animation: spark-spectrum-pulse 5.8s ease-in-out infinite, spark-base-spin 29s linear infinite;
+}
+
+.spark-base-ring-teeth {
+  width: 61%;
+  aspect-ratio: 1;
+  background:
+    repeating-conic-gradient(from 5deg, rgba(87, 239, 255, 0.95) 0deg 3deg, rgba(223, 251, 255, 0.92) 3deg 5deg, transparent 5deg 9deg),
+    radial-gradient(circle, rgba(87, 239, 255, 0.12) 0 56%, transparent 57%);
+  mask: radial-gradient(circle, transparent 0 71%, #000 72% 84%, transparent 85%);
+  filter:
+    drop-shadow(0 0 8px rgba(87, 239, 255, 0.88))
+    drop-shadow(0 0 18px rgba(93, 157, 255, 0.35));
+  animation: spark-base-spin 25s linear infinite, spark-teeth-breathe 6.2s ease-in-out infinite;
+}
+
+.spark-base-ring-glass {
+  width: 56%;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 42% 34%, rgba(223, 251, 255, 0.13) 0 8%, transparent 16%),
+    radial-gradient(circle at 50% 50%, rgba(11, 42, 52, 0.80) 0 38%, rgba(1, 7, 10, 0.97) 64%, rgba(0, 0, 0, 1) 100%),
+    repeating-radial-gradient(circle, transparent 0 15px, rgba(87, 239, 255, 0.06) 16px 17px);
+  border: 1px solid rgba(87, 239, 255, 0.22);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.94), inset 0 0 18px rgba(87, 239, 255, 0.08);
+}
+
+.spark-base-plus-one {
+  z-index: 3;
+  width: 27%;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 46% 40%, rgba(223, 251, 255, 0.34) 0 7%, transparent 16%),
+    radial-gradient(circle, rgba(87, 239, 255, 0.34) 0 15%, rgba(15, 82, 118, 0.46) 16% 42%, rgba(0, 0, 0, 0.94) 43% 100%);
+  border: 1px solid rgba(223, 251, 255, 0.58);
+  box-shadow:
+    0 0 14px rgba(87, 239, 255, 0.64),
+    inset 0 0 20px rgba(0, 0, 0, 0.86),
+    inset 0 0 0 5px rgba(0, 0, 0, 0.56);
+  animation: spark-plus-breathe 7.2s ease-in-out infinite, spark-plus-drift 31s ease-in-out infinite;
+}
+
+.spark-plus-ring-a {
+  width: 122%;
+  aspect-ratio: 1;
+  border: 1px dashed rgba(185, 251, 255, 0.52);
+  animation: spark-base-spin 35s linear infinite;
+}
+
+.spark-plus-ring-b {
+  width: 84%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(93, 157, 255, 0.58);
+  background: conic-gradient(from 0deg, transparent 0 72deg, rgba(87, 239, 255, 0.48) 72deg 89deg, transparent 89deg 188deg, rgba(223, 251, 255, 0.34) 188deg 204deg, transparent 204deg 360deg);
+  mask: radial-gradient(circle, transparent 0 58%, #000 59% 68%, transparent 69%);
+  animation: spark-base-spin-reverse 23s linear infinite;
+}
+
+.spark-plus-ring-c {
+  width: 54%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(223, 251, 255, 0.42);
+  box-shadow: inset 0 0 7px rgba(87, 239, 255, 0.24);
+  animation: spark-plus-inner-breathe 4.9s ease-in-out infinite;
+}
+
+.spark-plus-lens {
+  width: 30%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #dffbff 0 12%, #57efff 13% 42%, #1c5dff 43% 66%, #02080c 67% 100%);
+  box-shadow: 0 0 11px rgba(87, 239, 255, 0.85), inset 0 0 7px rgba(0, 0, 0, 0.78);
+}
+
+.spark-core-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 5;
+  width: 34%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  background:
+    radial-gradient(circle at 50% 50%, #000 0 42%, rgba(2, 8, 14, 0.98) 43% 63%, #000 64% 100%);
+  box-shadow:
+    0 0 0 6px #000,
+    inset 0 0 16px rgba(0, 0, 0, 1),
+    0 0 16px rgba(0, 0, 0, 0.92);
+  opacity: 1;
+  pointer-events: none;
+  overflow: hidden;
+  perspective: 260px;
+}
+
+.spark-mechanical-eye::before {
+  content: "";
+  position: absolute;
+  inset: 5%;
+  border-radius: 50%;
+  border: 1px solid rgba(125, 232, 255, 0.48);
+  background:
+    repeating-conic-gradient(from 0deg, rgba(87, 239, 255, 0.34) 0deg 2deg, transparent 2deg 14deg),
+    radial-gradient(circle, transparent 0 46%, rgba(87, 239, 255, 0.08) 47% 54%, transparent 55%);
+  filter: drop-shadow(0 0 8px rgba(87, 239, 255, 0.38));
+  animation: spark-eye-outer-index 10.5s linear infinite;
+}
+
+.spark-mechanical-eye::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 0 58%, #000 61% 100%);
+}
+
+.spark-eye-inner-orbit {
+  position: absolute;
+  inset: 12%;
+  z-index: 2;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  animation: spark-eye-orbit-tilt 24s ease-in-out infinite;
+}
+
+.spark-eye-aperture {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: 74%;
+  height: 74%;
+  border: 1px solid rgba(185, 251, 255, 0.56);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(10, 26, 38, 0.8) 0 30%, rgba(0, 0, 0, 0.96) 58%),
+    repeating-conic-gradient(from 18deg, rgba(87, 239, 255, 0.18) 0 9deg, rgba(0, 0, 0, 0.0) 9deg 28deg);
+  box-shadow:
+    0 0 11px rgba(87, 239, 255, 0.34),
+    inset 0 0 18px rgba(87, 239, 255, 0.14),
+    inset 0 0 0 9px rgba(0, 0, 0, 0.72);
+  overflow: hidden;
+  transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+  animation: spark-eye-open-cycle 24s ease-in-out infinite, spark-eye-aperture-spin 24s ease-in-out infinite;
+}
+
+.spark-eye-lens-ring {
+  position: absolute;
+  inset: 19%;
+  border-radius: 50%;
+  border: 1px solid rgba(87, 239, 255, 0.38);
+  background:
+    radial-gradient(circle, transparent 0 44%, rgba(87, 239, 255, 0.16) 45% 48%, transparent 49%),
+    conic-gradient(from 40deg, transparent 0 38deg, rgba(185, 251, 255, 0.2) 38deg 44deg, transparent 44deg 84deg);
+  animation: spark-eye-lens-counter 24s ease-in-out infinite;
+}
+
+.spark-eye-iris {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 36% 34%, rgba(255, 255, 255, 0.94) 0 2px, transparent 3px),
+    radial-gradient(circle, #dffbff 0 7%, #74fffa 8% 29%, #2b78ff 30% 54%, #06121f 55% 100%),
+    conic-gradient(from 0deg, rgba(255, 255, 255, 0.26), transparent 28deg, rgba(87, 239, 255, 0.26) 56deg, transparent 96deg);
+  box-shadow:
+    0 0 11px rgba(87, 239, 255, 0.9),
+    inset 0 0 9px rgba(0, 0, 0, 0.62);
+  transform: translate(-50%, -50%);
+  animation: spark-eye-look 24s ease-in-out infinite;
+}
+
+.spark-eye-pupil {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #000;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
+}
+
+.spark-eye-glint {
+  position: absolute;
+  left: 27%;
+  top: 23%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  filter: blur(0.2px);
+}
+
+.spark-eye-shutter {
+  position: absolute;
+  left: 50%;
+  z-index: 3;
+  top: 50%;
+  width: 76%;
+  height: 22%;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.98), rgba(4, 15, 22, 0.98), rgba(0, 0, 0, 0.98));
+  border: 1px solid rgba(87, 239, 255, 0.16);
+  clip-path: polygon(0 0, 86% 0, 100% 50%, 86% 100%, 0 100%, 12% 50%);
+  box-shadow:
+    0 0 8px rgba(0, 0, 0, 0.92),
+    inset 0 0 6px rgba(87, 239, 255, 0.08);
+  transform-origin: 50% 50%;
+  animation: spark-eye-shutter-cycle 24s ease-in-out infinite;
+}
+
+.spark-eye-shutter-a {
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.spark-eye-shutter-b {
+  transform: translate(-50%, -50%) rotate(120deg);
+}
+
+.spark-eye-shutter-c {
+  transform: translate(-50%, -50%) rotate(240deg);
+}
+
+.spark-core-toggle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 7;
+  width: 34%;
+  aspect-ratio: 1;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.spark-core-toggle:focus-visible {
+  outline: 1px solid rgba(185, 251, 255, 0.55);
+  outline-offset: 2px;
+}
+
+.spark-menu {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: calc(100% + 116px);
+  aspect-ratio: 1;
+  --spark-ring-radius: calc(((min(360px, 48vw) + 116px) / 2) - 46px);
+  padding: 0;
+  transform: translate(-50%, -50%) scale(0.86);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.spark-stage.spark-menu-open .spark-menu,
+.spark-stage.spark-style-preview .spark-menu,
+.spark-stage:focus-within .spark-menu {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.spark-menu-icon-button {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 74px;
+  height: 64px;
+  display: grid;
+  grid-template-rows: 15px 1fr;
+  justify-items: center;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: #dffbff;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  pointer-events: none;
+  transform:
+    translate(-50%, -50%)
+    rotate(calc(var(--slot) * 30deg))
+    translateY(calc(var(--spark-ring-radius) * -1))
+    rotate(calc(var(--slot) * -30deg));
+}
+
+.spark-stage.spark-menu-open .spark-menu-icon-button,
+.spark-stage.spark-style-preview .spark-menu-icon-button,
+.spark-stage:focus-within .spark-menu-icon-button {
+  pointer-events: auto;
+}
+
+.spark-action-label {
+  display: block;
+  max-width: 86px;
+  color: rgba(223, 251, 255, 0.9);
+  font-size: 8px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(87, 239, 255, 0.72);
+  white-space: nowrap;
+  transform-origin: 50% 100%;
+  transition: filter 140ms ease, transform 140ms ease;
+}
+
+.spark-menu-icon-button:hover .spark-action-label,
+.spark-menu-icon-button:focus-visible .spark-action-label,
+.spark-menu-icon-button.is-selected .spark-action-label {
+  background: linear-gradient(90deg, #6fb7ff 0%, #57efff 38%, #dffbff 55%, #38d8ff 76%, #6fb7ff 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transform: scale(2);
+  filter:
+    drop-shadow(0 0 7px rgba(87, 239, 255, 0.82))
+    drop-shadow(0 0 14px rgba(52, 151, 255, 0.44));
+  animation: spark-label-aqua-flow 2.8s ease-in-out infinite;
+}
+
+.spark-action-icon {
+  width: 40px;
+  height: 40px;
+  fill: none;
+  stroke: #57efff;
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px rgba(87, 239, 255, 0.5));
+  transition: filter 140ms ease, stroke 140ms ease, transform 140ms ease;
+}
+
+.spark-menu-icon-button:hover .spark-action-icon,
+.spark-menu-icon-button:focus-visible .spark-action-icon,
+.spark-menu-icon-button.is-selected .spark-action-icon {
+  stroke: #b9fbff;
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 14px rgba(87, 239, 255, 0.86));
+}
+
+.spark-menu-icon-button.is-selected::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(185, 251, 255, 0.36);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  filter: drop-shadow(0 0 8px rgba(87, 239, 255, 0.35));
+}
+
+.session-window {
+  --session-left: calc(50% + ((min(360px, 48vw) + 116px) / 2) + 10px);
+  --session-side-width: min(536px, calc((100vw - min(360px, 48vw) - 116px - 68px) / 2));
+  --session-electric: 255, 232, 54;
+  --session-electric-soft: 255, 247, 151;
+  --session-electric-deep: 255, 194, 28;
+  position: absolute;
+  top: max(116px, calc(50% - 278px));
+  z-index: 5;
+  width: var(--session-side-width);
+  min-width: 360px;
+  height: min(524px, calc(100vh - 210px));
+  min-height: 360px;
+  display: grid;
+  grid-template-rows: 1fr;
+  border: 1px solid rgba(var(--session-electric), 0.78);
+  background:
+    linear-gradient(180deg, rgba(0, 6, 8, 0.96), rgba(0, 5, 7, 0.92)),
+    radial-gradient(circle at 0 0, rgba(var(--session-electric), 0.13), transparent 130px);
+  box-shadow:
+    0 0 3px rgba(var(--session-electric-soft), 0.68),
+    0 0 18px rgba(var(--session-electric), 0.32),
+    inset 0 0 14px rgba(var(--session-electric), 0.06);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px) scale(0.985);
+  transition: opacity 170ms ease, transform 170ms ease;
+  isolation: isolate;
+}
+
+.harness-screen.session-theme-aqua .session-window {
+  --session-electric: 87, 239, 255;
+  --session-electric-soft: 223, 251, 255;
+  --session-electric-deep: 93, 157, 255;
+}
+
+.harness-screen.session-theme-green .session-window {
+  --session-electric: 102, 255, 150;
+  --session-electric-soft: 209, 255, 222;
+  --session-electric-deep: 42, 219, 111;
+}
+
+.harness-screen.sessions-visible .session-window {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.harness-screen:has(.harness-dock-wrap.harness-dock-open) .session-window {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px) scale(0.985);
+}
+
+.session-window-right {
+  left: var(--session-left);
+}
+
+.session-window-left {
+  right: calc(50% + ((min(360px, 48vw) + 116px) / 2) + 10px);
+}
+
+.session-window-left::after {
+  left: auto;
+  right: 15px;
+}
+
+.session-window::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 9px;
+  right: 10px;
+  bottom: 10px;
+  border: 1px solid rgba(var(--session-electric), 0.28);
+  box-shadow: inset 0 0 9px rgba(var(--session-electric), 0.07);
+  pointer-events: none;
+}
+
+.session-window::after {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 40px;
+  width: 4px;
+  height: calc(100% - 82px);
+  background: linear-gradient(180deg, rgba(var(--session-electric), 0.84), rgba(var(--session-electric), 0.22) 48%, rgba(var(--session-electric-deep), 0.8));
+  box-shadow: 0 0 10px rgba(var(--session-electric), 0.58);
+  pointer-events: none;
+}
+
+.session-title {
+  position: absolute;
+  left: 14px;
+  top: -13px;
+  color: rgba(var(--session-electric-soft), 0.9);
+  font-size: 8px;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 0 0 7px rgba(var(--session-electric), 0.78);
+}
+
+.session-title::after {
+  content: "";
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  width: 96px;
+  height: 1px;
+  background: rgba(var(--session-electric), 0.58);
+  box-shadow: 0 0 7px rgba(var(--session-electric), 0.5);
+}
+
+.session-project-select {
+  position: absolute;
+  right: 58px;
+  top: -45px;
+  z-index: 3;
+  width: 142px;
+  height: 20px;
+  border: 1px solid rgba(var(--session-electric), 0.58);
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.92);
+  color: rgba(var(--session-electric-soft), 0.94);
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1px 22px 1px 7px;
+  outline: none;
+  box-shadow:
+    0 0 8px rgba(var(--session-electric), 0.28),
+    inset 0 0 8px rgba(var(--session-electric), 0.05);
+}
+
+.session-project-select:focus {
+  border-color: rgba(var(--session-electric-soft), 0.88);
+}
+
+.session-window-right .session-project-select {
+  display: none;
+}
+
+.session-window-left .session-title {
+  left: auto;
+  right: 14px;
+}
+
+.session-window-left .session-title::after {
+  left: auto;
+  right: calc(100% + 8px);
+}
+
+.session-right-ticks {
+  position: absolute;
+  right: -12px;
+  top: 8px;
+  width: 5px;
+  height: 54px;
+  background:
+    linear-gradient(135deg, transparent 0 45%, rgba(var(--session-electric), 0.9) 46% 54%, transparent 55%) 0 0 / 5px 12px repeat-y;
+  filter: drop-shadow(0 0 5px rgba(var(--session-electric), 0.64));
+}
+
+.session-window-left .session-right-ticks {
+  right: auto;
+  left: -12px;
+  transform: scaleX(-1);
+}
+
+.session-corner-plus {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  width: 13px;
+  height: 13px;
+  filter: drop-shadow(0 0 5px rgba(var(--session-electric), 0.66));
+}
+
+.session-corner-plus::before,
+.session-corner-plus::after {
+  content: "";
+  position: absolute;
+  background: rgba(var(--session-electric-soft), 0.94);
+}
+
+.session-corner-plus::before {
+  left: 0;
+  top: 6px;
+  width: 13px;
+  height: 1px;
+}
+
+.session-corner-plus::after {
+  left: 6px;
+  top: 0;
+  width: 1px;
+  height: 13px;
+}
+
+.session-window-left .session-corner-plus {
+  right: auto;
+  left: 12px;
+}
+
+.session-outside-icons {
+  position: absolute;
+  display: grid;
+  gap: 8px;
+  z-index: 2;
+}
+
+.session-top-icons {
+  right: 0;
+  top: -50px;
+  grid-template-columns: repeat(4, 48px);
+  gap: 6px;
+}
+
+.session-window-left .session-top-icons {
+  right: auto;
+  left: 0;
+}
+
+.session-window-left .session-top-icons .session-outside-icon:nth-child(1) {
+  order: 4;
+}
+
+.session-window-left .session-top-icons .session-outside-icon:nth-child(2) {
+  order: 3;
+}
+
+.session-window-left .session-top-icons .session-outside-icon:nth-child(3) {
+  order: 2;
+}
+
+.session-window-left .session-top-icons .session-outside-icon:nth-child(4) {
+  order: 1;
+}
+
+.session-outside-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: rgb(var(--session-electric-soft));
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+}
+
+.session-top-icons .session-outside-icon {
+  width: 48px;
+  height: 44px;
+  grid-template-rows: 12px 30px;
+  justify-items: center;
+  align-items: center;
+}
+
+.session-outside-label {
+  color: rgba(var(--session-electric-soft), 0.9);
+  font-size: 7px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 0 7px rgba(var(--session-electric), 0.78);
+  white-space: nowrap;
+}
+
+.session-outside-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: rgba(var(--session-electric), 0.9);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 7px rgba(var(--session-electric), 0.56));
+  transition: filter 140ms ease, stroke 140ms ease, transform 140ms ease;
+}
+
+.session-top-icons .session-outside-icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.session-outside-icon:hover svg,
+.session-outside-icon:focus-visible svg {
+  stroke: rgb(var(--session-electric-soft));
+  transform: scale(1.12);
+  filter: drop-shadow(0 0 11px rgba(var(--session-electric), 0.9));
+}
+
+.session-workspace {
+  position: relative;
+  margin: 22px 24px 22px 26px;
+  border: 0;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.88)),
+    linear-gradient(90deg, rgba(var(--session-electric), 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(var(--session-electric), 0.045) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: 0.62;
+}
+
+.session-workspace::before,
+.session-workspace::after {
+  content: "";
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border-color: rgba(var(--session-electric), 0.78);
+  filter: drop-shadow(0 0 5px rgba(var(--session-electric), 0.46));
+}
+
+.session-workspace::before {
+  left: -7px;
+  bottom: -7px;
+  border-left: 2px solid;
+  border-bottom: 2px solid;
+}
+
+.session-workspace::after {
+  right: -7px;
+  bottom: -7px;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+}
+
+.session-text-slider {
+  position: absolute;
+  right: 12px;
+  bottom: -11px;
+  width: 138px;
+  height: 24px;
+  display: grid;
+  grid-template-columns: 13px 1fr 17px;
+  gap: 7px;
+  align-items: center;
+  color: rgba(var(--session-electric-soft), 0.9);
+  filter: drop-shadow(0 0 7px rgba(var(--session-electric), 0.34));
+}
+
+.session-window-left .session-text-slider {
+  right: auto;
+  left: 12px;
+}
+
+.session-text-slider span {
+  display: block;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 0 7px rgba(var(--session-electric), 0.8);
+}
+
+.session-text-slider-small {
+  font-size: 9px;
+}
+
+.session-text-slider-large {
+  font-size: 15px;
+}
+
+.session-text-slider input {
+  width: 100%;
+  height: 16px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.session-text-slider input::-webkit-slider-runnable-track {
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 232, 54, 0.28), rgba(255, 247, 151, 0.9));
+  box-shadow: 0 0 7px rgba(255, 232, 54, 0.48);
+}
+
+.session-text-slider input::-webkit-slider-thumb {
+  appearance: none;
+  width: 9px;
+  height: 16px;
+  margin-top: -7px;
+  border: 1px solid rgba(255, 247, 151, 0.94);
+  background: rgba(26, 23, 4, 0.95);
+  box-shadow: 0 0 9px rgba(255, 232, 54, 0.78);
+}
+
+.session-text-slider input::-moz-range-track {
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 232, 54, 0.28), rgba(255, 247, 151, 0.9));
+  box-shadow: 0 0 7px rgba(255, 232, 54, 0.48);
+}
+
+.session-text-slider input::-moz-range-thumb {
+  width: 9px;
+  height: 16px;
+  border: 1px solid rgba(255, 247, 151, 0.94);
+  border-radius: 0;
+  background: rgba(26, 23, 4, 0.95);
+  box-shadow: 0 0 9px rgba(255, 232, 54, 0.78);
+}
+
+.spark-menu-button {
+  counter-increment: style-option;
+  position: relative;
+  width: 100%;
+  height: 38px;
+  border: 1px solid rgba(87, 239, 255, 0.52);
+  background:
+    linear-gradient(110deg, rgba(9, 24, 32, 0.95), rgba(34, 112, 132, 0.48) 58%, rgba(6, 18, 24, 0.88)),
+    radial-gradient(circle at 22% 50%, rgba(87, 239, 255, 0.24), transparent 26px);
+  clip-path: polygon(0 18%, 12% 0, 76% 0, 100% 30%, 91% 100%, 12% 100%, 0 78%);
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  filter: drop-shadow(0 0 8px rgba(87, 239, 255, 0.22));
+}
+
+.spark-menu-button::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 17px;
+  height: 17px;
+  border: 1px solid rgba(223, 251, 255, 0.6);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: rgba(223, 251, 255, 0.07);
+  box-shadow: 0 0 9px rgba(87, 239, 255, 0.22);
+}
+
+.spark-menu-button::after {
+  content: counter(style-option);
+  position: absolute;
+  left: -22px;
+  top: 50%;
+  transform: translateY(-56%);
+  color: rgba(223, 251, 255, 0.88);
+  font-size: 11px;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(87, 239, 255, 0.72);
+}
+
+.spark-menu-button span {
+  position: absolute;
+  left: 36px;
+  right: 20px;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, rgba(87, 239, 255, 0.28), rgba(223, 251, 255, 0.04));
+}
+
+.spark-menu-button:hover,
+.spark-menu-button:focus-visible,
+.spark-menu-button.is-selected {
+  border-color: rgba(185, 251, 255, 0.62);
+  background:
+    linear-gradient(110deg, rgba(12, 34, 42, 0.94), rgba(38, 128, 143, 0.42) 58%, rgba(7, 25, 32, 0.86)),
+    radial-gradient(circle at 22% 50%, rgba(185, 251, 255, 0.24), transparent 24px);
+  filter: drop-shadow(0 0 11px rgba(87, 239, 255, 0.34));
+}
+
+.spark-menu-button.is-selected::before {
+  background: rgba(185, 251, 255, 0.3);
+  box-shadow: 0 0 14px rgba(185, 251, 255, 0.56);
+}
+
+.spark-menu-option-1 {
+  clip-path: polygon(0 18%, 12% 0, 76% 0, 100% 30%, 91% 100%, 12% 100%, 0 78%);
+}
+
+.spark-menu-option-2 {
+  clip-path: polygon(0 0, 84% 0, 100% 50%, 84% 100%, 0 100%, 10% 50%);
+}
+
+.spark-menu-option-3 {
+  clip-path: polygon(0 24%, 16% 0, 100% 0, 88% 100%, 16% 100%, 0 76%);
+}
+
+.spark-menu-option-4 {
+  clip-path: polygon(0 0, 70% 0, 100% 34%, 92% 100%, 0 100%, 9% 52%);
+}
+
+.spark-menu-option-5 {
+  clip-path: polygon(8% 0, 100% 0, 92% 48%, 100% 100%, 8% 100%, 0 50%);
+}
+
+.spark-menu-option-6 {
+  clip-path: polygon(0 16%, 14% 0, 88% 0, 100% 18%, 86% 100%, 11% 100%, 0 82%);
+}
+
+.spark-menu-option-7 {
+  clip-path: polygon(0 0, 78% 0, 100% 24%, 100% 76%, 78% 100%, 0 100%, 12% 50%);
+}
+
+.spark-menu-option-8 {
+  clip-path: polygon(0 28%, 20% 0, 78% 0, 100% 28%, 82% 100%, 6% 100%);
+}
+
+.spark-menu-option-9 {
+  clip-path: polygon(0 0, 90% 0, 100% 42%, 84% 100%, 0 100%, 6% 66%);
+}
+
+.spark-menu-option-10 {
+  clip-path: polygon(0 18%, 10% 0, 92% 0, 100% 50%, 92% 100%, 10% 100%, 0 82%);
+}
+
+.spark-style-set {
+  height: 86px;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  padding: 10px 14px 10px 26px;
+  clip-path: polygon(0 12%, 8% 0, 92% 0, 100% 22%, 94% 100%, 7% 100%, 0 82%);
+  background:
+    linear-gradient(120deg, rgba(5, 16, 22, 0.96), rgba(16, 72, 86, 0.42) 58%, rgba(3, 11, 16, 0.88)),
+    radial-gradient(circle at 12% 50%, rgba(87, 239, 255, 0.2), transparent 28px);
+}
+
+.spark-style-set::before {
+  left: 8px;
+  width: 11px;
+  height: 11px;
+}
+
+.spark-style-set::after {
+  left: -22px;
+}
+
+.spark-style-set span {
+  position: static;
+  display: block;
+  width: auto;
+  height: 9px;
+  transform: none;
+  border: 1px solid rgba(87, 239, 255, 0.24);
+  background:
+    linear-gradient(90deg, rgba(87, 239, 255, 0.36), rgba(223, 251, 255, 0.06));
+  box-shadow: inset 0 0 8px rgba(87, 239, 255, 0.12);
+}
+
+.spark-style-set-1 span {
+  clip-path: polygon(0 0, 86% 0, 100% 50%, 86% 100%, 0 100%, 8% 50%);
+}
+
+.spark-style-set-2 span {
+  border-radius: 999px;
+}
+
+.spark-style-set-2 span:nth-child(1),
+.spark-style-set-2 span:nth-child(3) {
+  margin-right: 26px;
+}
+
+.spark-style-set-2 span:nth-child(2),
+.spark-style-set-2 span:nth-child(4) {
+  margin-left: 22px;
+}
+
+.spark-style-set-3 {
+  gap: 5px;
+}
+
+.spark-style-set-3 span {
+  height: 10px;
+  clip-path: polygon(0 0, 75% 0, 92% 50%, 75% 100%, 0 100%);
+  background:
+    repeating-linear-gradient(90deg, rgba(87, 239, 255, 0.28) 0 9px, transparent 9px 13px),
+    linear-gradient(90deg, rgba(87, 239, 255, 0.2), rgba(223, 251, 255, 0.04));
+}
+
+.spark-style-set-4 span {
+  height: 6px;
+  border-color: rgba(185, 251, 255, 0.18);
+  background: rgba(87, 239, 255, 0.18);
+  box-shadow: 0 0 8px rgba(87, 239, 255, 0.22);
+}
+
+.spark-style-set-4 span:nth-child(1) { width: 82%; }
+.spark-style-set-4 span:nth-child(2) { width: 64%; margin-left: 18%; }
+.spark-style-set-4 span:nth-child(3) { width: 92%; margin-left: 4%; }
+.spark-style-set-4 span:nth-child(4) { width: 58%; margin-left: 30%; }
+
+.spark-style-set-5 {
+  padding-left: 18px;
+}
+
+.spark-style-set-5 span {
+  height: 11px;
+  clip-path: polygon(0 0, 100% 0, 92% 50%, 100% 100%, 0 100%, 8% 50%);
+}
+
+.spark-style-set-5 span::before {
+  content: "";
+  display: block;
+  width: 16px;
+  height: 100%;
+  background: rgba(87, 239, 255, 0.32);
+}
+
+.spark-style-set-6 {
+  gap: 4px;
+  border-radius: 0 18px 18px 0;
+  clip-path: none;
+}
+
+.spark-style-set-6 span {
+  height: 8px;
+  border-radius: 12px 2px 14px 2px;
+  transform: skewX(-10deg);
+}
+
+.spark-style-set-7 span {
+  height: 12px;
+  clip-path: polygon(0 0, 92% 0, 100% 18%, 92% 100%, 0 100%, 10% 50%);
+}
+
+.spark-style-set-7 span:nth-child(even) {
+  clip-path: polygon(8% 0, 100% 0, 88% 50%, 100% 100%, 8% 100%, 0 82%, 0 18%);
+}
+
+.spark-style-set-8 {
+  grid-template-columns: 11px 1fr;
+  column-gap: 8px;
+}
+
+.spark-style-set-8 span {
+  grid-column: 2;
+  height: 8px;
+}
+
+.spark-style-set-8 span:nth-child(1)::before,
+.spark-style-set-8 span:nth-child(2)::before,
+.spark-style-set-8 span:nth-child(3)::before,
+.spark-style-set-8 span:nth-child(4)::before {
+  content: "";
+  position: absolute;
+}
+
+.spark-style-set-8 {
+  background:
+    linear-gradient(90deg, rgba(87, 239, 255, 0.42) 0 8px, transparent 8px),
+    linear-gradient(120deg, rgba(5, 16, 22, 0.96), rgba(16, 72, 86, 0.42) 58%, rgba(3, 11, 16, 0.88));
+}
+
+.spark-style-set-9 span {
+  height: 9px;
+  clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%);
+}
+
+.spark-style-set-9 span:nth-child(1) { margin-right: 40px; }
+.spark-style-set-9 span:nth-child(2) { margin-right: 14px; }
+.spark-style-set-9 span:nth-child(3) { margin-left: 20px; }
+.spark-style-set-9 span:nth-child(4) { margin-left: 44px; }
+
+.spark-style-set-10 {
+  gap: 3px;
+}
+
+.spark-style-set-10 span {
+  height: 13px;
+  border-radius: 2px;
+  clip-path: polygon(0 0, 88% 0, 100% 50%, 88% 100%, 0 100%);
+  background:
+    linear-gradient(180deg, rgba(223, 251, 255, 0.18), transparent 45%),
+    linear-gradient(90deg, rgba(87, 239, 255, 0.32), rgba(20, 89, 116, 0.2));
+}
+
+.spark-lightning {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  display: none;
+}
+
+.synapse-track,
+.synapse-fire {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.synapse-track {
+  opacity: var(--track-opacity, 0.22);
+  stroke: var(--track-color, rgba(27, 122, 210, 0.48));
+  stroke-width: var(--track-width, 0.42);
+  stroke-dasharray: var(--track-length, 78) 100;
+  stroke-dashoffset: var(--track-offset, 0);
+  filter: drop-shadow(0 0 4px var(--track-shadow, rgba(43, 162, 255, 0.4)));
+  animation: synapse-branch-length var(--branch-duration, 8s) ease-in-out infinite;
+  animation-delay: var(--branch-delay, 0s);
+}
+
+.synapse-fire {
+  opacity: 0;
+  stroke: var(--synapse-core, rgba(220, 250, 255, 0.96));
+  stroke-width: 0.9;
+  stroke-dasharray: 10 100;
+  stroke-dashoffset: 100;
+  filter: drop-shadow(0 0 6px var(--synapse-shadow, rgba(87, 239, 255, 0.88)));
+  animation: synapse-run var(--synapse-duration, 7s) linear infinite;
+  animation-delay: var(--synapse-delay, 0s);
+}
+
+.synapse-nodes circle {
+  opacity: 0.18;
+  fill: rgba(120, 238, 255, 0.72);
+  transform-box: fill-box;
+  transform-origin: center;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 5px rgba(87, 239, 255, 0.66));
+  animation: synapse-node-arrival var(--node-duration, 7s) linear infinite;
+  animation-delay: var(--node-delay, 0s);
+}
+
+.synapse-nodes circle:nth-child(1) {
+  --node-delay: -0.35s;
+  --node-duration: 6.4s;
+}
+
+.synapse-nodes circle:nth-child(2) {
+  --node-delay: -0.52s;
+  --node-duration: 6.4s;
+}
+
+.synapse-nodes circle:nth-child(3) {
+  --node-delay: -2.1s;
+  --node-duration: 7.6s;
+}
+
+.synapse-nodes circle:nth-child(4) {
+  --node-delay: -4.6s;
+  --node-duration: 8.2s;
+}
+
+.synapse-nodes circle:nth-child(5) {
+  --node-delay: -1.25s;
+  --node-duration: 9.1s;
+}
+
+.synapse-nodes circle:nth-child(6) {
+  --node-delay: -4.72s;
+  --node-duration: 8.2s;
+}
+
+.synapse-nodes circle:nth-child(7) {
+  --node-delay: -3.15s;
+  --node-duration: 6.9s;
+}
+
+.synapse-nodes circle:nth-child(8) {
+  --node-delay: -0.35s;
+  --node-duration: 6.4s;
+}
+
+.synapse-nodes circle:nth-child(9) {
+  --node-delay: -5.3s;
+  --node-duration: 7.3s;
+}
+
+.synapse-nodes circle:nth-child(10) {
+  --node-delay: -4.88s;
+  --node-duration: 8.2s;
+}
+
+.synapse-nodes circle:nth-child(11) {
+  --node-delay: -4.78s;
+  --node-duration: 8.2s;
+}
+
+.synapse-nodes circle:nth-child(12) {
+  --node-delay: -0.18s;
+  --node-duration: 6.4s;
+}
+
+.synapse {
+  transform-box: view-box;
+  transform-origin: 50px 48px;
+  animation: synapse-branch-drift var(--branch-duration, 8s) ease-in-out infinite;
+  animation-delay: var(--branch-delay, 0s);
+}
+
+.synapse-1,
+.synapse-7 {
+  --synapse-core: rgba(236, 255, 255, 0.98);
+  --synapse-shadow: rgba(135, 252, 255, 0.92);
+  --track-color: rgba(25, 110, 216, 0.34);
+  --track-shadow: rgba(52, 151, 255, 0.34);
+  --track-length: 66;
+  --track-offset: 12;
+  --branch-delay: -0.35s;
+  --branch-duration: 8.6s;
+  --branch-rotate: -0.8deg;
+  --branch-scale-a: 0.92;
+  --branch-scale-b: 1.05;
+  --synapse-delay: -0.35s;
+  --synapse-duration: 6.4s;
+}
+
+.synapse-2 {
+  --synapse-core: rgba(152, 217, 255, 0.95);
+  --synapse-shadow: rgba(24, 145, 255, 0.84);
+  --track-color: rgba(42, 150, 255, 0.3);
+  --track-shadow: rgba(42, 150, 255, 0.34);
+  --track-length: 58;
+  --track-offset: 20;
+  --branch-delay: -2.1s;
+  --branch-duration: 10.2s;
+  --branch-rotate: 1deg;
+  --branch-scale-a: 0.95;
+  --branch-scale-b: 1.08;
+  --synapse-delay: -2.1s;
+  --synapse-duration: 7.6s;
+}
+
+.synapse-3,
+.synapse-5 {
+  --synapse-core: rgba(190, 255, 245, 0.96);
+  --synapse-shadow: rgba(39, 255, 222, 0.82);
+  --track-color: rgba(44, 190, 255, 0.28);
+  --track-shadow: rgba(44, 190, 255, 0.34);
+  --track-length: 72;
+  --track-offset: 8;
+  --branch-delay: -4.6s;
+  --branch-duration: 9.7s;
+  --branch-rotate: -1.1deg;
+  --branch-scale-a: 0.9;
+  --branch-scale-b: 1.04;
+  --synapse-delay: -4.6s;
+  --synapse-duration: 8.2s;
+}
+
+.synapse-4 {
+  --synapse-core: rgba(168, 196, 255, 0.94);
+  --synapse-shadow: rgba(69, 116, 255, 0.78);
+  --track-color: rgba(31, 128, 230, 0.26);
+  --track-shadow: rgba(31, 128, 230, 0.3);
+  --track-length: 52;
+  --track-offset: 25;
+  --branch-delay: -1.25s;
+  --branch-duration: 11.1s;
+  --branch-rotate: 0.7deg;
+  --branch-scale-a: 0.93;
+  --branch-scale-b: 1.1;
+  --synapse-delay: -1.25s;
+  --synapse-duration: 9.1s;
+}
+
+.synapse-6 {
+  --synapse-core: rgba(226, 251, 255, 0.98);
+  --synapse-shadow: rgba(100, 232, 255, 0.9);
+  --track-color: rgba(72, 220, 255, 0.28);
+  --track-shadow: rgba(72, 220, 255, 0.34);
+  --track-length: 62;
+  --track-offset: 16;
+  --branch-delay: -3.15s;
+  --branch-duration: 8.9s;
+  --branch-rotate: -0.6deg;
+  --branch-scale-a: 0.91;
+  --branch-scale-b: 1.07;
+  --synapse-delay: -3.15s;
+  --synapse-duration: 6.9s;
+}
+
+.synapse-8 {
+  --synapse-core: rgba(176, 228, 255, 0.95);
+  --synapse-shadow: rgba(35, 184, 255, 0.82);
+  --track-color: rgba(34, 160, 245, 0.28);
+  --track-shadow: rgba(34, 160, 245, 0.32);
+  --track-length: 56;
+  --track-offset: 22;
+  --branch-delay: -5.3s;
+  --branch-duration: 10.7s;
+  --branch-rotate: 0.9deg;
+  --branch-scale-a: 0.94;
+  --branch-scale-b: 1.06;
+  --synapse-delay: -5.3s;
+  --synapse-duration: 7.3s;
+}
+
+@keyframes synapse-branch-drift {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  34% {
+    transform: rotate(var(--branch-rotate, 0.8deg)) scale(var(--branch-scale-a, 0.94));
+  }
+  68% {
+    transform: rotate(calc(var(--branch-rotate, 0.8deg) * -0.7)) scale(var(--branch-scale-b, 1.06));
+  }
+}
+
+@keyframes synapse-branch-length {
+  0%, 100% {
+    stroke-dasharray: var(--track-length, 72) 100;
+    stroke-dashoffset: var(--track-offset, 12);
+  }
+  42% {
+    stroke-dasharray: calc(var(--track-length, 72) * 0.72) 100;
+    stroke-dashoffset: calc(var(--track-offset, 12) + 11);
+  }
+  73% {
+    stroke-dasharray: calc(var(--track-length, 72) * 1.14) 100;
+    stroke-dashoffset: calc(var(--track-offset, 12) - 7);
+  }
+}
+
+@keyframes synapse-run {
+  0%, 13%, 31%, 52%, 68%, 100% {
+    opacity: 0;
+    stroke-dashoffset: -8;
+  }
+  2% {
+    opacity: 0.92;
+    stroke-dashoffset: 2;
+  }
+  7% {
+    opacity: 0.55;
+    stroke-dashoffset: 54;
+  }
+  11% {
+    opacity: 0;
+    stroke-dashoffset: 104;
+  }
+  36% {
+    opacity: 0.74;
+    stroke-dashoffset: 4;
+  }
+  43% {
+    opacity: 0;
+    stroke-dashoffset: 86;
+  }
+  71% {
+    opacity: 0.88;
+    stroke-dashoffset: 0;
+  }
+  78% {
+    opacity: 0;
+    stroke-dashoffset: 96;
+  }
+}
+
+@keyframes synapse-node-arrival {
+  0%, 8%, 34%, 41%, 69%, 76%, 100% {
+    opacity: 0.18;
+    transform: scale(0.85);
+  }
+  10.5%, 43%, 78% {
+    opacity: 0.96;
+    transform: scale(1.42);
+  }
+  12%, 45%, 80% {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+}
+
+
+@keyframes spark-base-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes spark-base-spin-reverse {
+  from { transform: translate(-50%, -50%) rotate(360deg); }
+  to { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+@keyframes restart-core-breathe {
+  0%, 100% {
+    scale: 0.985;
+    filter: brightness(0.9) saturate(1.02);
+  }
+  44% {
+    scale: 1.035;
+    filter: brightness(1.14) saturate(1.24);
+  }
+  72% {
+    scale: 1.005;
+    filter: brightness(1.03) saturate(1.1);
+  }
+}
+
+@keyframes restart-image-breathe {
+  0%, 100% {
+    scale: 0.985;
+    filter: brightness(0.9) saturate(1.04) contrast(1.02);
+  }
+  44% {
+    scale: 1.04;
+    filter: brightness(1.16) saturate(1.28) contrast(1.08);
+  }
+  72% {
+    scale: 1.006;
+    filter: brightness(1.03) saturate(1.12) contrast(1.04);
+  }
+}
+
+@keyframes restart-inward-clean {
+  0%, 100% {
+    opacity: 0.38;
+    transform: translate(-50%, -50%) scale(1.06) rotate(0deg);
+  }
+  48% {
+    opacity: 0.82;
+    transform: translate(-50%, -50%) scale(0.82) rotate(5deg);
+  }
+  72% {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0.96) rotate(2deg);
+  }
+}
+
+@keyframes restart-center-strip-breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.96); }
+  48% { transform: translate(-50%, -50%) scale(1.08); }
+  72% { transform: translate(-50%, -50%) scale(1.01); }
+}
+
+@keyframes restart-ring-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes restart-ring-spin-reverse {
+  from { transform: translate(-50%, -50%) rotate(360deg); }
+  to { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+@keyframes restart-ring-breathe {
+  0%, 100% { opacity: 0.7; }
+  46% { opacity: 1; }
+  72% { opacity: 0.84; }
+}
+
+@keyframes restart-inward-pulse {
+  0%, 100% {
+    opacity: 0.42;
+    transform: translate(-50%, -50%) scale(1.08) rotate(0deg);
+  }
+  48% {
+    opacity: 0.86;
+    transform: translate(-50%, -50%) scale(0.82) rotate(7deg);
+  }
+  74% {
+    opacity: 0.62;
+    transform: translate(-50%, -50%) scale(0.96) rotate(2deg);
+  }
+}
+
+@keyframes restart-void-breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.94); }
+  48% { transform: translate(-50%, -50%) scale(1.12); }
+  72% { transform: translate(-50%, -50%) scale(1.02); }
+}
+
+@keyframes spark-base-alive {
+  0%, 100% { filter: brightness(0.94) saturate(0.95); }
+  46% { filter: brightness(1.12) saturate(1.18); }
+  68% { filter: brightness(1.02) saturate(1.05); }
+}
+
+@keyframes spark-glass-sweep {
+  0%, 100% { opacity: 0.34; transform: rotate(-8deg) scale(0.98); }
+  44% { opacity: 0.72; transform: rotate(7deg) scale(1.02); }
+  72% { opacity: 0.48; transform: rotate(-3deg) scale(1); }
+}
+
+@keyframes spark-spectrum-pulse {
+  0%, 100% { opacity: 0.66; filter: drop-shadow(0 0 5px rgba(87, 239, 255, 0.62)); }
+  44% { opacity: 1; filter: drop-shadow(0 0 15px rgba(87, 239, 255, 1)); }
+  74% { opacity: 0.82; filter: drop-shadow(0 0 9px rgba(93, 157, 255, 0.72)); }
+}
+
+@keyframes spark-teeth-breathe {
+  0%, 100% { opacity: 0.74; transform: translate(-50%, -50%) scale(0.982); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.028); }
+}
+
+@keyframes spark-plus-breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.93); filter: saturate(0.92) brightness(0.9); }
+  45% { transform: translate(-50%, -50%) scale(1.09); filter: saturate(1.25) brightness(1.18); }
+  70% { transform: translate(-50%, -50%) scale(1.01); filter: saturate(1.05) brightness(1.02); }
+}
+
+@keyframes spark-plus-drift {
+  0%, 100% { rotate: -3deg; }
+  28% { rotate: 9deg; }
+  54% { rotate: -7deg; }
+  78% { rotate: 5deg; }
+}
+
+@keyframes spark-plus-inner-breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.86); opacity: 0.58; }
+  50% { transform: translate(-50%, -50%) scale(1.16); opacity: 0.92; }
+}
+@keyframes core-drift {
+  0% { transform: rotate(-1.4deg); }
+  17% { transform: rotate(2.1deg); }
+  31% { transform: rotate(-0.7deg); }
+  48% { transform: rotate(1.5deg); }
+  66% { transform: rotate(-2.4deg); }
+  83% { transform: rotate(0.9deg); }
+  100% { transform: rotate(-1.4deg); }
+}
+
+@keyframes spark-eye-open-cycle {
+  0%, 5%, 100% {
+    transform: translate(-50%, -50%) scale(0.2) rotate(-22deg);
+    opacity: 0.28;
+  }
+  9%, 86% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  89%, 91% {
+    transform: translate(-50%, -50%) scale(0.48) rotate(26deg);
+    opacity: 0.7;
+  }
+  93%, 97% {
+    transform: translate(-50%, -50%) scale(0.92) rotate(-8deg);
+    opacity: 0.96;
+  }
+  99% {
+    transform: translate(-50%, -50%) scale(0.2) rotate(24deg);
+    opacity: 0.26;
+  }
+}
+
+@keyframes spark-eye-aperture-spin {
+  0%, 12%, 100% {
+    filter: brightness(0.85) saturate(0.8);
+  }
+  18%, 54%, 66%, 78% {
+    filter: brightness(1.12) saturate(1.4);
+  }
+}
+
+@keyframes spark-eye-lens-counter {
+  0%, 100% { transform: rotate(0deg) scale(0.92); opacity: 0.36; }
+  22% { transform: rotate(-32deg) scale(1); opacity: 0.76; }
+  48% { transform: rotate(38deg) scale(0.96); opacity: 0.58; }
+  72% { transform: rotate(-18deg) scale(1.02); opacity: 0.82; }
+}
+
+@keyframes spark-eye-orbit-tilt {
+  0%, 12%, 100% {
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(0.98);
+  }
+  20% {
+    transform: rotateX(12deg) rotateY(-18deg) rotateZ(-4deg) scale(1);
+  }
+  34% {
+    transform: rotateX(-10deg) rotateY(14deg) rotateZ(5deg) scale(1.02);
+  }
+  48% {
+    transform: rotateX(16deg) rotateY(7deg) rotateZ(-7deg) scale(1);
+  }
+  64% {
+    transform: rotateX(-14deg) rotateY(-12deg) rotateZ(6deg) scale(1.01);
+  }
+  78% {
+    transform: rotateX(6deg) rotateY(18deg) rotateZ(2deg) scale(0.99);
+  }
+  84% {
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(0.98);
+  }
+}
+
+@keyframes spark-eye-look {
+  0%, 8%, 98%, 100% {
+    transform: translate(-50%, -50%) scale(0.82);
+  }
+  10%, 27% {
+    transform: translate(-78%, -48%) scale(1);
+  }
+  31%, 48% {
+    transform: translate(-25%, -54%) scale(1);
+  }
+  52%, 68% {
+    transform: translate(-56%, -28%) scale(1.04);
+  }
+  72%, 89% {
+    transform: translate(-38%, -64%) scale(0.98);
+  }
+  94% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes spark-eye-shutter-cycle {
+  0%, 5%, 99%, 100% {
+    opacity: 0.95;
+    width: 76%;
+  }
+  9%, 86% {
+    opacity: 0.28;
+    width: 30%;
+  }
+  33%, 34.2%, 61%, 62.2% {
+    opacity: 0.82;
+    width: 48%;
+    filter: brightness(1.45);
+  }
+  34.9%, 62.9% {
+    opacity: 0.28;
+    width: 30%;
+    filter: brightness(1);
+  }
+  89%, 91% {
+    opacity: 0.72;
+    width: 61%;
+  }
+  93%, 97% {
+    opacity: 0.34;
+    width: 38%;
+  }
+}
+
+@keyframes date-orb-countdown-pulse {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 10px rgba(87, 239, 255, 0.34))
+      drop-shadow(0 0 24px rgba(87, 239, 255, 0.14));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 18px rgba(87, 239, 255, 0.68))
+      drop-shadow(0 0 34px rgba(93, 157, 255, 0.34));
+  }
+}
+
+@keyframes date-orb-color-pressure {
+  0%, 100% {
+    filter: hue-rotate(0deg) saturate(1);
+  }
+  50% {
+    filter: hue-rotate(42deg) saturate(1.85) brightness(1.18);
+  }
+}
+
+@keyframes date-orb-rainbow-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.78) rotate(0deg);
+  }
+  14% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.55) rotate(260deg);
+  }
+}
+
+@keyframes brand-tagline-color-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes brand-name-aqua-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes spark-label-aqua-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.harness-dock-wrap {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  position: relative;
+  z-index: 4;
+  transform: translateY(38px);
+}
+
+.harness-dock-title {
+  position: relative;
+  margin: 0 0 19px;
+  color: rgba(223, 251, 255, 0.84);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(87, 239, 255, 0.68);
+}
+
+.harness-dock-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px solid rgba(87, 239, 255, 0.42);
+  box-shadow: 0 0 8px rgba(87, 239, 255, 0.32);
+}
+
+.harness-dock-title span {
+  position: absolute;
+  right: calc(100% + 14px);
+  top: 50%;
+  display: inline-block;
+  transform: translateY(-50%);
+  padding: 0;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.harness-dock {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  align-items: end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.harness-dock-wrap.harness-dock-open .harness-dock {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.harness-dock-top {
+  width: 100%;
+  margin: 0 auto -8px;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.harness-dock-bottom {
+  width: 100%;
+  margin: -25px auto 0;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.harness-dock-bottom .harness-dock-button {
+  --harness-icon-size: 34.65%;
+  --harness-icon-half: 17.325%;
+}
+
+.harness-dock-button {
+  position: relative;
+  --harness-icon-size: 51.52%;
+  --harness-icon-half: 25.76%;
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #dffbff;
+  padding: 0;
+  cursor: pointer;
+}
+
+.harness-dock-button:hover,
+.harness-dock-button:focus-visible {
+  outline: none;
+}
+
+.harness-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--harness-icon-size);
+  height: var(--harness-icon-size);
+  fill: none;
+  stroke: #57efff;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px rgba(87, 239, 255, 0.58));
+  transition: filter 140ms ease, stroke 140ms ease, transform 140ms ease;
+}
+
+.harness-dock-bottom .harness-dock-button[data-harness="Compass"] {
+  --harness-icon-size: 64.4%;
+  --harness-icon-half: 32.2%;
+}
+
+.harness-dock-top .harness-dock-button {
+  --harness-icon-size: 28.98%;
+  --harness-icon-half: 14.49%;
+}
+
+.harness-dock-top .harness-dock-button[data-harness="Compass"] {
+  --harness-icon-size: 34.776%;
+  --harness-icon-half: 17.388%;
+}
+
+.harness-dock-button:hover .harness-icon,
+.harness-dock-button:focus-visible .harness-icon {
+  stroke: #b9fbff;
+  transform: translate(-50%, calc(-50% - 3px)) scale(1.04);
+  filter: drop-shadow(0 0 16px rgba(87, 239, 255, 0.9));
+}
+
+.harness-label,
+.harness-sub-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  display: block;
+  width: max-content;
+  max-width: 150px;
+  border: 0;
+  background: transparent;
+  color: rgba(223, 251, 255, 0.92);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  padding: 0;
+  text-align: center;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow: 0 0 8px rgba(87, 239, 255, 0.72);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.harness-label {
+  bottom: calc(50% + var(--harness-icon-half) + 3px);
+  font-weight: 800;
+}
+
+.harness-sub-label {
+  top: calc(50% + var(--harness-icon-half) + 3px);
+  font-size: 7.5px;
+}
+
+.harness-dock-top .harness-label {
+  bottom: calc(50% + 20.7% - 7px);
+}
+
+.harness-dock-top .harness-sub-label {
+  top: calc(50% + 20.7% - 7px);
+}
+
+.harness-dock-bottom .harness-label {
+  bottom: calc(50% + 24.75% - 7px);
+}
+
+.harness-dock-bottom .harness-sub-label {
+  top: calc(50% + 24.75% - 7px);
+}
+
+.harness-dock-wrap.harness-dock-open .harness-label,
+.harness-dock-wrap.harness-dock-open .harness-sub-label {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 900px) {
+  body { overflow: auto; }
+  .harness-screen { align-items: end; }
+  .harness-dock { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.spark-mockups {
+  display: none;
+  position: fixed;
+  right: 18px;
+  top: 50%;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(2, 86px);
+  gap: 12px 14px;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+.spark-mockup {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  color: rgba(223, 251, 255, 0.92);
+  padding: 0;
+  font-family: "Segoe UI", "Inter", system-ui, sans-serif;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.spark-mockup-label {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(87, 239, 255, 0.72);
+}
+
+.spark-mockup-core {
+  position: relative;
+  width: 68px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 43% 36%, rgba(223, 251, 255, 0.16) 0 8%, transparent 15%),
+    radial-gradient(circle, rgba(7, 24, 30, 0.96) 0 34%, rgba(1, 7, 10, 0.98) 35% 100%);
+  box-shadow:
+    0 0 0 1px rgba(185, 251, 255, 0.18),
+    0 0 14px rgba(87, 239, 255, 0.32),
+    inset 0 0 20px rgba(0, 0, 0, 0.92);
+  animation: mock-alive 7.6s ease-in-out infinite;
+}
+
+.spark-mockup-core::before,
+.spark-mockup-core::after,
+.spark-mockup-core span,
+.spark-mockup-core i {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.spark-mockup-core::before {
+  width: 94%;
+  aspect-ratio: 1;
+  background:
+    repeating-conic-gradient(from var(--panel-angle, 0deg), rgba(223, 251, 255, 0.34) 0deg var(--panel-width, 7deg), rgba(10, 24, 29, 0.78) var(--panel-width, 7deg) calc(var(--panel-width, 7deg) + 4deg), transparent calc(var(--panel-width, 7deg) + 4deg) var(--panel-gap, 19deg)),
+    radial-gradient(circle, transparent 0 62%, rgba(87, 239, 255, 0.18) 63% 66%, transparent 67% 100%);
+  mask: radial-gradient(circle, transparent 0 var(--panel-hole, 61%), #000 calc(var(--panel-hole, 61%) + 1%) 84%, transparent 85% 100%);
+  filter: drop-shadow(0 0 7px rgba(87, 239, 255, 0.42));
+  animation: mock-spin var(--outer-speed, 46s) linear infinite;
+}
+
+.spark-mockup-core::after {
+  width: var(--splash-size, 92%);
+  aspect-ratio: 1;
+  background:
+    repeating-conic-gradient(from var(--splash-angle, -4deg), rgba(223, 251, 255, 0.92) 0deg var(--splash-width, 0.8deg), rgba(87, 239, 255, 0.54) var(--splash-width, 0.8deg) calc(var(--splash-width, 0.8deg) + 0.9deg), transparent calc(var(--splash-width, 0.8deg) + 0.9deg) var(--splash-gap, 9deg)),
+    radial-gradient(circle, transparent 0 61%, rgba(87, 239, 255, 0.34) 62% 64%, transparent 65% 100%);
+  mask: radial-gradient(circle, transparent 0 var(--splash-hole, 63%), #000 calc(var(--splash-hole, 63%) + 1%) var(--splash-reach, 96%), transparent calc(var(--splash-reach, 96%) + 1%) 100%);
+  filter:
+    drop-shadow(0 0 5px rgba(223, 251, 255, 0.86))
+    drop-shadow(0 0 13px rgba(87, 239, 255, 0.48));
+  opacity: var(--splash-opacity, 0.86);
+  animation: mock-splash var(--splash-pulse, 5.8s) ease-in-out infinite, mock-spin var(--splash-spin, 38s) linear infinite;
+}
+
+.spark-mockup-core span {
+  width: var(--center, 30%);
+  aspect-ratio: 1;
+  border: 1px solid rgba(223, 251, 255, 0.62);
+  background:
+    radial-gradient(circle at 40% 34%, rgba(255, 255, 255, 0.55) 0 7%, transparent 15%),
+    radial-gradient(circle, rgba(87, 239, 255, 0.46) 0 17%, rgba(29, 96, 150, 0.48) 18% 48%, rgba(0, 0, 0, 0.95) 49% 100%);
+  box-shadow:
+    0 0 12px rgba(87, 239, 255, 0.72),
+    inset 0 0 13px rgba(0, 0, 0, 0.82);
+  animation: mock-center 6.8s ease-in-out infinite;
+}
+
+.spark-mockup-core i {
+  width: var(--inner-ring, 58%);
+  aspect-ratio: 1;
+  border: 1px solid rgba(185, 251, 255, 0.28);
+  background:
+    repeating-conic-gradient(from 5deg, rgba(87, 239, 255, 0.84) 0deg var(--tooth, 2.4deg), rgba(223, 251, 255, 0.78) var(--tooth, 2.4deg) calc(var(--tooth, 2.4deg) + 1.7deg), transparent calc(var(--tooth, 2.4deg) + 1.7deg) 9deg),
+    conic-gradient(from 0deg, transparent 0 70deg, rgba(185, 251, 255, 0.28) 70deg 82deg, transparent 82deg);
+  mask: radial-gradient(circle, transparent 0 58%, #000 59% 72%, transparent 73%);
+  animation: mock-spin-rev var(--inner-speed, 24s) linear infinite;
+}
+
+.spark-mockup-1 .spark-mockup-core { --splash-gap: 9deg; --splash-reach: 96%; --center: 30%; --panel-gap: 19deg; --outer-speed: 46s; }
+.spark-mockup-2 .spark-mockup-core { --splash-gap: 6deg; --splash-width: 0.6deg; --splash-reach: 99%; --center: 26%; --panel-gap: 16deg; --inner-speed: 18s; }
+.spark-mockup-3 .spark-mockup-core { --splash-gap: 13deg; --splash-width: 1.2deg; --splash-hole: 57%; --center: 38%; --panel-hole: 55%; --outer-speed: 58s; }
+.spark-mockup-4 .spark-mockup-core { --splash-gap: 5deg; --splash-reach: 94%; --tooth: 4deg; --center: 30%; --panel-width: 10deg; --panel-gap: 22deg; }
+.spark-mockup-5 .spark-mockup-core { --splash-gap: 17deg; --splash-width: 0.7deg; --splash-reach: 100%; --center: 22%; --panel-hole: 68%; --splash-pulse: 7.2s; }
+.spark-mockup-6 .spark-mockup-core { --splash-gap: 8deg; --splash-width: 1.4deg; --center: 42%; --panel-gap: 24deg; --outer-speed: 48s; }
+.spark-mockup-7 .spark-mockup-core { --splash-gap: 7deg; --splash-reach: 98%; --tooth: 2deg; --center: 28%; --inner-speed: 14s; --splash-spin: 30s; }
+.spark-mockup-8 .spark-mockup-core { --splash-gap: 11deg; --splash-hole: 52%; --splash-reach: 92%; --center: 34%; --panel-hole: 49%; --outer-speed: 72s; }
+.spark-mockup-9 .spark-mockup-core { --splash-gap: 4deg; --splash-width: 0.5deg; --splash-reach: 100%; --center: 24%; --inner-speed: 38s; --splash-pulse: 4.6s; }
+.spark-mockup-10 .spark-mockup-core { --splash-gap: 22deg; --splash-width: 2deg; --splash-reach: 96%; --center: 36%; --panel-gap: 30deg; --outer-speed: 64s; }
+
+.spark-mockup.is-selected .spark-mockup-label {
+  color: #57efff;
+  text-shadow:
+    0 0 8px rgba(87, 239, 255, 0.95),
+    0 0 16px rgba(93, 157, 255, 0.58);
+}
+
+.spark-mockup.is-selected .spark-mockup-core {
+  box-shadow:
+    0 0 0 1px rgba(223, 251, 255, 0.46),
+    0 0 22px rgba(87, 239, 255, 0.62),
+    inset 0 0 22px rgba(0, 0, 0, 0.92);
+}
+
+.core-animation.spark-design-1 { --spark-splash-gap: 9deg; --spark-splash-reach: 96%; --spark-splash-spin: 54s; }
+.core-animation.spark-design-1 .spark-base-ring-teeth { animation-duration: 22s, 5.8s; }
+.core-animation.spark-design-1 .spark-base-plus-one { width: 30%; }
+
+.core-animation.spark-design-2 { --spark-splash-gap: 6deg; --spark-splash-width: 0.6deg; --spark-splash-reach: 99%; --spark-splash-spin: 42s; }
+.core-animation.spark-design-2 .spark-base-ring-spectrum { width: 72%; animation-duration: 5.4s, 18s; }
+.core-animation.spark-design-2 .spark-base-plus-one { width: 26%; }
+
+.core-animation.spark-design-3 { --spark-splash-gap: 13deg; --spark-splash-width: 1.2deg; --spark-splash-hole: 57%; --spark-splash-reach: 96%; }
+.core-animation.spark-design-3 .spark-base-ring-panels { width: 91%; mask: radial-gradient(circle, transparent 0 55%, #000 56% 84%, transparent 85% 100%); }
+.core-animation.spark-design-3 .spark-base-plus-one { width: 38%; }
+
+.core-animation.spark-design-4 { --spark-splash-gap: 5deg; --spark-splash-reach: 94%; --spark-splash-spin: 36s; }
+.core-animation.spark-design-4 .spark-base-ring-teeth { width: 66%; }
+.core-animation.spark-design-4 .spark-base-plus-one { width: 30%; }
+
+.core-animation.spark-design-5 { --spark-splash-gap: 17deg; --spark-splash-width: 0.7deg; --spark-splash-reach: 100%; --spark-splash-pulse: 7.2s; }
+.core-animation.spark-design-5 .spark-base-ring-outer { mask: radial-gradient(circle, transparent 0 68%, #000 69% 83%, transparent 84% 100%); }
+.core-animation.spark-design-5 .spark-base-plus-one { width: 22%; }
+
+.core-animation.spark-design-6 { --spark-splash-gap: 8deg; --spark-splash-width: 1.4deg; --spark-splash-spin: 48s; }
+.core-animation.spark-design-6 .spark-base-ring-panels { width: 88%; }
+.core-animation.spark-design-6 .spark-base-plus-one { width: 42%; }
+
+.core-animation.spark-design-7 { --spark-splash-gap: 7deg; --spark-splash-reach: 98%; --spark-splash-spin: 30s; }
+.core-animation.spark-design-7 .spark-base-ring-teeth { animation-duration: 14s, 5.8s; }
+.core-animation.spark-design-7 .spark-base-plus-one { width: 28%; }
+
+.core-animation.spark-design-8 { --spark-splash-gap: 11deg; --spark-splash-hole: 52%; --spark-splash-reach: 92%; }
+.core-animation.spark-design-8 .spark-base-ring-panels { width: 94%; mask: radial-gradient(circle, transparent 0 49%, #000 50% 84%, transparent 85% 100%); }
+.core-animation.spark-design-8 .spark-base-plus-one { width: 34%; }
+
+.core-animation.spark-design-9 { --spark-splash-gap: 4deg; --spark-splash-width: 0.5deg; --spark-splash-reach: 100%; --spark-splash-pulse: 4.6s; }
+.core-animation.spark-design-9 .spark-base-ring-spectrum { animation-duration: 5.2s, 38s; }
+.core-animation.spark-design-9 .spark-base-plus-one { width: 24%; }
+
+.core-animation.spark-design-10 { --spark-splash-gap: 22deg; --spark-splash-width: 2deg; --spark-splash-reach: 96%; }
+.core-animation.spark-design-10 .spark-base-ring-teeth { width: 58%; }
+.core-animation.spark-design-10 .spark-base-plus-one { width: 36%; }
+@keyframes spark-data-splash {
+  0%, 100% { opacity: calc(var(--spark-splash-opacity, 0.82) * 0.72); transform: translate(-50%, -50%) scale(0.965); }
+  38% { opacity: var(--spark-splash-opacity, 0.82); transform: translate(-50%, -50%) scale(1.055); }
+  64% { opacity: calc(var(--spark-splash-opacity, 0.82) * 0.88); transform: translate(-50%, -50%) scale(1.01); }
+}
+
+@keyframes mock-splash {
+  0%, 100% { opacity: calc(var(--splash-opacity, 0.86) * 0.68); transform: translate(-50%, -50%) scale(0.96); }
+  38% { opacity: var(--splash-opacity, 0.86); transform: translate(-50%, -50%) scale(1.08); }
+  64% { opacity: calc(var(--splash-opacity, 0.86) * 0.86); transform: translate(-50%, -50%) scale(1.01); }
+}
+
+@keyframes mock-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes mock-spin-rev {
+  from { transform: translate(-50%, -50%) rotate(360deg); }
+  to { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+@keyframes mock-alive {
+  0%, 100% { filter: brightness(0.92) saturate(0.94); transform: scale(0.985); }
+  48% { filter: brightness(1.16) saturate(1.22); transform: scale(1.025); }
+}
+
+@keyframes mock-breathe {
+  0%, 100% { opacity: 0.72; }
+  50% { opacity: 1; }
+}
+
+@keyframes mock-center {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.9) rotate(-5deg); }
+  42% { transform: translate(-50%, -50%) scale(1.14) rotate(9deg); }
+  72% { transform: translate(-50%, -50%) scale(1.02) rotate(-2deg); }
+}
+
+
+
+.spark-final-image {
+  position: relative !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 100% !important;
+  aspect-ratio: 1 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+  background: url("static/media/spark-center-final.png") center / contain no-repeat !important;
+  box-shadow: none !important;
+  animation: spark-final-breathe 8.6s ease-in-out infinite !important;
+  filter: none !important;
+  pointer-events: auto !important;
+}
+
+.spark-final-image::before,
+.spark-final-image::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.spark-final-image::before {
+  display: block !important;
+  width: 47%;
+  aspect-ratio: 1;
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0deg 32deg,
+      rgba(87, 239, 255, 0.56) 32deg 40deg,
+      transparent 40deg 92deg,
+      rgba(223, 251, 255, 0.42) 92deg 97deg,
+      transparent 97deg 182deg,
+      rgba(87, 239, 255, 0.36) 182deg 191deg,
+      transparent 191deg 360deg
+    ),
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(185, 251, 255, 0.22) 0deg 1deg,
+      transparent 1deg 12deg
+    );
+  mask: radial-gradient(circle, transparent 0 56%, #000 57% 70%, transparent 71%);
+  filter:
+    drop-shadow(0 0 7px rgba(87, 239, 255, 0.72))
+    drop-shadow(0 0 16px rgba(87, 239, 255, 0.34));
+  opacity: 0.82;
+  animation: spark-inner-blue-spin 34s linear infinite, spark-inner-blue-breathe 7.6s ease-in-out infinite;
+}
+
+.spark-final-image::after {
+  display: block !important;
+  width: 7.5%;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.95) 0 10%, rgba(185, 251, 255, 0.85) 11% 24%, rgba(87, 239, 255, 0.54) 25% 43%, transparent 44%),
+    conic-gradient(from 18deg, transparent 0 32deg, rgba(87, 239, 255, 0.72) 32deg 41deg, transparent 41deg 138deg, rgba(223, 251, 255, 0.55) 138deg 146deg, transparent 146deg);
+  filter:
+    drop-shadow(0 0 5px rgba(223, 251, 255, 0.88))
+    drop-shadow(0 0 14px rgba(87, 239, 255, 0.75));
+  opacity: 0.58;
+  animation: spark-inner-random-flicker 5.9s steps(1, end) infinite;
+}
+
+@keyframes spark-final-breathe {
+  0%, 100% { scale: 0.99; filter: brightness(0.92) saturate(1.02) contrast(1.02); }
+  44% { scale: 1.035; filter: brightness(1.14) saturate(1.18) contrast(1.06); }
+  72% { scale: 1.006; filter: brightness(1.02) saturate(1.08) contrast(1.03); }
+}
+
+@keyframes spark-final-inward {
+  0%, 100% { opacity: 0.25; transform: translate(-50%, -50%) scale(1.08) rotate(0deg); }
+  48% { opacity: 0.62; transform: translate(-50%, -50%) scale(0.84) rotate(4deg); }
+  72% { opacity: 0.38; transform: translate(-50%, -50%) scale(0.98) rotate(1deg); }
+}
+
+@keyframes spark-final-center-breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.96); }
+  48% { transform: translate(-50%, -50%) scale(1.08); }
+  72% { transform: translate(-50%, -50%) scale(1.01); }
+}
+
+@keyframes spark-inner-blue-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes spark-inner-blue-breathe {
+  0%, 100% {
+    opacity: 0.54;
+    filter:
+      drop-shadow(0 0 5px rgba(87, 239, 255, 0.48))
+      drop-shadow(0 0 12px rgba(87, 239, 255, 0.22));
+  }
+  46% {
+    opacity: 0.94;
+    filter:
+      drop-shadow(0 0 9px rgba(87, 239, 255, 0.9))
+      drop-shadow(0 0 22px rgba(87, 239, 255, 0.48));
+  }
+  72% {
+    opacity: 0.72;
+  }
+}
+
+@keyframes spark-inner-random-flicker {
+  0%, 8%, 100% {
+    opacity: 0.12;
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.62) rotate(0deg);
+  }
+  13% {
+    opacity: 0.92;
+    transform: translate(-50%, -50%) translate(4px, -3px) scale(1.18) rotate(24deg);
+  }
+  16% {
+    opacity: 0.22;
+    transform: translate(-50%, -50%) translate(2px, -1px) scale(0.7) rotate(-8deg);
+  }
+  31% {
+    opacity: 0.72;
+    transform: translate(-50%, -50%) translate(-3px, 2px) scale(1.02) rotate(-32deg);
+  }
+  35% {
+    opacity: 0.16;
+    transform: translate(-50%, -50%) translate(-1px, 1px) scale(0.66) rotate(8deg);
+  }
+  54% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translate(2px, 4px) scale(1.24) rotate(62deg);
+  }
+  58% {
+    opacity: 0.28;
+    transform: translate(-50%, -50%) translate(1px, 2px) scale(0.78) rotate(20deg);
+  }
+  77% {
+    opacity: 0.82;
+    transform: translate(-50%, -50%) translate(-4px, -2px) scale(1.08) rotate(-54deg);
+  }
+  81% {
+    opacity: 0.18;
+    transform: translate(-50%, -50%) translate(-2px, -1px) scale(0.68) rotate(-12deg);
+  }
+}
+</style>
+</head>
+<body>
+<main class="harness-screen session-theme-aqua" aria-label="Meridian harness screen">
+<section class="brand-lockup" aria-label="Meridian"><div class="brand-primary"><div class="brand-copy"><div class="brand-name">Meridian</div><div class="brand-tagline">Your AI Command Center</div></div></div></section>
+<div class="date-orb is-q1" aria-label="Date status" style="--date-hour-progress: 36.14 100; --date-hour-scale: 1.20;"><svg class="date-orb-svg" viewBox="0 0 120 120" aria-hidden="true"><circle class="date-orb-outer" cx="60" cy="60" r="43"></circle><circle class="date-orb-inner" cx="60" cy="60" r="31"></circle><circle class="date-orb-tick-ring" cx="60" cy="60" r="50"></circle><circle class="date-orb-hour-fill" cx="60" cy="60" r="43" pathLength="100"></circle><circle class="date-orb-slick-track" cx="60" cy="60" r="43" pathLength="100"></circle><text class="date-orb-hour" x="60" y="22">11</text><path class="date-orb-cut date-orb-cut-2" d="M105 60H94"></path><path class="date-orb-cut date-orb-cut-3" d="M60 110V99"></path><path class="date-orb-cut date-orb-cut-4" d="M15 60h11"></path></svg><div class="date-orb-copy" aria-hidden="true"><span class="date-orb-month">MAY</span><span class="date-orb-day">31</span></div></div>
+<button class="speech-mode-button" type="button" aria-label="Enable automatic speech mode" aria-pressed="false"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 24h21c6 0 10 4 10 10s-4 10-10 10H28l-10 8v-8c-5 0-9-4-9-10s4-10 9-10z"></path><path d="M47 20c4 3 7 8 7 14s-3 11-7 14"></path><path d="M39 28c2 1 4 3 4 6s-2 5-4 6"></path></svg></button>
+<div class="spark-stage"><div class="core-animation spark-final-image" role="img" aria-label="Spark, voice of Prime" data-name="Spark" data-role="voice-of-prime"></div><button class="spark-core-toggle" type="button" aria-label="Toggle session panels"></button><nav class="spark-menu spark-icon-menu" aria-label="Spark actions"><button class="spark-menu-icon-button is-selected" type="button" aria-label="Settings" style="--slot: 0"><span class="spark-action-label">Settings</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="7"></circle><path d="M32 12v7M32 45v7M12 32h7M45 32h7M18 18l5 5M41 41l5 5M46 18l-5 5M23 41l-5 5"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Filter" style="--slot: 1"><span class="spark-action-label">Filter</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 18h36L36 34v12l-8 4V34z"></path><path d="M22 18l10 16 10-16"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Models" style="--slot: 2"><span class="spark-action-label">Models</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 12l17 10v20L32 52 15 42V22z"></path><path d="M32 12v20l17 10M32 32L15 22M32 32v20"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Backlog" style="--slot: 3"><span class="spark-action-label">Backlog</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 16h28v36H18z"></path><path d="M24 25h16M24 33h16M24 41h10"></path><path d="M14 21h4M14 47h4"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Skills" style="--slot: 4"><span class="spark-action-label">Skills</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M20 45l15-15"></path><path d="M29 21l14 14"></path><path d="M25 17l22 22"></path><path d="M17 49l8-4 20-20-4-4-20 20z"></path><path d="M42 14l8 8"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Crosscheck" style="--slot: 5"><span class="spark-action-label">Crosscheck</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M16 21l13 13 19-19"></path><path d="M16 43l8 8 24-26"></path><path d="M14 15l36 36"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Close" style="--slot: 6"><span class="spark-action-label">Close</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="19"></circle><path d="M24 24l16 16M40 24L24 40"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Archive" style="--slot: 7"><span class="spark-action-label">Archive</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M16 20h32v10H16z"></path><path d="M20 30h24v22H20z"></path><path d="M27 38h10"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Reset" style="--slot: 8"><span class="spark-action-label">Reset</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M45 22a17 17 0 1 0 2 18"></path><path d="M45 14v8h-8"></path><path d="M32 24v10l7 5"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Reload" style="--slot: 9"><span class="spark-action-label">Reload</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M46 25a16 16 0 0 0-27-5"></path><path d="M18 13v9h9"></path><path d="M18 39a16 16 0 0 0 27 5"></path><path d="M46 51v-9h-9"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Routines" style="--slot: 10"><span class="spark-action-label">Routines</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="22" r="5"></circle><circle cx="44" cy="22" r="5"></circle><circle cx="32" cy="46" r="5"></circle><path d="M25 22h14M41 27l-7 14M23 27l7 14"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Balance" style="--slot: 11"><span class="spark-action-label">Balance</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 14v36"></path><path d="M20 22h24"></path><path d="M20 22l-9 17h18z"></path><path d="M44 22l-9 17h18z"></path><path d="M24 50h16"></path></svg></button></nav></div>
+<section class="session-window session-window-left" aria-label="Left session window"><span class="session-title" aria-hidden="true">Prime</span><select class="session-project-select" aria-label="Projects"><option value="Projects">Projects</option><option value="Meridian">Meridian</option><option value="Bifrost">Bifrost</option><option value="Spark">Spark</option></select><span class="session-right-ticks" aria-hidden="true"></span><span class="session-corner-plus" aria-hidden="true"></span><nav class="session-outside-icons session-top-icons" aria-label="Session top actions"><button class="session-outside-icon" type="button" aria-label="Yes"><span class="session-outside-label">Yes</span><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="18"></circle><path d="M22 33l7 7 14-18"></path></svg></button><button class="session-outside-icon" type="button" aria-label="No"><span class="session-outside-label">No</span><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="18"></circle><path d="M24 24l16 16M40 24L24 40"></path></svg></button><button class="session-outside-icon" type="button" aria-label="Continue"><span class="session-outside-label">Continue</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 32h27"></path><path d="M34 20l13 12-13 12"></path><path d="M17 44h16"></path></svg></button><button class="session-outside-icon" type="button" aria-label="Confirm"><span class="session-outside-label">Confirm</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 12l18 8v12c0 11-7 18-18 22-11-4-18-11-18-22V20z"></path><path d="M24 32l6 6 12-14"></path></svg></button></nav><div class="session-workspace" aria-hidden="true"><div class="session-text-slider" aria-hidden="true"><span class="session-text-slider-small">A</span><input type="range" min="0" max="100" value="46" tabindex="-1"><span class="session-text-slider-large">A</span></div></div></section><section class="session-window session-window-right" aria-label="Right session window"><span class="session-title" aria-hidden="true">User</span><span class="session-right-ticks" aria-hidden="true"></span><span class="session-corner-plus" aria-hidden="true"></span><nav class="session-outside-icons session-top-icons" aria-label="Session top actions"><button class="session-outside-icon" type="button" aria-label="Yes"><span class="session-outside-label">Yes</span><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="18"></circle><path d="M22 33l7 7 14-18"></path></svg></button><button class="session-outside-icon" type="button" aria-label="No"><span class="session-outside-label">No</span><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="18"></circle><path d="M24 24l16 16M40 24L24 40"></path></svg></button><button class="session-outside-icon" type="button" aria-label="Continue"><span class="session-outside-label">Continue</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 32h27"></path><path d="M34 20l13 12-13 12"></path><path d="M17 44h16"></path></svg></button><button class="session-outside-icon" type="button" aria-label="Confirm"><span class="session-outside-label">Confirm</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 12l18 8v12c0 11-7 18-18 22-11-4-18-11-18-22V20z"></path><path d="M24 32l6 6 12-14"></path></svg></button></nav><div class="session-workspace" aria-hidden="true"><div class="session-text-slider" aria-hidden="true"><span class="session-text-slider-small">A</span><input type="range" min="0" max="100" value="46" tabindex="-1"><span class="session-text-slider-large">A</span></div></div></section>
+<svg class="spark-lightning" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><defs><radialGradient id="synapse-depth-gradient" cx="50%" cy="48%" r="72%"><stop offset="0%" stop-color="white"></stop><stop offset="28%" stop-color="white"></stop><stop offset="64%" stop-color="rgba(255, 255, 255, 0.24)"></stop><stop offset="100%" stop-color="black"></stop></radialGradient><mask id="synapse-depth-mask"><rect width="100" height="100" fill="url(#synapse-depth-gradient)"></rect></mask></defs><g class="synapse-field" mask="url(#synapse-depth-mask)"><g class="synapse synapse-1"><path class="synapse-track" pathLength="100" d="M4 6 C17 11 28 22 42 39 C45 42 48 45 50 48 M18 12 C17 5 20 2 25 0 M25 20 C17 20 11 23 5 29"></path><path class="synapse-fire" pathLength="100" d="M4 6 C17 11 28 22 42 39 C45 42 48 45 50 48 M18 12 C17 5 20 2 25 0 M25 20 C17 20 11 23 5 29"></path></g><g class="synapse synapse-2"><path class="synapse-track" pathLength="100" d="M49 0 C49 12 49 24 50 37 C50 42 50 45 50 48 M44 15 C37 9 31 7 24 8 M55 16 C62 9 70 5 80 3"></path><path class="synapse-fire" pathLength="100" d="M49 0 C49 12 49 24 50 37 C50 42 50 45 50 48 M44 15 C37 9 31 7 24 8 M55 16 C62 9 70 5 80 3"></path></g><g class="synapse synapse-3"><path class="synapse-track" pathLength="100" d="M97 7 C83 13 72 23 60 38 C56 42 53 45 50 48 M82 16 C88 10 92 7 99 5 M77 25 C86 26 93 31 99 36"></path><path class="synapse-fire" pathLength="100" d="M97 7 C83 13 72 23 60 38 C56 42 53 45 50 48 M82 16 C88 10 92 7 99 5 M77 25 C86 26 93 31 99 36"></path></g><g class="synapse synapse-4"><path class="synapse-track" pathLength="100" d="M100 47 C86 45 72 45 60 47 C55 48 52 48 50 48 M82 45 C88 38 94 34 100 31 M80 48 C88 55 94 60 100 65"></path><path class="synapse-fire" pathLength="100" d="M100 47 C86 45 72 45 60 47 C55 48 52 48 50 48 M82 45 C88 38 94 34 100 31 M80 48 C88 55 94 60 100 65"></path></g><g class="synapse synapse-5"><path class="synapse-track" pathLength="100" d="M94 93 C82 84 72 75 61 62 C56 57 53 52 50 48 M80 77 C88 76 95 78 100 82 M73 68 C77 80 82 90 88 100"></path><path class="synapse-fire" pathLength="100" d="M94 93 C82 84 72 75 61 62 C56 57 53 52 50 48 M80 77 C88 76 95 78 100 82 M73 68 C77 80 82 90 88 100"></path></g><g class="synapse synapse-6"><path class="synapse-track" pathLength="100" d="M52 100 C52 87 52 76 51 63 C51 57 50 52 50 48 M45 82 C36 89 29 94 22 100 M58 78 C65 88 72 95 82 100"></path><path class="synapse-fire" pathLength="100" d="M52 100 C52 87 52 76 51 63 C51 57 50 52 50 48 M45 82 C36 89 29 94 22 100 M58 78 C65 88 72 95 82 100"></path></g><g class="synapse synapse-7"><path class="synapse-track" pathLength="100" d="M5 92 C19 82 30 72 41 60 C45 55 48 51 50 48 M21 78 C14 77 7 80 0 85 M29 70 C24 82 19 92 13 100"></path><path class="synapse-fire" pathLength="100" d="M5 92 C19 82 30 72 41 60 C45 55 48 51 50 48 M21 78 C14 77 7 80 0 85 M29 70 C24 82 19 92 13 100"></path></g><g class="synapse synapse-8"><path class="synapse-track" pathLength="100" d="M0 48 C13 47 27 46 40 47 C45 47 48 48 50 48 M17 46 C10 39 5 35 0 31 M19 50 C10 56 4 62 0 70"></path><path class="synapse-fire" pathLength="100" d="M0 48 C13 47 27 46 40 47 C45 47 48 48 50 48 M17 46 C10 39 5 35 0 31 M19 50 C10 56 4 62 0 70"></path></g><g class="synapse-nodes"><circle cx="4" cy="6" r="0.65"></circle><circle cx="49" cy="0" r="0.56"></circle><circle cx="97" cy="7" r="0.64"></circle><circle cx="100" cy="47" r="0.7"></circle><circle cx="94" cy="93" r="0.62"></circle><circle cx="52" cy="100" r="0.58"></circle><circle cx="5" cy="92" r="0.66"></circle><circle cx="0" cy="48" r="0.62"></circle><circle cx="25" cy="20" r="0.46"></circle><circle cx="77" cy="25" r="0.48"></circle><circle cx="80" cy="77" r="0.5"></circle><circle cx="21" cy="78" r="0.48"></circle></g></g></svg>
+<div class="harness-dock-wrap"><nav class="harness-dock harness-dock-top" aria-label="Primary harnesses"><button class="harness-dock-button" type="button" data-harness="Prime" data-status="online" data-session-title="Prime-Core"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="16"></circle><path d="M32 10v10M32 44v10M10 32h10M44 32h10"></path></svg><span class="harness-label">Prime</span><span class="harness-sub-label">Core</span></button><button class="harness-dock-button" type="button" data-harness="Bifrost" data-status="online" data-session-title="Bifrost-Ui"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 42c9-18 27-18 36 0"></path><path d="M18 48h28"></path><path d="M24 36h16"></path></svg><span class="harness-label">Bifrost</span><span class="harness-sub-label">Ui</span></button><button class="harness-dock-button" type="button" data-harness="Relay" data-status="stable" data-session-title="Relay-Models"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 32h14"></path><path d="M36 20l14 12-14 12"></path><path d="M28 20l14 12-14 12"></path></svg><span class="harness-label">Relay</span><span class="harness-sub-label">Models</span></button><button class="harness-dock-button" type="button" data-harness="Beacon" data-status="stable" data-session-title="Beacon-Heartbeat"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="20"></circle><path d="M14 34h10l4-10 7 20 5-14h10"></path></svg><span class="harness-label">Beacon</span><span class="harness-sub-label">Heartbeat</span></button><button class="harness-dock-button" type="button" data-harness="TBD" data-status="planned" data-session-title="TBD"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 11l6 15 16 2-12 10 4 16-14-8-14 8 4-16-12-10 16-2z"></path><circle cx="32" cy="32" r="6"></circle></svg><span class="harness-label">TBD</span></button><button class="harness-dock-button" type="button" data-harness="Aegis" data-status="busy" data-session-title="Aegis-Proofs"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 10l18 8v13c0 12-8 20-18 23-10-3-18-11-18-23V18z"></path><path d="M24 32l6 6 12-14"></path></svg><span class="harness-label">Aegis</span><span class="harness-sub-label">Proofs</span></button><button class="harness-dock-button" type="button" data-harness="Compass" data-status="online" data-session-title="Compass-Projects"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="18"></circle><path d="M32 14l7 25-7-4-7 4z"></path><path d="M32 14v21"></path></svg><span class="harness-label">Compass</span><span class="harness-sub-label">Projects</span></button><button class="harness-dock-button" type="button" data-harness="Session Lifecycle" data-status="stable" data-session-title="Vulcan-Sessions"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 27h30l10 8H37l-6 8H17l5-8H12z"></path><path d="M20 43h22"></path><path d="M24 50h14"></path><path d="M27 43l-3 7M37 43l3 7"></path></svg><span class="harness-label">Vulcan</span><span class="harness-sub-label">Sessions</span></button><button class="harness-dock-button" type="button" data-harness="Atlas" data-status="planned" data-session-title="Atlas-Knowledge"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="18"></circle><path d="M14 32h36M32 14c7 8 7 28 0 36M32 14c-7 8-7 28 0 36"></path></svg><span class="harness-label">Atlas</span><span class="harness-sub-label">Knowledge</span></button></nav><div class="harness-dock-title" aria-hidden="true"><span>Harness</span></div><nav class="harness-dock harness-dock-bottom" aria-label="Harness"><button class="harness-dock-button" type="button" data-harness="FileMap" data-status="stable" data-session-title="Charon-Navigation"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 10l15 39-15-8-15 8z"></path><path d="M32 10v31"></path><path d="M18 53c8-6 20-6 28 0"></path><circle cx="20" cy="52" r="3"></circle><circle cx="44" cy="52" r="3"></circle></svg><span class="harness-label">Charon</span><span class="harness-sub-label">Navigation</span></button><button class="harness-dock-button" type="button" data-harness="Codex Reviews" data-status="online" data-session-title="Arbiter-Reviews"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M17 16h30v32H17z"></path><path d="M23 25h18M23 33h18M23 41h10"></path><path d="M14 20h6M14 44h6"></path></svg><span class="harness-label">Arbiter</span><span class="harness-sub-label">Reviews</span></button><button class="harness-dock-button" type="button" data-harness="Workflow" data-status="planned" data-session-title="Workflow-Sub-agents"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="18" cy="32" r="6"></circle><circle cx="32" cy="18" r="6"></circle><circle cx="46" cy="32" r="6"></circle><path d="M23 28l5-6M37 22l5 6M24 32h16"></path></svg><span class="harness-label">Workflow</span><span class="harness-sub-label">Sub-agents</span></button><button class="harness-dock-button" type="button" data-harness="Federation" data-status="planned" data-session-title="Federation-Network"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="5"></circle><circle cx="18" cy="20" r="5"></circle><circle cx="46" cy="20" r="5"></circle><circle cx="32" cy="49" r="5"></circle><path d="M22 23l6 6M42 23l-6 6M32 37v7"></path></svg><span class="harness-label">Federation</span><span class="harness-sub-label">Network</span></button><button class="harness-dock-button" type="button" data-harness="Echo" data-status="planned" data-session-title="Echo-Memory"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><rect x="18" y="18" width="28" height="28" rx="6"></rect><rect x="26" y="26" width="12" height="12" rx="2"></rect><path d="M24 10v8M32 10v8M40 10v8M24 46v8M32 46v8M40 46v8M10 24h8M10 32h8M10 40h8M46 24h8M46 32h8M46 40h8"></path></svg><span class="harness-label">Echo</span><span class="harness-sub-label">Memory</span></button><button class="harness-dock-button" type="button" data-harness="Tool" data-status="planned" data-session-title="Ratchet-Tools"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M41 13a11 11 0 0 0-13 13L15 39a7 7 0 0 0 10 10l13-13a11 11 0 0 0 13-13l-8 8-8-8z"></path><circle cx="20" cy="44" r="2"></circle></svg><span class="harness-label">Ratchet</span><span class="harness-sub-label">Tools</span></button><button class="harness-dock-button" type="button" data-harness="Git" data-status="planned" data-session-title="Source-Git"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="20" r="5"></circle><circle cx="44" cy="32" r="5"></circle><circle cx="20" cy="44" r="5"></circle><path d="M25 20h8a11 11 0 0 1 11 11v1M20 25v14M25 44h9a10 10 0 0 0 10-10v-2"></path></svg><span class="harness-label">Source</span><span class="harness-sub-label">Git</span></button><button class="harness-dock-button" type="button" data-harness="Browser" data-status="planned" data-session-title="Vision-Browser"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><rect x="13" y="16" width="38" height="32" rx="4"></rect><path d="M13 25h38"></path><circle cx="20" cy="21" r="1.5"></circle><circle cx="26" cy="21" r="1.5"></circle><path d="M24 37h16M32 29l8 8-8 8"></path></svg><span class="harness-label">Vision</span><span class="harness-sub-label">Browser</span></button><button class="harness-dock-button" type="button" data-harness="Release" data-status="planned" data-session-title="Autonomy-Release"><svg class="harness-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M34 12c8 2 14 8 16 16L36 42 22 28z"></path><path d="M22 28l-8 2 6 6M36 42l-2 8-6-6"></path><circle cx="38" cy="24" r="4"></circle><path d="M20 44c-4 1-7 4-8 8 4-1 7-4 8-8z"></path></svg><span class="harness-label">Autonomy</span><span class="harness-sub-label">Release</span></button></nav></div>
+</main>
+<script>
+(() => {
+  const orb = document.querySelector('.date-orb');
+  const month = document.querySelector('.date-orb-month');
+  const day = document.querySelector('.date-orb-day');
+  const hour = document.querySelector('.date-orb-hour');
+  if (!orb || !month || !day || !hour) return;
+  let lastHourKey = null;
+  let hasRenderedDate = false;
+  let burstTimer = null;
+  const renderDate = () => {
+    const now = new Date();
+    month.textContent = now.toLocaleString(undefined, { month: 'short' }).toUpperCase();
+    day.textContent = String(now.getDate()).padStart(2, '0');
+    const hour12 = now.getHours() % 12 || 12;
+    const elapsedSeconds = (now.getMinutes() * 60) + now.getSeconds();
+    const hourProgress = elapsedSeconds / 3600 * 100;
+    const hourGrowth = 1 + (Math.floor(now.getMinutes() / 10) * 0.1);
+    const secondsToHour = 3600 - elapsedSeconds;
+    const hourKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}`;
+    hour.textContent = String(hour12);
+    orb.style.setProperty('--date-hour-progress', `${hourProgress.toFixed(2)} 100`);
+    orb.style.setProperty('--date-hour-scale', hourGrowth.toFixed(2));
+    if (secondsToHour > 0 && secondsToHour <= 30) {
+      const urgency = (30 - secondsToHour) / 30;
+      const pulseDuration = Math.round(1500 - (urgency * 1180));
+      orb.style.setProperty('--date-pulse-duration', `${pulseDuration}ms`);
+      orb.classList.add('is-countdown');
+    } else {
+      orb.classList.remove('is-countdown');
+    }
+    if (lastHourKey !== null && hourKey !== lastHourKey && hasRenderedDate) {
+      orb.classList.remove('is-hour-burst');
+      void orb.offsetWidth;
+      orb.classList.add('is-hour-burst');
+      window.clearTimeout(burstTimer);
+      burstTimer = window.setTimeout(() => orb.classList.remove('is-hour-burst'), 1900);
+    }
+    lastHourKey = hourKey;
+    hasRenderedDate = true;
+    orb.classList.toggle('is-q1', hourProgress >= 25);
+    orb.classList.toggle('is-q2', hourProgress >= 50);
+    orb.classList.toggle('is-q3', hourProgress >= 75);
+  };
+  renderDate();
+  window.setInterval(renderDate, 1000);
+})();
+(() => {
+  const speechButton = document.querySelector('.speech-mode-button');
+  if (speechButton) {
+    speechButton.addEventListener('click', () => {
+      const isOn = speechButton.getAttribute('aria-pressed') === 'true';
+      speechButton.setAttribute('aria-pressed', isOn ? 'false' : 'true');
+    });
+  }
+})();
+(() => {
+  const screen = document.querySelector('.harness-screen');
+  const stage = document.querySelector('.spark-stage');
+  const spark = document.querySelector('.core-animation');
+  const sparkToggle = document.querySelector('.spark-core-toggle');
+  const menu = document.querySelector('.spark-menu');
+  const harnessDock = document.querySelector('.harness-dock-wrap');
+  const harnessLine = document.querySelector('.harness-dock-title');
+  if (!screen || !stage || !spark || !sparkToggle || !menu || !harnessDock || !harnessLine) return;
+  const buttons = Array.from(menu.querySelectorAll('.spark-menu-icon-button'));
+  const harnessButtons = Array.from(document.querySelectorAll('.harness-dock-button'));
+  const mockupButtons = Array.from(document.querySelectorAll('.spark-mockup'));
+  const userTitle = document.querySelector('.session-window-right .session-title');
+  const lightningSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  lightningSvg.classList.add('spark-icon-strikes');
+  lightningSvg.setAttribute('aria-hidden', 'true');
+  stage.appendChild(lightningSvg);
+  let lightningTimer = null;
+  const boltColors = [['#57efff', '#dffbff'], ['#6fb7ff', '#b9fbff'], ['#38d8ff', '#8ff8ff'], ['#7dfcff', '#5d9dff']];
+  const makeSvg = (tag, className) => {
+    const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    node.classList.add(className);
+    return node;
+  };
+  const boltPointString = (start, end) => {
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const distance = Math.max(1, Math.hypot(dx, dy));
+    const normal = { x: -dy / distance, y: dx / distance };
+    const segments = 6 + Math.floor(Math.random() * 4);
+    const points = [];
+    for (let i = 0; i <= segments; i += 1) {
+      const t = i / segments;
+      const crackle = i === 0 || i === segments ? 0 : (Math.random() - 0.5) * 20;
+      const reach = Math.sin(t * Math.PI) * crackle;
+      points.push({ x: start.x + dx * t + normal.x * reach, y: start.y + dy * t + normal.y * reach });
+    }
+    return points;
+  };
+  const drawSparkIconBolt = (target) => {
+    const stageRect = stage.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const start = { x: stageRect.width / 2, y: stageRect.height / 2 };
+    const end = { x: targetRect.left + targetRect.width / 2 - stageRect.left, y: targetRect.top + targetRect.height / 2 - stageRect.top };
+    const colors = boltColors[Math.floor(Math.random() * boltColors.length)];
+    const group = makeSvg('g', 'spark-icon-bolt');
+    group.style.setProperty('--bolt-color', colors[0]);
+    group.style.setProperty('--bolt-fork-color', colors[1]);
+    const points = boltPointString(start, end);
+    const main = makeSvg('polyline', 'spark-icon-bolt-main');
+    main.setAttribute('points', points.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' '));
+    group.appendChild(main);
+    const forkCount = 1 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < forkCount; i += 1) {
+      const anchorIndex = 2 + Math.floor(Math.random() * Math.max(1, points.length - 4));
+      const anchor = points[anchorIndex];
+      const previous = points[Math.max(0, anchorIndex - 1)];
+      const vx = anchor.x - previous.x;
+      const vy = anchor.y - previous.y;
+      const length = Math.max(12, Math.hypot(vx, vy));
+      const normal = { x: -vy / length, y: vx / length };
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      const forkLength = 13 + Math.random() * 19;
+      const bend = (Math.random() - 0.5) * 10;
+      const mid = { x: anchor.x + normal.x * direction * forkLength * 0.48 + vx / length * bend, y: anchor.y + normal.y * direction * forkLength * 0.48 + vy / length * bend };
+      const tip = { x: anchor.x + normal.x * direction * forkLength + vx / length * (4 + Math.random() * 7), y: anchor.y + normal.y * direction * forkLength + vy / length * (4 + Math.random() * 7) };
+      const fork = makeSvg('polyline', 'spark-icon-bolt-fork');
+      fork.setAttribute('points', `${anchor.x.toFixed(1)},${anchor.y.toFixed(1)} ${mid.x.toFixed(1)},${mid.y.toFixed(1)} ${tip.x.toFixed(1)},${tip.y.toFixed(1)}`);
+      group.appendChild(fork);
+    }
+    lightningSvg.appendChild(group);
+    window.setTimeout(() => group.remove(), 320);
+  };
+  const fireSparkIconBolts = () => {
+    if (!stage.classList.contains('spark-menu-open') || harnessDock.classList.contains('harness-dock-open')) return;
+    const visibleButtons = buttons.filter((button) => button.offsetParent !== null);
+    if (!visibleButtons.length) return;
+    const strikeCount = 1 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < strikeCount; i += 1) drawSparkIconBolt(visibleButtons[Math.floor(Math.random() * visibleButtons.length)]);
+  };
+  const scheduleSparkIconLightning = () => {
+    window.clearTimeout(lightningTimer);
+    lightningTimer = window.setTimeout(() => {
+      fireSparkIconBolts();
+      scheduleSparkIconLightning();
+    }, 170 + Math.random() * 480);
+  };
+  scheduleSparkIconLightning();
+  let harnessDisabledUntil = 0;
+  if (buttons[0]) buttons[0].classList.add('is-selected');
+  if (mockupButtons[0]) mockupButtons[0].classList.add('is-selected');
+  const openSpark = () => {
+    stage.classList.add('spark-menu-open');
+    harnessDock.classList.remove('harness-dock-open');
+  };
+  const restoreUserPanel = () => {
+    screen.classList.add('session-theme-aqua');
+    screen.classList.remove('session-theme-green');
+    if (userTitle) userTitle.textContent = 'User';
+  };
+  const openHarness = () => {
+    if (Date.now() < harnessDisabledUntil) return;
+    harnessDock.classList.add('harness-dock-open');
+    stage.classList.remove('spark-menu-open');
+  };
+  const closeBoth = () => {
+    stage.classList.remove('spark-menu-open');
+    harnessDock.classList.remove('harness-dock-open');
+  };
+  const distanceToRect = (event, rect) => {
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    return Math.hypot(event.clientX - cx, event.clientY - cy);
+  };
+  const isInside = (event, rect, padX = 0, padY = 0) => (
+    event.clientX >= rect.left - padX && event.clientX <= rect.right + padX &&
+    event.clientY >= rect.top - padY && event.clientY <= rect.bottom + padY
+  );
+  const mergeRects = (rects) => {
+    const usable = rects.filter((rect) => rect.width > 0 && rect.height > 0);
+    if (!usable.length) return null;
+    return usable.reduce((merged, rect) => ({
+      left: Math.min(merged.left, rect.left),
+      right: Math.max(merged.right, rect.right),
+      top: Math.min(merged.top, rect.top),
+      bottom: Math.max(merged.bottom, rect.bottom),
+      width: Math.max(merged.right, rect.right) - Math.min(merged.left, rect.left),
+      height: Math.max(merged.bottom, rect.bottom) - Math.min(merged.top, rect.top),
+    }), usable[0]);
+  };
+  const harnessHoldRect = () => mergeRects(Array.from(harnessDock.querySelectorAll('.harness-dock-button, .harness-label, .harness-sub-label')).map((item) => item.getBoundingClientRect()));
+  const chooseVisibleSystem = (event) => {
+    if (Date.now() < harnessDisabledUntil) {
+      harnessDock.classList.remove('harness-dock-open');
+      return;
+    }
+    const sparkRect = spark.getBoundingClientRect();
+    const menuRect = menu.getBoundingClientRect();
+    const lineRect = harnessLine.getBoundingClientRect();
+    const wasHarnessOpen = harnessDock.classList.contains('harness-dock-open');
+    const sparkZone = {
+      left: Math.min(sparkRect.left, menuRect.left),
+      right: Math.max(sparkRect.right, menuRect.right),
+      top: Math.min(sparkRect.top, menuRect.top),
+      bottom: Math.max(sparkRect.bottom, menuRect.bottom),
+      width: Math.max(sparkRect.right, menuRect.right) - Math.min(sparkRect.left, menuRect.left),
+      height: Math.max(sparkRect.bottom, menuRect.bottom) - Math.min(sparkRect.top, menuRect.top),
+    };
+    const nearSpark = isInside(event, sparkZone, 42, 54);
+    const lineHit = {
+      left: lineRect.left,
+      right: lineRect.right,
+      top: lineRect.top + (lineRect.height / 2) - 1,
+      bottom: lineRect.top + (lineRect.height / 2) + 15,
+      width: lineRect.width,
+      height: 16,
+    };
+    const lineTriggered = isInside(event, lineHit, 0, 0);
+    const holdRect = wasHarnessOpen ? harnessHoldRect() : null;
+    const holdingHarness = Boolean(wasHarnessOpen && holdRect && isInside(event, holdRect, 0, 0));
+    const nearHarness = lineTriggered || holdingHarness;
+    if (holdingHarness) {
+      openHarness();
+      return;
+    }
+    if (!nearSpark && !nearHarness) {
+      closeBoth();
+      return;
+    }
+    if (nearSpark && nearHarness) {
+      const sparkDistance = distanceToRect(event, sparkRect);
+      const harnessDistance = distanceToRect(event, lineRect);
+      if (sparkDistance < harnessDistance) openSpark(); else openHarness();
+      return;
+    }
+    if (nearSpark) openSpark(); else openHarness();
+  };
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      buttons.forEach((item) => item.classList.remove('is-selected'));
+      button.classList.add('is-selected');
+      screen.classList.remove('session-theme-aqua');
+      screen.classList.add('session-theme-green');
+      if (userTitle) userTitle.textContent = button.getAttribute('aria-label') || 'Spark';
+      screen.classList.add('sessions-visible');
+      openSpark();
+    });
+  });
+  mockupButtons.forEach((button, index) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      mockupButtons.forEach((item) => item.classList.remove('is-selected'));
+      button.classList.add('is-selected');
+      spark.classList.remove(
+        'spark-design-1',
+        'spark-design-2',
+        'spark-design-3',
+        'spark-design-4',
+        'spark-design-5',
+        'spark-design-6',
+        'spark-design-7',
+        'spark-design-8',
+        'spark-design-9',
+        'spark-design-10'
+      );
+      spark.classList.add(`spark-design-${index + 1}`);
+    });
+  });
+  spark.addEventListener('pointerenter', openSpark);
+  sparkToggle.addEventListener('pointerenter', openSpark);
+  sparkToggle.addEventListener('click', () => {
+    const panelsVisible = screen.classList.contains('sessions-visible');
+    const harnessPanelActive = panelsVisible && !screen.classList.contains('session-theme-aqua');
+    restoreUserPanel();
+    if (!harnessPanelActive) screen.classList.toggle('sessions-visible');
+    openSpark();
+  });
+  harnessButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      screen.classList.remove('session-theme-aqua');
+      screen.classList.remove('session-theme-green');
+      if (userTitle) userTitle.textContent = button.dataset.sessionTitle || button.dataset.harness || 'User';
+      screen.classList.add('sessions-visible');
+      harnessDisabledUntil = Date.now() + 2000;
+      harnessDock.classList.remove('harness-dock-open');
+    });
+  });
+  menu.addEventListener('pointerenter', openSpark);
+  document.addEventListener('pointermove', chooseVisibleSystem);
+})();
+</script>
+
+<div id="codex-browser-sidebar-comments-root" style="position: fixed; inset: 0px; pointer-events: none; z-index: 2147483000;"></div>
+</body></html>
+
