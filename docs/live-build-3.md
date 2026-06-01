@@ -32,7 +32,7 @@ Completion:
 - V2 audit completed in commit 92ff6f4; all V2 artifacts now discoverable.
 - Ready for Codex Review.
 
-## Next Candidate Task
+## Archived Prior Candidate - Promoted Above
 
 Goal: audit V2 FileMap drift after Session Lifecycle registration lands.
 
@@ -86,7 +86,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Next Candidate Task
+## Archived Prior Candidate - Promoted Above
 
 Goal: register the Session Lifecycle runtime module after Build 2 lands it.
 
@@ -586,6 +586,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-11 08:05 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
 2026-06-11 08:10 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
 2026-06-11 08:15 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 08:20 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
 ```
 
 ## Write/Completion Log
