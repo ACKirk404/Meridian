@@ -2364,3 +2364,11 @@ Next Candidate:
 ## Write / Completion Log
 
 - 2026-06-01 17:15 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because this was a queue poll and the routed Build 3 repair is not yet marked Ready for Codex Review. Commit hash: pending at write time; see final handoff for pushed commit. Push status: pending at write time. Obsidian update status: not updated; queue provenance only.
+
+## Read Checks
+
+- 2026-06-01 17:17 -06:00 — pulled latest `origin/main` (`Already up to date`) and read `docs/live-codex-reviews-2.md` plus `docs/live-build-3.md`. Build 3 duplicate `docs/ui-integration-checklist.md` FileMap row repair is now marked `Completed / Ready For Codex Review`, but Reviews B has no newly promoted executable Active Task; Build 4 Relay model-selection logic remains listed as Next Candidate only. Status: idle pending Reviews B Active Task promotion.
+
+## Write / Completion Log
+
+- 2026-06-01 17:17 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because no executable Reviews B Active Task is currently promoted. Commit hash: pending at write time; see final handoff for pushed commit. Push status: pending at write time. Obsidian update status: not updated; queue provenance only.
