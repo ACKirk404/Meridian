@@ -1898,3 +1898,11 @@ Historical record of Build 1 V0 completed slices (most recent first). Do not re-
 - Tests: All 133 relay executor tests passing
 - Push: Successful to worktree branch
 - Next: Awaiting queue update or promotion of next Active Task
+
+**Build 1 Read Check** — 2026-06-01 16:15 -06:00 (Active Task Found)
+- Status: Queue poll complete; Active Now task found: "add Relay summary serialization for Aegis gate evidence"
+- Current HEAD: worktree-build-1-v2-relay
+- Latest origin/main: commit `8f293767` (chore: reroute current main V2 queues)
+- Task: Implement RelayExecutionSummary Aegis gate evidence fields serialization for downstream Bifrost/Prime surfaces
+- Scope: meridian_core/relay_executor.py, tests/test_relay_executor.py, docs/live-build-1.md
+- Beginning implementation
