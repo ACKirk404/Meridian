@@ -3318,6 +3318,12 @@ body {
       pushEntry(input, 'setup', `Error: ${selectedReadiness.setupHint || 'Install and sign in to the selected model CLI.'}`, selectedReadiness.label || backend, { requestedBackend: selectedBackend });
       return;
     }
+    const visibleTranscript = readTranscript(input).slice(-12).map((entry) => ({
+      role: entry.role || 'model',
+      text: entry.text || '',
+      model: entry.model || '',
+      at: entry.at || '',
+    }));
     input.dataset.sessionSending = 'true';
     pushEntry(input, 'user', prompt, '', { requestedBackend: selectedBackend });
     input.value = '';
@@ -3337,6 +3343,7 @@ body {
           channel: sessionChannel(input),
           requestId,
           prompt,
+          transcript: visibleTranscript,
           cwd: 'C:\\Users\\scott\\Code\\Meridian',
         }),
       });

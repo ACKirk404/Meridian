@@ -7,6 +7,8 @@ const HOST = process.env.MERIDIAN_MODEL_HOST || '127.0.0.1';
 const PORT = Number(process.env.MERIDIAN_MODEL_PORT || 8767);
 const DEFAULT_CWD = process.env.MERIDIAN_MODEL_CWD || process.cwd();
 const RECENT_CALLS_LIMIT = Number(process.env.MERIDIAN_MODEL_RECENT_CALLS || 40);
+const SESSION_TRANSCRIPT_LIMIT = Number(process.env.MERIDIAN_SESSION_TRANSCRIPT_LIMIT || 12);
+const SESSION_TRANSCRIPT_CHAR_LIMIT = Number(process.env.MERIDIAN_SESSION_TRANSCRIPT_CHAR_LIMIT || 12000);
 const recentCalls = [];
 
 if (process.argv.includes('--self-test')) {
@@ -72,6 +74,43 @@ function commandForBackend(backend, prompt) {
     };
   }
   throw new Error(`Unknown backend: ${backend}`);
+}
+
+function normalizeTranscriptText(value, limit = 2000) {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (text.length <= limit) return text;
+  return `${text.slice(0, limit - 12).trim()} [truncated]`;
+}
+
+function visibleTranscriptContext(transcript) {
+  if (!Array.isArray(transcript)) return { text: '', entries: 0, chars: 0 };
+  const lines = [];
+  let chars = 0;
+  for (const entry of transcript.slice(-SESSION_TRANSCRIPT_LIMIT)) {
+    const body = normalizeTranscriptText(entry?.text);
+    if (!body) continue;
+    const role = String(entry?.role || 'model').toUpperCase();
+    const model = entry?.model ? ` (${normalizeTranscriptText(entry.model, 120)})` : '';
+    const line = `${role}${model}: ${body}`;
+    if (chars + line.length > SESSION_TRANSCRIPT_CHAR_LIMIT) break;
+    lines.push(line);
+    chars += line.length;
+  }
+  return { text: lines.join('\n\n'), entries: lines.length, chars };
+}
+
+function promptWithVisibleSession(prompt, transcript) {
+  const context = visibleTranscriptContext(transcript);
+  if (!context.text) return { prompt, entries: 0, chars: 0 };
+  return {
+    prompt: [
+      'Use this visible Meridian panel transcript as the conversation context. It is not hidden memory; it is the same visible session text in the UI.',
+      context.text,
+      `CURRENT USER PROMPT: ${prompt}`,
+    ].join('\n\n'),
+    entries: context.entries,
+    chars: context.chars,
+  };
 }
 
 function normalizeModelText(backend, stdout) {
@@ -201,11 +240,12 @@ async function modelStatus() {
   };
 }
 
-function runModel({ backend, prompt, cwd }) {
+function runModel({ backend, prompt, cwd, transcript }) {
   return new Promise((resolve) => {
     let command;
+    const sessionPrompt = promptWithVisibleSession(prompt, transcript);
     try {
-      command = commandForBackend(backend, prompt);
+      command = commandForBackend(backend, sessionPrompt.prompt);
     } catch (error) {
       resolve({ ok: false, text: '', error: error.message });
       return;
@@ -229,11 +269,27 @@ function runModel({ backend, prompt, cwd }) {
       child.stdin.end(command.stdin);
     }
     child.on('error', (error) => {
-      finish({ ok: false, text: stdout.trim(), error: classifySetupError(backend, error.message), model: command.model, setupRequired: true });
+      finish({
+        ok: false,
+        text: stdout.trim(),
+        error: classifySetupError(backend, error.message),
+        model: command.model,
+        setupRequired: true,
+        sessionContextEntries: sessionPrompt.entries,
+        sessionContextChars: sessionPrompt.chars,
+      });
     });
     timeout = setTimeout(() => {
       child.kill();
-      finish({ ok: false, text: stdout.trim(), error: 'Model call timed out', model: command.model, setupRequired: false });
+      finish({
+        ok: false,
+        text: stdout.trim(),
+        error: 'Model call timed out',
+        model: command.model,
+        setupRequired: false,
+        sessionContextEntries: sessionPrompt.entries,
+        sessionContextChars: sessionPrompt.chars,
+      });
     }, Number(process.env.MERIDIAN_MODEL_TIMEOUT_MS || 60000));
 
     child.on('close', (code) => {
@@ -244,6 +300,8 @@ function runModel({ backend, prompt, cwd }) {
         error: code === 0 ? null : classifySetupError(backend, rawError),
         model: command.model,
         setupRequired: code === 0 ? false : needsSetup(backend, rawError),
+        sessionContextEntries: sessionPrompt.entries,
+        sessionContextChars: sessionPrompt.chars,
       });
     });
   });
@@ -278,13 +336,14 @@ const server = http.createServer(async (req, res) => {
       const channel = String(body.channel || 'prime').toLowerCase();
       const requestId = String(body.requestId || '');
       const prompt = String(body.prompt || '').trim();
+      const transcript = Array.isArray(body.transcript) ? body.transcript : [];
       const cwd = body.cwd ? String(body.cwd) : DEFAULT_CWD;
       if (!prompt) {
         sendJson(res, 400, { ok: false, error: 'Missing prompt' });
         return;
       }
       const started = Date.now();
-      const result = await runModel({ backend, prompt, cwd });
+      const result = await runModel({ backend, prompt, cwd, transcript });
       result.requestedBackend = requestedBackend;
       result.channel = channel;
       result.requestId = requestId;
@@ -298,6 +357,8 @@ const server = http.createServer(async (req, res) => {
         ok: result.ok,
         setupRequired: Boolean(result.setupRequired),
         durationMs: result.durationMs,
+        sessionContextEntries: result.sessionContextEntries || 0,
+        sessionContextChars: result.sessionContextChars || 0,
       });
       sendJson(res, result.ok ? 200 : 500, result);
     } catch (error) {
