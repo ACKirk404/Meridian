@@ -12,6 +12,8 @@ The goal is simple: every visible UI piece must either work, clearly show that i
 
 Show a compact checklist status roughly every three UI/build prompts while active UI integration work is underway, and immediately when a stop condition is hit.
 
+Working cadence: respond to the user's latest message, state the next checklist intent with presumed alignment answers, then continue on those assumptions unless the user corrects direction.
+
 ## Control Inventory
 
 Use this as the working UI checklist. Every visible icon, selector, session control, and harness button gets its own row. Status values:
@@ -55,8 +57,27 @@ Use this as the working UI checklist. Every visible icon, selector, session cont
 | ID | Control / Feature | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
 | SEL1 | Model selector | Manual model selection. Defaults to Codex. Auto stays disabled until Prime/Relay logic exists. | partial | Served page has Codex selected and Auto disabled. |
-| SEL2 | Projects selector | Selects active project context for the Prime panel. | planned | Changing project must not move layout or silently reroute model calls yet. |
+| SEL2 | Projects selector | Selects active project context for Prime and project-scoped UI state. | planned | Track `PRJ-*` subitems before wiring the selector. |
 | SEL3 | User Sessions selector | Selects from all open live sessions, grouped alphabetically by project. | planned | Dropdown shows project groups, including hidden and test-waiting sessions, and selection routes User prompt immediately. |
+
+### Projects Selector Subitems
+
+The Prime panel's Projects dropdown selects the active project context for Prime. It is paired with the User panel's Sessions dropdown, but it does not automatically select or route a User session by itself.
+
+| ID | Projects Item | Intended Behavior | Current Status | Verification |
+|---|---|---|---|---|
+| PRJ1 | Project dropdown placement | Keeps the Projects dropdown in the approved Prime panel position. | partial | Dropdown sits above the Prime line with right edge aligned to the line. |
+| PRJ2 | Active project context | Sets the active project for Prime/orchestrator context. | planned | Prime prompt metadata names selected project. |
+| PRJ3 | Alphabetical project sort | Sorts project options alphabetically by project name. | planned | Project list order is alphabetical. |
+| PRJ4 | Current project label | Displays the selected project name clearly. | partial | Selected project remains visible after selection. |
+| PRJ5 | Last project restore | Restores last selected project when allowed by Settings. | planned | Reload restores project only when persistence is enabled. |
+| PRJ6 | Project-scoped surfaces | Updates project-scoped backlog, review, progress, and session lists. | planned | Changing project updates dependent surfaces together. |
+| PRJ7 | User session independence | Does not silently route User prompts until a User session is selected. | planned | Changing project alone does not send or retarget a User prompt. |
+| PRJ8 | Session list filtering | User Sessions dropdown filters/group-emphasizes sessions for selected project while still showing all live sessions by project. | planned | Session dropdown grouping remains complete and project-aware. |
+| PRJ9 | Missing project state | Handles project with no live sessions or no loaded metadata clearly. | planned | Empty project state is readable and non-fake. |
+| PRJ10 | Project metadata | Shows or links working directory, repo, branch, and project status when that surface exists. | planned | Metadata comes from project state, not hard-coded labels. |
+| PRJ11 | Project switch guard | Warns before switching away from unsaved prompt/session edits if needed. | planned | Dirty prompt/session state is preserved or explicitly discarded. |
+| PRJ12 | Portfolio boundary | Keeps repo, project, initiative, and venture concepts distinct. | planned | Project selector does not pretend repo equals project. |
 
 ### User Sessions Selector Subitems
 
