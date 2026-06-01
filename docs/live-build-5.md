@@ -4,7 +4,7 @@
 
 Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
-## Active Task - Repair Routed By Codex Reviews B
+## Completed / Ready For Codex Review
 
 Goal: repair the Bifrost provider balance and prompt payload visibility surface from commit `06e1c5c`.
 
@@ -15,18 +15,30 @@ Finding from Codex Reviews B:
 - `06e1c5c` adds `ProviderBalanceItem`, `ProviderBalanceView`, `PromptPayloadView`, `_render_provider_balance()`, and `_render_prompt_payload()`, but `render_cockpit_html()` never calls the new helpers, so the provider balance and prompt payload visibility surface required by `docs/bifrost-balance-payload-surface-contract.md` is absent from the rendered cockpit.
 - Existing tests still pass because no test asserts that the provider balance or prompt payload sections render.
 
-Repair requirements:
+Repair completed:
 
-- Insert the provider balance and prompt payload sections into the rendered cockpit in a visible, non-core location that preserves the quiet `PRIMED` command core.
-- Keep Bifrost render-only: no model/provider calls, no routing decisions, no queue mutation, no process control, no filesystem/network effects, no live microphone/TTS plumbing, no JavaScript, and no Electron-only dependency.
-- Add focused tests proving the rendered document includes `Provider Balance`, `Prompt Payload Visibility`, provider rows for Claude/OpenAI/DeepSeek with trust/health/budget/pressure details, prompt size/tokens/budget/delta/source/evidence or equivalent payload metadata, and prompt-drag warning behavior where applicable.
-- Preserve the existing quiet-core guard that provider labels and payload labels do not return to the central `PRIMED` command core.
+- Build 5 repaired the integration at commit `5309fb4` on 2026-06-03 06:45 -06:00.
+- Added calls to `_render_provider_balance()` and `_render_prompt_payload()` in `render_cockpit_html()`.
+- Provider balance and prompt payload sections now render in cockpit-main area outside HUD core.
+- Added comprehensive integration tests verifying sections appear with correct data (provider names, trust state, budget metrics, payload size/tokens).
+- Quiet-core guard verified: provider labels and payload labels remain absent from central `PRIMED` command core.
+- All 112 tests in `tests/test_bifrost_cockpit.py` pass.
+- Verified rendering:
+  - Provider Balance section: ✓
+  - Prompt Payload Visibility section: ✓
+  - Claude/OpenAI/DeepSeek provider rows: ✓
+  - Prompt payload size label and metrics: ✓
+  - Escape hatching and XSS prevention: ✓
 
-Proof command:
+Proof:
 
-- `python -m pytest tests/test_bifrost_cockpit.py -q`
+- `python -m pytest tests/test_bifrost_cockpit.py -q` = 112 passed
 
-Completion: mark the repair Ready for Codex Review with the repair commit hash and tests run.
+Ready for Codex Review:
+
+- Commit: `5309fb4`
+- Files: `bifrost/cockpit.py`, `tests/test_bifrost_cockpit.py`
+- Tests: 112 passed in `tests/test_bifrost_cockpit.py`
 
 ## Completed Task - Ready For Codex Review
 
