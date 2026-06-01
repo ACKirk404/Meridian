@@ -33,8 +33,8 @@ Use this as the working UI checklist. Every visible icon, selector, session cont
 | SP4 | User Session prompt input | Same prompt behavior as Prime panel, but only in User Session mode. | wired | In User Session mode, type three lines; Enter sends and clears. |
 | SP5 | Prime response window | Displays Prime/model output below Prime prompt. | partial | Prompt text remains yellow; response text appears below it. |
 | SP6 | User Session response window | Displays routed session/model output below User prompt only in User Session mode. | partial | User Session mode shows prompt/response; Settings/Harness modes do not. |
-| SP7 | Prime text-size slider | Changes text size in both session panels and syncs both sliders. | wired | Drag Prime slider; both panel text sizes change. |
-| SP8 | User text-size slider | Changes text size in both session panels and syncs both sliders. | wired | Drag User slider; both panel text sizes change. |
+| SP7 | Prime text-size slider | Single shared slider starts at minimum and controls Prime, User, and harness/Relay panel text. | wired | Drag Prime slider right; visible panel text increases across modes. |
+| SP8 | User text-size slider | Removed as a duplicate control; text size is owned by the Prime slider. | wired | Right panel has no separate slider, and the Prime slider still controls right-panel text. |
 | SP9 | User prompt color | User-entered transcript text is bright yellow anywhere it appears. | wired | Send prompt from either panel; transcript prompt is yellow. |
 | SP10 | Path/file highlighting | File paths and filenames in output render bright orange. | wired | Ask model for working directory; path is orange. |
 | SP11 | Model/source label | Shows the model/source used for a response when known. | partial | Send prompt; confirm model label appears near/below response. |
@@ -493,7 +493,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | UI5 | User-entered prompt text renders bright yellow wherever it appears in transcripts. | Manual: send a prompt and confirm transcript prompt color. |
 | UI6 | File paths and filenames render bright orange in model output. | Manual: ask for the working directory or a file path and confirm path styling. |
 | UI7 | Response window stays below the prompt and owns model output. | Visual/manual: prompt text does not replace response area and response does not appear in prompt input. |
-| UI8 | Text size slider controls both Prime and User session text together. | Manual: drag either slider; both sliders move and both transcript areas resize text. |
+| UI8 | Text size slider controls Prime, User, and harness/Relay panel text together. | Manual: drag the Prime slider right; session and harness text resize from the shared value. |
 | UI9 | Prompt macro buttons inject their literal word into the active prompt. | Manual: Yes, No, Continue, Confirm insert text at cursor and do not submit by themselves. |
 | UI10 | Reset clears session transcripts and prompts, then hard reloads the UI. | Manual: send text, click Reset, confirm both panels empty after reload. |
 | UI11 | Reload hard reloads the UI without promising to clear session state. | Manual: click Reload and confirm page reloads. |
@@ -507,8 +507,9 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | MB3 | Selecting Codex sends through the Meridian bridge, not Polaris. | Request goes to `http://127.0.0.1:8767/api/message`; no Polaris path or process is touched. |
 | MB4 | Selecting Max sends through the Meridian bridge when the Claude CLI is available. | `/api/models` reports Max availability before sending; unavailable state gives setup guidance. |
 | MB5 | Public setup errors are readable. | Missing CLI or auth failure returns install/login guidance instead of a silent hang. |
-| MB6 | Request metadata is tracked without logging prompt text. | `/api/recent-calls` shows request id, channel, backend, model label, duration, and status only. |
+| MB6 | Request metadata is tracked without logging prompt text. | `/api/recent-calls` shows request id, channel, backend, model label, duration, status, and visible-context counts only. |
 | MB7 | Model label appears below or near the response area when known. | Manual: send a request and confirm displayed model/source label. |
+| MB8 | Visible session continuity | Follow-up prompts carry the visible panel transcript as bounded context, with no hidden backend memory. | `/api/recent-calls` records nonzero `sessionContextEntries` after a follow-up prompt. |
 
 ## Harness UI Rules
 

@@ -21,7 +21,22 @@ if (process.argv.includes('--self-test')) {
     needsSetup('max', 'not authenticated, please login'),
     needsSetup('codex', 'Process exited with code 1'),
   ];
-  console.log(JSON.stringify({ ok: samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2], samples, setupFlags }, null, 2));
+  const contextPrompt = promptWithVisibleSession('What should I do next?', [
+    { role: 'user', text: 'Remember this visible detail.' },
+    { role: 'model', text: 'I can see the visible detail.' },
+  ]);
+  const emptyPrompt = promptWithVisibleSession('Fresh question', []);
+  const contextOk = (
+    contextPrompt.entries === 2 &&
+    contextPrompt.chars > 0 &&
+    contextPrompt.prompt.includes('USER: Remember this visible detail.') &&
+    contextPrompt.prompt.includes('MODEL: I can see the visible detail.') &&
+    contextPrompt.prompt.includes('CURRENT USER PROMPT: What should I do next?') &&
+    emptyPrompt.entries === 0 &&
+    emptyPrompt.prompt === 'Fresh question'
+  );
+  const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
+  console.log(JSON.stringify({ ok: setupOk && contextOk, samples, setupFlags, contextOk }, null, 2));
   process.exit(0);
 }
 
