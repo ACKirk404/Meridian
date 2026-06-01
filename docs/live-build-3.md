@@ -65,13 +65,32 @@ Completion:
 
 Ready for Codex Review.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: register any new Session Lifecycle or Bifrost harness runtime files or tests after subsequent build phases.
 
 Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
-Task: inspect current Session Lifecycle and Bifrost harness runtime state and register any new files that exist and are not already discoverable in FileMap. Do not create Session Lifecycle or Bifrost files; only register completed runtime code and tests after they exist on origin/main.
+Task: inspected current Session Lifecycle and Bifrost harness runtime state and registered two unregistered Bifrost documentation files: docs/bifrost-preview-package-api-note.md (package API policy) and docs/v1-bifrost-runtime-acceptance-checklist.md (V1 cockpit acceptance gate).
+
+Completion:
+
+- Build 3 registered two Bifrost docs in filemap.py, docs/FileMap.md, and tests/test_filemap.py.
+- Files changed: `meridian_core/filemap.py` (2 entries, Bifrost area), `docs/FileMap.md` (2 rows), `tests/test_filemap.py` (2 paths to _REQUIRED_PATHS).
+- Tests: `python -m pytest tests/test_filemap.py -q` — 46 passed.
+- Commit: `d48768b3`.
+- Push: successful to origin/main.
+- Cadence: 1/3 since next review round.
+
+Ready for Codex Review.
+
+## Active Task
+
+Goal: await Build 5/Bifrost or Build 2/Session Lifecycle follow-up runtime slices and register any new discoverable files.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: monitor current Session Lifecycle and Bifrost harness runtime state. When Build 2 or Build 5 lands new runtime slices or documentation files, inspect and register any that are not already discoverable in FileMap. Do not create files; only register completed artifacts after they exist on origin/main.
 
 Tests: `python -m pytest tests/test_filemap.py -q`
 
@@ -79,7 +98,7 @@ Completion: commit only allowed files, push to `origin/main`, mark Ready for Cod
 
 ## Next Candidate Task
 
-Goal: await Build 5/Bifrost or Build 2/Session Lifecycle follow-up runtime slices and register any new discoverable files.
+Goal: audit FileMap coverage for any new domain model or Beacon harness files that land from Build 4.
 
 Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
@@ -876,6 +895,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-12 07:30 UTC - Build 3 checked queue; status: active task found (Aegis FileMap registration â€" relay-aegis-risk-proof-gates.md); executing registration
 2026-06-12 07:42 UTC - Build 3 checked queue; status: idle; Aegis FileMap registration complete (commits 536b43aa, f4b89c79); cadence 3/3 since Round B5 â€" Codex review requested; awaiting review result before next task
 2026-06-12 07:45 UTC - Build 3 checked queue; status: idle; cadence 3/3 since Round B5 â€" paused pending Codex review result; no new Active Task execution until review completes
+2026-06-12 07:50 UTC - Build 3 checked queue; status: active task found (Session Lifecycle/Bifrost FileMap registration); executing registration for bifrost-preview-package-api-note.md and v1-bifrost-runtime-acceptance-checklist.md
 ```
 
 ## Write/Completion Log
@@ -920,6 +940,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-06-11 03:35 UTC - Build 3 queue poll â€” appended Read Checks entry noting idle status and awaiting new task assignment; no code changes; cadence 1/3 since Round B5
 2026-06-12 07:30 UTC - Build 3 completed FileMap audit for Relay/Session Lifecycle implementation files; registered meridian_core/relay_executor.py and tests/test_relay_executor.py; commit 536b43aa; files changed: meridian_core/filemap.py (2 entries), docs/FileMap.md (2 rows after relay_dispatch), tests/test_filemap.py (2 paths to _REQUIRED_PATHS); tests: python -m pytest tests/test_filemap.py -q â€” 46 passed; push: b81e02e1; cadence 2/3 since Round B5; Ready for Codex Review
 2026-06-12 07:35 UTC - Build 3 completed Aegis FileMap registration; registered docs/relay-aegis-risk-proof-gates.md (V2 Relay-Aegis gates contract); commit f4b89c79; files changed: meridian_core/filemap.py (1 entry, Aegis area), docs/FileMap.md (1 row), tests/test_filemap.py (1 path to _REQUIRED_PATHS); tests: python -m pytest tests/test_filemap.py -q â€” 46 passed; push: success; cadence 3/3 since Round B5; Ready for Codex Review
+2026-06-12 07:52 UTC - Build 3 completed Session Lifecycle/Bifrost FileMap registration; registered docs/bifrost-preview-package-api-note.md and docs/v1-bifrost-runtime-acceptance-checklist.md; commit d48768b3; files changed: meridian_core/filemap.py (2 entries, Bifrost area), docs/FileMap.md (2 rows), tests/test_filemap.py (2 paths to _REQUIRED_PATHS); tests: python -m pytest tests/test_filemap.py -q â€” 46 passed; push: success; cadence 1/3 since next round; Ready for Codex Review
 ```
 
 ## Cross-Check Activity
