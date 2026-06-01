@@ -1193,7 +1193,8 @@ class TestRelayDecisionRecord:
             assert summary.decision_record.proof_required == plan.route.audit.proof_required
 
     def test_decision_record_fallback_blockers_from_audit(self) -> None:
-        """Decision record fallback_blockers captures audit tuple."""
+        """Decision record fallback_blockers captures audit tuple plus vendor/model_id unknowns for Tier 2+."""
+        from meridian_core.relay import ModelRole
         for tier in (1, 2, 3, 4):
             plan = _make_plan(tier)
             summary = execute_relay_dispatch_plan(
@@ -1201,7 +1202,15 @@ class TestRelayDecisionRecord:
                 _constant_model_call("ok"),
                 include_decision_record=True,
             )
-            assert summary.decision_record.fallback_blockers == plan.route.audit.fallback_blockers
+            expected_blockers = list(plan.route.audit.fallback_blockers)
+            # Tier 2+ without adapter metadata adds vendor_unknown as explicit blocker
+            if tier >= 2:
+                expected_blockers.append("vendor_unknown")
+            # Check if plan has a builder lane for model_id extraction
+            has_builder_lane = any(lane.role == ModelRole.BUILDER for lane in plan.lanes)
+            if tier >= 2 and not has_builder_lane:
+                expected_blockers.append("model_id_unknown")
+            assert summary.decision_record.fallback_blockers == tuple(expected_blockers)
 
     def test_decision_record_human_gate_required_from_route(self) -> None:
         """Decision record human_gate_required matches route requirement."""
@@ -1538,3 +1547,59 @@ class TestRelayDecisionRecord:
             include_decision_record=True,
         )
         assert isinstance(summary.decision_record.fallback_blockers, tuple)
+
+    def test_decision_record_vendor_unknown_becomes_blocker_for_tier2plus(self) -> None:
+        """Decision record treats vendor='unknown' as explicit fallback blocker for Tier 2+."""
+        from meridian_core.relay_dispatch import RelayDispatchLane, RelayDispatchPlan
+
+        plan = _make_plan(2)
+        # Create plan with no lanes (clean audit, no builder lane to extract model_id from)
+        empty_lanes = ()
+        empty_plan = RelayDispatchPlan(route=plan.route, packet=plan.packet, lanes=empty_lanes)
+
+        # Build with no adapter metadata (so vendor="unknown" gets set)
+        record = _build_decision_record(empty_plan)
+
+        # vendor should be "unknown" due to Tier 2+ with no metadata
+        assert record.vendor == "unknown"
+        # This unknown should be a fallback blocker
+        assert "vendor_unknown" in record.fallback_blockers
+        assert not record.fallback_allowed
+
+    def test_decision_record_model_id_unknown_becomes_blocker_for_tier2plus(self) -> None:
+        """Decision record treats model_id='unknown' as explicit fallback blocker for Tier 2+."""
+        from meridian_core.relay_dispatch import RelayDispatchLane, RelayDispatchPlan
+
+        plan = _make_plan(2)
+        # Create plan with non-builder lanes only (no builder lane to extract model_id from)
+        non_builder_lanes = tuple(
+            RelayDispatchLane(
+                role=ModelRole.REVIEWER,  # Not builder
+                preferred_model=lane.preferred_model,
+                independent=lane.independent,
+                payload=lane.payload,
+            )
+            for lane in plan.lanes
+            if lane.role.value != "builder"
+        )
+        if not non_builder_lanes:
+            # If test setup doesn't have non-builder lanes, create one
+            builder_lane = next(l for l in plan.lanes if l.role.value == "builder")
+            non_builder_lanes = (
+                RelayDispatchLane(
+                    role=ModelRole.REVIEWER,
+                    preferred_model=builder_lane.preferred_model,
+                    independent=builder_lane.independent,
+                    payload=builder_lane.payload,
+                ),
+            )
+
+        no_builder_plan = RelayDispatchPlan(route=plan.route, packet=plan.packet, lanes=non_builder_lanes)
+
+        record = _build_decision_record(no_builder_plan)
+
+        # model_id should be "unknown" due to Tier 2+ with no builder lane
+        assert record.model_id == "unknown"
+        # This unknown should be a fallback blocker
+        assert "model_id_unknown" in record.fallback_blockers
+        assert not record.fallback_allowed

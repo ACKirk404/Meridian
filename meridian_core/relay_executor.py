@@ -216,6 +216,9 @@ def _build_decision_record(
         vendor = adapter_metadata.provider_name
     elif route.risk_tier >= 2:
         vendor = "unknown"
+        # Treat vendor identity unknown as explicit blocker for Tier 2+
+        fallback_blockers.append("vendor_unknown")
+        fallback_allowed = False
 
     # Populate model_id from preferred_model of first builder lane or mark unknown
     model_id = None
@@ -226,6 +229,9 @@ def _build_decision_record(
                 break
     if model_id is None and route.risk_tier >= 2:
         model_id = "unknown"
+        # Treat model identity unknown as explicit blocker for Tier 2+
+        fallback_blockers.append("model_id_unknown")
+        fallback_allowed = False
 
     lane_independence_reason = ""
     if route.requires_independence and len(fallback_blockers) > 0:
