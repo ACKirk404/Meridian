@@ -100,7 +100,7 @@ Completion:
 
 Passed Codex Reviews B. Build 4 may proceed to the DeepSeek direct-provider adapter implementation handoff.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: write the DeepSeek direct-provider adapter implementation handoff.
 
@@ -109,6 +109,14 @@ Allowed files only: `docs/deepseek-direct-provider-implementation-handoff.md`, `
 Task: after `docs/model-harness-v2-contract.md` lands and clears review, write a bounded implementation handoff for adding direct DeepSeek provider metadata/routing through Relay and Aegis. Cover environment variable names, direct-vs-aggregator proof, candidate trust state, prompt payload snapshot evidence, Q-mode flatness proof, blocked authorities, tests expected, and which runtime files should be touched by the later implementation lane.
 
 Tests: not required for this docs-only handoff.
+
+Completion: completed 2026-05-31 per handoff content; file restored 2026-06-01 after accidental deletion by Reviews B idle read (a48771d).
+
+Ready for Codex Review:
+
+- Files: `docs/deepseek-direct-provider-implementation-handoff.md`, `docs/live-build-4.md`
+- Tests: not required (docs-only)
+- Commit: f4a5697
 
 This file is the standing assignment queue for Build 4.
 
@@ -421,6 +429,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 cross-check: none/finding/fix; details: <short not
 2026-06-01 04:07 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 2a37d85
 2026-06-01 04:07 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 0aec9c1
 2026-06-01 04:08 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 39b15f4
+2026-06-01 04:26 -06:00 - Build 4 checked queue; status: idle; no Active Task; restored DeepSeek handoff (deleted by Reviews B idle read a48771d) and rotated DeepSeek Active Now to Completed/Ready For Codex Review; origin/main at 9d15dc2
 ## Codex Review Cadence
 
 After every three completed changes/commits by Build 4, request a Codex review check before starting another task. The review check should automatically repair actionable findings in Build 4-owned files, rerun relevant tests if any, commit/push fixes, and report the result here.
