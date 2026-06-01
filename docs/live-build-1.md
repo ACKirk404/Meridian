@@ -33,6 +33,13 @@ Goal: add Relay-to-Bifrost proof payload contract tests after summary serializat
 
 Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
 
+**Build 1 Read Check** — 2026-06-01 16:30 -06:00 (Queue Poll)
+- Status: Queue poll complete; no executable "Coordinator Override - Active Now" task
+- Latest origin/main: checked; Relay serialization task marked Ready for Codex Review
+- Next Candidate Task awaiting promotion from Prime/Codex review clearance
+- Code changes in session: 2 of 3 before Codex review threshold
+- Build 1 idle and polling for next task assignment
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement Relay-side blocking behavior from Aegis gate evidence fields.
