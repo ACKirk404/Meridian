@@ -2465,3 +2465,35 @@ Next Candidate:
 ## Read Checks
 
 - 2026-06-01 17:28 -06:00 — fetched `origin/main` and verified `HEAD`/`origin/main` at `feda4a0b` after `git pull --ff-only origin main` returned `fatal: Cannot fast-forward to multiple branches`; read `docs/live-codex-reviews-2.md` and `docs/live-build-4.md`. Active Reviews B task is now promoted: review Build 4 Relay harness model-selection logic depth. Executing the active docs/architecture review against current main.
+
+## Completed / Finding Routed
+
+Goal: review Build 4 Relay harness model-selection logic depth.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Allowed review files: `docs/relay-heartbeat-model-routing-logic.md`, `docs/relay-completeness-audit.md`, `docs/model-harness-v2-contract.md`, `docs/deepseek-validation-benchmark-plan.md`, `docs/deepseek-direct-provider-implementation-handoff.md`, `docs/live-build-4.md`, and `docs/live-codex-reviews-2.md` for provenance only.
+
+Review result:
+
+- Finding 1: `docs/relay-heartbeat-model-routing-logic.md` contradicts itself on Tier 3+ account/API fallback. Lines 57-68 say Tier 3 prefers account/session first and then direct APIs when proof/control requires them, but lines 180-188 say an account session missing/expired is not Tier 3+ allowed and should "wait for auth" while still listing "Try direct API" as the fallback action. Why it matters: Relay could either block a valid direct-provider Tier 3 route unnecessarily or implement a hidden exception without a clear rule. Recommended owning lane: Build 4.
+- Finding 2: `docs/relay-heartbeat-model-routing-logic.md` sends a wrong-scope session to direct API or aggregator in the account-first decision tree. Lines 156-158 say a session with the wrong project scope, role, or tools falls to "Direct API or aggregator"; lines 184-186 later say wrong project must start a project-specific session and stale/polluted/wrong-role sessions are not Tier 3+ fallback-safe. Why it matters: wrong-project or wrong-role context could be bypassed into API/aggregator routing instead of forcing a clean project/session boundary, which weakens the public/account/session precedence and cross-project bleed protections. Recommended owning lane: Build 4.
+- Finding 3: exact model identity is inconsistent across the Relay routing, Model Harness contract, and DeepSeek handoff. `docs/relay-heartbeat-model-routing-logic.md` lines 98-123 names route families such as `claude-sonnet-4-6`, `GPT-5.3-Codex`, `deepseek-v4-pro`, and `deepseek-v4-flash`, while `docs/model-harness-v2-contract.md` lines 230-276 declares normative exact ids including `claude-sonnet-4-20250514`, `gpt-4o`, and `deepseek-chat`; `docs/deepseek-direct-provider-implementation-handoff.md` lines 34-40 and 76-80 also hardcode `deepseek-chat`, even though the Relay routing doc says `deepseek-chat` is a compatibility alias and should not be chosen for new routes. Why it matters: exact model id is a blocker for Tier 2+ routing, and Build 1 could wire a stale alias while Relay/Bifrost present a different selected model family. Recommended owning lane: Build 4.
+- Passed coverage areas: the docs do cover account-first ordering, explicit fallback visibility, Anthropic/OpenAI/OpenRouter/DeepSeek route roles, dual-lane and external Codex review triggers, session lifecycle decisions, cost/token/account/rate-limit exhaustion, hard stop/block conditions, settings/harness non-prompt separation, and no authorization of live model calls, account probing, process control, UI work, branch movement, or Polaris dependency.
+
+Proof:
+
+- Docs-only review; no pytest required.
+- Inspected `docs/relay-heartbeat-model-routing-logic.md`, `docs/relay-completeness-audit.md`, `docs/model-harness-v2-contract.md`, `docs/deepseek-validation-benchmark-plan.md`, `docs/deepseek-direct-provider-implementation-handoff.md`, and `docs/live-build-4.md`.
+
+Repair routing:
+
+- Routed focused repair to Build 4 in `docs/live-build-4.md`.
+
+Next Candidate:
+
+- Re-review Build 4 Relay harness model-selection logic consistency after Build 4 marks the focused repair Ready for Codex Review.
+
+## Write / Completion Log
+
+- 2026-06-01 17:28 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance/disposition and `docs/live-build-4.md` repair routing only. Tests run: not run; docs/architecture review only. Commit hash: pending at write time; see final handoff for pushed commit. Push status: pending at write time. Obsidian update status: not updated; queue provenance/routing only.

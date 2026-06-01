@@ -8,6 +8,20 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: repair Relay harness model-selection logic consistency findings from Codex Reviews B.
+
+Allowed files only: `docs/relay-heartbeat-model-routing-logic.md`, `docs/model-harness-v2-contract.md`, `docs/deepseek-direct-provider-implementation-handoff.md`, `docs/live-build-4.md`.
+
+Task: make the deepened Relay routing docs internally consistent without broad rewrites. Required repairs:
+
+- Resolve the Tier 3+ account/API fallback contradiction: `docs/relay-heartbeat-model-routing-logic.md` says Tier 3 may use direct APIs when account/session routes cannot satisfy proof/control needs, but its explicit fallback table blocks Tier 3+ when the account session is missing/expired. Define when Tier 3+ should start a clean account/session, use direct API, or block.
+- Resolve the wrong-project/wrong-role session branch: the account-first decision tree currently sends a wrong session scope to direct API or aggregator, while the later fallback table says wrong project must start a project-specific session and aggregator is not safe for authoritative/high-risk work. Ensure wrong project/role/session-scope rejection starts a proper session or blocks before any API/aggregator fallback.
+- Align exact model identity across the Relay routing doc, Model Harness V2 contract, and DeepSeek handoff. The Relay routing doc names Claude/OpenAI/DeepSeek route families such as `claude-sonnet-4-6`, `GPT-5.3-Codex`, `deepseek-v4-pro`, and `deepseek-v4-flash`, while the metadata contract and DeepSeek handoff still use older normative exact ids such as `gpt-4o` and `deepseek-chat`; `deepseek-chat` is also described as a compatibility alias that should not be chosen for new routes. Decide whether these are placeholders, aliases, or exact runtime ids and document the registry resolution rule.
+
+Completion: mark Ready for Codex Review with files changed, proof, and no runtime/model-call/account-probing/process-control/UI/branch/Polaris changes.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: deepen the Relay harness model-selection logic for Prime-led orchestration.
