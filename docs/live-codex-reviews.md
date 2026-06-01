@@ -8,9 +8,24 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 1 Relay proof payload negative-path tests.
+
+Status: repair routed by Codex Reviews A on 2026-06-01 17:45 -06:00. The assigned worker commit `26a71632` exists, but it is not an ancestor of current `HEAD` / `origin/main`, so Reviews A cannot run the required proof command against the queued test slice on current main.
+
+Review result:
+
+- `git merge-base --is-ancestor 26a71632 HEAD` failed, proving the assigned test commit is not present in current main.
+- `git branch --contains 26a71632 --all` shows the commit only on `worktree-build-1-v2-relay` and `origin/worktree-build-1-v2-relay`.
+- `git show --stat --oneline --name-only 26a71632` shows the worker commit changes only `tests/test_relay_executor.py`.
+- `git diff --stat 26a71632..HEAD -- tests/test_relay_executor.py meridian_core/relay_executor.py` shows current main lacks the queued negative-path test additions, so running `python -m pytest tests/test_relay_executor.py -q` here would not prove the assigned slice.
+
+Finding:
+
+- HIGH: review provenance/branch visibility - Build 1 worker commit `26a71632` is not reviewable on current `origin/main`. Required repair: Build 1/coordinator must land the negative-path test commit on current main through the approved path or requeue a current-main review target, then Reviews A can rerun `python -m pytest tests/test_relay_executor.py -q` and verify the required incomplete-evidence, absent-evidence, fallback-blocker, no-gate/blocked-shape, and deterministic immutable-output coverage.
+
+Completion: routed the focused visibility repair to Build 1 in `docs/live-build-1.md`. No implementation files were changed by Reviews A. Next Candidate: no executable Reviews A task remains until Build 1/coordinator provides a current-main review target.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
 
@@ -1300,7 +1315,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-06-01 17:37 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch; no executable Active Task remains in the assigned Reviews A queue.
 2026-06-01 17:41 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main fetched; no executable Active Task remains in the assigned queue; outgoing range was rechecked before push and contains only `docs/live-codex-reviews.md`.
 2026-06-01 17:43 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch; top coordinator override remains completed/passed and no executable Active Task remains in the assigned Reviews A queue.
-2026-06-01 17:45 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch; no executable Active Task remains in the assigned queue; three-change queue-only Codex review check found no actionable findings.
+2026-06-01 17:45 -06:00 - Codex Reviews A checked queue; status: repair-routed; notes: origin/main current after fetch; active Build 1 Relay proof payload negative-path review found assigned commit `26a71632` is not an ancestor of current HEAD/origin/main, so the proof command cannot clear the queued slice.
 ```
 
 ## Review Log
@@ -1814,7 +1829,7 @@ Round 6 write log:
 - 2026-06-01 17:37 -06:00 - Codex Reviews A completed idle queue read after origin/main fetch. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof command: `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no new finding; no executable Active Task present in the assigned queue. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or durable review finding.
 - 2026-06-01 17:41 -06:00 - Codex Reviews A completed idle queue read after origin/main fetch. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof commands: `git diff --check -- docs/live-codex-reviews.md` and `git diff --name-only origin/main..HEAD`. Findings/fixes: no new finding; no executable Active Task present in the assigned queue. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or durable review finding.
 - 2026-06-01 17:43 -06:00 - Codex Reviews A completed idle queue read after origin/main fetch. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof command: `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no new finding; no executable Active Task present in the assigned queue. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or durable review finding.
-- 2026-06-01 17:45 -06:00 - Codex Reviews A completed idle queue read and three-change queue-only Codex review check after origin/main fetch. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof commands: `git diff --check -- docs/live-codex-reviews.md`, `git diff --check 2b050593..HEAD -- docs/live-codex-reviews.md`, and `git diff --stat 2b050593..HEAD -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings; no executable Active Task present in the assigned queue. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or durable review finding.
+- 2026-06-01 17:45 -06:00 - Codex Reviews A completed Build 1 Relay proof payload negative-path test visibility review for assigned commit `26a71632` after origin/main fetch. Files changed: `docs/live-codex-reviews.md`, `docs/live-build-1.md`. Tests run: not run because the assigned commit is not an ancestor of current `HEAD` / `origin/main`; running the proof test here would not prove the queued slice. Proof commands: `git merge-base --is-ancestor 26a71632 HEAD` (failed), `git branch --contains 26a71632 --all`, `git show --stat --oneline --name-only 26a71632`, `git diff --stat 26a71632..HEAD -- tests/test_relay_executor.py meridian_core/relay_executor.py`, and `git diff --check -- docs/live-codex-reviews.md docs/live-build-1.md`. Findings/fixes: HIGH review provenance/branch visibility routed to Build 1; assigned commit `26a71632` is only on the Build 1 worktree branch/remotes and not current main. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue and Build 1 queue record repair routing only.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 

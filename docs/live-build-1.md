@@ -4,6 +4,20 @@
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: repair review visibility for Relay proof payload negative-path tests.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `tests/test_relay_executor.py`, `docs/live-build-1.md` for provenance. Do not edit Relay runtime unless the current-main target cannot be represented by tests alone and coordinator explicitly expands scope.
+
+Required repair from Codex Reviews A: worker commit `26a71632` exists only on `worktree-build-1-v2-relay` / `origin/worktree-build-1-v2-relay` and is not an ancestor of current `HEAD` / `origin/main`, so Reviews A cannot clear the Ready marker. Land the intended negative-path tests on current `origin/main` through the approved coordinator path, or requeue a current-main review target. Preserve the test-only scope unless a fresh coordinator instruction changes it.
+
+Proof required before requeue: `python -m pytest tests/test_relay_executor.py -q`.
+
+Completion: mark Ready for Codex Review with the current-main commit hash and exact files changed. Do not ask Reviews A to clear commit `26a71632` again unless it is an ancestor of current `origin/main`.
+
 ## Coordinator Override - Completed / Review-Gated
 
 Goal: add Relay proof payload docs/FileMap registration request.
