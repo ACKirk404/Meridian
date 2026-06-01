@@ -2064,3 +2064,10 @@ Historical record of Build 1 V0 completed slices (most recent first). Do not re-
 - Active Now section: still contains old completed task (commit `eafa0c17`)
 - Next Candidate Task: "add Relay proof payload negative-path tests" awaiting promotion from Prime/Codex
 - Build 1 idle; no executable Active Task; awaiting coordinator queue update
+
+**Build 1 Read Check** — 2026-06-12 14:10 UTC (Heartbeat Poll)
+- Status: Queue unchanged; no Active Task executable
+- Latest origin/main: already up to date
+- Active Now: old completed task (commit `eafa0c17`)
+- Next Candidate: awaiting Prime/Codex promotion
+- Build 1 idle
