@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair Session Lifecycle routing-action coverage found by Codex Reviews A.
 
@@ -23,13 +23,13 @@ Review finding routed by Codex Reviews A on 2026-06-01 16:28 -06:00:
 - HIGH: `SessionAction` currently represents reuse/start/summarize/transfer/avoid, but not the required Relay-selected `archive` or `request_human_gate` actions (`meridian_core/session_lifecycle.py:87`).
 - MEDIUM: `SessionActionReason.CONTEXT_FILL`, `REVIEW_GATE`, and `PERMISSION_BOUNDARY` are typed but not exercised by `suggest_routing_action()` or tests; current routing tests cover context healthy, payload budget, stale heartbeat, reasoning shift, project scope, and transfer only (`meridian_core/session_lifecycle.py:199`, `tests/test_session_lifecycle.py:78`).
 
-Task: complete the typed Session Lifecycle model so Prime can represent Relay session actions without live process control: reuse existing session, start new session, summarize and reset, transfer/handoff, archive, and request human gate. Ensure context-fill, reasoning-shift, project-scope, stale-heartbeat, review-gate, and permission-boundary reasons are all reachable or otherwise explicitly represented and covered by tests. Preserve unique-worktree, assigned-queue, and branch-permission invariants. Do not spawn processes, move branches, call models, edit UI, or touch Polaris.
+Task: completed the typed Session Lifecycle model so Prime can represent Relay session actions without live process control: reuse existing session, start new session, summarize and reset, transfer/handoff, archive, and request human gate. Context-fill, reasoning-shift, project-scope, stale-heartbeat, review-gate, and permission-boundary reasons are represented and covered by tests. Unique-worktree, assigned-queue, and branch-permission invariants remain preserved. No processes, branch movement, model calls, UI edits, or Polaris changes were added.
 
 Tests:
 
 - `python -m pytest tests/test_session_lifecycle.py -q`
 
-Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+Completion: landed on current `origin/main` in commit `558af555` (`feat: complete Session Lifecycle routing-action coverage`). Files changed: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`. Proof: `python -m pytest tests/test_session_lifecycle.py -q` passed with 24 tests on 2026-06-01. Ready for Codex Review.
 
 ## Next Candidate Task
 
@@ -905,6 +905,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-06-12 13:20 -06:00 - Build 2 completed routing-action coverage repair (commit 558af555); no new Active Task assigned yet; cadence 1 of 3; awaiting orchestrator assignment; polling
 2026-06-12 13:30 -06:00 - Build 2 checked queue; status: idle (routing-action coverage repair task complete; no new Active Task assigned from coordinator; cadence 1 of 3; awaiting next assignment; polling)
 2026-06-12 13:40 -06:00 - Build 2 checked queue; status: idle (routing-action coverage repair task marked Ready for Codex Review; no new Active Task from coordinator; Next Candidate blocked pending review clearance; cadence 1 of 3; awaiting assignment; polling)
+2026-06-12 13:50 -06:00 - Build 2 checked queue; status: idle (routing-action coverage repair task in Active Now; already complete from prior execution; no new orchestrator task assignment; cadence 1 of 3; awaiting next task; polling)
 ```
 
 ## Write/Completion Log
