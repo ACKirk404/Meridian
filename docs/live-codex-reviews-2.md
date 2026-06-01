@@ -10,7 +10,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Codex Reviews B cleared the current-main Build 4 premium-cost approval blocker in commit `f15e7ceb`. Continue with the Active Now item below; do not rerun the cleared Build 4 repair unless a new current-main regression appears.
 
-## Coordinator Override - Active Now
+## Stale Header - Completed / Finding Routed Below
 
 Goal: review Build 4 Relay harness model-selection logic depth.
 
