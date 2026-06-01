@@ -13,12 +13,12 @@
 | Prime Autonomy | 2 | 0 | 0 | 0 | 2 | 100% |
 | Echo Harness | 2 | 0 | 2 | 0 | 4 | 100% |
 | Atlas Harness | 2 | 0 | 1 | 0 | 3 | 100% |
-| Relay/Model Harness | 2 | 0 | 1 | 6 | 9 | 33% |
+| Relay/Model Harness | 2 | 0 | 2 | 6 | 10 | 20% clear + 20% baseline |
 | Aegis Harness | 2 | 0 | 0 | 0 | 2 | 100% |
 | Session Lifecycle Harness | 1 | 0 | 1 | 2 | 4 | 50% |
 | Bifrost Harness | 1 | 0 | 2 | 6 | 9 | 33% |
 | Federation Harness | 1 | 0 | 0 | 0 | 1 | 100% |
-| **Total V2** | **13** | **0** | **7** | **14** | **34** | **38% Clear + 0% Awaiting + 21% Baseline** |
+| **Total V2** | **13** | **0** | **8** | **14** | **35** | **37% Clear + 0% Awaiting + 23% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
@@ -81,6 +81,7 @@
 ### Relay/Model Harness
 
 - [x] **Model Harness + DeepSeek Validation Gate:** `docs/deepseek-provider-validation-gate.md` - DeepSeek is a primary provider candidate, but not trusted for autonomous coding/review-clearing until direct API routing, prompt payload metering, bounded Q-mode behavior, and coding benchmark proof are recorded.
+- [x] **Model Harness + Metadata Contract:** `docs/model-harness-v2-contract.md` - provider capability metadata, prompt-drag telemetry, trust state, route ownership, direct-vs-aggregator evidence, allowed/blocked task types, external-review requirements, and Aegis/Relay policy binding; review-cleared by Reviews B on 2026-05-31. Runtime metadata implementation remains in Needs Build.
 
 ### Bifrost Harness
 
@@ -89,7 +90,7 @@
 
 ## In Progress / Stabilizing
 
-- **Model Harness + Metadata Contract:** `docs/model-harness-v2-contract.md` was salvaged from local Build 4 work and routed to Reviews B. This is a contract baseline awaiting review; runtime metadata implementation remains in Needs Build.
+- None currently.
 
 ## V3 Scope Note
 

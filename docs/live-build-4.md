@@ -83,7 +83,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Coordinator Override - Completed / Ready For Codex Review
+## Coordinator Override - Completed / Passed Codex Review
 
 Goal: write the Model Harness V2 metadata contract.
 
@@ -98,9 +98,9 @@ Completion:
 - Tests: not required (docs-only).
 - Commit: this coordinator salvage commit.
 
-Ready for Codex Review. Routed to Codex Reviews B.
+Passed Codex Reviews B. Build 4 may proceed to the DeepSeek direct-provider adapter implementation handoff.
 
-## Next Candidate Task
+## Coordinator Override - Active Now
 
 Goal: write the DeepSeek direct-provider adapter implementation handoff.
 

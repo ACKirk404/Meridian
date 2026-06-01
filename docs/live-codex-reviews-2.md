@@ -2,11 +2,11 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
-## Active Task
+## Completed / Passed
 
 Goal: review Build 4 Model Harness V2 metadata contract.
 
-Status: active. Coordinator salvaged the substantive Build 4 contract from contaminated local main commit `2bfaf6f` and recommitted it cleanly without the read-check spam.
+Status: passed by Codex Reviews B/coordinator on 2026-05-31 22:05 -06:00. The contract covers the required Model Harness metadata surface and keeps DeepSeek candidate-scoped without autonomous build/review/branch/worktree authority.
 
 Scope:
 
@@ -31,7 +31,19 @@ Review expectations:
 - Verify Build 4's next candidate remains the DeepSeek direct-provider implementation handoff and is review-gated on this contract.
 - If clean, record proof and clear the docs slice. If findings exist, route a focused repair back to Build 4.
 
-Completion: commit and push only `docs/live-codex-reviews-2.md` unless routing a repair into `docs/live-build-4.md`.
+Review result:
+
+- The contract defines `ProviderCapability`, `ModelTrustState`, `AllowedTaskTypes`, `PromptDragTelemetry`, and `TelemetryCapability` as immutable metadata/telemetry shapes.
+- The contract names provider capability metadata, prompt-drag telemetry, trust state, route ownership, direct-vs-aggregator evidence, allowed/blocked task types, external-review requirements, and Aegis/Relay policy binding.
+- DeepSeek direct remains capped as a candidate verification/explanation route until external review passes; DeepSeek aggregator is explicitly weaker and blocked from build/review/verify/plan/repair authority.
+- The contract is marked as a baseline for later runtime implementation and does not claim that `meridian_core/model_adapter.py` already implements the surface.
+- Build 4 may proceed to the DeepSeek direct-provider adapter implementation handoff.
+
+Proof: docs-only review; no tests required.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md`, `docs/live-build-4.md`, and `docs/v2-progress-tracker.md` tracker/queue implications. No repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
 ## Completed / Passed
 
