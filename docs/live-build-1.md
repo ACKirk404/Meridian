@@ -1,6 +1,6 @@
 # Live Build 1 Queue
 
-## Codex Review Repair - Active Now
+## Codex Review Repair Completed / Ready for Codex Review
 
 2026-05-31 22:09 -06:00 - Codex Reviews A routed a MEDIUM repair from the Build 1 runtime cadence review.
 
@@ -26,9 +26,12 @@ Tests:
 
 Completion:
 
-- Commit only the allowed repair files.
-- Push to `origin/main`.
-- Mark the repair Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+- 2026-05-31 23:22 -05:00 - Build 1 runtime completed Codex Review repair.
+- Files changed: `meridian_core/cockpit_state.py`, `tests/test_cockpit_state.py`.
+- Tests run: `python -m pytest tests/test_cockpit_state.py -q` (29 passed); `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` (86 passed).
+- Commit: `19f4516`.
+- Push: successful to `origin/main`.
+- Obsidian: ready for routing to Codex review queue.
 
 ## Codex Review Repair Completed / Verified
 
