@@ -125,14 +125,16 @@ Aegis enforces gates in this order. A route that fails any gate is blocked unles
 
 ### 7. Aggregator Authority Gate
 
-**Trigger:** `trust_mode == AGGREGATOR` and `risk_tier >= 3`.
+**Trigger:** `trust_mode == AGGREGATOR` and evidence of proof/trust metadata.
 
 **Gate logic:**
-- If `trust_mode == AGGREGATOR` and `risk_tier >= 3`, **block** unconditionally.
-- If `trust_mode == AGGREGATOR` and `risk_tier < 3`:
-  - If `proof_strength == WEAK`, **allow with warning**: "Aggregator route for Tier 0-2 only."
-  - If `proof_strength == NONE`, **block**: "Aggregator route with no proof. Not allowed."
-- Aggregator routes must show actual selected model/vendor to Bifrost before dispatch. If selected model is unknown, **block**.
+- If `trust_mode == AGGREGATOR` and `risk_tier >= 3`, **block** unconditionally: "Aggregator routes not allowed for Tier 3+."
+- If `trust_mode == AGGREGATOR` and `risk_tier <= 2`:
+  - For Tier 2: **Allow only if proof_strength is EXPLICIT (code review + metadata)** and `selected_model` is known before dispatch.
+  - For Tier 0-1:
+    - If `proof_strength == WEAK` (telemetry only), **allow with warning**: "Aggregator route for Tier 0-2 exploration only."
+    - If `proof_strength == NONE`, **block**: "Aggregator route with no proof. Not allowed."
+- **All aggregator routes must show actual selected model/vendor to Bifrost before dispatch.** If selected model is unknown, **block**: "Aggregator route model not resolved. Cannot dispatch."
 
 **Action on block:** Return error to Prime: "Aggregator route not authorized for this risk tier."
 
@@ -173,7 +175,7 @@ Aegis enforces gates in this order. A route that fails any gate is blocked unles
 |---|---|---|
 | Tier 0 | Route Class, Model ID (optional), Proof (none) | No model call. Return immediately. |
 | Tier 1 | Route Class, Model ID (optional), Proof (telemetry), DeepSeek (Tier 0-1), Aggregator OK, Cost Exposure (warning) | Single lane OK. Account/session preferred. No silent fallback. |
-| Tier 2 | Route Class, Exact Model ID, Proof (code review), DeepSeek (validation pending allowed), Aggregator block, Account/Session Risk, Cost Exposure (approval needed), Unsafe Fallback | Single or dual lane. Aggregator not allowed. Account/session preferred. Review required. |
+| Tier 2 | Route Class, Exact Model ID, Proof (code review), DeepSeek (requires PASSED), Aggregator OK (with proof), Account/Session Risk, Cost Exposure (approval needed), Unsafe Fallback | Single or dual lane. Aggregator allowed with explicit proof. Account/session preferred. Review required. |
 | Tier 3 | All gates active | Dual-lane required (waiver only). Direct API only for Tier 3+. No aggregator. External review required for new providers. |
 | Tier 4 | All gates active + Human Gate | Human approval required before dispatch. Direct API only. Strongest proof required. Dual review mandatory. No fallback without explicit waiver. |
 
@@ -282,6 +284,8 @@ Relay must provide Aegis with:
 - `fallback_blockers` (list of risk flags if allowed)
 - `cost_justified` (bool if cost_posture == PREMIUM)
 - `human_gate_required` (bool)
+- `waiver_record` (optional, see Waiver/Approval Records below)
+- `approval_record` (optional, see Waiver/Approval Records below)
 
 Model Harness must provide:
 
@@ -290,6 +294,46 @@ Model Harness must provide:
 - `AllowedTaskTypes` (via `model_adapter.py`)
 
 Aegis gates the route using all three sources.
+
+---
+
+## Waiver/Approval Records
+
+When gates allow demotion or conditional passage via waiver or approval, Relay/Aegis must capture evidence:
+
+### Waiver Record (for policy exceptions)
+
+```json
+{
+  "waiver_id": "unique identifier",
+  "actor": "email or system identity authorizing waiver",
+  "scope": "gate name or condition being waived",
+  "timestamp": "ISO 8601 when waiver was recorded",
+  "reason": "explicit justification for waiver",
+  "expiration": "ISO 8601 if waiver is time-limited (optional)",
+  "evidence_url": "link to decision record or bug ID (optional)"
+}
+```
+
+### Approval Record (for user consent)
+
+```json
+{
+  "approval_id": "unique identifier",
+  "actor": "email or system identity approving",
+  "scope": "gate name or condition requiring approval",
+  "timestamp": "ISO 8601 when approval was recorded",
+  "reason": "brief summary of what user approved",
+  "expiration": "ISO 8601 if approval is time-limited or request-scoped (optional)"
+}
+```
+
+### Validation Rules
+
+- Bare boolean flags (has_waiver: true) are **not acceptable**. All waivers/approvals must include actor, scope, timestamp, and reason.
+- Waivers with expired timestamps must be treated as void.
+- Approval records are route-request scoped (single-use by default) unless expiration is explicitly set.
+- Aegis records both waiver_record and approval_record in its decision output for audit trail.
 
 ---
 
