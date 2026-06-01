@@ -19,6 +19,7 @@ from .aegis import (
 )
 from .cognition_policy import evaluate_cognition_policy
 from .model_adapter import AdapterRegistry, MissingAdapterError, ModelAdapter  # noqa: F401
+from .prompt_payload_meter import PromptPayloadSnapshot
 from .relay import ModelRole
 from .relay_dispatch import RelayDispatchPlan
 
@@ -28,11 +29,12 @@ ModelCallFn = ModelAdapter
 
 @dataclass(frozen=True)
 class RelayExecutionResult:
-    """Successful output for one lane."""
+    """Successful output for one lane with optional payload snapshot metadata."""
 
     role: ModelRole
     preferred_model: str
     output: str
+    payload_snapshot: PromptPayloadSnapshot | None = None
 
 
 @dataclass(frozen=True)
@@ -56,6 +58,19 @@ class RelayProofGateError(RuntimeError):
     """Raised when Aegis proof blocks a high-risk Relay dispatch."""
 
 
+def _snapshot_severity(snapshot: PromptPayloadSnapshot) -> EvidenceSeverity:
+    """Map payload snapshot status to Aegis evidence severity."""
+    from .prompt_payload_meter import PayloadStatus
+
+    status = snapshot.status
+    if status == PayloadStatus.DEGRADED:
+        return EvidenceSeverity.WARNING
+    elif status == PayloadStatus.WATCH:
+        return EvidenceSeverity.INFO
+    else:
+        return EvidenceSeverity.INFO
+
+
 def relay_execution_summary_to_proof_trail(
     summary: RelayExecutionSummary,
 ) -> ProofTrail:
@@ -63,7 +78,7 @@ def relay_execution_summary_to_proof_trail(
 
     Successful lane outputs become non-blocking BUILD_OUTPUT evidence. Lane
     errors become proof-blocking BUILD_OUTPUT evidence with ERROR severity.
-    Prompt payloads and packet metadata are intentionally not represented here.
+    Payload snapshot evidence is added for lanes with snapshot metadata.
     """
     trail = ProofTrail()
     for index, result in enumerate(summary.results):
@@ -79,6 +94,21 @@ def relay_execution_summary_to_proof_trail(
                 summary=f"{role} lane completed; output length {len(result.output)} characters",
             )
         )
+        if result.payload_snapshot is not None:
+            snapshot = result.payload_snapshot
+            trail.add(
+                AegisEvidence(
+                    id=f"relay-payload-{index}-{role}",
+                    evidence_type=EvidenceType.BUILD_OUTPUT,
+                    severity=_snapshot_severity(snapshot),
+                    status=EvidenceStatus.OPEN,
+                    source="relay_executor",
+                    target=f"{role}:{result.preferred_model}",
+                    summary=f"Payload snapshot: {snapshot.display_label} "
+                    f"({snapshot.estimated_tokens} tokens, "
+                    f"{snapshot.budget_percent:.1f}% of budget); status: {snapshot.status.value}",
+                )
+            )
     for index, error in enumerate(summary.errors):
         role = error.role.value
         trail.add(
@@ -99,6 +129,7 @@ def execute_relay_dispatch_plan(
     plan: RelayDispatchPlan,
     model_call: ModelCallFn,
     proof_trail: ProofTrail | None = None,
+    payload_snapshots: tuple[PromptPayloadSnapshot | None, ...] | None = None,
 ) -> RelayExecutionSummary:
     """
     Execute every lane in *plan* by calling model_call(lane.payload).
@@ -107,13 +138,17 @@ def execute_relay_dispatch_plan(
     or metadata. Exceptions are caught per-lane and converted to
     RelayExecutionError entries; successful outputs become RelayExecutionResult
     entries. Lane order matches plan.lanes.
+
+    Optional payload_snapshots tuple provides PromptPayloadSnapshot metadata per lane
+    for inclusion in execution results and proof trail evidence.
     """
     _assert_proof_gate_clear(plan, proof_trail)
 
     results: list[RelayExecutionResult] = []
     errors: list[RelayExecutionError] = []
+    snapshots = payload_snapshots or tuple(None for _ in plan.lanes)
 
-    for lane in plan.lanes:
+    for lane, snapshot in zip(plan.lanes, snapshots):
         try:
             output = model_call(lane.payload)
             results.append(
@@ -121,6 +156,7 @@ def execute_relay_dispatch_plan(
                     role=lane.role,
                     preferred_model=lane.preferred_model,
                     output=output,
+                    payload_snapshot=snapshot,
                 )
             )
         except Exception as exc:  # noqa: BLE001
@@ -142,6 +178,7 @@ def execute_relay_plan_with_registry(
     plan: RelayDispatchPlan,
     registry: AdapterRegistry,
     proof_trail: ProofTrail | None = None,
+    payload_snapshots: tuple[PromptPayloadSnapshot | None, ...] | None = None,
 ) -> RelayExecutionSummary:
     """
     Execute a plan with per-lane adapter resolution from the registry.
@@ -150,6 +187,9 @@ def execute_relay_plan_with_registry(
     before the first model call if any lane's adapter is missing. The Aegis
     proof gate is checked first; blocking evidence prevents resolution.
     Only lane.payload crosses to the adapter; role and metadata are not forwarded.
+
+    Optional payload_snapshots tuple provides PromptPayloadSnapshot metadata per lane
+    for inclusion in execution results and proof trail evidence.
     """
     _assert_proof_gate_clear(plan, proof_trail)
 
@@ -159,8 +199,9 @@ def execute_relay_plan_with_registry(
 
     results: list[RelayExecutionResult] = []
     errors: list[RelayExecutionError] = []
+    snapshots = payload_snapshots or tuple(None for _ in plan.lanes)
 
-    for lane, adapter in zip(plan.lanes, resolved_adapters):
+    for lane, adapter, snapshot in zip(plan.lanes, resolved_adapters, snapshots):
         try:
             output = adapter(lane.payload)
             results.append(
@@ -168,6 +209,7 @@ def execute_relay_plan_with_registry(
                     role=lane.role,
                     preferred_model=lane.preferred_model,
                     output=output,
+                    payload_snapshot=snapshot,
                 )
             )
         except Exception as exc:  # noqa: BLE001
@@ -190,6 +232,7 @@ def execute_relay_dispatch_plan_with_policy(
     model_call: ModelCallFn,
     proof_trail: ProofTrail | None = None,
     human_gate_approved: bool = False,
+    payload_snapshots: tuple[PromptPayloadSnapshot | None, ...] | None = None,
 ) -> RelayExecutionSummary:
     """
     Execute a plan after evaluating V2 CognitionPolicy against the risk tier.
@@ -197,6 +240,8 @@ def execute_relay_dispatch_plan_with_policy(
     Evaluates cognition_policy for plan.route.risk_tier before any model call.
     If policy blocks dispatch, raises RelayProofGateError with blocking reasons
     before calling model_call. Otherwise delegates to execute_relay_dispatch_plan.
+
+    Optional payload_snapshots tuple provides PromptPayloadSnapshot metadata per lane.
     """
     policy_result = evaluate_cognition_policy(
         plan.route.risk_tier,
@@ -210,7 +255,9 @@ def execute_relay_dispatch_plan_with_policy(
             f"Relay dispatch blocked by cognition policy: {reasons}"
         )
 
-    return execute_relay_dispatch_plan(plan, model_call, proof_trail)
+    return execute_relay_dispatch_plan(
+        plan, model_call, proof_trail, payload_snapshots
+    )
 
 
 def _assert_proof_gate_clear(
