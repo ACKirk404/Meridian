@@ -87,9 +87,27 @@ Completion:
 - Obsidian: complete.
 - Routed to Codex Reviews A; cadence 3 of 3 cleared.
 
+## Coordinator Override - Active Now
+
+Goal: implement Session Lifecycle permissions and Prime/Beacon binding now that command-plan routing coverage cleared review.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
+Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
+
+Required sources: `docs/session-lifecycle-permissions-prime-beacon-contract.md`, `docs/session-lifecycle-permissions-implementation-checklist.md`, `docs/session-lifecycle-v2-contract.md`, `docs/relay-heartbeat-model-routing-logic.md`, and Reviews A clearance for current-main command-plan tests in `docs/live-codex-reviews.md`.
+
+Task: implement the typed permissions and Prime/Beacon binding slice without live process control. Add or extend frozen data structures/helpers so Session Lifecycle can represent branch/worktree permission state, Prime routing recommendations, Beacon heartbeat/staleness observations, and decision reasons needed by Relay/Prime. Preserve existing command-plan behavior and unique-worktree/assigned-queue invariants. Do not spawn sessions, inspect live processes, call models, edit UI/Bifrost/FileMap/review queues, move branches, or touch Polaris.
+
+Tests:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+
+Completion: commit only the allowed files from your unique worktree branch, push your worker branch, mark Ready for Codex Review here with commit hash/files/tests, and leave a concrete Next Candidate.
+
 ## Next Candidate Task
 
-Goal: implement Session Lifecycle permissions and Prime/Beacon binding after the runtime implementation clears review.
+Goal: add Session Lifecycle restart/resteer recovery tests after permissions binding clears review.
 
 Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
 
