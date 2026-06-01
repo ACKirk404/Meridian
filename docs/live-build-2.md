@@ -521,6 +521,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-06-06 18:35 -06:00 - Build 2 checked queue; status: idle (no new Active Task; awaiting coordinator assignment; cadence 0 of 3; polling)
 2026-06-06 18:45 -06:00 - Build 2 checked queue; status: idle (no new Active Task; awaiting coordinator assignment; cadence 0 of 3; polling)
 2026-06-06 18:55 -06:00 - Build 2 checked queue; status: idle (no new Active Task; awaiting coordinator assignment; cadence 0 of 3; polling)
+2026-06-06 19:05 -06:00 - Build 2 checked queue; status: idle (no new Active Task; awaiting coordinator assignment; cadence 0 of 3; polling)
 ```
 
 ## Write/Completion Log
@@ -566,7 +567,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; files changed: <l
 2026-05-31 08:52 -06:00 - Build 2 completed V2 harness maturity/build-number policy (Coordinator Override); commit 34c21b4; files changed: docs/harness-maturity-build-policy.md (new, defines build number tracking, maturity levels, review status, and readiness states for Prime/Bifrost/Relay/Aegis/Beacon/Echo/Atlas/Workflow), docs/live-build-2.md; tests none required (docs-only); cadence count: 3 of 3 since 47eeb89; Ready for Codex Review
 2026-05-31 08:54 -06:00 - Build 2 completed public exports readiness checklist (Coordinator Override); commit 9a2e4e5; files changed: docs/public-exports-readiness-checklist.md (new, 6-section checklist for export-readiness: runtime stability, tests, docs, registry, naming, safety/risk mitigation; per-harness status for Echo/Atlas/Prime/Session/Workflow), docs/live-build-2.md; tests none required (docs-only); cadence count: 1 of 3 (cadence reset after harness maturity policy); Ready for Codex Review
 2026-06-05 02:45 -06:00 - Build 2 completed V2 Prime next-action domain object (Coordinator Override); commit 40def3d; files changed: meridian_core/prime_autonomy.py (new, PrimeActionType/Confidence/RiskTier/Source enums, PrimeNextAction frozen dataclass, select_prime_next_action/make_prime_next_action helpers), tests/test_prime_autonomy.py (new, 30 comprehensive tests: enums, immutability, fallback selection, blocker handling, human-gate propagation, confidence/risk mapping); tests 30 passed; cadence count: 1 of 3; Ready for Codex Review
-2026-06-05 03:50 -06:00 - Build 2 completed Session Lifecycle implementation checklist repair (Coordinator Override); commit 7d20f47; created docs/session-lifecycle-implementation-checklist.md (850 lines); content: 6 type-safe enums (SessionStatus 10 values, HarnessRole 6 values, CommandIntent 11 values, ReviewCadenceState 5 values, ProofState 7 values, HealthState 4 values), SessionLifecycleState frozen dataclass (22 fields + 5 helpers: is_idle/is_healthy/can_accept_work/heartbeat_stale/to_dict), SessionCommandPlan frozen dataclass (16 fields + 4 helpers: is_executable/requires_aegis_approval/is_legal/verify_state_transition_legal/to_dict), legality matrix (18 valid transitions + 11 command-state pairs), proof state progression, executability gates, invariants (worktree isolation, queue routing, branch permission, proof requirement), ~60 test cases (immutability, helpers, workflows, safety gates, constraints); files: docs/session-lifecycle-implementation-checklist.md, docs/live-build-2.md; tests: none required (docs-only); repair validates prior contract work is recoverable before runtime implementation proceeds; push: 7d20f47 to main; Ready for Codex Review; cadence count: 3 of 3 (Codex cadence review requested)
+2026-06-05 03:50 -06:00 - Build 2 completed Session Lifecycle implementation checklist repair (Coordinator Override); commit 7d20f47; created docs/session-lifecycle-implementation-checklist.md (520 lines); content: 6 type-safe enums (SessionStatus 10 values, HarnessRole 6 values, CommandIntent 11 values, ReviewCadenceState 5 values, ProofState 7 values, HealthState 4 values), SessionLifecycleState frozen dataclass (22 fields + 5 helpers: is_idle/is_healthy/can_accept_work/heartbeat_stale/to_dict), SessionCommandPlan frozen dataclass (16 fields + 4 helpers: is_executable/requires_aegis_approval/is_legal/verify_state_transition_legal/to_dict), legality matrix (18 valid transitions + 11 command-state pairs), proof state progression, executability gates, invariants (worktree isolation, queue routing, branch permission, proof requirement), ~60 test cases (immutability, helpers, workflows, safety gates, constraints); files: docs/session-lifecycle-implementation-checklist.md, docs/live-build-2.md; tests: none required (docs-only); repair validates prior contract work is recoverable before runtime implementation proceeds; push: 7d20f47 to main; Ready for Codex Review; cadence count: 3 of 3 (Codex cadence review requested)
 2026-06-05 04:06 -06:00 - Build 2 verified Session Lifecycle runtime implementation already complete; commit 910e652 (prior session); files: meridian_core/session_lifecycle.py (347 lines), tests/test_session_lifecycle.py (170 lines); implementation verified complete: SessionStatus/HarnessRole/CommandIntent/ReviewCadenceState/ProofState/HealthState enums; SessionLifecycleState frozen dataclass (22 fields + 5 helpers: is_idle/is_healthy/can_accept_work/heartbeat_stale/to_dict); SessionCommandPlan frozen dataclass (16 fields + 4 helpers: is_executable/requires_aegis_approval/is_legal/verify_state_transition_legal/to_dict); tests 12/12 passing (immutability, helpers, legality, executability, serialization); cadence count: 1 of 3 (new cadence); Ready for Codex Review
 2026-05-31 22:44 -06:00 - Build 2 completed Session Lifecycle permissions and Prime/Beacon binding handoff contract (Coordinator Override); commit 04fd9ad; files: docs/session-lifecycle-permissions-prime-beacon-contract.md (new, 157 lines), docs/live-build-2.md (queue checkpoint); content: PermissionContext field spec, Beacon integration/heartbeat/staleness/blocker binding, Prime autonomy command recommendations (spawn/watch/poll_queue/steer/stop_request/transfer/archive/restart/resteer/recover_from_limit/request_human_gate), branch permission bindings, worktree isolation invariant, permission checking semantics, proof/safety auditing, out-of-scope boundaries; tests none required (docs-only); push: 04fd9ad to main; cadence count: 2 of 3; Ready for Codex Review
 2026-05-31 22:48 -06:00 - Build 2 completed Session Lifecycle permissions implementation checklist (Coordinator Override); commit f2f53b4 (merged as 6f5e1ab); files: docs/session-lifecycle-permissions-implementation-checklist.md (new, 250+ lines), docs/live-build-2.md (queue checkpoint); content: PermissionContext frozen dataclass (6 fields: approved_by/approval_scope/escalation_gate/escalation_reason/branch_permission_state/last_permission_change), SessionLifecycleState extension with permission_context embedding, RestartResteerFinding and PrimeAutonomyInput frozen dataclasses, PermissionState/OperationScope/FindingType enums, helper methods (is_permission_locked/requires_approval_for_operation/can_accept_work/heartbeat_stale/health_from_heartbeat/approve_operation/generate_restart_finding/generate_resteer_finding/gather_prime_autonomy_input), 18 test cases (immutability, locking, unlock expiry, approval scope, restart/resteer findings, Prime input gathering), legality matrix (6 valid/2 invalid state transitions), proof/safety/invariant specs, out-of-scope boundaries; tests none required (docs-only); push: 6f5e1ab to main; cadence count: 3 of 3 (Codex cadence review trigger); Ready for Codex Review
@@ -614,12 +615,12 @@ YYYY-MM-DD HH:MM TZ - Build 2 Codex review result: pass/no actionable findings/f
 2026-06-04 15:25 -06:00 - Build 2 Codex review requested after commits e08e598, e9062d9, cd87702 (V2 CognitionPolicy package API export, Bifrost preview package policy note, V2 progress tracker)
 2026-06-05 03:55 -06:00 - Build 2 Codex review requested after commits 40def3d, 594e0d9, 7d20f47 (V2 Prime next-action domain object, linter repair is_executable human-gate, Session Lifecycle implementation checklist repair) — cadence 3 of 3
 2026-06-05 03:58 -06:00 - Build 2 Codex review cross-check: syntax OK (python -m py_compile passed), tests 12/12 passed (test_session_lifecycle.py), no suspicious patterns (TODO/FIXME/hardcoded secrets), Session Lifecycle checklist 520 lines formatted and complete. No blocking findings; docs-only checklist passed basic review.
-2026-06-05 03:58 -06:00 - Build 2 Codex review result: pass; no actionable findings; cadence cleared after 40def3d, 7d20f47
+2026-06-05 03:58 -06:00 - Build 2 Codex review result: pass; no actionable findings; cadence cleared after 40def3d, 594e0d9, 7d20f47
 ```
 
 ## Archived Prior Active Task - Do Not Execute
 
-Current Active Task - Coordinator Override:
+Archived Task - Coordinator Override:
 
 Goal: create the V2 progress tracker so V2 becomes countable in progress reports.
 
@@ -660,7 +661,7 @@ Completion:
 
 Stale prior task follows.
 
-Coordinator Override - Current Active Task (supersedes stale CognitionPolicy export task below):
+Coordinator Override - Archived Task (supersedes stale CognitionPolicy export task below):
 
 Goal: write the Bifrost Electron/preview package surface policy note.
 
@@ -705,7 +706,7 @@ Completion:
 
 Stale prior task follows.
 
-Current Active Task:
+Archived Task:
 
 Goal: expose the V2 CognitionPolicy API through the package root.
 
