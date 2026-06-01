@@ -10,7 +10,7 @@
 
 | Owner | Built/Review-Cleared | Built-Awaiting-Review | Contract Baseline | Needs Build | Total | Percent Complete |
 |---|---:|---:|---:|---:|---:|---:|
-| Prime Autonomy | 1 | 1 | 0 | 0 | 2 | 50% clear + 50% awaiting |
+| Prime Autonomy | 2 | 0 | 0 | 0 | 2 | 100% |
 | Echo Harness | 2 | 0 | 2 | 0 | 4 | 100% |
 | Atlas Harness | 2 | 0 | 1 | 0 | 3 | 100% |
 | Relay/Model Harness | 2 | 0 | 1 | 6 | 9 | 33% |
@@ -18,13 +18,14 @@
 | Session Lifecycle Harness | 1 | 0 | 1 | 2 | 4 | 50% |
 | Bifrost Harness | 1 | 0 | 2 | 6 | 9 | 33% |
 | Federation Harness | 1 | 0 | 0 | 0 | 1 | 100% |
-| **Total V2** | **12** | **1** | **7** | **14** | **34** | **35% Clear + 3% Awaiting + 21% Baseline** |
+| **Total V2** | **13** | **0** | **7** | **14** | **34** | **38% Clear + 0% Awaiting + 21% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
 ### Prime Autonomy
 
 - [x] **Prime + Autonomy Contract:** `PrimeNextAction` domain object with action type, confidence, blockers, human-gate requirements, immutable evidence, and deterministic executability semantics - built in `40def3d`, repaired in `39c9ac8`; review cleared by Reviews C on 2026-05-31.
+- [x] **Prime + Project State:** deterministic next-action selector taking project/backlog/lane/tier/review gate state - built in `57aad9a`, queue provenance in `a2b8cd0`; review cleared by Reviews A on 2026-05-31 with 55 `tests/test_prime_autonomy.py` tests passing.
 
 ### Aegis Harness
 
@@ -60,9 +61,7 @@
 
 ## Built But Awaiting Review
 
-### Prime Autonomy
-
-- [ ] **Prime + Project State:** deterministic next-action selector taking project/backlog/lane/tier/review gate state - built in `57aad9a`, queue provenance in `a2b8cd0`; routed to Reviews A after duplicate Build 2 human-gate repair review was superseded by Reviews C.
+- None currently.
 
 ## Contract Baselines Complete (Not Runtime Implementation)
 
