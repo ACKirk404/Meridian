@@ -8,6 +8,28 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review Build 1 Relay repair commits `c3d91214` and `69e9ff55`.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Allowed review files: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
+
+Task: verify whether Build 1 fully resolves the prior Relay decision-record vendor/model stop-condition finding and whether the new provider-neutral Aegis gate evidence fields are safe for downstream Relay use. Confirm missing vendor/model identity for Tier 2+ becomes explicit blockers, Aegis evidence fields are immutable/provider-neutral, no live vendor calls or account probing were added, and no UI/process/branch movement/Polaris dependency exists. If clean, mark Build 1 passed and promote the Build 2 Session Lifecycle review candidate. If not clean, route the smallest focused repair back to Build 1.
+
+Proof command:
+
+- `python -m pytest tests/test_relay_executor.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: review Build 2 Session Lifecycle routing-action implementation after Build 1 Relay review is closed.
+
+Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
+
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 1 Relay stop-condition repair commit `f0bb2bb6` and current `origin/main` state.

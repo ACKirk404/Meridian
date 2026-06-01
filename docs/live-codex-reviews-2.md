@@ -6,6 +6,28 @@ This file is the standing queue for a second specialized Codex Reviews session.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review Build 4 Aegis repair and Build 5 Bifrost right-panel rendering.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Allowed review files: `meridian_core/aegis.py`, `tests/test_aegis.py`, `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/bifrost-right-panel-mode-contract.md`, `docs/live-build-4.md`, `docs/live-build-5.md`, and `docs/live-codex-reviews-2.md` for provenance/routing only.
+
+Task: first verify Build 4 commit `a4826c14` / merge `d15c83e0` resolves the prior Aegis findings: no bare waiver booleans, no bare cost approval booleans, and structured waiver/approval evidence is required. Then verify Build 5 commit `80373a88` renders the three right-panel modes correctly: User Session has prompt/response and live-session selector affordances, Settings and Harness use full-panel non-prompt surfaces, and tests cover absence of prompt windows outside User Session. Do not edit runtime code. If findings exist, route focused repairs to Build 4 or Build 5; otherwise mark passed and promote the Build 3 FileMap registration review candidate.
+
+Proof commands:
+
+- `python -m pytest tests/test_aegis.py tests/test_bifrost_cockpit.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: review Build 3 FileMap registration for Build 5 right-panel rendering artifacts after Build 3 marks it Ready for Codex Review.
+
+Allowed review files: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews-2.md` for provenance only.
+
 ## Completed / Finding Routed
 
 Goal: review Build 4 Aegis runtime gate implementation and Build 3 FileMap registrations.
@@ -1094,6 +1116,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews B checked queue; status: idle/running/blocke
 2026-06-01 15:53 -06:00 - Codex Reviews B checked queue; status: running; notes: pulled latest origin/main first; executable Coordinator Override Active Now found for Build 4 Aegis runtime gate implementation and Build 3 FileMap registration review.
 2026-06-01 15:59 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; top queue remains completed Build 4 finding routed plus non-executable Build 5 and Build 3 next candidates only.
 2026-06-01 16:01 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; top queue remains completed Build 4 finding routed plus non-executable Build 5 and Build 3 next candidates only.
+2026-06-01 16:03 -06:00 - Codex Reviews B checked queue; status: running; notes: pulled latest origin/main first; executable Coordinator Override Active Now found for Build 4 Aegis repair and Build 5 Bifrost right-panel rendering review.
 2026-06-01 09:20 -06:00 - Codex Reviews B Round B4 executed; status: PASS-WITH-MEDIUM-FINDING; commit reviewed: 5e0facb; tests: python -m pytest tests/test_filemap.py -q → 46/46 in 0.09s; finding: 3 docs registered in filemap.py and _REQUIRED_PATHS but absent from docs/FileMap.md (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md); repair task written to Build 3 Active Task; results in Obsidian (2026-06-01 Codex Reviews B Round B4 Result.md); cadence 2/3 since Round B3; awaiting Round B5 trigger.
 2026-05-31 22:13 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.
 2026-05-31 22:16 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.

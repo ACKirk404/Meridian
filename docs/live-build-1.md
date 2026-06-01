@@ -6,6 +6,35 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: implement Relay-side blocking behavior from Aegis gate evidence fields.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Required sources: `docs/relay-aegis-risk-proof-gates.md`, `meridian_core/aegis.py`, current `RelayDecisionRecord` Aegis evidence fields, and the current Relay executor tests.
+
+Task: add provider-neutral Relay behavior and tests so decision records with Aegis gate decisions of `block` or `human_gate` produce explicit fallback blockers and downstream explanation text. Aegis `demote` evidence must be represented as a non-silent demotion/constraint, not as an unexplained fallback. Keep this inside Relay decision-record construction; do not call Aegis validators, call models, inspect accounts, touch UI, move branches, edit Bifrost, or touch Polaris.
+
+Completion:
+
+- Build 1 completed Relay Aegis gate decision blocking behavior on 2026-06-01 16:04 -06:00.
+- Commit: `f77c2a68` (feat: Implement Relay-side blocking behavior from Aegis gate evidence fields).
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`.
+- Tests run: `python -m pytest tests/test_relay_executor.py -q` (133 tests: 129 original + 4 new Aegis gate decision tests).
+- Implementation: Updated _build_decision_record() to accept aegis_gate_decision and aegis_explanation parameters. When aegis_gate_decision is "block" or "human_gate", adds explicit fallback blockers ("aegis_gate_blocked" / "aegis_human_gate_required") and sets fallback_allowed=False. When "demote", adds non-silent demotion note to explanation. When "allow", stores decision for audit without blocking. All explanations include Aegis context. Provider-neutral with no external calls.
+- Push: successful to worktree branch; ready for merge.
+
+Ready for Codex Review.
+
+## Next Candidate Task
+
+Goal: add Relay summary serialization for Aegis gate evidence once blocking behavior clears review.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: repair the remaining Relay decision-record vendor-unknown stop-condition gap from Codex Reviews A.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.

@@ -8,6 +8,30 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: add Aegis gate summary helpers for Relay/Bifrost display.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
+
+Required sources: current Aegis gate validators, `docs/relay-aegis-risk-proof-gates.md`, and current Relay/Bifrost proof-display requirements.
+
+Task: add pure helper-level summary output for Aegis gate results so Relay and Bifrost can display gate id, decision, severity, reason, required evidence, waiver/approval status, selected model/vendor evidence status, and downstream action without inspecting accounts or calling models. Keep helpers deterministic and provider-neutral. Do not edit Relay, Bifrost, FileMap, review queues, move branches, or touch Polaris.
+
+Tests:
+
+- `python -m pytest tests/test_aegis.py -q`
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: add Aegis aggregate route-gate summary tests once helper output clears review.
+
+Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add waiver and approval record validation to the Aegis route-gate runtime slice.
@@ -34,7 +58,7 @@ Ready for Codex Review:
   4. Updated `gate_cost_exposure()` to accept `approval_record: ApprovalRecord | None` for Tier 2+ premium cost cases; only allow if `approval_record.is_valid()` returns True
   5. Added 6 new test cases validating waiver/approval validation (bare boolean blocks, valid records allow, invalid records block)
 
-## Next Candidate Task
+## Archived Candidate - Promoted Above
 
 Goal: add Aegis gate summary helpers for Relay/Bifrost display after waiver/approval validation clears review.
 
@@ -510,6 +534,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-06-13 17:36 -05:00 - Build 4 checked queue; status: idle; no executable Active Task (waiver/approval task marked Completed/Ready for Codex Review, not Active Now); Next Candidate Task (gate summary helpers) awaits coordinator promotion; origin/main synced; cadence 1/3 — awaiting Codex review or task assignment
 2026-06-13 17:37 -05:00 - Build 4 checked queue; status: idle; no executable Active Task; no new Coordinator Override - Active Now section; waiver/approval task marked Ready for Codex Review; Next Candidate Task awaits coordinator promotion; origin/main up to date; cadence 1/3
 2026-06-13 17:38 -05:00 - Build 4 checked queue; status: idle; no executable Active Task; no change since last check; origin/main up to date; cadence 1/3
+2026-06-13 17:39 -05:00 - Build 4 checked queue; status: running; NEW ACTIVE TASK FOUND = add Aegis gate summary helpers for Relay/Bifrost display; coordinator promoted Next Candidate Task to Active Now; worktree C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis available; pulling origin/main in worktree; beginning implementation of deterministic gate summary helpers for Relay/Bifrost display
 ```
 
 ## Write/Completion Log

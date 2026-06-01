@@ -84,7 +84,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: register current Aegis runtime gate artifacts and Bifrost right-panel contract artifacts in FileMap.
 
@@ -92,7 +92,21 @@ Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_f
 
 Required sources: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/relay-aegis-risk-proof-gates.md`, `docs/bifrost-right-panel-mode-contract.md`, and current FileMap entries.
 
-Task: verify the Aegis runtime gate implementation/tests and the Bifrost right-panel mode contract are discoverable through runtime FileMap and mirrored in `docs/FileMap.md`. Add missing entries and required-path coverage only for files that exist. Keep this mechanical. Do not edit Aegis, Bifrost runtime, Relay, Session Lifecycle, or review queues.
+Task: verified the Aegis runtime gate implementation/tests and the Bifrost right-panel mode contract are discoverable through runtime FileMap and mirrored in `docs/FileMap.md`. Added missing entries and required-path coverage only for files that exist. Kept this mechanical; did not edit Aegis, Bifrost runtime, Relay, Session Lifecycle, or review queues.
+
+Tests: `python -m pytest tests/test_filemap.py -q`
+
+Completion: completed in `cf6e8c42`, queue/provenance updates through `5c56304a` and `51976cff`; marked Ready for Codex Review.
+
+## Active Task
+
+Goal: register Build 5 static/sample right-panel rendering artifacts after that runtime slice lands.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Required sources: Build 5 commit `80373a88`, `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/bifrost-right-panel-mode-contract.md`, and current FileMap entries.
+
+Task: verify the Build 5 right-panel mode runtime/test artifacts are discoverable through runtime FileMap and mirrored in `docs/FileMap.md`. Register only existing files that are missing. Keep this mechanical. Do not edit Bifrost runtime/CSS/tests, Relay, Aegis, Session Lifecycle, or review queues.
 
 Tests: `python -m pytest tests/test_filemap.py -q`
 
@@ -100,7 +114,7 @@ Completion: commit only allowed files, push to `origin/main`, mark Ready for Cod
 
 ## Next Candidate Task
 
-Goal: register Build 5 static/sample right-panel rendering artifacts after that runtime slice lands.
+Goal: audit FileMap coverage for Session Lifecycle routing-action files after Build 2 marks its current runtime slice Ready for Codex Review.
 
 Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
@@ -905,6 +919,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-01 15:56 -06:00 - Build 3 checked queue; status: active task complete (Aegis FileMap verification); Codex review executed (model: claude-sonnet-4-6); verdict: APPROVE, no actionable findings; cadence 3/3 complete; Ready for Codex Review
 2026-06-01 15:58 -06:00 - Build 3 checked queue; status: idle; Active Task marked complete and Ready for Codex Review (Codex approved, no repairs); awaiting queue reorganization and next task assignment from coordinator
 2026-06-01 16:00 -06:00 - Build 3 checked queue; status: idle; Active Task remains complete (Aegis/Bifrost FileMap verification done, Codex approved); no new executable tasks; awaiting queue reorganization and next assignment
+2026-06-01 16:02 -06:00 - Build 3 checked queue; status: active task found (Build 5 right-panel rendering artifacts FileMap verification); verifying bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py, docs/bifrost-right-panel-mode-contract.md; executing verification now
 ```
 
 ## Write/Completion Log
@@ -969,6 +984,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 cross-check: none/finding/fix; details: <short not
 2026-06-01 15:47 -06:00 - Build 3 completed FileMap registration (bifrost-right-panel-mode-contract.md); commit d252026d; tests 46/46 filemap; Obsidian update pending; files: meridian_core/filemap.py, docs/FileMap.md, tests/test_filemap.py; cadence 2/3 since Round B5; Ready for Codex Review
 2026-06-01 15:53 -06:00 - Build 3 completed Aegis FileMap verification and registration (meridian_core/aegis.py, tests/test_aegis.py); commit cf6e8c42; tests 46/46 filemap; Obsidian update pending; files: meridian_core/filemap.py, docs/FileMap.md, tests/test_filemap.py; cadence 3/3 since Round B5; Ready for Codex Review
 2026-06-01 15:56 -06:00 - Build 3 Codex review (model: claude-sonnet-4-6) complete for commit cf6e8c42 (Aegis FileMap registration); verdict: APPROVE; findings: none actionable (whitespace-only note on blank line, auto-cleaned by formatter); cadence 3/3 verified; no repair needed
+2026-06-01 16:02 -06:00 - Build 3 completed Build 5 right-panel rendering FileMap verification (bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py, docs/bifrost-right-panel-mode-contract.md); all files already registered in filemap.py, docs/FileMap.md, tests/test_filemap.py; tests 46/46 filemap; no changes needed; cadence 1/3 since Round B5; Ready for Codex Review
 ```
 
 ## Codex Review Cadence

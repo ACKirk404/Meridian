@@ -9,6 +9,16 @@ const DEFAULT_CWD = process.env.MERIDIAN_MODEL_CWD || process.cwd();
 const RECENT_CALLS_LIMIT = Number(process.env.MERIDIAN_MODEL_RECENT_CALLS || 40);
 const SESSION_TRANSCRIPT_LIMIT = Number(process.env.MERIDIAN_SESSION_TRANSCRIPT_LIMIT || 12);
 const SESSION_TRANSCRIPT_CHAR_LIMIT = Number(process.env.MERIDIAN_SESSION_TRANSCRIPT_CHAR_LIMIT || 12000);
+const BRIDGE_VERSION = 'visible-transcript-v1';
+const BRIDGE_CAPABILITIES = {
+  visibleTranscriptContext: true,
+  recentCallContextDiagnostics: true,
+  samePortRestart: true,
+};
+const ALLOWED_ORIGINS = new Set((process.env.MERIDIAN_MODEL_ALLOWED_ORIGINS || 'http://127.0.0.1:5500,http://localhost:5500,null')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean));
 const recentCalls = [];
 
 if (process.argv.includes('--self-test')) {
@@ -36,18 +46,37 @@ if (process.argv.includes('--self-test')) {
     emptyPrompt.prompt === 'Fresh question'
   );
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-  console.log(JSON.stringify({ ok: setupOk && contextOk, samples, setupFlags, contextOk }, null, 2));
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart;
+  const originOk = isAllowedOrigin({ headers: { origin: 'http://127.0.0.1:5500' } }) && !isAllowedOrigin({ headers: { origin: 'https://example.com' } });
+  console.log(JSON.stringify({ ok: setupOk && contextOk && capabilitiesOk && originOk, samples, setupFlags, contextOk, capabilitiesOk, originOk }, null, 2));
   process.exit(0);
 }
 
-function sendJson(res, status, body) {
+function isAllowedOrigin(req) {
+  const origin = req?.headers?.origin;
+  return !origin || ALLOWED_ORIGINS.has(origin);
+}
+
+function corsOrigin(req) {
+  const origin = req?.headers?.origin;
+  if (!origin) return '*';
+  return isAllowedOrigin(req) ? origin : 'null';
+}
+
+function sendJson(res, status, body, req) {
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': corsOrigin(req),
     'Access-Control-Allow-Headers': 'content-type',
     'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
   });
   res.end(JSON.stringify(body));
+}
+
+function blockDisallowedOrigin(req, res) {
+  if (isAllowedOrigin(req)) return false;
+  sendJson(res, 403, { ok: false, error: 'Origin is not allowed for the Meridian model bridge.' }, req);
+  return true;
 }
 
 function readBody(req) {
@@ -249,10 +278,9 @@ async function modelStatus() {
   ]);
   return {
     ok: true,
-    capabilities: {
-      visibleTranscriptContext: true,
-      recentCallContextDiagnostics: true,
-    },
+    service: 'meridian-model-bridge',
+    version: BRIDGE_VERSION,
+    capabilities: BRIDGE_CAPABILITIES,
     models: [
       {
         backend: 'codex',
@@ -341,27 +369,35 @@ function runModel({ backend, prompt, cwd, transcript }) {
 
 const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
-    sendJson(res, 204, {});
+    if (blockDisallowedOrigin(req, res)) return;
+    sendJson(res, 204, {}, req);
     return;
   }
 
+  if (blockDisallowedOrigin(req, res)) return;
+
   if (req.method === 'GET' && req.url === '/health') {
-    sendJson(res, 200, { ok: true, service: 'meridian-model-bridge' });
+    sendJson(res, 200, {
+      ok: true,
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+    }, req);
     return;
   }
 
   if (req.method === 'GET' && req.url === '/api/models') {
-    sendJson(res, 200, await modelStatus());
+    sendJson(res, 200, await modelStatus(), req);
     return;
   }
 
   if (req.method === 'GET' && req.url === '/api/recent-calls') {
-    sendJson(res, 200, { ok: true, calls: recentCalls.slice().reverse() });
+    sendJson(res, 200, { ok: true, calls: recentCalls.slice().reverse() }, req);
     return;
   }
 
   if (req.method === 'POST' && req.url === '/api/restart') {
-    sendJson(res, 202, { ok: true, restarting: true });
+    sendJson(res, 202, { ok: true, restarting: true }, req);
     setTimeout(restartBridge, 25);
     return;
   }
@@ -377,7 +413,7 @@ const server = http.createServer(async (req, res) => {
       const transcript = Array.isArray(body.transcript) ? body.transcript : [];
       const cwd = body.cwd ? String(body.cwd) : DEFAULT_CWD;
       if (!prompt) {
-        sendJson(res, 400, { ok: false, error: 'Missing prompt' });
+        sendJson(res, 400, { ok: false, error: 'Missing prompt' }, req);
         return;
       }
       const started = Date.now();
@@ -398,14 +434,14 @@ const server = http.createServer(async (req, res) => {
         sessionContextEntries: result.sessionContextEntries || 0,
         sessionContextChars: result.sessionContextChars || 0,
       });
-      sendJson(res, result.ok ? 200 : 500, result);
+      sendJson(res, result.ok ? 200 : 500, result, req);
     } catch (error) {
-      sendJson(res, 500, { ok: false, text: '', error: error.message });
+      sendJson(res, 500, { ok: false, text: '', error: error.message }, req);
     }
     return;
   }
 
-  sendJson(res, 404, { ok: false, error: 'Not found' });
+  sendJson(res, 404, { ok: false, error: 'Not found' }, req);
 });
 
 server.listen(PORT, HOST, () => {

@@ -30,7 +30,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement static/sample Bifrost rendering for the reviewed right-panel mode contract.
 
@@ -40,7 +40,23 @@ Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/t
 
 Required sources: `docs/bifrost-right-panel-mode-contract.md`, `docs/ui-integration-checklist.md`, and existing Bifrost cockpit render patterns.
 
-Task: add deterministic static/sample rendering for the three mutually exclusive right-panel modes. User Session mode keeps prompt/response and live-session selector affordances. Settings mode uses the full right panel for Meridian configuration items and no prompt/response window. Harness mode uses the full right panel for searchable harness logic items and no prompt/response window. Add tests that prove the prompt window is absent in Settings/Harness modes and present only in User Session mode. Do not edit `index.html`, call models, touch Polaris, or add live session process control.
+Task: added deterministic static/sample rendering for the three mutually exclusive right-panel modes. User Session mode keeps prompt/response and live-session selector affordances. Settings mode uses the full right panel for Meridian configuration items and no prompt/response window. Harness mode uses the full right panel for searchable harness logic items and no prompt/response window. Added tests proving the prompt window is absent in Settings/Harness modes and present only in User Session mode. Did not edit `index.html`, call models, touch Polaris, or add live session process control.
+
+Tests:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: completed in Build 5 commit `80373a88`; queue completion recorded in `74581e4d`, `d541c814`, and `81e0c33a`; marked Ready for Codex Review.
+
+## Coordinator Override - Active Now
+
+Goal: add interactive-state view-model tests for right-panel mode switching after the static/sample render clears review.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Required sources: `docs/bifrost-right-panel-mode-contract.md`, `docs/ui-integration-checklist.md`, and the static/sample render implementation from `80373a88`.
+
+Task: add deterministic Bifrost view-model/state tests for switching among User Session, Settings, and Harness right-panel modes. Prove switching modes preserves unsent user-session prompt state, does not route prompts while Settings/Harness are active, restores the selected live session when returning to User Session, and keeps Settings/Harness as full-panel non-prompt surfaces. Keep this as view-model/render state only. Do not edit `index.html`, call models, spawn sessions, touch Polaris, or add live process control.
 
 Tests:
 
@@ -50,7 +66,7 @@ Completion: commit only allowed files, push to `origin/main`, mark Ready for Cod
 
 ## Next Candidate Task
 
-Goal: add interactive-state view-model tests for right-panel mode switching after the static/sample render clears review.
+Goal: add Sessions dropdown sample data rendering for open, hidden, and test-waiting sessions grouped alphabetically by project after mode-switching tests clear review.
 
 Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
 
@@ -955,6 +971,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 checked queue; status: idle/running/blocked
 2026-06-02 01:00 -06:00 - Build 5 checked queue; status: idle. No new Active Task assigned. Right-panel mode contract complete at 710c70a2 (Ready for Codex Review); Reviews A cadence read recorded (f3ec0786); Next Candidate = implement static/sample Bifrost rendering for reviewed right-panel mode contract (awaiting orchestrator promotion). Origin/main up to date at f3ec0786. Cadence 1/3. Awaiting orchestrator assignment.
 2026-06-02 02:00 -06:00 - Build 5 checked queue; status: running-complete. Right-panel rendering task completed at 80373a88 (worktree-build-5-bifrost) and logged to Write/Completion Log; User Session/Settings/Harness modes fully implemented with 146 tests passing (19 new); queue updated at 74581e4d; Next Candidate = add interactive-state view-model tests for right-panel mode switching (awaiting orchestrator promotion). Origin/main up to date at a7d7875b. Cadence 1/3 (1 code change done, awaiting 2 more before Codex review trigger).
 2026-06-02 03:00 -06:00 - Build 5 checked queue; status: idle. Right-panel rendering task still marked as "## Coordinator Override - Active Now" (already completed at 80373a88, logged to queue); no new Active Task assigned by orchestrator yet. Next Candidate = add interactive-state view-model tests for right-panel mode switching (awaiting orchestrator promotion). Origin/main up to date at ea081583. Cadence 1/3. Awaiting orchestrator task assignment or Next Candidate promotion.
+2026-06-02 04:00 -06:00 - Build 5 checked queue; status: idle. No change since last poll. Right-panel rendering task complete (80373a88), no new Active Task assigned. Next Candidate = add interactive-state view-model tests for right-panel mode switching (awaiting orchestrator promotion). Origin/main up to date at b6b54f21. Cadence 1/3. Awaiting orchestrator assignment.
 ```
 
 ## Write/Completion Log

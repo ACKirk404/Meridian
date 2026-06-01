@@ -476,12 +476,13 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 
 | ID | Feature | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
-| BR1 | Meridian model bridge | Receives UI prompts and routes to selected local CLI backend. | wired | `/health` returns ok. |
+| BR1 | Meridian model bridge | Receives UI prompts and routes to selected local CLI backend. | wired | `/health` returns ok plus bridge version/capabilities. |
 | BR2 | Codex backend | Sends selected prompts to Codex CLI. | wired | Select Codex; prompt returns Codex CLI response or readable setup error. |
 | BR3 | Max backend | Sends selected prompts to Claude CLI when available. | partial | Select Max; prompt returns Claude response or readable setup error. |
 | BR4 | CLI setup detection | Detects missing CLI/auth and gives install/login guidance. | wired | `/api/models` and failed calls return setup guidance. |
 | BR5 | Recent call diagnostics | Stores metadata only, never prompt text. | wired | `/api/recent-calls` returns request id/channel/backend/status only. |
-| BR6 | Prime/Relay Auto routing | Future: Prime chooses model through Relay harness logic. | planned | Auto remains disabled until this contract exists. |
+| BR6 | Bridge origin guard | Accepts local Meridian UI and command-line checks; blocks arbitrary web origins from prompt/restart endpoints. | wired | Self-test proves `127.0.0.1:5500` is allowed and `example.com` is blocked. |
+| BR7 | Prime/Relay Auto routing | Future: Prime chooses model through Relay harness logic. | planned | Auto remains disabled until this contract exists. |
 
 ## Integration Rules
 
@@ -512,7 +513,9 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | MB7 | Model/context label appears below or near the response area when known. | Manual: send a follow-up request and confirm displayed model/source plus visible context count. |
 | MB8 | Visible session continuity | Follow-up prompts carry the visible panel transcript as bounded context, with no hidden backend memory. | Response metadata and `/api/recent-calls` record nonzero `sessionContextEntries` after a follow-up prompt. |
 | MB9 | Bridge capability guard | UI blocks prompt sends when the running bridge does not advertise visible transcript context support. | Old bridge shows restart-required status instead of silently sending stateless follow-ups. |
-| MB10 | Bridge restart endpoint | Local bridge exposes a same-port restart endpoint for Reset recovery. | `POST /api/restart` returns accepted, then `/api/models` comes back with visible-context capability. |
+| MB10 | Bridge restart endpoint | Local bridge exposes a same-port restart endpoint for Reset recovery. | `POST /api/restart` returns accepted, then `/health` and `/api/models` come back with visible-context capability. |
+| MB11 | Bridge capability parity | `/health` and `/api/models` advertise the same bridge version and capability flags. | Both endpoints report `visibleTranscriptContext`, `recentCallContextDiagnostics`, and `samePortRestart`. |
+| MB12 | Local-origin bridge access | Browser access to bridge endpoints is limited to the Meridian local UI origins. | Disallowed origins get `403`; command-line checks without an Origin header still work. |
 
 ## Harness UI Rules
 
