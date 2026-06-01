@@ -65,6 +65,13 @@ Ready for Codex Review.
 - Next Candidate Task still awaiting Prime/Codex promotion
 - Build 1 idle and polling for next task assignment
 
+**Build 1 Read Check** — 2026-06-01 17:30 -06:00 (Heartbeat Poll)
+- Status: Queue poll complete; no "Coordinator Override - Active Now" task
+- Latest origin/main: commit `b5284665` (Build 2 queue log)
+- Relay proof payload contract task: Ready for Codex Review (awaiting review gate clearance)
+- Next Candidate Task: awaiting Prime/Codex promotion
+- Build 1 idle and polling for next task assignment
+
 ## Next Candidate Task
 
 Goal: add Relay proof payload negative-path tests after the docs/FileMap request clears review.
