@@ -480,7 +480,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | BR2 | Codex backend | Sends selected prompts to Codex CLI. | wired | Select Codex; prompt returns Codex CLI response or readable setup error. |
 | BR3 | Max backend | Sends selected prompts to Claude CLI when available. | partial | Select Max; prompt returns Claude response or readable setup error. |
 | BR4 | CLI setup detection | Detects missing CLI/auth and gives install/login guidance. | wired | `/api/models` and failed calls return setup guidance. |
-| BR5 | Recent call diagnostics | Stores metadata only, never prompt text. | wired | `/api/recent-calls` returns request id/channel/backend/status only. |
+| BR5 | Recent call diagnostics | Stores metadata only, never prompt text, and identifies the bridge generation. | wired | `/api/recent-calls` returns bridge version/capabilities plus request id/channel/backend/status/context counts. |
 | BR6 | Bridge origin guard | Accepts local Meridian UI and command-line checks; blocks arbitrary web origins from prompt/restart endpoints. | wired | Self-test proves `127.0.0.1:5500` is allowed and `example.com` is blocked. |
 | BR7 | Prime/Relay Auto routing | Future: Prime chooses model through Relay harness logic. | planned | Auto remains disabled until this contract exists. |
 
@@ -509,7 +509,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | MB3 | Selecting Codex sends through the Meridian bridge, not Polaris. | Request goes to `http://127.0.0.1:8767/api/message`; no Polaris path or process is touched. |
 | MB4 | Selecting Max sends through the Meridian bridge when the Claude CLI is available. | `/api/models` reports Max availability before sending; unavailable state gives setup guidance. |
 | MB5 | Public setup errors are readable. | Missing CLI or auth failure returns install/login guidance instead of a silent hang. |
-| MB6 | Request metadata is tracked without logging prompt text. | `/api/recent-calls` shows request id, channel, backend, model label, duration, status, and visible-context counts only. |
+| MB6 | Request metadata is tracked without logging prompt text. | `/api/recent-calls` shows bridge version/capabilities plus request id, channel, backend, model label, duration, status, and visible-context counts only. |
 | MB7 | Model/context label appears below or near the response area when known. | Manual: send a follow-up request and confirm displayed model/source plus visible context count. |
 | MB8 | Visible session continuity | Follow-up prompts carry the visible panel transcript as bounded context, with no hidden backend memory. | Response metadata and `/api/recent-calls` record nonzero `sessionContextEntries` after a follow-up prompt. |
 | MB9 | Bridge capability guard | UI blocks prompt sends when the running bridge does not advertise visible transcript context support. | Old bridge shows restart-required status instead of silently sending stateless follow-ups. |
