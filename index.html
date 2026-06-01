@@ -3188,20 +3188,23 @@ body {
 
   document.querySelector('.session-window-right .session-text-slider')?.remove();
   const textSliders = Array.from(document.querySelectorAll('.session-text-slider input[type="range"]'));
+  const textSizeKey = 'meridian.session.text-size';
   const setTextSize = (value) => {
-    const sliderValue = Number(value);
+    const rawValue = Number(value);
+    const sliderValue = Number.isFinite(rawValue) ? Math.min(100, Math.max(0, rawValue)) : 0;
     const fontSize = 10 + (sliderValue / 100) * 18;
     screen.style.setProperty('--session-text-size', `${fontSize.toFixed(1)}px`);
     textSliders.forEach((slider) => {
       slider.value = String(sliderValue);
     });
+    localStorage.setItem(textSizeKey, String(sliderValue));
   };
   textSliders.forEach((slider) => {
     slider.removeAttribute('tabindex');
     slider.setAttribute('aria-label', 'Session text size');
     slider.addEventListener('input', () => setTextSize(slider.value));
   });
-  setTextSize(textSliders[0]?.value ?? 0);
+  setTextSize(localStorage.getItem(textSizeKey) ?? textSliders[0]?.value ?? 0);
 
   const modelSelect = document.querySelector('.session-model-select');
   if (modelSelect) {

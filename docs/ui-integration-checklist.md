@@ -33,7 +33,7 @@ Use this as the working UI checklist. Every visible icon, selector, session cont
 | SP4 | User Session prompt input | Same prompt behavior as Prime panel, but only in User Session mode. | wired | In User Session mode, type three lines; Enter sends and clears. |
 | SP5 | Prime response window | Displays Prime/model output below Prime prompt. | partial | Prompt text remains yellow; response text appears below it. |
 | SP6 | User Session response window | Displays routed session/model output below User prompt only in User Session mode. | partial | User Session mode shows prompt/response; Settings/Harness modes do not. |
-| SP7 | Prime text-size slider | Single shared slider starts at minimum and controls Prime, User, and harness/Relay panel text. | wired | Drag Prime slider right; visible panel text increases across modes. |
+| SP7 | Prime text-size slider | Single shared slider starts at minimum on first load, persists the chosen size, and controls Prime, User, and harness/Relay panel text. | wired | Drag Prime slider right, reload/reset, and confirm visible panel text keeps the chosen size. |
 | SP8 | User text-size slider | Removed as a duplicate control; text size is owned by the Prime slider. | wired | Right panel has no separate slider, and the Prime slider still controls right-panel text. |
 | SP9 | User prompt color | User-entered transcript text is bright yellow anywhere it appears. | wired | Send prompt from either panel; transcript prompt is yellow. |
 | SP10 | Path/file highlighting | File paths and filenames in output render bright orange. | wired | Ask model for working directory; path is orange. |
@@ -494,7 +494,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | UI5 | User-entered prompt text renders bright yellow wherever it appears in transcripts. | Manual: send a prompt and confirm transcript prompt color. |
 | UI6 | File paths and filenames render bright orange in model output. | Manual: ask for the working directory or a file path and confirm path styling. |
 | UI7 | Response window stays below the prompt and owns model output. | Visual/manual: prompt text does not replace response area and response does not appear in prompt input. |
-| UI8 | Text size slider controls Prime, User, and harness/Relay panel text together. | Manual: drag the Prime slider right; session and harness text resize from the shared value. |
+| UI8 | Text size slider controls Prime, User, and harness/Relay panel text together and persists across reload/reset. | Manual: drag the Prime slider right; session and harness text resize from the shared value and stay after reload. |
 | UI9 | Prompt macro buttons inject their literal word into the active prompt. | Manual: Yes, No, Continue, Confirm insert text at cursor and do not submit by themselves. |
 | UI10 | Reset clears session transcripts and prompts, then hard reloads the UI. | Manual: send text, click Reset, confirm both panels empty after reload. |
 | UI11 | Reload hard reloads the UI without promising to clear session state. | Manual: click Reload and confirm page reloads. |
