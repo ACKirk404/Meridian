@@ -8,21 +8,26 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Aegis-to-Relay summary handoff contract docs after premium-cost approval gate repair clears review.
 
-Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
-
 Allowed files only: `docs/aegis-relay-summary-handoff-contract.md`, `docs/live-build-4.md`.
 
-Required sources: `meridian_core/aegis.py`, `meridian_core/relay.py`, `meridian_core/relay_executor.py`, `docs/relay-heartbeat-model-routing-logic.md`, and `docs/live-codex-reviews-2.md`.
+Task: create a concise docs-only handoff contract for how Aegis gate outcomes, premium-cost approvals, waiver/approval evidence, selected model/vendor evidence, and proof summaries should be handed to Relay for prompt packaging and downstream Bifrost display. Include required stable fields, which fields are human-facing vs audit-only, and explicit out-of-scope boundaries.
 
-Task: create a concise docs-only handoff contract for how Aegis gate outcomes, premium-cost approvals, waiver/approval evidence, selected model/vendor evidence, and proof summaries should be handed to Relay for prompt packaging and downstream Bifrost display. Include required stable fields, which fields are human-facing vs audit-only, and explicit out-of-scope boundaries. Do not edit runtime code, tests, Relay implementation, Bifrost, FileMap, UI, model/account process code, branches, or Polaris.
+Completion: completed 2026-06-01 16:38 -06:00.
 
-Tests: docs-only; no pytest required.
+Ready for Codex Review:
 
-Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review with commit hash and files changed, and leave a concrete Next Candidate.
+- Commit: `f64df7e6` (feat: Add Aegis-to-Relay summary handoff contract)
+- Pushed to origin/main
+- Files: `docs/aegis-relay-summary-handoff-contract.md`
+- Tests: not required (docs-only)
+- Content: overview of handoff flow; Aegis output shapes (GateResult, GateSummary, AggregateGateSummary); evidence records (ApprovalRecord, WaiverRecord with validation); human-facing vs audit-only field distinction; stable handoff boundaries and Relay requirements; out-of-scope boundaries for pure-function design; example flow; testing and proof expectations
+- Proof: contract defines all required stable fields; output shapes match implementation (GateResult/GateSummary/AggregateGateSummary from aegis.py); evidence records match validation (ApprovalRecord.is_valid(), WaiverRecord.is_valid()); boundaries are explicit and enforced by pure-function design
+- Next Candidate Task: bind Aegis gate outputs into Relay decision-record proof (runtime integration of this contract)
+- Ready for Codex Review; cadence 3/3 (awaiting Codex review before proceeding)
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
@@ -667,6 +672,8 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-06-13 18:05 -05:00 - Build 4 checked queue; status: idle; no executable Active Task; origin/main up to date; Next Candidate Task (Aegis-to-Relay summary handoff contract) awaits coordinator promotion; cadence 1/3
 2026-06-13 18:06 -05:00 - Build 4 checked queue; status: idle; prior premium-cost approval gate repair (f15e7ceb) documented with 191 tests passing; no executable Coordinator Override - Active Now section; Next Candidate Task (Aegis-to-Relay summary handoff contract) awaits coordinator promotion; origin/main up to date; cadence 2/3
 2026-06-13 18:07 -05:00 - Build 4 checked queue; status: idle; no executable Coordinator Override - Active Now section; worktree synced with origin/main (a8a75710); next check in queue; Next Candidate Task awaits coordinator promotion; cadence 2/3
+2026-06-01 16:37 -06:00 - Build 4 checked queue; status: running; NEW ACTIVE TASK FOUND = add Aegis-to-Relay summary handoff contract (docs/aegis-relay-summary-handoff-contract.md); coordinator promoted Next Candidate to Active Now; pulled origin/main (a6ed4b7b); worktree C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis available; beginning handoff contract creation
+2026-06-01 16:38 -06:00 - Build 4 checked queue; status: idle; Aegis-to-Relay summary handoff contract task completed; contract file created with handoff overview, output shapes, evidence records, field distinctions, boundaries, example flow, testing expectations; commit f64df7e6 pushed to origin/main; marked Ready for Codex Review; Next Candidate Task = bind Aegis outputs into Relay decision-record proof; cadence 3/3 awaiting Codex review
 ```
 
 ## Write/Completion Log
@@ -707,6 +714,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 completed <task>; commit <hash>; tests <result>
 2026-06-13 17:55 -05:00 - Build 4 completed Aegis aggregate route-gate summary tests implementation; commit 94cd1789 (merged as c0ca5ce9); files changed: meridian_core/aegis.py (AggregateGateSummary dataclass, summarize_aggregate_route_gates function, 3 helper functions for severity/action/evidence aggregation, format_aggregate_summary_for_display), tests/test_aegis.py (8 new test cases); implementation: AggregateGateSummary with deterministic ordering, severity hierarchy (error > warning > info), action priority (blocked > demoted > allowed), evidence/waiver/approval aggregation; test coverage: 8 new aggregate tests (empty/all-allow/single-block/demote/evidence/waiver-approval/format/ordering) + 182 prior = 190 total passing; pure, deterministic, provider-neutral; ready for Codex Review; cadence 3/3 awaiting review before next candidate
 2026-06-13 18:00 -05:00 - Build 4 completed Aegis premium-cost approval gate repair; commit 29592bb2; files changed: meridian_core/aegis.py (reordered cost_justified check to be Tier 0-1 only, moved Tier 2+ premium cost to require valid ApprovalRecord), tests/test_aegis.py (updated test_premium_cost_justified_allows to test_premium_cost_justified_tier0_allows, added test_premium_cost_justified_tier2_blocks); repair: gate_cost_exposure() no longer allows Tier 2+ premium cost from cost_justified alone; requires valid ApprovalRecord with actor, scope, timestamp, reason; Tier 0-1 retains cost_justified behavior; test coverage: 1 new test + 190 prior = 191 total passing; proof: test_premium_cost_justified_tier2_blocks verifies Tier 2 cost_justified blocks; test_premium_cost_justified_tier0_allows verifies Tier 0 still allows; ready for Codex Review; cadence 1/3
 2026-06-13 18:06 -05:00 - Build 4 completed Aegis premium-cost approval gate repair (origin/main fix); commit f15e7ceb; files changed: meridian_core/aegis.py (moved cost_justified check inside Tier 0-1 block, Tier 2+ premium cost now requires valid ApprovalRecord), tests/test_aegis.py (split test_premium_cost_justified_allows into test_premium_cost_justified_tier0_allows, added test_premium_cost_justified_tier2_blocks); repair: gate_cost_exposure() enforcement fixed — Tier 2+ premium cost requires valid ApprovalRecord even if cost_justified=True; Tier 0-1 retain cost_justified behavior; bare booleans rejected for Tier 2+; test coverage: 1 new test + 190 prior = 191 total passing; proof: test_premium_cost_justified_tier2_blocks verifies Tier 2 cost_justified=True blocks; test_premium_cost_justified_tier0_allows verifies Tier 0 cost_justified=True allows; direct commit to origin/main; cadence 2/3 (continuing after cadence pause)
+2026-06-01 16:38 -06:00 - Build 4 completed Aegis-to-Relay summary handoff contract (docs/aegis-relay-summary-handoff-contract.md); commit f64df7e6; files changed: docs/aegis-relay-summary-handoff-contract.md; tests: not required (docs-only); handoff contract defines: output shapes (GateResult/GateSummary/AggregateGateSummary), evidence records (ApprovalRecord/WaiverRecord), human-facing vs audit-only fields, stable boundaries, out-of-scope areas, example flow, testing/proof expectations; proof: contract matches implementation shapes from aegis.py, validation logic, pure-function design; pushed to origin/main; Ready for Codex Review; cadence 3/3
 ```
 
 ## Cross-Check Activity
