@@ -848,6 +848,8 @@ def render_cockpit_html(vm: CockpitViewModel) -> str:
     prime = _render_prime_panel(vm)
     harness_dashboard = _render_harness_dashboard(vm.harnesses)
     session_lifecycle = _render_session_lifecycle(vm.session_lifecycle)
+    provider_balance = _render_provider_balance(vm.provider_balance)
+    prompt_payload = _render_prompt_payload(vm.prompt_payload)
     projects = _render_project_strip(vm.projects, vm.lanes)
     progress = _render_progress_surface(vm.progress_events)
     instrument = _render_instrument_band(vm.instrument)
@@ -869,6 +871,8 @@ def render_cockpit_html(vm: CockpitViewModel) -> str:
         f"{prime}\n"
         f"{harness_dashboard}\n"
         f"{session_lifecycle}\n"
+        f"{provider_balance}\n"
+        f"{prompt_payload}\n"
         "</main>\n"
         f"{progress}\n"
         "</div>\n"
