@@ -436,8 +436,6 @@ YYYY-MM-DD HH:MM TZ - Build 4 cross-check: none/finding/fix; details: <short not
 2026-06-01 04:26 -06:00 - Build 4 checked queue; status: idle; no Active Task; restored DeepSeek handoff (deleted by Reviews B idle read a48771d) and rotated DeepSeek Active Now to Completed/Ready For Codex Review; origin/main at 9d15dc2
 ## Codex Review Cadence
 
-2026-06-11 06:24 UTC - Build 4 checked queue; status: idle; no Active Task; origin/main at 26c7ee5
-
 2026-06-11 06:00 UTC - Build 4 checked queue; status: idle; no Active Task; origin/main at b3743bb (merge)
 
 2026-06-11 05:55 UTC - Build 4 checked queue; status: idle; no Active Task; origin/main at 1512237
