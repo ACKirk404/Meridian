@@ -76,6 +76,16 @@ class HarnessCard:
 
 
 @dataclass
+class VoiceIOState:
+    listening: bool = False
+    dictating: bool = False
+    thinking: bool = False
+    speaking: bool = False
+    muted: bool = False
+    blocked: bool = False
+
+
+@dataclass
 class InstrumentBand:
     beacon: str       # "ok" | "warn" | "error"
     relay: str        # "ok" | "warn" | "error"
@@ -97,6 +107,7 @@ class CockpitViewModel:
     projects: list[ProjectCard] = field(default_factory=list)
     progress_events: list[ProgressEvent] = field(default_factory=list)
     harnesses: list[HarnessCard] = field(default_factory=list)
+    voice: VoiceIOState = field(default_factory=VoiceIOState)
     instrument: InstrumentBand = field(
         default_factory=lambda: InstrumentBand(
             beacon="ok", relay="ok", aegis="ok", compass="ok",
@@ -115,6 +126,14 @@ def sample_cockpit_view_model() -> CockpitViewModel:
             "Say the panel name and I will bring it forward.",
         ],
         review_count=3,
+        voice=VoiceIOState(
+            listening=True,
+            dictating=False,
+            thinking=False,
+            speaking=False,
+            muted=False,
+            blocked=False,
+        ),
         lanes=[
             LaneRow("Cockpit UI", "running", "hud"),
             LaneRow("Preview Shell", "idle", "html"),
@@ -332,6 +351,7 @@ def view_model_from_snapshot(snapshot: PrimeCockpitSnapshot) -> CockpitViewModel
             )
         ],
         progress_events=events,
+        voice=VoiceIOState(listening=True),
         instrument=instrument,
     )
 
@@ -365,14 +385,26 @@ def _render_prime_panel(vm: CockpitViewModel) -> str:
         "</div>"
     )
 
+    voice_states = []
+    if vm.voice.listening:
+        voice_states.append('<span class="voice-state voice-listening">mic armed</span>')
+    if vm.voice.dictating:
+        voice_states.append('<span class="voice-state voice-dictating">dictating</span>')
+    if vm.voice.thinking:
+        voice_states.append('<span class="voice-state voice-thinking">thinking</span>')
+    if vm.voice.speaking:
+        voice_states.append('<span class="voice-state voice-speaking">speaker active</span>')
+    if vm.voice.blocked:
+        voice_states.append('<span class="voice-state voice-blocked">voice blocked</span>')
+
+    mute_button = '<button type="button" class="icon-btn" data-action="mute" title="Mute voice output">Mute</button>'
+    mute_control = mute_button if not vm.voice.muted else '<button type="button" class="icon-btn" data-action="unmute" title="Unmute voice output">Unmute</button>'
+
     voice = (
         '<div class="voice-strip" aria-label="Voice I/O state">'
-        '<span class="voice-state voice-listening">mic armed</span>'
-        '<span class="voice-state voice-thinking">thinking idle</span>'
-        '<span class="voice-state voice-speaking">speaker ready</span>'
-        '<span class="voice-state voice-boot">boot audio standby</span>'
-        '<button type="button" class="icon-btn" data-action="mute" title="Mute voice output">Mute</button>'
-        "</div>"
+        + "".join(voice_states)
+        + mute_control
+        + "</div>"
     )
 
     return (

@@ -12,6 +12,7 @@ from meridian_core.aegis import (
     ProofTrail,
 )
 from meridian_core.model_adapter import AdapterRegistry, FakeModelAdapter, MissingAdapterError
+from meridian_core.prompt_payload_meter import PayloadStatus, PromptPayloadSnapshot
 from meridian_core.relay import ModelRole, route_from_tier
 from meridian_core.relay_dispatch import RelayDispatchLane, RelayDispatchPlan
 from meridian_core.cognition_policy import evaluate_cognition_policy
@@ -604,3 +605,157 @@ class TestExecuteRelayDispatchPlanWithPolicy:
             proof_trail=None,
         )
         assert len(summary.results) == len(plan.lanes)
+
+
+class TestPayloadSnapshot:
+    def test_execution_result_without_snapshot(self) -> None:
+        result = RelayExecutionResult(
+            role=ModelRole.BUILDER,
+            preferred_model="gpt-4",
+            output="output text",
+        )
+        assert result.payload_snapshot is None
+
+    def test_execution_result_with_snapshot(self) -> None:
+        snapshot = PromptPayloadSnapshot(
+            raw_prompt_chars=1500,
+            estimated_tokens=450,
+            budget_tokens=2000,
+        )
+        result = RelayExecutionResult(
+            role=ModelRole.BUILDER,
+            preferred_model="gpt-4",
+            output="output text",
+            payload_snapshot=snapshot,
+        )
+        assert result.payload_snapshot is snapshot
+        assert result.payload_snapshot.status == PayloadStatus.HEALTHY
+
+    def test_execute_plan_accepts_optional_snapshots(self) -> None:
+        plan = _make_plan(1)
+        snapshot = PromptPayloadSnapshot(
+            raw_prompt_chars=1000,
+            estimated_tokens=300,
+            budget_tokens=4000,
+        )
+        snapshots = (snapshot,)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            payload_snapshots=snapshots,
+        )
+        assert len(summary.results) == 1
+        assert summary.results[0].payload_snapshot is snapshot
+
+    def test_execute_plan_without_snapshots_still_works(self) -> None:
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+        )
+        assert len(summary.results) == 1
+        assert summary.results[0].payload_snapshot is None
+
+    def test_payload_snapshot_evidence_in_proof_trail(self) -> None:
+        snapshot_healthy = PromptPayloadSnapshot(
+            raw_prompt_chars=800,
+            estimated_tokens=250,
+            budget_tokens=4000,
+        )
+        result = RelayExecutionResult(
+            role=ModelRole.BUILDER,
+            preferred_model="gpt-4",
+            output="output",
+            payload_snapshot=snapshot_healthy,
+        )
+        summary = RelayExecutionSummary(results=(result,), errors=())
+        trail = relay_execution_summary_to_proof_trail(summary)
+
+        evidence_ids = [e.id for e in trail.evidence]
+        assert "relay-payload-0-builder" in evidence_ids
+
+        payload_evidence = next(
+            e for e in trail.evidence if e.id == "relay-payload-0-builder"
+        )
+        assert payload_evidence.evidence_type == EvidenceType.BUILD_OUTPUT
+        assert payload_evidence.severity == EvidenceSeverity.INFO
+        assert "healthy" in payload_evidence.summary.lower()
+        assert "(under 1k)" in payload_evidence.summary
+
+    def test_payload_snapshot_watch_status_in_evidence(self) -> None:
+        snapshot_watch = PromptPayloadSnapshot(
+            raw_prompt_chars=3200,
+            estimated_tokens=1600,
+            budget_tokens=2000,
+        )
+        result = RelayExecutionResult(
+            role=ModelRole.REVIEWER,
+            preferred_model="gpt-4",
+            output="review",
+            payload_snapshot=snapshot_watch,
+        )
+        summary = RelayExecutionSummary(results=(result,), errors=())
+        trail = relay_execution_summary_to_proof_trail(summary)
+
+        payload_evidence = next(
+            e for e in trail.evidence if "payload" in e.id
+        )
+        assert payload_evidence.severity == EvidenceSeverity.INFO
+        assert "watch" in payload_evidence.summary.lower()
+
+    def test_payload_snapshot_degraded_status_in_evidence(self) -> None:
+        snapshot_degraded = PromptPayloadSnapshot(
+            raw_prompt_chars=5000,
+            estimated_tokens=2500,
+            budget_tokens=2000,
+        )
+        result = RelayExecutionResult(
+            role=ModelRole.REVIEWER,
+            preferred_model="independent-reviewer",
+            output="review",
+            payload_snapshot=snapshot_degraded,
+        )
+        summary = RelayExecutionSummary(results=(result,), errors=())
+        trail = relay_execution_summary_to_proof_trail(summary)
+
+        payload_evidence = next(
+            e for e in trail.evidence if "payload" in e.id
+        )
+        assert payload_evidence.severity == EvidenceSeverity.WARNING
+        assert "degraded" in payload_evidence.summary.lower()
+
+    def test_execute_with_registry_accepts_snapshots(self) -> None:
+        plan = _make_plan(1)
+        registry = AdapterRegistry().register_model(
+            plan.lanes[0].preferred_model,
+            FakeModelAdapter("response"),
+        )
+        snapshot = PromptPayloadSnapshot(
+            raw_prompt_chars=1200,
+            estimated_tokens=360,
+            budget_tokens=4096,
+        )
+        snapshots = (snapshot,)
+        summary = execute_relay_plan_with_registry(
+            plan,
+            registry,
+            payload_snapshots=snapshots,
+        )
+        assert len(summary.results) == 1
+        assert summary.results[0].payload_snapshot is snapshot
+
+    def test_execute_with_policy_passes_snapshots(self) -> None:
+        plan = _make_plan(1)
+        snapshot = PromptPayloadSnapshot(
+            raw_prompt_chars=900,
+            estimated_tokens=270,
+            budget_tokens=4096,
+        )
+        snapshots = (snapshot,)
+        summary = execute_relay_dispatch_plan_with_policy(
+            plan,
+            _constant_model_call("ok"),
+            payload_snapshots=snapshots,
+        )
+        assert len(summary.results) == 1
+        assert summary.results[0].payload_snapshot is snapshot

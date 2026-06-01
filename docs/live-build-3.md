@@ -10,34 +10,69 @@ Build 3 cadence for commit `67a75dc` plus marker `b3316b6` was cleared by Codex 
 
 ## Active Task
 
-Goal: audit V2 FileMap drift and register any existing missing V2 artifacts.
+Goal: repair the FileMap checklist registration while the checklist artifact is missing.
 
-Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/filemap-v2-v3-discoverability-audit.md`, `docs/live-build-3.md`.
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
-Task: compare `docs/v2-progress-tracker.md`, current V2 queue files, and existing repository files against the runtime FileMap. Register only completed existing V2 docs/modules/tests that are missing from `make_default_map()`, `docs/FileMap.md`, or `_REQUIRED_PATHS`.
-
-Requirements:
-
-- Do not create product docs or runtime modules in this slice.
-- Do not edit Build 1, Build 2, Build 4, Build 5, or review queue files.
-- Do not register files that do not exist.
-- Do not register transient read-check reports, helper scratch scripts, local config, or worker worktree gitlinks.
-- If no missing existing V2 artifacts remain, update `docs/filemap-v2-v3-discoverability-audit.md` with the checked sources and result instead of creating read-check-only commits.
-- Keep changes mechanical and small.
+Task: Codex Reviews B found that `80ebea4` registered `docs/session-lifecycle-implementation-checklist.md`, but the file is not present in current `HEAD`. Remove or pause that FileMap registration and required-path coverage until Build 2 restores the checklist artifact. Keep the repair mechanical and do not edit Build 2 files or runtime code.
 
 Tests:
 
 - `python -m pytest tests/test_filemap.py -q`
 
-Completion: commit only this FileMap/audit slice, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+Completion: commit only the allowed FileMap repair files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
 
-## Next Candidate Task
+## Completed / Ready For Codex Review
 
-Goal: register the Session Lifecycle implementation checklist after Build 2 lands it.
+Goal: register the Session Lifecycle implementation checklist in FileMap.
 
 Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
-Task: when `docs/session-lifecycle-implementation-checklist.md` exists and has passed Codex review, register it under the Session Lifecycle/FileMap-appropriate area and add required-path coverage.
+Task: register `docs/session-lifecycle-implementation-checklist.md`, which landed in Build 2 commit `0296525`, so Prime can discover the implementation checklist at wake. Keep this mechanical: add a concise FileMap entry under the Session Lifecycle area, mirror it in `docs/FileMap.md`, and add required-path coverage in `tests/test_filemap.py`. Do not edit the checklist itself or Session Lifecycle runtime code.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion:
+
+- Build 3 completed this FileMap registration in `80ebea4`.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`.
+- Tests: `python -m pytest tests/test_filemap.py -q`.
+- Routed to Codex Reviews B for FileMap review.
+
+Ready for Codex Review.
+
+## Completed / Ready For Codex Review
+
+Goal: audit V2 FileMap drift and register any existing missing V2 artifacts.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/filemap-v2-v3-discoverability-audit.md`, `docs/live-build-3.md`.
+
+Task: compared `docs/v2-progress-tracker.md` against runtime FileMap. Found missing artifact: `docs/model-harness-v2-contract.md` (exists on disk per commit 2bfaf6f, built/review-cleared contract baseline, but not registered in FileMap).
+
+Registration:
+
+- Added `FileMapEntry` to `make_default_map()` in `meridian_core/filemap.py` with area `FileArea.MODEL_HARNESS`.
+- Added `docs/model-harness-v2-contract.md` to `_REQUIRED_PATHS` in `tests/test_filemap.py`.
+- Added row to `docs/FileMap.md` Model Harness section with purpose and V2 entry-point note.
+
+Completion:
+
+- Commit: `23efaf7`.
+- Files changed: `meridian_core/filemap.py`, `tests/test_filemap.py`, `docs/FileMap.md`.
+- Tests run: `python -m pytest tests/test_filemap.py -q` — 46 passed.
+- Cadence: 1/3 since Round B5.
+
+Ready for Codex Review.
+
+## Next Candidate Task
+
+Goal: register the Session Lifecycle runtime module after Build 2 lands it.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: when `meridian_core/session_lifecycle.py` and `tests/test_session_lifecycle.py` land and pass review, register them under the Session Lifecycle area and add required-path coverage.
 
 ## Completed / Ready For Codex Review
 
@@ -468,6 +503,12 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-01 21:15 -06:00 - Build 3 checked queue; status: idle; Round B5 cleared cadence; no active task assigned yet — cadence reset to 0/3; ready for next FileMap assignment
 
 2026-06-01 21:20 -06:00 - Build 3 checked queue; status: idle; no active task; cadence 0/3 since Round B5; ready for next FileMap assignment
+2026-06-11 01:00 UTC - Build 3 checked queue; status: idle; no executable Active Task; V2 FileMap audit complete (commit 23efaf7); cadence 1/3 since Round B5; awaiting next assignment
+2026-06-11 01:15 UTC - Build 3 checked queue; status: idle; no new Active Task; docs/session-lifecycle-implementation-checklist.md does not exist yet; cadence 1/3 since Round B5; awaiting next assignment
+2026-06-11 01:30 UTC - Build 3 checked queue; status: idle; no executable Active Task; cadence 1/3 since Round B5; awaiting upstream file or new assignment
+2026-06-11 01:45 UTC - Build 3 checked queue; status: active task found (Session Lifecycle implementation checklist FileMap registration); executing registration
+2026-06-11 02:00 UTC - Build 3 checked queue; status: idle; no executable Active Task; Session Lifecycle FileMap registration routed to Codex review; cadence 2/3 since Round B5; awaiting next assignment
+2026-06-11 02:15 UTC - Build 3 checked queue; status: idle; no executable Active Task; Session Lifecycle FileMap registration awaiting Codex review findings; cadence 2/3 since Round B5
 2026-05-31 02:00 -06:00 - Build 3 checked queue; status: active task found (FileMap registration -- cockpit_provider.py + tests/test_cockpit_provider.py); starting work
 ```
 
@@ -504,6 +545,9 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-05-31 04:24 -06:00 - Coordinator assigned FileMap registration for `docs/v2-detailed-build-plan.md`; commit 123a1fe; tests pending (`python -m pytest tests/test_filemap.py -q`)
 2026-06-09 17:00 UTC - Build 3 completed FileMap registration (V2 contract docs: echo-memory-contract.md, atlas-retrieval-contract.md, workflow-subagent-harness-contract.md, agentic-ai-framework-checklist.md, v3-parking-lot refresh); commit d216d6a; files changed: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py; tests 46/46 filemap passing; Obsidian update pending; Ready for Codex Review; cadence 2/3 since Round B5
 2026-06-10 06:45 UTC - Build 3 completed Coordinator Override task (V1 Electron cockpit app shell + Prime queue reconciliation registration); commit 67a75dc; files changed: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py; tests 46/46 filemap passing; entries added: package.json, electron/main.js, bifrost/preview.py, tests/test_bifrost_preview.py, docs/prime-queue-reconciliation-requirement.md; Ready for Codex Review; cadence 3/3 since Round B5
+2026-06-11 00:45 UTC - Build 3 completed V2 FileMap audit; found and registered missing artifact: docs/model-harness-v2-contract.md; files changed: meridian_core/filemap.py, tests/test_filemap.py, docs/FileMap.md; commit 23efaf7; tests 46/46 filemap passing; Ready for Codex Review; cadence 1/3 since Round B5
+2026-06-11 01:45 UTC - Build 3 completed Session Lifecycle implementation checklist FileMap registration; commit 80ebea4; files changed: meridian_core/filemap.py, tests/test_filemap.py, docs/FileMap.md; tests 46/46 filemap passing; Ready for Codex Review; cadence 2/3 since Round B5
+2026-06-11 02:30 UTC - Build 3 completed FileMap repair (remove Session Lifecycle checklist registration pending file arrival); commit ba83a4c; files changed: meridian_core/filemap.py, tests/test_filemap.py, docs/FileMap.md; tests 46/46 filemap passing; Ready for Codex Review; cadence 3/3 since Round B5
 ```
 
 ## Cross-Check Activity

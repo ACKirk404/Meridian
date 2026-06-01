@@ -11,6 +11,7 @@ from bifrost.cockpit import (
     LaneRow,
     ProgressEvent,
     ProjectCard,
+    VoiceIOState,
     render_cockpit_html,
     sample_cockpit_view_model,
     view_model_from_snapshot,
@@ -167,9 +168,10 @@ def test_render_prime_input_present():
 
 def test_render_voice_first_states_present():
     doc = render_cockpit_html(sample_cockpit_view_model())
-    for expected in ("mic armed", "thinking idle", "speaker ready", "boot audio standby"):
-        assert expected in doc
+    assert "mic armed" in doc
+    assert 'voice-listening' in doc or 'class="voice-state voice-listening"' in doc
     assert 'data-action="mute"' in doc
+    assert 'aria-label="Voice I/O state"' in doc
 
 
 def test_render_hud_command_core_present():
@@ -717,3 +719,109 @@ def test_snapshot_result_is_renderable():
     assert "Meridian" in doc
     assert "B1" in doc
     assert "all good" in doc
+
+
+# ── Voice I/O state ───────────────────────────────────────────────────────────
+
+
+def test_sample_view_model_has_voice_state():
+    vm = sample_cockpit_view_model()
+    assert isinstance(vm.voice, VoiceIOState)
+    assert vm.voice.listening is True
+    assert vm.voice.muted is False
+
+
+def test_voice_listening_state_renders():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState(listening=True)
+    doc = render_cockpit_html(vm)
+    assert "mic armed" in doc
+    assert 'voice-listening' in doc or 'class="voice-state voice-listening"' in doc
+
+
+def test_voice_dictating_state_renders():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState(dictating=True)
+    doc = render_cockpit_html(vm)
+    assert "dictating" in doc
+    assert 'voice-dictating' in doc or 'class="voice-state voice-dictating"' in doc
+
+
+def test_voice_thinking_state_renders():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState(thinking=True)
+    doc = render_cockpit_html(vm)
+    assert "thinking" in doc
+    assert 'voice-thinking' in doc or 'class="voice-state voice-thinking"' in doc
+
+
+def test_voice_speaking_state_renders():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState(speaking=True)
+    doc = render_cockpit_html(vm)
+    assert "speaker active" in doc
+    assert 'voice-speaking' in doc or 'class="voice-state voice-speaking"' in doc
+
+
+def test_voice_blocked_state_renders():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState(blocked=True)
+    doc = render_cockpit_html(vm)
+    assert "voice blocked" in doc
+    assert 'voice-blocked' in doc or 'class="voice-state voice-blocked"' in doc
+
+
+def test_voice_multiple_states_all_render():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState(listening=True, thinking=True, speaking=True)
+    doc = render_cockpit_html(vm)
+    assert "mic armed" in doc
+    assert "thinking" in doc
+    assert "speaker active" in doc
+
+
+def test_voice_muted_state_shows_unmute_button():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState(muted=True)
+    doc = render_cockpit_html(vm)
+    assert 'data-action="unmute"' in doc
+    assert "Unmute" in doc
+
+
+def test_voice_not_muted_shows_mute_button():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState(muted=False)
+    doc = render_cockpit_html(vm)
+    assert 'data-action="mute"' in doc
+    assert "Mute" in doc
+
+
+def test_voice_strip_always_renders():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState()
+    doc = render_cockpit_html(vm)
+    assert 'class="voice-strip"' in doc
+    assert 'aria-label="Voice I/O state"' in doc
+
+
+def test_voice_state_with_no_states_active():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState()
+    doc = render_cockpit_html(vm)
+    assert 'class="voice-strip"' in doc
+    assert 'data-action="mute"' in doc or 'data-action="unmute"' in doc
+
+
+def test_snapshot_default_voice_state_listening():
+    vm = view_model_from_snapshot(_make_snapshot())
+    assert isinstance(vm.voice, VoiceIOState)
+    assert vm.voice.listening is True
+    assert vm.voice.muted is False
+
+
+def test_voice_no_provider_labels_in_voice_states():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState(speaking=True)
+    doc = render_cockpit_html(vm)
+    for label in ("Claude", "OpenAI", "DeepSeek"):
+        assert label not in doc.split("voice-strip")[1].split("</div>")[0] if "voice-strip" in doc else True

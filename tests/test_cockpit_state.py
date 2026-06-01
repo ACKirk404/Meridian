@@ -222,3 +222,69 @@ class TestImmutability:
     def test_snapshot_events_is_tuple(self) -> None:
         snapshot = _make_snapshot(events=(_make_event(),))
         assert isinstance(snapshot.progress_events, tuple)
+
+    def test_list_lanes_converted_to_tuple(self) -> None:
+        lanes_list = [_make_lane("b1"), _make_lane("b2")]
+        snapshot = PrimeCockpitSnapshot(
+            project="Test",
+            bearing="V1",
+            risk_tier="low",
+            prime_status=CockpitStatus.ONLINE,
+            queue_policy=QueuePolicy.ON,
+            lanes=lanes_list,  # type: ignore[arg-type]
+            progress_events=(),
+            review_gate_count=0,
+        )
+        assert isinstance(snapshot.lanes, tuple)
+        assert len(snapshot.lanes) == 2
+        assert snapshot.lanes[0].lane_id == "b1"
+
+    def test_list_progress_events_converted_to_tuple(self) -> None:
+        events_list = [_make_event(ProgressEventCategory.ROUTINE_PROGRESS), _make_event(ProgressEventCategory.BLOCKER)]
+        snapshot = PrimeCockpitSnapshot(
+            project="Test",
+            bearing="V1",
+            risk_tier="low",
+            prime_status=CockpitStatus.ONLINE,
+            queue_policy=QueuePolicy.ON,
+            lanes=(),
+            progress_events=events_list,  # type: ignore[arg-type]
+            review_gate_count=0,
+        )
+        assert isinstance(snapshot.progress_events, tuple)
+        assert len(snapshot.progress_events) == 2
+        assert snapshot.progress_events[0].category == ProgressEventCategory.ROUTINE_PROGRESS
+
+    def test_mutating_source_lanes_list_does_not_affect_snapshot(self) -> None:
+        lanes_list = [_make_lane("b1")]
+        snapshot = PrimeCockpitSnapshot(
+            project="Test",
+            bearing="V1",
+            risk_tier="low",
+            prime_status=CockpitStatus.ONLINE,
+            queue_policy=QueuePolicy.ON,
+            lanes=lanes_list,  # type: ignore[arg-type]
+            progress_events=(),
+            review_gate_count=0,
+        )
+        original_len = len(snapshot.lanes)
+        lanes_list.append(_make_lane("b2"))
+        assert len(snapshot.lanes) == original_len
+        assert len(lanes_list) == original_len + 1
+
+    def test_mutating_source_events_list_does_not_affect_snapshot(self) -> None:
+        events_list = [_make_event(ProgressEventCategory.ROUTINE_PROGRESS)]
+        snapshot = PrimeCockpitSnapshot(
+            project="Test",
+            bearing="V1",
+            risk_tier="low",
+            prime_status=CockpitStatus.ONLINE,
+            queue_policy=QueuePolicy.ON,
+            lanes=(),
+            progress_events=events_list,  # type: ignore[arg-type]
+            review_gate_count=0,
+        )
+        original_len = len(snapshot.progress_events)
+        events_list.append(_make_event(ProgressEventCategory.BLOCKER))
+        assert len(snapshot.progress_events) == original_len
+        assert len(events_list) == original_len + 1

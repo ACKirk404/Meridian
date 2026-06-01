@@ -1,4 +1,4 @@
-"""Prime cockpit snapshot and event domain types for V1 Bifrost.
+﻿"""Prime cockpit snapshot and event domain types for V1 Bifrost.
 
 Pure data model — no filesystem, no CLI, no UI code.
 All structures are immutable frozen dataclasses; helpers return new objects.
@@ -98,6 +98,13 @@ class PrimeCockpitSnapshot:
     lanes: tuple[LaneSummary, ...]
     progress_events: tuple[ProgressEvent, ...]
     review_gate_count: int
+
+    def __post_init__(self) -> None:
+        """Enforce tuple conversion for lanes and progress_events to guarantee immutability."""
+        if not isinstance(self.lanes, tuple):
+            object.__setattr__(self, "lanes", tuple(self.lanes))
+        if not isinstance(self.progress_events, tuple):
+            object.__setattr__(self, "progress_events", tuple(self.progress_events))
 
 
 def sort_lanes(lanes: Sequence[LaneSummary]) -> list[LaneSummary]:

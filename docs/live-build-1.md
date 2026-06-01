@@ -1,5 +1,56 @@
 # Live Build 1 Queue
 
+## Codex Review Repair Completed / Ready for Codex Review
+
+2026-05-31 22:09 -06:00 - Codex Reviews A routed a MEDIUM repair from the Build 1 runtime cadence review.
+
+**Build 1 Read Check** — 2026-05-31 23:25 -05:00
+- Status: Repair completed and pushed; awaiting Codex review/next task assignment
+- No Active Now task in queue; Build 1 is idle and polling
+
+**Build 1 Read Check** — 2026-05-31 23:35 -05:00
+- Status: queue poll complete; no Active Now task present
+- No executable work available; Build 1 remains idle and polling for next task assignment
+
+**Build 1 Read Check** — 2026-06-01 00:05 -05:00
+- Status: queue poll complete; no Active Now task
+- Codex Review Repair task remains Completed/Ready for review; awaiting assignment or next task
+- Build 1 idle and polling
+
+**Build 1 Read Check** — 2026-06-01 00:15 -05:00
+- Status: queue poll complete; no Active Now task present
+- Codex Review Repair (PrimeCockpitSnapshot immutability) completed, ready for Codex review routing
+- Build 1 idle and awaiting next task assignment
+
+Goal: make `PrimeCockpitSnapshot` preserve its promised immutable snapshot shape when callers pass mutable lane/event sequences.
+
+Allowed files only: `meridian_core/cockpit_state.py`, `tests/test_cockpit_state.py`, `docs/live-build-1.md`.
+
+Finding:
+
+- `PrimeCockpitSnapshot` is a frozen dataclass and documents an immutable snapshot, but direct construction accepts mutable lists for `lanes` and `progress_events`. Because those list references are stored unchanged, external mutation after construction changes the snapshot contents.
+
+Required fix:
+
+- Normalize `PrimeCockpitSnapshot.lanes` and `PrimeCockpitSnapshot.progress_events` to tuples during construction, or otherwise enforce immutable storage.
+- Add regression coverage showing list inputs are converted or protected so mutating the source lists after construction cannot change the snapshot.
+- Preserve the pure data-model boundary: no filesystem, CLI, UI, network, or model calls.
+- Do not broaden into Bifrost rendering, package exports, or FileMap.
+
+Tests:
+
+- `python -m pytest tests/test_cockpit_state.py -q`
+- `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`
+
+Completion:
+
+- 2026-05-31 23:22 -05:00 - Build 1 runtime completed Codex Review repair.
+- Files changed: `meridian_core/cockpit_state.py`, `tests/test_cockpit_state.py`.
+- Tests run: `python -m pytest tests/test_cockpit_state.py -q` (29 passed); `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` (86 passed).
+- Commit: `19f4516`.
+- Push: successful to `origin/main`.
+- Obsidian: ready for routing to Codex review queue.
+
 ## Codex Review Repair Completed / Verified
 
 2026-05-31 14:45 -06:00 - Codex Reviews A routed MEDIUM repairs from the V2 runtime/code review sweep.
@@ -132,7 +183,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Model Harness metadata fields for provider capability and prompt-drag telemetry.
 
@@ -144,9 +195,17 @@ Tests:
 
 - `python -m pytest tests/test_model_adapter.py -q`
 
-Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+Completion:
 
-## Next Candidate Task
+- Build 1 completed this Model Harness metadata slice on 2026-05-31 ~22:15 -05:00.
+- Commit: `a8922c3`.
+- Files changed: `meridian_core/model_adapter.py`, `tests/test_model_adapter.py`.
+- Tests run: `python -m pytest tests/test_model_adapter.py -q` (31 passed).
+- Implementation: Added `ModelHarnessMetadata` dataclass with 7 required fields (provider_name, model_name, capability_tier, context_budget, prompt_payload_budget, trust_state, requires_external_review) and optional deepseek_candidate_state mapping. Updated ModelAdapter Protocol to include metadata property. Extended FakeModelAdapter, EnvConfiguredModelAdapter, and HttpJsonModelAdapter to provide metadata with sensible defaults.
+
+Ready for Codex Review. Push: `f96c41a` on `origin/main`.
+
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: wire prompt payload snapshot metadata into Relay dispatch evidence.
 
@@ -157,6 +216,42 @@ Task: after Model Harness metadata lands, add provider-neutral prompt payload sn
 Tests:
 
 - `python -m pytest tests/test_relay_executor.py tests/test_prompt_payload_meter.py -q`
+
+Completion:
+
+- Build 1 completed Prompt Payload Snapshot metadata integration on 2026-05-31 ~23:00 -05:00.
+- Commit: `081c15f`.
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`.
+- Tests run: `python -m pytest tests/test_relay_executor.py tests/test_prompt_payload_meter.py -q` (89 passed).
+- Implementation: Extended RelayExecutionResult with optional payload_snapshot field. Added _snapshot_severity() helper to map PayloadStatus to EvidenceSeverity. Updated relay_execution_summary_to_proof_trail() to generate per-lane payload snapshot evidence with status-mapped severity (WARNING for DEGRADED, INFO for HEALTHY/WATCH). Modified all three execute_* functions to accept optional payload_snapshots tuple parameter and preserve snapshots through execution. Added 14 comprehensive tests.
+
+Ready for Codex Review. Push: `081c15f` on `origin/main`.
+
+## Coordinator Override - Active Now
+
+Goal: continue Relay prompt payload snapshot metadata hardening after the active cockpit repair and review routing complete.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Task: extend the Relay dispatch evidence slice if the active prompt payload snapshot metadata work lands before this candidate is promoted. Keep the work provider-neutral, pure, and bounded to structured evidence; do not add live vendor calls, UI work, filesystem access, network access, or Bifrost rendering.
+
+Tests:
+
+- `python -m pytest tests/test_relay_executor.py tests/test_prompt_payload_meter.py -q`
+
+Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
+## Next Candidate Task
+
+Goal: implement Relay model-adapter metadata binding.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Task: after the cockpit repair and Relay payload hardening work clear their immediate review gates, bind the Model Harness capability/budget metadata into Relay dispatch planning results so downstream Bifrost display work can consume structured provider-neutral route facts. Do not add vendor-specific presets, live model calls, network access, filesystem access, UI rendering, or Bifrost changes.
+
+Tests:
+
+- `python -m pytest tests/test_relay_executor.py tests/test_model_adapter.py -q`
 
 ## Archived Prior Candidate - Promoted Above
 
@@ -639,6 +734,7 @@ Append entries here when this file is modified or an active task is completed.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Build 1 completed <task>; commit <hash>; tests <result>
+2026-05-31 22:09 -06:00 - Codex Reviews A routed cockpit-state immutability repair; files changed: docs/live-build-1.md; tests run by Reviews A before routing: model_adapter+relay_executor 77 passed, cockpit_state 25 passed, cognition_policy+aegis+relay_executor 157 passed; Reviews A commit this commit; push pending; Obsidian status pending.
 2026-05-31 12:58 -06:00 - Codex Reviews A routed Round 4 repair task for `restart_resteer.py`; files changed: docs/live-build-1.md; tests run by Reviews A before routing: filemap/prompt_metrics 94 passed, restart_resteer/bifrost targeted 124 passed, npm proof:cockpit 108 passed + 0 vulnerabilities; commit pending from Reviews A; push pending; Obsidian status: repair note already present at `Meridian_Build/2026-05-31 Restart Resteer Repair Ready.md`.
 2026-05-30 ~22:30 CDT - Build 1 completed Prompt Budget package API + FileMap; commit d18d651; tests 604 passed
 2026-05-30 10:33 -06:00 - Codex assigned Relay Prompt Budget integration into RelayRoute; commit pending; tests pending
@@ -775,3 +871,9 @@ Historical record of Build 1 V0 completed slices (most recent first). Do not re-
 [COMPLETED 2026-05-31 ~22:15 -05:00] Model Harness metadata fields for provider capability and prompt-drag telemetry — commit `a8922c3`; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 31 targeted passed; Ready for Codex Review.
 
 2026-05-31 22:25 -05:00 - Build 1 checked queue; status: running (Prompt payload snapshot metadata task — Active Now)
+2026-05-31 22:30 -05:00 - Build 1 checked queue; status: running (Prompt payload snapshot metadata into Relay dispatch evidence task)
+
+[COMPLETED 2026-05-31 ~23:00 -05:00] Prompt payload snapshot metadata into Relay dispatch evidence — commit `081c15f`; files: meridian_core/relay_executor.py, tests/test_relay_executor.py; tests: 89 total passed (64 relay_executor + 25 prompt_payload_meter); Ready for Codex Review.
+
+2026-05-31 23:05 -05:00 - Build 1 checked queue; status: idle (Prompt Payload Snapshot slice 081c15f complete; awaiting next assignment or Codex review result)
+2026-05-31 23:15 -05:00 - Build 1 checked queue; status: running (Relay dispatch evidence hardening task — Active Now)
