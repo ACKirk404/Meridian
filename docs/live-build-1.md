@@ -1,5 +1,29 @@
 # Live Build 1 Queue
 
+## Coordinator Override - Active Now
+
+Goal: implement Relay model-adapter metadata binding.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Task: bind Model Harness capability/budget metadata into Relay dispatch planning results so downstream Bifrost surfaces can consume provider-neutral route facts. Do not add vendor-specific presets, live model calls, network access, filesystem access, UI rendering, Bifrost changes, or package-export changes.
+
+Tests:
+
+- `python -m pytest tests/test_relay_executor.py tests/test_model_adapter.py -q`
+
+Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status. If Codex Reviews A routes a repair before this slice is committed, complete that repair first.
+
+## Next Candidate Task
+
+Goal: harden Relay prompt payload snapshot metadata edge cases after the metadata-binding slice lands.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Tests:
+
+- `python -m pytest tests/test_relay_executor.py tests/test_prompt_payload_meter.py -q`
+
 ## Codex Review Repair Completed / Ready for Codex Review
 
 2026-05-31 22:09 -06:00 - Codex Reviews A routed a MEDIUM repair from the Build 1 runtime cadence review.
@@ -38,6 +62,10 @@
 - Status: queue poll; no Active Now task present
 - Codex Review Repair (PrimeCockpitSnapshot immutability) completed and ready for Codex review
 - Build 1 idle; awaiting next task assignment from Prime/Codex
+
+**Build 1 Read Check** — 2026-06-01 04:00 -05:00
+- Status: queue poll complete; no Active Now task
+- Build 1 idle and polling for next task assignment
 
 Goal: make `PrimeCockpitSnapshot` preserve its promised immutable snapshot shape when callers pass mutable lane/event sequences.
 

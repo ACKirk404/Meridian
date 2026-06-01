@@ -1,5 +1,5 @@
-﻿"""
-File Map Knowledge Tracker â€” living registry of important Meridian files.
+"""
+File Map Knowledge Tracker — living registry of important Meridian files.
 
 Allows Prime, Echo, Atlas, and worker sessions to look up key files by path
 or architecture area without rediscovering the codebase each session.
@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 
 
 # ---------------------------------------------------------------------------
-# Known area labels â€” use these constants for consistency; arbitrary strings
+# Known area labels — use these constants for consistency; arbitrary strings
 # are also accepted.
 # ---------------------------------------------------------------------------
 
@@ -88,7 +88,7 @@ class FileMap:
         return entry
 
     # ------------------------------------------------------------------
-    # Filtered views â€” stable sort order: path alphabetically
+    # Filtered views — stable sort order: path alphabetically
     # ------------------------------------------------------------------
 
     def all_entries(self) -> list[FileMapEntry]:
@@ -123,7 +123,7 @@ class FileMap:
         entries = self.by_area(area) if area else self.all_entries()
         if not entries:
             return "(no file map entries)"
-        lines: list[str] = ["# Meridian File Map â€” Key Files"]
+        lines: list[str] = ["# Meridian File Map — Key Files"]
         current_area: str | None = None
         for e in entries:
             if e.area != current_area:
@@ -139,7 +139,7 @@ class FileMap:
 
 
 # ---------------------------------------------------------------------------
-# Default map â€” deterministic sample of current important Meridian files
+# Default map — deterministic sample of current important Meridian files
 # ---------------------------------------------------------------------------
 
 def make_default_map() -> FileMap:
@@ -580,6 +580,20 @@ def make_default_map() -> FileMap:
             notes="Implementation guide. Use during development of meridian_core/session_lifecycle.py and live session orchestration features.",
         ),
         FileMapEntry(
+            path="meridian_core/session_lifecycle.py",
+            area=FileArea.BIFROST,
+            purpose="Session Lifecycle domain objects: typed enums and frozen dataclasses for session state, command planning, legality checking, and executability gates per V2 contract.",
+            related_tests=["tests/test_session_lifecycle.py"],
+            notes="Core harness implementation; read the v2-contract and implementation-checklist before modifying.",
+        ),
+        FileMapEntry(
+            path="tests/test_session_lifecycle.py",
+            area=FileArea.BIFROST,
+            purpose="Test suite for meridian_core/session_lifecycle.py: session state transitions, legality matrix, executability helpers, immutability, and proof progression.",
+            related_tests=[],
+            notes="Run before changing meridian_core/session_lifecycle.py or Session Lifecycle behavior.",
+        ),
+        FileMapEntry(
             path="docs/federation-harness-horizon.md",
             area=FileArea.ARCHITECTURE,
             purpose="Federation harness horizon plan: multi-Meridian and multi-user collaboration concepts, permission boundaries, and Prime-to-Prime handoff vocabulary.",
@@ -611,7 +625,7 @@ def make_default_map() -> FileMap:
         FileMapEntry(
             path="docs/v1-capability-plan.md",
             area=FileArea.ARCHITECTURE,
-            purpose="V1 capability plan: defines V1 as the Bifrost cockpit release â€” Prime's intention, harness liveness, Review Console, Relay session state, Aegis findings, and build progress visible without CLI commands.",
+            purpose="V1 capability plan: defines V1 as the Bifrost cockpit release — Prime's intention, harness liveness, Review Console, Relay session state, Aegis findings, and build progress visible without CLI commands.",
             related_tests=[],
             notes="Owner: Build 4. V1 = cockpit UI live, wired to V0 domain. Read before planning any V1 capability or Bifrost integration.",
         ),
@@ -625,14 +639,14 @@ def make_default_map() -> FileMap:
         FileMapEntry(
             path="docs/v2-horizon-plan.md",
             area=FileArea.ARCHITECTURE,
-            purpose="V2 horizon plan: persistent memory via Echo, context retrieval via Atlas, stronger Prime autonomy, richer model harnesses. Not active V1 scope â€” start detailed V2 planning only after V1 cockpit is locked.",
+            purpose="V2 horizon plan: persistent memory via Echo, context retrieval via Atlas, stronger Prime autonomy, richer model harnesses. Not active V1 scope — start detailed V2 planning only after V1 cockpit is locked.",
             related_tests=[],
             notes="Horizon only. Do not pull V2 work into V0 or V1 build.",
         ),
         FileMapEntry(
             path="docs/v3-parking-lot.md",
             area=FileArea.ARCHITECTURE,
-            purpose="V3 parking lot: horizon ideas for external reach, federation, and deeper distribution. Not active scope â€” do not pull V3 effort during V0, V1, or V2.",
+            purpose="V3 parking lot: horizon ideas for external reach, federation, and deeper distribution. Not active scope — do not pull V3 effort during V0, V1, or V2.",
             related_tests=[],
             notes="Parking lot, not a roadmap. Owner: Build 4. Ideas only until V2 closes.",
         ),
@@ -683,7 +697,7 @@ def make_default_map() -> FileMap:
         FileMapEntry(
             path="docs/bifrost-cockpit-queue-status-brief.md",
             area=FileArea.BIFROST,
-            purpose="Design brief for how the Meridian cockpit displays queue-driven worker activity â€” display, not activation. What Scott sees and how build-lane events surface without flooding the cockpit.",
+            purpose="Design brief for how the Meridian cockpit displays queue-driven worker activity — display, not activation. What Scott sees and how build-lane events surface without flooding the cockpit.",
             related_tests=[],
             notes="Companion to bifrost-session-queue-activation-brief.md. Owner: Build 5. Read before designing cockpit queue-status display.",
         ),
@@ -697,7 +711,7 @@ def make_default_map() -> FileMap:
         FileMapEntry(
             path="docs/bifrost-harness-dashboard-brief.md",
             area=FileArea.BIFROST,
-            purpose="Harness dashboard surface brief: what opens when Scott clicks the Harness button â€” observability of every harness (heartbeat, capabilities, maturity, recent events). Observation-first; no controls in V0.",
+            purpose="Harness dashboard surface brief: what opens when Scott clicks the Harness button — observability of every harness (heartbeat, capabilities, maturity, recent events). Observation-first; no controls in V0.",
             related_tests=[],
             notes="Design-only. Owner: Build 5. Companion to bifrost-v0-cockpit-layout-brief.md.",
         ),
@@ -767,14 +781,14 @@ def make_default_map() -> FileMap:
         FileMapEntry(
             path="docs/v1-bifrost-integration-sequence.md",
             area=FileArea.BIFROST,
-            purpose="V1 Bifrost cockpit integration sequence: ordered steps from scaffold to live Prime-driven cockpit â€” build order, dependency contracts, and gate conditions for each integration slice.",
+            purpose="V1 Bifrost cockpit integration sequence: ordered steps from scaffold to live Prime-driven cockpit — build order, dependency contracts, and gate conditions for each integration slice.",
             related_tests=[],
             notes="Owner: Build 4. Read before planning or executing any V1 Bifrost integration slice.",
         ),
         FileMapEntry(
             path="meridian_core/cockpit_state.py",
             area=FileArea.BIFROST,
-            purpose="Prime cockpit snapshot and event domain types for V1 Bifrost: CockpitStatus, CockpitSnapshot, CockpitEvent, and lane/harness state models. Pure immutable data â€” no filesystem, CLI, or UI code.",
+            purpose="Prime cockpit snapshot and event domain types for V1 Bifrost: CockpitStatus, CockpitSnapshot, CockpitEvent, and lane/harness state models. Pure immutable data — no filesystem, CLI, or UI code.",
             related_tests=["tests/test_cockpit_state.py"],
             notes="Owner: Build 1. Read before designing any Prime-state-to-cockpit data flow.",
         ),

@@ -1,4 +1,4 @@
-﻿"""Tests for the File Map Knowledge Tracker (meridian_core/filemap.py)."""
+"""Tests for the File Map Knowledge Tracker (meridian_core/filemap.py)."""
 
 from __future__ import annotations
 
@@ -24,6 +24,8 @@ _REQUIRED_PATHS = [
     "docs/workflow-subagent-usage-checklist.md",
     "docs/session-lifecycle-v2-contract.md",
     "docs/session-lifecycle-implementation-checklist.md",
+    "meridian_core/session_lifecycle.py",
+    "tests/test_session_lifecycle.py",
     "docs/federation-harness-horizon.md",
     "docs/session-card-queue-activation-contract.md",
     "docs/bifrost-voice-command-contract.md",
@@ -138,7 +140,7 @@ class TestFileMapEntry:
 
 
 # ---------------------------------------------------------------------------
-# FileMap â€” add and lookup
+# FileMap — add and lookup
 # ---------------------------------------------------------------------------
 
 
@@ -178,7 +180,7 @@ class TestFileMapAddAndGet:
 
 
 # ---------------------------------------------------------------------------
-# FileMap â€” filtered views
+# FileMap — filtered views
 # ---------------------------------------------------------------------------
 
 
@@ -241,7 +243,7 @@ class TestInjectionSummary:
         fm.add(FileMapEntry(
             path="meridian_core/risk.py",
             area=FileArea.RISK_ENGINE,
-            purpose="Risk assessment for tiers 0â€“4.",
+            purpose="Risk assessment for tiers 0–4.",
             related_tests=["tests/test_risk.py"],
             notes="Decision engine foundation.",
         ))
@@ -289,7 +291,7 @@ class TestInjectionSummary:
 
 
 # ---------------------------------------------------------------------------
-# Default map â€” required files present
+# Default map — required files present
 # ---------------------------------------------------------------------------
 
 
