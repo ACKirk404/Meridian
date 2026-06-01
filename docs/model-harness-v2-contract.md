@@ -490,4 +490,4 @@ These tests belong in `tests/test_model_adapter.py` alongside existing `test_*mo
 ## Completion Criteria
 
 - [x] `docs/model-harness-v2-contract.md` created with full domain shape, enums, provider defaults, gating rules, telemetry, snapshot evidence, Q-mode flatness, and registration API.
-- [ ] Ready for Codex Review: commit `COMMIT_HASH`, files changed: `docs/model-harness-v2-contract.md`, tests: not required (docs-only).
+- [x] Ready for Codex Review after coordinator salvage from local Build 4 commit `2bfaf6f`; clean coordinator commit recorded by the queue provenance.

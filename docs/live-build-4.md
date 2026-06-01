@@ -83,21 +83,24 @@ Completion:
 
 Ready for Codex Review.
 
-## ~~Coordinator Override - Active Now (COMPLETED 2026-05-31 ~20:10 UTC)~~
+## Coordinator Override - Completed / Passed Codex Review
 
-~~Goal: write the Model Harness V2 metadata contract.~~
+Goal: write the Model Harness V2 metadata contract.
 
-~~Allowed files only: `docs/model-harness-v2-contract.md`, `docs/live-build-4.md`.~~
+Allowed files only: `docs/model-harness-v2-contract.md`, `docs/live-build-4.md`.
 
-~~Task: create the docs contract for provider capability metadata and prompt-drag telemetry fields that Build 1's `meridian_core/model_adapter.py` runtime slice should implement. Cover Claude, OpenAI, DeepSeek direct API, trust state, context/prompt budgets, route ownership, direct-vs-aggregator evidence, prompt payload snapshot references, allowed/blocked task types, external-review requirements, and Aegis/Relay policy binding.~~
+Task: create the docs contract for provider capability metadata and prompt-drag telemetry fields that Build 1's `meridian_core/model_adapter.py` runtime slice should implement. Cover Claude, OpenAI, DeepSeek direct API, trust state, context/prompt budgets, route ownership, direct-vs-aggregator evidence, prompt payload snapshot references, allowed/blocked task types, external-review requirements, and Aegis/Relay policy binding.
 
-~~Completion: commit only this docs slice, push, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, and tests run.~~
+Completion:
 
-**Ready for Codex Review**
-- Commit: `2bfaf6f`
-- Files changed: `docs/model-harness-v2-contract.md`
-- Tests: not required (docs-only)
-## Next Candidate Task
+- Salvaged by coordinator from contaminated main-checkout Build 4 commit `2bfaf6f`; read-check spam and dirty main state were not imported.
+- Files changed: `docs/model-harness-v2-contract.md`, `docs/live-build-4.md`.
+- Tests: not required (docs-only).
+- Commit: this coordinator salvage commit.
+
+Passed Codex Reviews B. Build 4 may proceed to the DeepSeek direct-provider adapter implementation handoff.
+
+## Coordinator Override - Active Now
 
 Goal: write the DeepSeek direct-provider adapter implementation handoff.
 
@@ -352,69 +355,6 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-05-31 08:57 -06:00 - Build 4 checked queue; status: idle (cadence-paused); Claude Workflows sub-agent architecture note complete (17d8d90); Ready for Codex Review block backfilled with real hash; Next Candidate Task (Prime restart/resteer logic contract) sits below override block awaiting coordinator promotion; Build 4 slices 3cbf336, 1d17fa1, fd9224d, 7eb5ae1, 1448642, 3aa16fe, 17d8d90 (7) still pending Codex Reviews sweep; origin/main at 17d8d90
 2026-05-31 08:58 -06:00 - Build 4 checked queue; status: idle (cadence cleared); Codex Reviews B Round B15 documented at d43cb34 — Workflows architecture note (0115581/17d8d90) PASS-WITH-FINDINGS; sole MEDIUM is consolidated 5-entry FileMap registration routed to Build 3 (not a Build 4 repair); prior rounds B11/B13/B14 cleared Echo/Atlas (7eb5ae1), Workflow sub-agent contract (1448642), and Prime Autonomy contract (3aa16fe) — all V2 first-wave Build 4 slices now reviewed; remaining pending sweep: pre-V2 slices 3cbf336, 1d17fa1, fd9224d only; Next Candidate Task still awaits coordinator promotion; origin/main at d43cb34
 2026-05-31 09:02 -06:00 - Build 4 checked queue; status: idle; no Active Task; Build 1 paused cadence 3/3 awaiting Codex clear (fab3ce0); Build 3 idle awaiting next assignment (f2e88ec); Next Candidate Task (Prime restart/resteer logic contract) still awaits coordinator promotion; origin/main at f1b03b1
-2026-05-31 ~20:10 UTC - Build 4 checked queue; status: running; Active Task = Model Harness V2 metadata contract; pulled origin/main (a2b8cd0 merge); origin/main at post-merge
-2026-05-31 ~20:15 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 97d319e
-2026-05-31 ~20:18 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 5059c38
-2026-05-31 ~20:20 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 4f82151
-2026-05-31 ~20:22 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 899188d
-2026-05-31 ~20:24 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 53a536b
-2026-06-01 ~02:09 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at e0e3128
-2026-06-01 ~02:11 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 7f8ff44
-2026-06-01 ~02:13 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at a772d22
-2026-06-01 ~02:15 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 888c292
-2026-06-01 ~02:17 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 9b97f0c
-2026-06-01 ~02:19 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at fb7a9a6
-2026-06-01 ~02:21 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 42acdc0
-2026-06-01 ~02:23 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at fa20bbc
-2026-06-01 ~02:25 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at c9e28b3
-2026-06-01 ~02:27 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at b308576
-2026-06-01 ~02:29 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at ecd993b
-2026-06-01 ~02:31 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 8c603cd
-2026-06-01 ~02:33 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 091301f
-2026-06-01 ~02:35 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at ed20565
-2026-06-01 ~02:37 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at b0f334f
-2026-06-01 ~02:39 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 8641fd1
-2026-06-01 ~02:41 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at a5aa333
-2026-06-01 ~02:44 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 88d2ade
-2026-06-01 ~02:47 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at ddee687
-2026-06-01 ~02:50 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 14f5175
-2026-06-01 ~02:53 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 38b6720
-2026-06-01 ~02:56 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 2ff3d87
-2026-06-01 ~02:58 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 2e8f289
-2026-06-01 ~03:00 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 78fa545
-2026-06-01 ~03:03 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at b64c347
-2026-06-01 ~03:05 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 35ec3a7
-2026-06-01 ~03:07 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 173e7da
-2026-06-01 ~03:09 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 0b13edf
-2026-06-01 ~03:11 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 7257c20
-2026-06-01 ~03:13 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at e4a4bb9
-2026-06-01 ~03:17 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 793eb05
-2026-06-01 ~03:19 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 6a23dbd
-2026-06-01 ~03:21 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 46faec4
-2026-06-01 ~03:23 UTC - Build 4 checked queue; status: idle; no Active Task; all Coordinator Override blocks completed; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 27eb8b9
-2026-06-01 ~03:25 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 8bd6c44
-2026-06-01 ~03:27 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 2481cef
-2026-06-01 ~03:29 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 471b43b
-2026-06-01 ~03:31 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 3062e5e
-2026-06-01 ~03:33 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at da9eff3
-2026-06-01 ~03:35 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 7abdce5
-2026-06-01 ~03:37 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at e21e57b
-2026-06-01 ~03:39 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at c2d0b9c
-2026-06-01 ~03:41 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 2f40fc1
-2026-06-01 ~03:43 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 042a943
-2026-06-01 ~03:45 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 9aee5b1
-2026-06-01 ~03:47 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 4f0d6dc
-2026-06-01 ~03:49 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at c97c139
-2026-06-01 ~03:51 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 4df8866
-2026-06-01 ~03:53 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 619bc1b
-2026-06-01 ~04:02 UTC - Build 4 checked queue; status: idle: no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; prior commit 4f3be6d had misplaced read check (file header) — structurally repaired in this poll; origin/main at 4f3be6d
-2026-06-01 ~04:04 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at bc34127
-2026-06-01 03:16 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 3e97f8b
-2026-06-01 03:18 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at e76547e
-2026-06-01 03:20 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at 12e63b1
-2026-06-01 03:23 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at f10a542
-2026-06-01 03:24 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at bba2a04
-2026-06-01 03:26 UTC - Build 4 checked queue; status: idle; no executable Active Task; all Coordinator Override blocks completed/archived; Next Candidate Task (DeepSeek direct-provider adapter implementation handoff) awaits coordinator promotion; origin/main at b7ae47b
 ```
 
 ## Write/Completion Log
@@ -476,37 +416,6 @@ YYYY-MM-DD HH:MM TZ - Build 4 cross-check: none/finding/fix; details: <short not
 2026-05-31 08:58 -06:00 - Build 4 cross-check: finding (MEDIUM, routed); Codex Reviews B Round B15 (d43cb34) reviewed Workflows architecture note (0115581/17d8d90) — PASS-WITH-FINDINGS; sole finding is consolidated 5-entry FileMap registration gap covering echo-memory-contract, atlas-retrieval-contract, workflow-subagent-harness-contract, prime-autonomy-v2-contract, workflows-subagent-harness-architecture; finding routed to Build 3 (FileMap lane) — no Build 4 repair action required; B11/B13/B14 results consolidated: all V2 first-wave Build 4 architecture slices reviewed and cleared content-wise
 ```
 
-2026-06-01 03:29 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; Next Candidate Task (Prime restart/resteer logic) still awaits coordinator promotion; origin/main at 7e51518
-2026-06-01 03:30 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; Next Candidate Task (Prime restart/resteer logic) still awaits coordinator promotion; origin/main at 1f3e010
-2026-06-01 03:33 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; Next Candidate Task (Prime restart/resteer logic) still awaits coordinator promotion; origin/main at 6cc6da2
-2026-06-01 03:34 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; Next Candidate Task (Prime restart/resteer logic) still awaits coordinator promotion; origin/main at 0896e8c
-2026-06-01 03:36 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; Next Candidate Task (Prime restart/resteer logic) still awaits coordinator promotion; origin/main at 918d2e8
-2026-06-01 03:37 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; Next Candidate Task (Prime restart/resteer logic) still awaits coordinator promotion; origin/main at 189e217
-2026-06-01 03:37 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 8ee6d88
-2026-06-01 03:38 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at adf4b95
-2026-06-01 03:38 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at da4867d
-2026-06-01 03:40 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 2bdc4cf
-2026-06-01 03:43 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at d6cac1c
-2026-06-01 03:44 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 8bad422
-2026-06-01 03:46 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 572a9f7
-2026-06-01 03:47 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 3a20714
-2026-06-01 03:48 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at e8a293a
-2026-06-01 03:48 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 0af60fe
-2026-06-01 03:49 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 35ac9d6
-2026-06-01 03:51 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 19e53be
-2026-06-01 03:53 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 25a73d7
-2026-06-01 03:55 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 03d3cd5
-2026-06-01 03:56 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 1816669
-2026-06-01 03:56 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 5114eaa
-2026-06-01 03:57 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 2912f1c
-2026-06-01 03:57 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at c90bdcf
-2026-06-01 03:58 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 88f8cad
-2026-06-01 03:59 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at d978d54
-2026-06-01 03:59 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at af4a633
-2026-06-01 04:00 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 7bb8f3d
-2026-06-01 04:00 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 2dbd737
-2026-06-01 04:01 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 6a61570
-2026-06-01 04:03 -06:00 - Build 4 checked queue; status: idle; no Active Task; all lanes idle; origin/main at 6108bb0
 ## Codex Review Cadence
 
 After every three completed changes/commits by Build 4, request a Codex review check before starting another task. The review check should automatically repair actionable findings in Build 4-owned files, rerun relevant tests if any, commit/push fixes, and report the result here.
@@ -516,8 +425,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review requested after commits <hash1>, <has
 YYYY-MM-DD HH:MM TZ - Build 4 Codex review finding: <severity>; details: <short note>
 YYYY-MM-DD HH:MM TZ - Build 4 Codex review repair: commit <hash>; tests <result>; details: <short note>
 YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/fixed; details: <short note>
-2026-05-30 11:31 -06:00 - Build 4 Codex review requested after commit
-2026-05-31 ~20:10 UTC - Build 4 completed Model Harness V2 metadata contract (docs/model-harness-v2-contract.md); commit 2bfaf6f; tests not required (docs-only); Ready for Codex Reviews 951a6ed, 1db1b23, d29cca6
+2026-05-30 11:31 -06:00 - Build 4 Codex review requested after commits 951a6ed, 1db1b23, d29cca6
 2026-05-30 11:37 -06:00 - Build 4 Codex review finding: CRITICAL; docs/meridian-capabilities-architecture-map.md claims Prompt Metrics "not built" — prompt_metrics.py exists with domain types; repair: reclassify as domain slice
 2026-05-30 11:37 -06:00 - Build 4 Codex review finding: CRITICAL; capabilities map says RelayRoute does not carry budget field — relay.py already carries prompt_budget: PromptBudgetPlan; repair: correct claim
 2026-05-30 11:37 -06:00 - Build 4 Codex review finding: CRITICAL; Review Console marked "planned" — review_console.py domain model exists; repair: reclassify as domain slice

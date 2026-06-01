@@ -10,21 +10,22 @@
 
 | Owner | Built/Review-Cleared | Built-Awaiting-Review | Contract Baseline | Needs Build | Total | Percent Complete |
 |---|---:|---:|---:|---:|---:|---:|
-| Prime Autonomy | 1 | 0 | 0 | 1 | 2 | 50% |
+| Prime Autonomy | 2 | 0 | 0 | 0 | 2 | 100% |
 | Echo Harness | 2 | 0 | 2 | 0 | 4 | 100% |
 | Atlas Harness | 2 | 0 | 1 | 0 | 3 | 100% |
-| Relay/Model Harness | 2 | 0 | 1 | 6 | 9 | 33% |
+| Relay/Model Harness | 2 | 0 | 2 | 6 | 10 | 20% clear + 20% baseline |
 | Aegis Harness | 2 | 0 | 0 | 0 | 2 | 100% |
 | Session Lifecycle Harness | 1 | 0 | 1 | 2 | 4 | 50% |
 | Bifrost Harness | 1 | 0 | 2 | 6 | 9 | 33% |
 | Federation Harness | 1 | 0 | 0 | 0 | 1 | 100% |
-| **Total V2** | **12** | **0** | **7** | **15** | **34** | **35% Clear + 0% Awaiting + 21% Baseline** |
+| **Total V2** | **13** | **0** | **8** | **14** | **35** | **37% Clear + 0% Awaiting + 23% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
 ### Prime Autonomy
 
 - [x] **Prime + Autonomy Contract:** `PrimeNextAction` domain object with action type, confidence, blockers, human-gate requirements, immutable evidence, and deterministic executability semantics - built in `40def3d`, repaired in `39c9ac8`; review cleared by Reviews C on 2026-05-31.
+- [x] **Prime + Project State:** deterministic next-action selector taking project/backlog/lane/tier/review gate state - built in `57aad9a`, queue provenance in `a2b8cd0`; review cleared by Reviews A on 2026-05-31 with 55 `tests/test_prime_autonomy.py` tests passing.
 
 ### Aegis Harness
 
@@ -80,6 +81,7 @@
 ### Relay/Model Harness
 
 - [x] **Model Harness + DeepSeek Validation Gate:** `docs/deepseek-provider-validation-gate.md` - DeepSeek is a primary provider candidate, but not trusted for autonomous coding/review-clearing until direct API routing, prompt payload metering, bounded Q-mode behavior, and coding benchmark proof are recorded.
+- [x] **Model Harness + Metadata Contract:** `docs/model-harness-v2-contract.md` - provider capability metadata, prompt-drag telemetry, trust state, route ownership, direct-vs-aggregator evidence, allowed/blocked task types, external-review requirements, and Aegis/Relay policy binding; review-cleared by Reviews B on 2026-05-31. Runtime metadata implementation remains in Needs Build.
 
 ### Bifrost Harness
 
@@ -88,7 +90,7 @@
 
 ## In Progress / Stabilizing
 
-- None currently. V2 domain slices enter full build queue after Codex cadence review completes.
+- None currently.
 
 ## V3 Scope Note
 
@@ -98,7 +100,7 @@
 
 ### Prime Autonomy
 
-- [ ] **Prime + Project State:** deterministic next-action selector taking project/backlog/lane/tier/review gate state - integrates Echo memory query and Atlas retrieval hits as input placeholders.
+- None currently.
 
 ### Relay / Model Harness
 

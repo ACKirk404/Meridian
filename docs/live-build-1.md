@@ -132,7 +132,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Next Candidate Task
+## Coordinator Override - Active Now
 
 Goal: add Model Harness metadata fields for provider capability and prompt-drag telemetry.
 
@@ -143,6 +143,20 @@ Task: extend the provider-neutral Model Harness adapter contract with structured
 Tests:
 
 - `python -m pytest tests/test_model_adapter.py -q`
+
+Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
+## Next Candidate Task
+
+Goal: wire prompt payload snapshot metadata into Relay dispatch evidence.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Task: after Model Harness metadata lands, add provider-neutral prompt payload snapshot evidence to Relay dispatch planning/execution results without live vendor calls, UI work, filesystem access, or network access. Preserve Aegis proof-gate behavior and existing payload-only boundaries. The later Bifrost lane owns visual rendering; this slice only prepares structured runtime evidence.
+
+Tests:
+
+- `python -m pytest tests/test_relay_executor.py tests/test_prompt_payload_meter.py -q`
 
 ## Archived Prior Candidate - Promoted Above
 
