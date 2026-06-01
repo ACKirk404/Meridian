@@ -47,7 +47,7 @@ Tests:
 
 - `python -m pytest tests/test_session_lifecycle.py -q`
 
-Completion: Build 2 completed Prime command-plan tests consuming new routing actions/reasons; commit f69d6683; files changed: tests/test_session_lifecycle.py (added 12 focused tests covering ARCHIVE/REQUEST_HUMAN_GATE/SUMMARIZE_RESET/TRANSFER commands and CONTEXT_FILL/REVIEW_GATE/PERMISSION_BOUNDARY routing signals, proving Prime-facing command-plan behavior); tests 34 passed (22 prior + 12 new Prime command-plan tests exercising archive, human-gate, transfer, and summarize-reset routing decisions); push f69d6683 to origin/main via worktree; Obsidian: not required (code-only); cadence 2 of 3; Ready for Codex Review.
+Completion: Build 2 completed Prime command-plan tests consuming new routing actions/reasons; worker commit `f69d6683` was not on current `origin/main`, so the coordinator landed the same scoped test slice on main as commit `17d70c9d`; files changed: tests/test_session_lifecycle.py (added 12 focused tests covering ARCHIVE/REQUEST_HUMAN_GATE/SUMMARIZE_RESET/TRANSFER commands and CONTEXT_FILL/REVIEW_GATE/PERMISSION_BOUNDARY routing signals, proving Prime-facing command-plan behavior); tests 34 passed (22 prior + 12 new Prime command-plan tests exercising archive, human-gate, transfer, and summarize-reset routing decisions); Obsidian: not required (code-only); cadence 2 of 3; Ready for Codex Review.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 

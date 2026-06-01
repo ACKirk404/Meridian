@@ -8,6 +8,22 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review current-main Build 2 Prime command-plan tests after coordinator provenance repair.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Allowed review files: `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
+
+Task: review current `origin/main` commit `17d70c9d`, the coordinator-scoped cherry-pick of Build 2 worker commit `f69d6683`, for the Prime command-plan tests consuming Session Lifecycle routing actions/reasons. Verify the commit is now an ancestor of current `HEAD` / `origin/main`, `python -m pytest tests/test_session_lifecycle.py -q` passes with the added command-plan coverage, and the change is limited to `tests/test_session_lifecycle.py`. Confirm no live session spawning, model calls, process control, UI work, branch movement by the worker, or Polaris dependency was added. If findings exist, route the smallest focused repair to Build 2; otherwise mark passed and leave a concrete Next Candidate.
+
+Proof command:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 2 Prime command-plan tests for Session Lifecycle routing actions and reasons.
