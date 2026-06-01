@@ -17,6 +17,11 @@
 - Codex Review Repair task remains Completed/Ready for review; awaiting assignment or next task
 - Build 1 idle and polling
 
+**Build 1 Read Check** — 2026-06-01 00:15 -05:00
+- Status: queue poll complete; no Active Now task present
+- Codex Review Repair (PrimeCockpitSnapshot immutability) completed, ready for Codex review routing
+- Build 1 idle and awaiting next task assignment
+
 Goal: make `PrimeCockpitSnapshot` preserve its promised immutable snapshot shape when callers pass mutable lane/event sequences.
 
 Allowed files only: `meridian_core/cockpit_state.py`, `tests/test_cockpit_state.py`, `docs/live-build-1.md`.
