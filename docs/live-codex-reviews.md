@@ -68,9 +68,24 @@ Proof command:
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 3 FileMap registration for Relay proof payload contract docs after Build 3 marks it Ready for Codex Review.
+
+Status: repair routed by Codex Reviews A on 2026-06-01 17:11 -06:00. Build 3 commit `da53f4f3` added the docs mirror row and required-path test entry, but did not add the runtime `make_default_map()` entry, so the assigned FileMap proof fails.
+
+Review result:
+
+- `python -m pytest tests/test_filemap.py -q` failed with 2 failures and 44 passing tests.
+- `docs/FileMap.md:91` mirrors `docs/relay-bifrost-proof-payload-contract.md`.
+- `tests/test_filemap.py:110` adds `docs/relay-bifrost-proof-payload-contract.md` to `_REQUIRED_PATHS`.
+- `meridian_core/filemap.py:145` `make_default_map()` does not include a `FileMapEntry` for `docs/relay-bifrost-proof-payload-contract.md`, so `FileMap.get(path)` returns `None` and the injection summary omits the path.
+
+Finding:
+
+- HIGH: runtime FileMap entry missing - Build 3 marked Relay-Bifrost proof payload contract FileMap registration Ready for Codex Review in commit `da53f4f3`, but the runtime FileMap does not register `docs/relay-bifrost-proof-payload-contract.md`. Required repair: Build 3 must add the matching `FileMapEntry` to `meridian_core/filemap.py` `make_default_map()` with purpose/notes consistent with `docs/FileMap.md:91`, then rerun `python -m pytest tests/test_filemap.py -q` and mark the repair Ready for Codex Review.
+
+Completion: routed the focused runtime FileMap repair to Build 3 in this review queue. No implementation files were changed by Reviews A.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
 
@@ -1164,6 +1179,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-06-01 17:01 -06:00 - Codex Reviews A checked queue; status: running/not-ready; notes: origin/main current after pull; active Build 3 FileMap registration poll repeated for `docs/relay-bifrost-proof-payload-contract.md`; Build 3 still has the exact task only as Next Candidate while its executable Active Task remains unrelated Build 5 FileMap work; three-change queue-only Codex review check over the polling updates found no actionable findings.
 2026-06-01 17:03 -06:00 - Codex Reviews A checked queue; status: running/not-ready; notes: origin/main current after pull; active Build 3 FileMap registration poll repeated for `docs/relay-bifrost-proof-payload-contract.md`; Build 3 still has the exact task only as Next Candidate while its executable Active Task remains unrelated Build 5 FileMap work, so Reviews A did not run tests or mark idle.
 2026-06-01 17:05 -06:00 - Codex Reviews A checked queue; status: running/not-ready; notes: origin/main current after pull; active Build 3 FileMap registration poll repeated for `docs/relay-bifrost-proof-payload-contract.md`; Build 3 still has the exact task only as Next Candidate while its executable Active Task remains unrelated Build 5 FileMap work, so Reviews A did not run tests or mark idle.
+2026-06-01 17:11 -06:00 - Codex Reviews A checked queue; status: running/finding-routed; notes: origin/main current after pull; active Build 3 FileMap registration review executed for `docs/relay-bifrost-proof-payload-contract.md` after commit `da53f4f3` marked Ready; proof failed because docs/FileMap.md and _REQUIRED_PATHS include the path but runtime make_default_map() does not.
 ```
 
 ## Review Log
@@ -1664,6 +1680,7 @@ Round 6 write log:
 - 2026-06-01 17:01 -06:00 - Codex Reviews A completed Build 3 FileMap readiness poll and three-change queue-only Codex review check for `docs/relay-bifrost-proof-payload-contract.md` after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (slice not ready; proof command deferred). Proof commands: exact-path search for `relay-bifrost-proof-payload-contract`, inspected `docs/live-build-3.md`, `git diff --check fee40c81..HEAD -- docs/live-codex-reviews.md`, and `git diff --stat fee40c81..HEAD -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings in the recent polling/provenance updates; Build 3 has the exact FileMap registration task as Next Candidate only, with unrelated Build 5 FileMap work as its current executable Active Task. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; polling state recorded only.
 - 2026-06-01 17:03 -06:00 - Codex Reviews A completed Build 3 FileMap readiness poll for `docs/relay-bifrost-proof-payload-contract.md` after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (slice not ready; proof command deferred). Proof commands: exact-path search for `relay-bifrost-proof-payload-contract`, inspected `docs/live-build-3.md`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no review finding; Build 3 has the exact FileMap registration task as Next Candidate only, with unrelated Build 5 FileMap work as its current executable Active Task. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; polling state recorded only.
 - 2026-06-01 17:05 -06:00 - Codex Reviews A completed Build 3 FileMap readiness poll for `docs/relay-bifrost-proof-payload-contract.md` after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (slice not ready; proof command deferred). Proof commands: exact-path search for `relay-bifrost-proof-payload-contract`, inspected `docs/live-build-3.md`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no review finding; Build 3 has the exact FileMap registration task as Next Candidate only, with unrelated Build 5 FileMap work as its current executable Active Task. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; polling state recorded only.
+- 2026-06-01 17:11 -06:00 - Codex Reviews A completed Build 3 FileMap registration review for `docs/relay-bifrost-proof-payload-contract.md` after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: `python -m pytest tests/test_filemap.py -q` (failed: 2 failed, 44 passed). Proof commands: exact-path search for `relay-bifrost-proof-payload-contract`, scoped inspection of `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: HIGH runtime FileMap entry missing routed to Build 3; docs mirror and required-path test entry exist, but `make_default_map()` does not register `docs/relay-bifrost-proof-payload-contract.md`. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue records repair routing only.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
