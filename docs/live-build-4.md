@@ -83,7 +83,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: write the Model Harness V2 metadata contract.
 
@@ -91,7 +91,14 @@ Allowed files only: `docs/model-harness-v2-contract.md`, `docs/live-build-4.md`.
 
 Task: create the docs contract for provider capability metadata and prompt-drag telemetry fields that Build 1's `meridian_core/model_adapter.py` runtime slice should implement. Cover Claude, OpenAI, DeepSeek direct API, trust state, context/prompt budgets, route ownership, direct-vs-aggregator evidence, prompt payload snapshot references, allowed/blocked task types, external-review requirements, and Aegis/Relay policy binding.
 
-Completion: commit only this docs slice, push, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, and tests run.
+Completion:
+
+- Salvaged by coordinator from contaminated main-checkout Build 4 commit `2bfaf6f`; read-check spam and dirty main state were not imported.
+- Files changed: `docs/model-harness-v2-contract.md`, `docs/live-build-4.md`.
+- Tests: not required (docs-only).
+- Commit: this coordinator salvage commit.
+
+Ready for Codex Review. Routed to Codex Reviews B.
 
 ## Next Candidate Task
 

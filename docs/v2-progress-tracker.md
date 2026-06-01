@@ -88,7 +88,7 @@
 
 ## In Progress / Stabilizing
 
-- None currently. V2 domain slices enter full build queue after Codex cadence review completes.
+- **Model Harness + Metadata Contract:** `docs/model-harness-v2-contract.md` was salvaged from local Build 4 work and routed to Reviews B. This is a contract baseline awaiting review; runtime metadata implementation remains in Needs Build.
 
 ## V3 Scope Note
 

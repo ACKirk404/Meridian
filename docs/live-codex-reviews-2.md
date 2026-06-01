@@ -2,6 +2,37 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
+## Active Task
+
+Goal: review Build 4 Model Harness V2 metadata contract.
+
+Status: active. Coordinator salvaged the substantive Build 4 contract from contaminated local main commit `2bfaf6f` and recommitted it cleanly without the read-check spam.
+
+Scope:
+
+- Salvaged source commit: local main `2bfaf6f` - created `docs/model-harness-v2-contract.md`.
+- Clean coordinator salvage commit: this coordinator salvage commit.
+- Queue provenance: `docs/live-build-4.md` completion marker for the Model Harness V2 metadata contract.
+
+Allowed review files:
+
+- `docs/model-harness-v2-contract.md`
+- `docs/live-build-4.md` for provenance only.
+
+Proof:
+
+- Docs-only review; no tests required unless the review touches runtime code.
+
+Review expectations:
+
+- Verify the contract covers provider capability metadata, prompt-drag telemetry, trust state, route ownership, direct-vs-aggregator evidence, allowed/blocked task types, external-review requirements, and Aegis/Relay policy binding.
+- Verify DeepSeek remains candidate/verification scoped and is not granted autonomous coding, review-clearing, branch movement, worktree mutation, or Aegis/Relay bypass authority.
+- Verify the contract is a docs baseline only and does not claim runtime implementation is complete.
+- Verify Build 4's next candidate remains the DeepSeek direct-provider implementation handoff and is review-gated on this contract.
+- If clean, record proof and clear the docs slice. If findings exist, route a focused repair back to Build 4.
+
+Completion: commit and push only `docs/live-codex-reviews-2.md` unless routing a repair into `docs/live-build-4.md`.
+
 ## Completed / Passed
 
 Goal: review Build 3 DeepSeek validation benchmark FileMap registration.
