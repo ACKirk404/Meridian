@@ -4,6 +4,28 @@
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: add Relay proof payload docs/FileMap registration request.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `docs/live-build-1.md`, `docs/relay-bifrost-proof-payload-contract.md`.
+
+Required sources: current Relay proof payload serialization hooks, `docs/bifrost-right-panel-mode-contract.md`, and `docs/FileMap.md`.
+
+Task: write the concise docs-only Relay-to-Bifrost proof payload contract request that Build 3 can register in FileMap after review clears. Cover stable payload keys, immutability expectations, downstream display intent, and out-of-scope constraints. Do not edit Relay runtime/tests, Bifrost runtime/CSS/tests, FileMap, review queues, UI, move branches, or touch Polaris.
+
+Tests: docs-only; no pytest required.
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: add Relay proof payload negative-path tests after the docs/FileMap request clears review.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Relay-to-Bifrost proof payload contract tests.
@@ -34,7 +56,7 @@ Ready for Codex Review.
 - Scope: meridian_core/relay_executor.py, tests/test_relay_executor.py, docs/live-build-1.md
 - Beginning implementation
 
-## Next Candidate Task
+## Archived Candidate - Promoted Above
 
 Goal: add Relay proof payload docs/FileMap registration request after proof payload tests clear review.
 

@@ -8,6 +8,28 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review current-main Build 1 Relay proof payload serialization landing.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Allowed review files: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
+
+Task: verify that the Relay proof payload serialization hooks landed on current `origin/main` and pass proof. Confirm `AegisGateEvidenceSummary.to_dict()` exposes stable keys for gate decision, severity, evidence ids, waiver presence, explanation, and Aegis fallback blockers; preserves immutable/deterministic values; and does not add live Aegis/model/vendor/account/UI/process/branch/Polaris side effects. If clean, mark passed and promote the Build 2 Session Lifecycle review candidate. If not clean, route the smallest focused repair to Build 1.
+
+Proof command:
+
+- `python -m pytest tests/test_relay_executor.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: review Build 2 Session Lifecycle routing-action implementation after Build 1 Relay proof payload review is closed.
+
+Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review current-main Build 1 Relay summary serialization landing commit `ff6893c6`.
@@ -41,9 +63,9 @@ Completion: commit only review-queue/provenance updates, push to `origin/main`, 
 
 ## Next Candidate Task
 
-Goal: review Build 2 Session Lifecycle routing-action implementation after Build 1 Relay review is closed.
+Goal: review current-main Build 1 Relay proof payload serialization landing after it is committed to `origin/main`.
 
-Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
+Allowed review files: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
 
 ## Coordinator Override - Completed / Repair-Routed
 

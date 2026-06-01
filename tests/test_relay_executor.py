@@ -1839,3 +1839,81 @@ class TestAegisGateEvidenceSummary:
         )
         with pytest.raises(Exception):  # FrozenInstanceError from dataclass
             evidence.gate_decision = "block"  # type: ignore
+
+    def test_evidence_summary_to_dict_empty(self) -> None:
+        """to_dict() returns stable keys for empty summary."""
+        evidence = AegisGateEvidenceSummary()
+        result = evidence.to_dict()
+        assert result == {
+            "gate_decision": None,
+            "severity": None,
+            "evidence_ids": (),
+            "waiver_present": False,
+            "explanation": "",
+            "fallback_blockers_from_aegis": (),
+        }
+
+    def test_evidence_summary_to_dict_with_data(self) -> None:
+        """to_dict() preserves all fields in stable format."""
+        evidence = AegisGateEvidenceSummary(
+            gate_decision="block",
+            severity="ERROR",
+            evidence_ids=("evidence-1", "evidence-2"),
+            waiver_present=True,
+            explanation="policy violation detected",
+            fallback_blockers_from_aegis=("aegis_gate_blocked",),
+        )
+        result = evidence.to_dict()
+        assert result == {
+            "gate_decision": "block",
+            "severity": "ERROR",
+            "evidence_ids": ("evidence-1", "evidence-2"),
+            "waiver_present": True,
+            "explanation": "policy violation detected",
+            "fallback_blockers_from_aegis": ("aegis_gate_blocked",),
+        }
+
+    def test_evidence_summary_to_dict_stable_keys(self) -> None:
+        """to_dict() returns consistent keys regardless of data values."""
+        evidence1 = AegisGateEvidenceSummary(gate_decision="allow")
+        evidence2 = AegisGateEvidenceSummary(gate_decision="block")
+        # Both should have the same keys
+        assert set(evidence1.to_dict().keys()) == set(evidence2.to_dict().keys())
+        assert set(evidence1.to_dict().keys()) == {
+            "gate_decision",
+            "severity",
+            "evidence_ids",
+            "waiver_present",
+            "explanation",
+            "fallback_blockers_from_aegis",
+        }
+
+    def test_evidence_summary_to_dict_immutable_values(self) -> None:
+        """to_dict() returns immutable values (no mutable nested structures)."""
+        evidence = AegisGateEvidenceSummary(
+            evidence_ids=("id-1", "id-2"),
+            fallback_blockers_from_aegis=("blocker-1",),
+        )
+        result = evidence.to_dict()
+        # All values should be immutable
+        assert isinstance(result["gate_decision"], type(None))
+        assert isinstance(result["severity"], type(None))
+        assert isinstance(result["evidence_ids"], tuple)
+        assert isinstance(result["waiver_present"], bool)
+        assert isinstance(result["explanation"], str)
+        assert isinstance(result["fallback_blockers_from_aegis"], tuple)
+
+    def test_evidence_summary_to_dict_multiple_calls_identical(self) -> None:
+        """to_dict() returns identical output on multiple calls (deterministic)."""
+        evidence = AegisGateEvidenceSummary(
+            gate_decision="demote",
+            severity="WARNING",
+            evidence_ids=("e1", "e2", "e3"),
+            explanation="cost constraint",
+            fallback_blockers_from_aegis=("aegis_evidence",),
+        )
+        dict1 = evidence.to_dict()
+        dict2 = evidence.to_dict()
+        assert dict1 == dict2
+        # Verify order preservation (Python 3.7+ guarantees dict insertion order)
+        assert list(dict1.keys()) == list(dict2.keys())
