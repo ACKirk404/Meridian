@@ -887,6 +887,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-06-12 11:15 -06:00 - Build 2 checked queue; status: idle (Session Lifecycle routing decisions complete; no new Active Task assigned by orchestrator; Next Candidate pending Codex review; cadence 1 of 3; awaiting assignment; polling)
 2026-06-12 11:25 -06:00 - Build 2 checked queue; status: idle (Active Task Session Lifecycle routing decisions (complete); no new assignment from orchestrator; Next Candidate blocked on Codex review; cadence 1 of 3; awaiting task; polling)
 2026-06-12 11:35 -06:00 - Build 2 checked queue; status: idle (Session Lifecycle routing decisions complete; no new Active Task assigned by orchestrator; Next Candidate pending Codex review; cadence 1 of 3; awaiting assignment; polling)
+2026-06-12 11:45 -06:00 - Build 2 checked queue; status: idle (Active Task Session Lifecycle routing decisions (complete); no new assignment from orchestrator; Next Candidate blocked on Codex review; cadence 1 of 3; awaiting task; polling)
 ```
 
 ## Write/Completion Log
