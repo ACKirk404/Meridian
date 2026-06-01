@@ -224,3 +224,136 @@ class TestSessionCommandPlan:
         serialized = poll_command.to_dict()
         assert serialized["session_id"] == "session-1"
         assert serialized["command_intent"] == "poll_queue"
+
+    def test_archive_command_for_context_fill(self, poll_command):
+        """Test ARCHIVE command when routing suggests context fill."""
+        archive_cmd = poll_command.__class__(
+            **{
+                **poll_command.__dict__,
+                "command_intent": CommandIntent.ARCHIVE,
+                "reason": "Archive session due to context fill requirement",
+                "expected_state_transition": (SessionStatus.RUNNING, SessionStatus.ARCHIVED),
+                "is_executable_now": False,
+                "human_approval_required": True,
+            }
+        )
+        assert archive_cmd.command_intent == CommandIntent.ARCHIVE
+        assert archive_cmd.requires_aegis_approval()
+        assert not archive_cmd.is_executable()
+
+    def test_human_gate_command_for_review_gate(self, poll_command):
+        """Test REQUEST_HUMAN_GATE command when review gate is pending."""
+        human_gate_cmd = poll_command.__class__(
+            **{
+                **poll_command.__dict__,
+                "command_intent": CommandIntent.REQUEST_HUMAN_GATE,
+                "reason": "Request human approval due to review gate",
+                "expected_state_transition": (SessionStatus.RUNNING, SessionStatus.REVIEW_GATED),
+                "is_executable_now": False,
+                "human_approval_required": True,
+            }
+        )
+        assert human_gate_cmd.command_intent == CommandIntent.REQUEST_HUMAN_GATE
+        assert not human_gate_cmd.is_executable()
+        assert human_gate_cmd.human_approval_required
+
+    def test_summarize_reset_command_for_payload_limit(self, poll_command):
+        """Test STEER command for context summarization near payload limit."""
+        summarize_cmd = poll_command.__class__(
+            **{
+                **poll_command.__dict__,
+                "command_intent": CommandIntent.STEER,
+                "reason": "Reset context due to prompt payload near limit",
+                "expected_state_transition": (SessionStatus.RUNNING, SessionStatus.RUNNING),
+                "is_executable_now": True,
+                "human_approval_required": False,
+            }
+        )
+        assert summarize_cmd.command_intent == CommandIntent.STEER
+        assert summarize_cmd.is_executable()
+
+    def test_transfer_command_for_dual_lane(self, poll_command):
+        """Test TRANSFER command for Tier 3 dual-lane independence."""
+        transfer_cmd = poll_command.__class__(
+            **{
+                **poll_command.__dict__,
+                "command_intent": CommandIntent.TRANSFER,
+                "reason": "Transfer session for dual-lane Tier 3 independence",
+                "expected_state_transition": (SessionStatus.RUNNING, SessionStatus.WAITING),
+                "is_executable_now": False,
+                "human_approval_required": True,
+            }
+        )
+        assert transfer_cmd.command_intent == CommandIntent.TRANSFER
+        assert transfer_cmd.requires_aegis_approval()
+        assert not transfer_cmd.is_executable()
+
+    def test_archive_command_legal_from_stopped(self, poll_command):
+        """Test ARCHIVE command legal state transition from STOPPED."""
+        archive_from_stopped = poll_command.__class__(
+            **{
+                **poll_command.__dict__,
+                "command_intent": CommandIntent.ARCHIVE,
+                "expected_state_transition": (SessionStatus.STOPPED, SessionStatus.ARCHIVED),
+            }
+        )
+        assert archive_from_stopped.verify_state_transition_legal()
+
+    def test_human_gate_command_works_from_any_status(self, poll_command):
+        """Test REQUEST_HUMAN_GATE works from any session status."""
+        for status in [SessionStatus.POLLING, SessionStatus.RUNNING, SessionStatus.WAITING]:
+            human_gate = poll_command.__class__(
+                **{
+                    **poll_command.__dict__,
+                    "command_intent": CommandIntent.REQUEST_HUMAN_GATE,
+                    "expected_state_transition": (status, status),
+                }
+            )
+            assert human_gate.command_intent == CommandIntent.REQUEST_HUMAN_GATE
+
+    def test_routing_action_archive_requires_aegis(self, poll_command):
+        """Test archive routing action requires Aegis approval."""
+        archive_decision = poll_command.__class__(
+            **{
+                **poll_command.__dict__,
+                "command_intent": CommandIntent.ARCHIVE,
+                "aegis_gate_result": None,
+            }
+        )
+        assert archive_decision.requires_aegis_approval()
+        assert archive_decision.aegis_gate_result is None
+
+    def test_routing_action_transfer_requires_aegis(self, poll_command):
+        """Test transfer routing action requires Aegis approval."""
+        transfer_decision = poll_command.__class__(
+            **{
+                **poll_command.__dict__,
+                "command_intent": CommandIntent.TRANSFER,
+                "aegis_gate_result": None,
+            }
+        )
+        assert transfer_decision.requires_aegis_approval()
+
+    def test_human_gate_decision_blocks_execution(self, poll_command):
+        """Test that human gate decision blocks immediate execution."""
+        human_gated = poll_command.__class__(
+            **{
+                **poll_command.__dict__,
+                "command_intent": CommandIntent.REQUEST_HUMAN_GATE,
+                "is_executable_now": True,
+                "human_approval_required": True,
+            }
+        )
+        assert not human_gated.is_executable()
+
+    def test_context_fill_routing_triggers_archive(self, poll_command):
+        """Test context fill routing reason leads to ARCHIVE command."""
+        archive_for_fill = poll_command.__class__(
+            **{
+                **poll_command.__dict__,
+                "command_intent": CommandIntent.ARCHIVE,
+                "reason": "Session context should be archived for fill by new session",
+                "expected_state_transition": (SessionStatus.RUNNING, SessionStatus.ARCHIVED),
+            }
+        )
+        assert archive_for_fill.command_intent == CommandIntent.ARCHIVE
