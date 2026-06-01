@@ -8,6 +8,22 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review Build 2 Prime command-plan tests for Session Lifecycle routing actions and reasons.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
+
+Task: review current `origin/main` commit `f69d6683` and the Build 2 queue marker for the Prime command-plan tests consuming Session Lifecycle routing actions/reasons. Verify the tests prove Prime-facing command plans can consume archive, request-human-gate, summarize/reset, transfer, context-fill, review-gate, and permission-boundary routing signals through typed helpers only. Confirm no live session spawning, model calls, process control, UI work, branch movement, or Polaris dependency was added. If findings exist, route the smallest focused repair to Build 2; otherwise mark passed and leave a concrete Next Candidate.
+
+Proof command:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review Build 2 Session Lifecycle routing-action repair implementation.
@@ -1216,6 +1232,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-06-01 17:18 -06:00 - Codex Reviews A checked queue; status: running/passed; notes: origin/main current after pull; active Build 3 repair review for `f8424a07` executed exactly as assigned; FileMap proof passed and the prior runtime FileMap entry finding is closed.
 2026-06-01 17:23 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task / Coordinator Override - Active Now block is present; top relevant Build 3 FileMap repair item remains completed/passed.
 2026-06-01 17:25 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task / Coordinator Override - Active Now block is present; queue-only cadence check over recent Reviews A provenance updates found no actionable findings.
+2026-06-01 17:27 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task / Coordinator Override - Active Now block is present; top relevant Build 3 FileMap repair item remains completed/passed.
 ```
 
 ## Review Log
@@ -1722,6 +1739,7 @@ Round 6 write log:
 - 2026-06-01 17:18 -06:00 - Codex Reviews A completed Build 3 Relay-Bifrost proof payload contract FileMap repair review for commit `f8424a07` after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: `python -m pytest tests/test_filemap.py -q` (46 passed). Proof commands: `git merge-base --is-ancestor f8424a07 HEAD`, exact-path inspection of `meridian_core/filemap.py`, `docs/FileMap.md`, and `tests/test_filemap.py`, `git diff-tree --no-commit-id --name-only -r f8424a07`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings; prior HIGH runtime FileMap entry missing finding closed. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue records pass only.
 - 2026-06-01 17:23 -06:00 - Codex Reviews A completed idle queue read after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof command: `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no new finding; no executable Active Task present after Build 3 FileMap repair clearance. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new durable review finding or clearance.
 - 2026-06-01 17:25 -06:00 - Codex Reviews A completed idle queue read and queue-only cadence check after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof commands: `git diff --check 8ddef756..HEAD -- docs/live-codex-reviews.md`, `git diff --stat 8ddef756..HEAD -- docs/live-codex-reviews.md`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings in recent Reviews A provenance updates; no executable Active Task present after Build 3 FileMap repair clearance. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new durable review finding or clearance.
+- 2026-06-01 17:27 -06:00 - Codex Reviews A completed idle queue read after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof command: `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no new finding; no executable Active Task present after Build 3 FileMap repair clearance. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new durable review finding or clearance.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 

@@ -10,6 +10,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Codex Reviews B cleared the current-main Build 4 premium-cost approval blocker in commit `f15e7ceb`. Continue with the Active Now item below; do not rerun the cleared Build 4 repair unless a new current-main regression appears.
 
+## Coordinator Override - Active Now
+
+Goal: review Build 4 Relay harness model-selection logic depth.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Allowed review files: `docs/relay-heartbeat-model-routing-logic.md`, `docs/relay-completeness-audit.md`, `docs/model-harness-v2-contract.md`, `docs/deepseek-validation-benchmark-plan.md`, `docs/deepseek-direct-provider-implementation-handoff.md`, `docs/live-build-4.md`, and `docs/live-codex-reviews-2.md` for provenance only.
+
+Task: review Build 4 commit `b5c40b38` and the current `docs/live-build-4.md` Ready marker for the deepened Relay harness model-selection logic. Verify the logic covers account-first CLI/session use before paid API fallback, explicit API fallback conditions, Anthropic/OpenAI/OpenRouter/DeepSeek direct roles, dual-model and external Codex review triggers, new-session/session-lifecycle decisions for context fill and reasoning/work-type shifts, cost/token/rate-limit/account-exhaustion routing, and clear stop/block conditions. Confirm it does not authorize live model calls, account probing, process control, UI work, branch movement, or Polaris dependency. If findings exist, route focused repair to Build 4; otherwise mark passed and promote the next review candidate.
+
+Proof command:
+
+- Docs/architecture review; run targeted text/shape inspection. No pytest required unless the review discovers runtime claims that require proof.
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
 ## Completed / Passed
 
 Goal: review Build 4 Aegis-to-Relay handoff contract field-shape repair when marked Ready for Codex Review.
@@ -56,7 +72,7 @@ Review result:
 - Scope check: no runtime code was edited by this review; no Relay/Bifrost/FileMap/UI/model/account/process/Polaris changes were added.
 - Repair routed into `docs/live-build-4.md`. Next candidate remains Build 3 FileMap registration for Build 5 right-panel rendering artifacts after Build 3 marks it Ready for Codex Review.
 
-## Coordinator Override - Active Now
+## Stale Header - Completed / Passed Below
 
 Goal: review Build 3 duplicate `docs/ui-integration-checklist.md` FileMap mirror repair.
 
