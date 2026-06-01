@@ -958,6 +958,13 @@ def make_default_map() -> FileMap:
             notes="V2 architecture contract. Defines when Aegis must block, waive, or approve a Relay route based on risk tier, vendor validation, proof status, and human gates.",
         ),
         FileMapEntry(
+            path="docs/relay-bifrost-proof-payload-contract.md",
+            area=FileArea.AEGIS,
+            purpose="Relay-Bifrost proof payload contract: defines stable proof payload keys (gate decision, severity, evidence IDs, waiver status, explanation, fallback blockers) that Bifrost surfaces consume to display Aegis gate evidence.",
+            related_tests=[],
+            notes="V0 contract for FileMap registration. Defines immutable proof payload structure for decision display; read before wiring Aegis proof results into Bifrost UI.",
+        ),
+        FileMapEntry(
             path="docs/ui-integration-checklist.md",
             area=FileArea.BUILD_PROCESS,
             purpose="Active UI integration gate: checklist for plugging live behavior into Meridian UI. Ensures every visible piece works, shows unavailability, or stays hidden.",
