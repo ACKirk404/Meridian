@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: repair Relay-Aegis risk/proof gate contract contradictions found by Codex Reviews B.
+
+Allowed files only: `docs/relay-aegis-risk-proof-gates.md`, `docs/live-build-4.md`.
+
+Task: update `docs/relay-aegis-risk-proof-gates.md` so the runtime-test contract is internally consistent with `docs/relay-completeness-audit.md`, `docs/relay-heartbeat-model-routing-logic.md`, and `docs/model-harness-v2-contract.md`. Fix these focused issues only:
+
+- Tier 2 DeepSeek wording currently says validation pending is allowed, but the DeepSeek gate and Model Harness contract require `external_review_status == PASSED` before DeepSeek can serve Tier 2 when external review is required.
+- Tier 2 aggregator wording currently says "Aggregator block", but the route logic and Model Harness contract allow Tier 2 aggregator routes for review/exploration when proof/trust metadata is explicit; only Tier 3+ aggregator authority is blocked.
+- Waiver and approval semantics reference explicit waiver, human acknowledgment, and user approval, but the Relay/Aegis input and decision-record shape do not require waiver/approval evidence fields. Add the minimal required fields so runtime tests can validate actor, scope, timestamp, reason, and expiration/evidence without accepting a bare boolean.
+
+Tests: docs-only; no pytest required unless runtime files are changed.
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave the existing Next Candidate intact.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: translate Relay completeness into Aegis risk/proof gates.
