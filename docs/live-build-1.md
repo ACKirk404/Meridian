@@ -1,4 +1,4 @@
-# Live Build 1 Queue
+﻿# Live Build 1 Queue
 
 ## Coordinator Override - Active Now
 
@@ -26,6 +26,11 @@ Ready for Codex Review.
 
 **Build 1 Read Check** — 2026-06-01 04:35 -05:00
 - Status: Relay metadata binding task completed and marked Ready for Codex Review
+- No executable Active Now task; Next Candidate Task awaiting promotion
+- Build 1 idle and polling for next task assignment
+
+**Build 1 Read Check** — 2026-06-01 04:40 -05:00
+- Status: queue poll complete; Relay metadata binding task still Ready for Codex Review
 - No executable Active Now task; Next Candidate Task awaiting promotion
 - Build 1 idle and polling for next task assignment
 
@@ -930,10 +935,4 @@ Historical record of Build 1 V0 completed slices (most recent first). Do not re-
 
 [COMPLETED 2026-05-31 ~22:15 -05:00] Model Harness metadata fields for provider capability and prompt-drag telemetry — commit `a8922c3`; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 31 targeted passed; Ready for Codex Review.
 
-2026-05-31 22:25 -05:00 - Build 1 checked queue; status: running (Prompt payload snapshot metadata task — Active Now)
-2026-05-31 22:30 -05:00 - Build 1 checked queue; status: running (Prompt payload snapshot metadata into Relay dispatch evidence task)
-
 [COMPLETED 2026-05-31 ~23:00 -05:00] Prompt payload snapshot metadata into Relay dispatch evidence — commit `081c15f`; files: meridian_core/relay_executor.py, tests/test_relay_executor.py; tests: 89 total passed (64 relay_executor + 25 prompt_payload_meter); Ready for Codex Review.
-
-2026-05-31 23:05 -05:00 - Build 1 checked queue; status: idle (Prompt Payload Snapshot slice 081c15f complete; awaiting next assignment or Codex review result)
-2026-05-31 23:15 -05:00 - Build 1 checked queue; status: running (Relay dispatch evidence hardening task — Active Now)
