@@ -42,6 +42,12 @@ Ready for Codex Review.
 - Next Candidate Task awaiting promotion from Prime/Codex
 - Build 1 idle and polling for next task assignment
 
+**Build 1 Read Check** — 2026-06-12 (ongoing poll)
+- Status: queue poll complete; no Active Now task
+- Relay decision-record stop-condition coverage Ready for Codex Review (commit `f0bb2bb6`)
+- Next Candidate Task still awaiting promotion from Prime/Codex
+- Build 1 idle and polling for next task assignment
+
 ## Next Candidate Task
 
 Goal: bind any Codex review findings from the Relay decision-record coverage and stop-condition slices.

@@ -875,6 +875,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-12 07:25 UTC - Build 3 checked queue; status: active task found (FileMap audit for Relay/Session Lifecycle files); executing registration for relay_executor.py and test_relay_executor.py
 2026-06-12 07:30 UTC - Build 3 checked queue; status: active task found (Aegis FileMap registration â€" relay-aegis-risk-proof-gates.md); executing registration
 2026-06-12 07:42 UTC - Build 3 checked queue; status: idle; Aegis FileMap registration complete (commits 536b43aa, f4b89c79); cadence 3/3 since Round B5 â€" Codex review requested; awaiting review result before next task
+2026-06-12 07:45 UTC - Build 3 checked queue; status: idle; cadence 3/3 since Round B5 â€" paused pending Codex review result; no new Active Task execution until review completes
 ```
 
 ## Write/Completion Log
