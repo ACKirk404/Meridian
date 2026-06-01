@@ -6,6 +6,26 @@ This file is the standing queue for a second specialized Codex Reviews session.
 
 Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review Build 4 Relay-Aegis risk/proof gate contract and Build 3 FileMap follow-up readiness.
+
+Allowed review files: `docs/relay-aegis-risk-proof-gates.md`, `docs/relay-completeness-audit.md`, `docs/relay-heartbeat-model-routing-logic.md`, `docs/live-build-4.md`, `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, and `docs/live-build-3.md` for provenance/routing only.
+
+Task: first review whether `docs/relay-aegis-risk-proof-gates.md` is specific enough for Build 4's runtime test slice and whether it preserves account-first, direct-before-aggregator, Tier 3 dual-lane, Tier 4 human-gate, no-silent-fallback, and stop-condition semantics. Then verify Build 3's FileMap follow-up has enough scope to register new Relay/Session Lifecycle/Aegis artifacts without touching implementation files. Do not edit runtime code. Route focused repairs to Build 4 or Build 3 if needed; otherwise mark passed and promote the next review candidate.
+
+Proof command:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: review Build 3 FileMap registration for Relay/UI planning artifacts after it is marked Ready for Codex Review.
+
+Allowed review files: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, and `docs/live-build-3.md` for provenance only.
+
 ## Completed / Passed
 
 Goal: review the Bifrost right-panel mode and UI checklist design before implementation begins.
@@ -1013,6 +1033,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews B checked queue; status: idle/running/blocke
 2026-06-01 15:22 -06:00 - Codex Reviews B checked queue; status: running; notes: pulled latest origin/main first; executable Coordinator Override Active Now found for Bifrost right-panel mode/UI checklist design review; starting docs-only review.
 2026-06-01 15:25 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; top queue has completed right-panel review plus non-executable Build 3 next candidate only.
 2026-06-01 15:27 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; top queue remains completed right-panel review plus non-executable Build 3 next candidate only.
+2026-06-01 15:29 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; top queue remains completed right-panel review plus non-executable Build 3 next candidate only.
 2026-06-01 09:20 -06:00 - Codex Reviews B Round B4 executed; status: PASS-WITH-MEDIUM-FINDING; commit reviewed: 5e0facb; tests: python -m pytest tests/test_filemap.py -q → 46/46 in 0.09s; finding: 3 docs registered in filemap.py and _REQUIRED_PATHS but absent from docs/FileMap.md (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md); repair task written to Build 3 Active Task; results in Obsidian (2026-06-01 Codex Reviews B Round B4 Result.md); cadence 2/3 since Round B3; awaiting Round B5 trigger.
 2026-05-31 22:13 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.
 2026-05-31 22:16 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.
