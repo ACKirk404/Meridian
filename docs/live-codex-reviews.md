@@ -8,7 +8,7 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 1 Relay repair commits `c3d91214` and `69e9ff55`.
 
@@ -23,6 +23,21 @@ Proof command:
 - `python -m pytest tests/test_relay_executor.py -q`
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+Status: repair routed by Codex Reviews A on 2026-06-01 16:04 -06:00. The commit objects exist locally, but neither reviewed commit is an ancestor of current `HEAD` / `origin/main`, so the required proof command executed the unrepaired Relay executor state.
+
+Review result:
+
+- `python -m pytest tests/test_relay_executor.py -q` passed with 121 tests in the current checkout.
+- `git merge-base --is-ancestor 69e9ff55 HEAD` and `git merge-base --is-ancestor c3d91214 HEAD` both failed, proving the Ready marker commits are not in current `HEAD`.
+- Current `meridian_core/relay_executor.py` still has `RelayDecisionRecord.vendor` and `model_id` comments/defaults from the pre-repair state and does not contain the new Aegis evidence fields from `69e9ff55`.
+- No live vendor calls, account probing, UI automation, process execution, branch movement, or Polaris dependency was added by Reviews A.
+
+Finding:
+
+- HIGH: review provenance/branch visibility - Build 1 marked commits `c3d91214` and `69e9ff55` Ready for Codex Review, but current `origin/main` at review time is `84383cb4` and does not contain either commit. The required test proof therefore ran against unrepaired code and cannot prove the vendor/model blocker or Aegis evidence slices. Required repair: Build 1/coordinator must land the intended commits on `origin/main` through the approved branch path or requeue a current-main review target; then Reviews A can re-run the same Relay proof.
+
+Completion: routed the focused provenance/visibility repair into `docs/live-build-1.md`. Runtime acceptance remains blocked until the reviewed commits are visible in current `origin/main` and the proof command exercises those changes.
 
 ## Next Candidate Task
 
@@ -982,6 +997,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-06-01 15:53 -06:00 - Codex Reviews A checked queue; status: running; notes: origin/main already current after ff-only pull; Build 1 Relay stop-condition repair Active Task found and reviewed; unrelated dirty build-lane queue files left untouched.
 2026-06-01 15:59 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch/ff-only check; top review item remains completed/repair-routed and no executable Active Task / Coordinator Override - Active Now block is present; Build 2 item remains Next Candidate only; unrelated dirty files left untouched.
 2026-06-01 16:01 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after pull; no executable Active Task or Coordinator Override - Active Now block is present; three-change cadence review over Reviews A queue/routing docs found no actionable findings.
+2026-06-01 16:04 -06:00 - Codex Reviews A checked queue; status: repair routed; notes: active Build 1 Relay review found commits `c3d91214` and `69e9ff55` are not ancestors of current `HEAD`/`origin/main`; proof command therefore exercised unrepaired code and cannot clear the Ready marker.
 ```
 
 ## Review Log
@@ -1015,6 +1031,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-05-31 22:17 -06:00 - Reviewed Build 2 checklist marker `0296525`; result: finding/repair-routed; tests: not run (docs-only review); notes: `docs/session-lifecycle-v2-contract.md` exists, but `docs/session-lifecycle-implementation-checklist.md` is missing from `HEAD`; `0296525` only changes `docs/live-build-2.md`, so the Ready marker cannot be accepted and the runtime task remains blocked.
 2026-05-31 22:43 -06:00 - Reviewed Build 1 repair commit `19f4516`; result: pass; tests: `python -m pytest tests/test_cockpit_state.py -q` 29 passed; `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` 86 passed; notes: `PrimeCockpitSnapshot.__post_init__()` converts mutable lane/event sequence inputs to tuples and regression tests prove source-list mutation no longer changes snapshot contents.
 2026-06-01 15:55 -06:00 - Reviewed Build 1 Relay stop-condition repair commit `f0bb2bb6`; result: finding/repair-routed; tests: `python -m pytest tests/test_relay_executor.py -q` 121 passed; notes: registry metadata populates vendor and lane preferred model populates model_id, but Tier 2+ no-adapter vendor unknown can remain `fallback_allowed=True` with no explicit blocker; repair routed to Build 1.
+2026-06-01 16:04 -06:00 - Reviewed Build 1 Relay repair commits `c3d91214` and `69e9ff55`; result: finding/repair-routed; tests: `python -m pytest tests/test_relay_executor.py -q` 121 passed against current checkout; notes: both target commits exist locally but are not ancestors of current `HEAD`/`origin/main`, so the Ready marker cannot be accepted and the proof did not exercise their vendor/model blocker or Aegis evidence changes.
 ```
 
 ## Proof Log
@@ -1078,6 +1095,7 @@ YYYY-MM-DD HH:MM TZ - Proof for Build <n> commit <hash>; proof type: diff/test/r
 2026-06-01 15:49 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff --check 02190d26..HEAD -- docs/live-codex-reviews.md` and `git diff 02190d26..HEAD -- docs/live-codex-reviews.md` show only idle queue read/write bookkeeping since the 15:43 cadence checkpoint; queue top remains completed/repair-routed with no executable Active Task; result: pass.
 2026-06-01 15:55 -06:00 - Proof for Build 1 Relay stop-condition repair commit `f0bb2bb6`; proof type: test/diff/manual; evidence: `python -m pytest tests/test_relay_executor.py -q` -> 121 passed; diff inspection confirms no live vendor calls, CLI execution, UI rendering, branch movement, account probing, network access, or Polaris dependency; manual proof with clean Tier 2 audit/no adapter metadata returned `vendor='unknown'`, `model_id='primary-default'`, `fallback_allowed=True`, `fallback_blockers=()`; result: fail-repair-routed.
 2026-06-01 16:01 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff --check f3ec0786..HEAD -- docs/live-codex-reviews.md docs/live-build-1.md` and `git diff --stat f3ec0786..HEAD -- docs/live-codex-reviews.md docs/live-build-1.md` show only Reviews A read/write bookkeeping plus the already-routed Build 1 Relay stop-condition repair record since the 15:49 cadence checkpoint; queue top remains completed/repair-routed with no executable Active Task; result: pass.
+2026-06-01 16:04 -06:00 - Proof for Build 1 Relay repair commits `c3d91214` and `69e9ff55`; proof type: test/reference; evidence: `python -m pytest tests/test_relay_executor.py -q` -> 121 passed, but `git merge-base --is-ancestor 69e9ff55 HEAD` and `git merge-base --is-ancestor c3d91214 HEAD` both reported NOT ancestor of HEAD; current `RelayDecisionRecord` lacks the Aegis fields from `69e9ff55`; result: fail-repair-routed.
 ```
 
 Minimum proof expectations:
@@ -1130,6 +1148,7 @@ YYYY-MM-DD HH:MM TZ - Build <n> commit <hash>; severity: CRITICAL/HIGH/MEDIUM/LO
 2026-06-01 15:49 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md; finding: no actionable findings in the recent queue-only read-check/write-log updates since 15:43; action: clear, no repair task written.
 2026-06-01 15:55 -06:00 - Build 1 commit `f0bb2bb6`; severity: MEDIUM; file: meridian_core/relay_executor.py; finding: Tier 2+ no-adapter metadata path records `vendor='unknown'` but does not add an explicit vendor-unknown fallback blocker, so a clean audited Tier 2 plan can remain `fallback_allowed=True`; action: repair-task-written to `docs/live-build-1.md`.
 2026-06-01 16:01 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md and docs/live-build-1.md; finding: no actionable findings in the recent Reviews A read/write bookkeeping or already-routed Build 1 Relay stop-condition repair record since 15:49; action: clear, no repair task written.
+2026-06-01 16:04 -06:00 - Build 1 commits `c3d91214` and `69e9ff55`; severity: HIGH; file: review provenance/current branch; finding: Ready-for-review commits are not ancestors of current `HEAD`/`origin/main`, so the required test proof ran against unrepaired Relay code and cannot clear the vendor/model blocker or Aegis evidence changes; action: repair-task-written to `docs/live-build-1.md`.
 ```
 
 ## Repair Routing Log
@@ -1152,6 +1171,7 @@ YYYY-MM-DD HH:MM TZ - Routed repair to Build <n>; queue: docs/live-build-<n>.md;
 2026-05-31 15:34 -06:00 - Cleared Build 1 Prime queue runway policy repair; queue: docs/live-build-1.md; finding: none; status: passed, no repair routed.
 2026-05-31 22:09 -06:00 - Routed repair to Build 1; queue: docs/live-build-1.md; finding: `PrimeCockpitSnapshot` must normalize or protect mutable `lanes`/`progress_events` inputs so immutable snapshot semantics hold; status: pending.
 2026-06-01 15:55 -06:00 - Routed repair to Build 1; queue: docs/live-build-1.md; finding: missing safe vendor metadata for Tier 2+ must become an explicit blocking fallback blocker, not only `vendor='unknown'`; status: pending.
+2026-06-01 16:04 -06:00 - Routed repair to Build 1; queue: docs/live-build-1.md; finding: Ready-for-review commits `c3d91214` and `69e9ff55` are not visible in current `origin/main`, so Reviews A cannot clear the Relay repair until the approved branch path lands or requeues a current-main target; status: pending.
 ```
 
 ## Coordinator Addendum - Planning Harness Review
@@ -1440,6 +1460,7 @@ Round 6 write log:
 - 2026-06-01 15:55 -06:00 - Codex Reviews A completed Build 1 Relay stop-condition repair review. Files changed: `docs/live-codex-reviews.md`, `docs/live-build-1.md`. Tests run: `python -m pytest tests/test_relay_executor.py -q` (121 passed); proof command: `git diff --check -- docs/live-codex-reviews.md docs/live-build-1.md`. Findings/fixes: MEDIUM vendor-unknown stop-condition gap routed to Build 1; no implementation changed by Reviews A. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue and Build 1 queue record routing only.
 - 2026-06-01 15:59 -06:00 - Codex Reviews A completed idle queue read after origin/main fetch/ff-only check. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update); proof command: `git diff --check -- docs/live-codex-reviews.md`. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or new durable review finding.
 - 2026-06-01 16:01 -06:00 - Codex Reviews A completed idle queue read and three-change Codex review check after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (queue/provenance-only documentation update); proof commands: `git diff --check f3ec0786..HEAD -- docs/live-codex-reviews.md docs/live-build-1.md`, `git diff --stat f3ec0786..HEAD -- docs/live-codex-reviews.md docs/live-build-1.md`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings; no implementation changed by Reviews A. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or new durable review finding.
+- 2026-06-01 16:04 -06:00 - Codex Reviews A completed Build 1 Relay repair visibility review. Files changed: `docs/live-codex-reviews.md`, `docs/live-build-1.md`. Tests run: `python -m pytest tests/test_relay_executor.py -q` (121 passed against current checkout); proof commands: `git merge-base --is-ancestor 69e9ff55 HEAD`, `git merge-base --is-ancestor c3d91214 HEAD`, and `git diff --check -- docs/live-codex-reviews.md docs/live-build-1.md`. Findings/fixes: HIGH Ready marker/provenance blocker routed to Build 1 because both target commits are not ancestors of current `HEAD`/`origin/main`; no implementation changed by Reviews A. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue and Build 1 queue record routing only.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
