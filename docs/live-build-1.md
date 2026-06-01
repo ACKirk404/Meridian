@@ -40,7 +40,7 @@ Ready for Codex Review.
 - Next Candidate Task awaiting promotion from Prime/Codex
 - Build 1 idle and polling for next task assignment
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: harden Relay prompt payload snapshot metadata edge cases after the metadata-binding slice lands.
 
@@ -62,6 +62,11 @@ Completion:
 - Push: successful to `origin/main`.
 
 Ready for Codex Review.
+
+**Build 1 Read Check** — 2026-06-01 05:10 -05:00
+- Status: Relay payload snapshot hardening task completed and marked Ready for Codex Review
+- No executable Active Now task; Next Candidate Task (bind Relay metadata review findings) awaiting promotion
+- Build 1 idle and polling for next task assignment
 
 ## Next Candidate Task
 
