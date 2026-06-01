@@ -141,9 +141,15 @@ Completion: focused repairs routed into `docs/live-build-4.md` and `docs/live-bu
 
 ## Next Candidate Task
 
-Goal: review Build 3 FileMap registration for Build 5 right-panel rendering artifacts after Build 3 marks it Ready for Codex Review.
+Goal: review Build 4 Relay harness model-selection logic depth after the Build 3 FileMap duplicate-row repair clears.
 
-Allowed review files: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews-2.md` for provenance only.
+Allowed review files: `docs/relay-heartbeat-model-routing-logic.md`, `docs/relay-completeness-audit.md`, `docs/model-harness-v2-contract.md`, `docs/deepseek-validation-benchmark-plan.md`, `docs/deepseek-direct-provider-implementation-handoff.md`, `docs/live-build-4.md`, and `docs/live-codex-reviews-2.md` for provenance only.
+
+Task: review Build 4 commit `b5c40b38` and the current `docs/live-build-4.md` Ready marker for the deepened Relay harness model-selection logic. Verify the logic covers account-first CLI/session use before paid API fallback, explicit API fallback conditions, Anthropic/OpenAI/OpenRouter/DeepSeek direct roles, dual-model and external Codex review triggers, new-session/session-lifecycle decisions for context fill and reasoning/work-type shifts, cost/token/rate-limit/account-exhaustion routing, and clear stop/block conditions. Confirm it does not authorize live model calls, account probing, process control, UI work, branch movement, or Polaris dependency. If findings exist, route focused repair to Build 4; otherwise mark passed and promote the next review candidate.
+
+Proof command:
+
+- Docs-only; no pytest required unless review scope discovers a FileMap/runtime claim needing proof.
 
 ## Completed / Finding Routed
 
