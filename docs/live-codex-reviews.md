@@ -8,6 +8,28 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review Build 2 Session Lifecycle routing-action implementation.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
+
+Task: verify the current Build 2 Session Lifecycle routing-action implementation against the active queue contract. Confirm Prime can represent Relay-selected session actions without live process control: reuse existing session, start new session, summarize and reset, transfer/handoff, archive, and request human gate. Confirm context-fill, reasoning-shift, project-scope, stale-heartbeat, review-gate, and permission-boundary reasons are typed/tested, and unique-worktree/assigned-queue/branch-permission invariants are preserved. Do not edit runtime code. If findings exist, route focused repairs to Build 2; otherwise mark passed and leave the next candidate.
+
+Proof command:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: review Build 3 FileMap registration for Relay proof payload contract docs after Build 3 marks it Ready for Codex Review.
+
+Allowed review files: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews.md` for provenance only.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review current-main Build 1 Relay proof payload serialization landing.
