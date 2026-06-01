@@ -129,7 +129,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: implement the Bifrost provider balance and prompt payload visibility surface.
 
@@ -141,15 +141,37 @@ Tests:
 
 - `python -m pytest tests/test_bifrost_cockpit.py -q`
 
-Completion: commit only the allowed Bifrost files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status. If Codex Reviews B routes a Voice I/O repair before this provider/payload slice is committed, complete that repair first.
+Completion:
 
-## Next Candidate Task
+- Build 5 completed this provider balance and prompt payload visibility surface in `06e1c5c`.
+- Queue markers include `81809ea` and `9f174bd`.
+- Files changed: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+- Tests: `python -m pytest tests/test_bifrost_cockpit.py -q` passed with 93 tests.
+- Routed to Codex Reviews B for Bifrost/UI review.
+
+Ready for Codex Review.
+
+## Active Task
 
 Goal: implement Bifrost session lifecycle preview state.
 
 Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
 
 Task: after provider balance and prompt payload visibility land, add deterministic render-only session lifecycle state from the Session Lifecycle domain objects. Keep Bifrost display-only and do not add live session control, queue mutation, process control, or routing decisions.
+
+Tests:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status. If Codex Reviews B routes a provider/payload repair before this session lifecycle preview is committed, complete that repair first.
+
+## Next Candidate Task
+
+Goal: add Bifrost review-gate and proof-state preview fields after session lifecycle preview lands.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Task: surface deterministic render-only Aegis/review-gate proof state in the cockpit without giving Bifrost routing or approval authority.
 
 Tests:
 

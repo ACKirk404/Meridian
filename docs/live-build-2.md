@@ -4,6 +4,28 @@
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: write the Session Lifecycle permissions and Prime/Beacon binding handoff contract.
+
+Allowed files only: `docs/session-lifecycle-permissions-prime-beacon-contract.md`, `docs/live-build-2.md`.
+
+Task: create the docs-only handoff for the next Session Lifecycle slice after `SessionLifecycleState` and `SessionCommandPlan` review clears. Define how branch/worktree permission objects, restart/resteer findings, Beacon heartbeat/staleness observations, and Prime command recommendations should bind into Session Lifecycle without adding live process control. Do not edit runtime code, tests, FileMap, Bifrost, or review queues.
+
+Tests: none required (docs-only).
+
+Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status. If Codex Reviews A routes a Session Lifecycle runtime repair before this docs slice is committed, complete that repair first.
+
+## Next Candidate Task
+
+Goal: implement Session Lifecycle permissions and Prime/Beacon binding after the runtime implementation clears review.
+
+Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
+
+Tests:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair the Session Lifecycle implementation checklist provenance before runtime implementation proceeds.
@@ -16,7 +38,7 @@ Status: **Completed** in commit `7d20f47`; Codex review cleared (no blocking fin
 - Cadence 3 of 3 complete; Codex review: pass, no blocking findings (commit db3fe72).
 - Push: origin/main; Codex review cleared 2026-06-05 03:58.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement the Session Lifecycle domain objects from the reviewed contract/checklist.
 
@@ -27,6 +49,13 @@ Task: create the first runtime slice for `SessionLifecycleState` and `SessionCom
 Tests:
 
 - `python -m pytest tests/test_session_lifecycle.py -q`
+
+Completion:
+
+- Runtime implementation completed in commit `910e652` with queue provenance in `a80d439` and verification in `85f4775`.
+- Files changed: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
+- Tests: `python -m pytest tests/test_session_lifecycle.py -q` passed with 12 tests.
+- Routed to Codex Reviews A for runtime/code review.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 

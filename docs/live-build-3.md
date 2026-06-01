@@ -10,17 +10,27 @@ Build 3 cadence for commit `67a75dc` plus marker `b3316b6` was cleared by Codex 
 
 ## Active Task
 
-Goal: repair the FileMap checklist registration while the checklist artifact is missing.
+Goal: register the Session Lifecycle checklist and runtime module in FileMap.
 
 Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
-Task: Codex Reviews B found that `80ebea4` registered `docs/session-lifecycle-implementation-checklist.md`, but the file is not present in current `HEAD`. Remove or pause that FileMap registration and required-path coverage until Build 2 restores the checklist artifact. Keep the repair mechanical and do not edit Build 2 files or runtime code.
+Task: reconcile the Session Lifecycle FileMap state now that `docs/session-lifecycle-implementation-checklist.md`, `meridian_core/session_lifecycle.py`, and `tests/test_session_lifecycle.py` are present on `origin/main`. Add or restore discoverability entries only for existing files, mirror them in `docs/FileMap.md`, and add required-path coverage in `tests/test_filemap.py`. Keep this mechanical and do not edit the checklist, runtime implementation, tests outside FileMap coverage, Build 2 queue, or review queues.
 
 Tests:
 
 - `python -m pytest tests/test_filemap.py -q`
 
 Completion: commit only the allowed FileMap repair files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
+## Next Candidate Task
+
+Goal: audit V2 FileMap drift after Session Lifecycle registration lands.
+
+Allowed files only: `docs/filemap-v2-v3-discoverability-audit.md`, `docs/live-build-3.md`.
+
+Task: check the current V2 progress tracker against FileMap and record any remaining discoverability gaps as follow-up tasks. Do not edit runtime FileMap in this docs-only audit.
+
+Tests: none required (docs-only).
 
 ## Completed / Ready For Codex Review
 

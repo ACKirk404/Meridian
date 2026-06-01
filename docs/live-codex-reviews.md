@@ -4,6 +4,27 @@ This file is the standing queue for Codex Reviews A, the runtime/code review ses
 
 The build lanes build. Review lanes review.
 
+## Coordinator Override - Active Now
+
+Goal: verify Build 1 repair commit `19f4516` closes the PrimeCockpitSnapshot immutability finding.
+
+Allowed review files: `meridian_core/cockpit_state.py`, `tests/test_cockpit_state.py`, `docs/live-build-1.md` for provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_cockpit_state.py -q`
+- `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`
+
+Completion: if clean, commit and push only `docs/live-codex-reviews.md`; if findings remain, route a focused repair into `docs/live-build-1.md`.
+
+## Next Candidate Task
+
+Goal: review Build 2 Session Lifecycle runtime implementation commit `910e652` and queue provenance `a80d439` / `85f4775`.
+
+Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, and `docs/live-build-2.md` for provenance only.
+
+Proof command: `python -m pytest tests/test_session_lifecycle.py -q`
+
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 2 Session Lifecycle implementation checklist commit `0296525`.
