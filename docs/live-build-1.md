@@ -1,5 +1,9 @@
 ﻿# Live Build 1 Queue
 
+## Required First Command For Every New Task
+
+Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement Relay model-adapter metadata binding.

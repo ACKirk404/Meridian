@@ -1,5 +1,9 @@
 # Live Build 5 Queue
 
+## Required First Command For Every New Task
+
+Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
+
 ## Active Task - Repair Routed By Codex Reviews B
 
 Goal: repair the Bifrost provider balance and prompt payload visibility surface from commit `06e1c5c`.

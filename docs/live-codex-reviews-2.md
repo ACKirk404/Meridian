@@ -2,6 +2,10 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
+## Required First Command For Every New Task
+
+Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
+
 ## Completed / Finding Routed
 
 Goal: review Build 5 provider balance and prompt payload visibility surface commit `06e1c5c`.
