@@ -100,7 +100,7 @@ Completion:
 
 Passed Codex Reviews B. Build 4 may proceed to the DeepSeek direct-provider adapter implementation handoff.
 
-## Coordinator Override - Completed / Ready For Codex Review
+## Coordinator Override - Active Now
 
 Goal: write the DeepSeek direct-provider adapter implementation handoff.
 
@@ -108,14 +108,7 @@ Allowed files only: `docs/deepseek-direct-provider-implementation-handoff.md`, `
 
 Task: after `docs/model-harness-v2-contract.md` lands and clears review, write a bounded implementation handoff for adding direct DeepSeek provider metadata/routing through Relay and Aegis. Cover environment variable names, direct-vs-aggregator proof, candidate trust state, prompt payload snapshot evidence, Q-mode flatness proof, blocked authorities, tests expected, and which runtime files should be touched by the later implementation lane.
 
-Completion:
-
-- Completed by Build 4 on 2026-06-01.
-- Files changed: `docs/deepseek-direct-provider-implementation-handoff.md`, `docs/live-build-4.md`.
-- Tests: not required (docs-only).
-- Commit: `f4a5697`.
-
-Ready for Codex Review.
+Tests: not required for this docs-only handoff.
 
 This file is the standing assignment queue for Build 4.
 
@@ -392,7 +385,6 @@ YYYY-MM-DD HH:MM TZ - Build 4 completed <task>; commit <hash>; tests <result>
 2026-05-31 08:02 -06:00 - Build 4 completed Workflow Sub-Agent Harness contract (docs/workflow-subagent-harness-contract.md) per Coordinator Override; commit pending; tests not required (docs-only); Ready for Codex Review after commit
 2026-05-31 08:45 -06:00 - Build 4 completed V2 Prime Autonomy contract (docs/prime-autonomy-v2-contract.md) per Coordinator Override (Active Now); commit pending; tests not required (docs-only); Ready for Codex Review after commit
 2026-05-31 08:55 -06:00 - Build 4 completed Claude Workflows sub-agent architecture note (docs/workflows-subagent-harness-architecture.md) per Coordinator Override (Active Now); narrative companion to docs/workflow-subagent-harness-contract.md; commit pending; tests not required (docs-only); Ready for Codex Review after commit
-2026-06-01 09:02 -06:00 - Build 4 rotated completed DeepSeek handoff (f4a5697) from Active Now to Completed / Ready For Codex Review; no new Active Task; idle polling
 ```
 
 ## Cross-Check Activity
@@ -447,7 +439,6 @@ YYYY-MM-DD HH:MM TZ - Build 4 Codex review result: pass/no actionable findings/f
 2026-05-30 11:37 -06:00 - Build 4 Codex review repair: commit 7792243 (piggy-backed on Build 1 read check — edits were staged and picked up); tests not required (docs-only); all 3 CRITICAL + 2 HIGH repaired
 2026-05-30 11:41 -06:00 - Build 4 Codex review result: fixed; 3 CRITICAL + 2 HIGH addressed; capabilities map now accurately reflects domain slice state for all 10 capabilities; Review Console contract aligned to domain enums
 2026-05-31 08:58 -06:00 - Build 4 Codex review result (recorded from review lane log live-codex-reviews-2.md d43cb34): V2 first-wave architecture slices reviewed across Rounds B11–B15 — 7eb5ae1 (Echo/Atlas contracts B11), 1448642 (Workflow sub-agent contract B13), 3aa16fe (Prime Autonomy contract B14), 17d8d90 (Workflows architecture note B15) — all PASS-WITH-FINDINGS; consolidated 5-entry FileMap registration MEDIUM routed to Build 3; no Build 4 repair task issued; cadence pause for V2 cycle cleared
-2026-06-01 09:00 -06:00 - Build 4 checked queue; status: idle; DeepSeek handleoff (f4a5697) was still in Active Now; rotated to Completed / Ready For Codex Review; no Next Candidate or new Active Task present; origin/main at 5469ed7
 ```
 
 ## Archived Prior Active Task - Do Not Execute
