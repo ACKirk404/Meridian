@@ -39,6 +39,13 @@ class RelayDecisionRecord:
     Exposes the audit fields needed for Prime to understand: route class, session action,
     context health, dual-lane requirement, trust/proof blockers, account-vs-API precedence,
     cost/privacy pressure, fallback blockers, and explanation for Prime.
+
+    Optional Aegis gate evidence fields (populated when Aegis validation occurs):
+    - aegis_gate_decision: gate outcome (allow/demote/block/human_gate)
+    - aegis_evidence_ids: tuple of evidence ids from gate validation
+    - aegis_waiver_present: whether a waiver was applied to this gate
+    - aegis_gate_severity: severity level of gate outcome
+    - aegis_explanation: explanation text from gate evaluation
     """
 
     heartbeat_id: str  # from packet.packet_id
@@ -67,6 +74,11 @@ class RelayDecisionRecord:
     observability_fields: tuple[str, ...] = ()
     telemetry_required: tuple[str, ...] = ()
     explanation_for_prime: str = ""
+    aegis_gate_decision: str | None = None  # gate outcome: allow/demote/block/human_gate
+    aegis_evidence_ids: tuple[str, ...] = ()  # evidence ids from gate validation
+    aegis_waiver_present: bool = False  # whether waiver was applied
+    aegis_gate_severity: str | None = None  # severity level from gate
+    aegis_explanation: str = ""  # gate evaluation explanation
 
 
 @dataclass(frozen=True)

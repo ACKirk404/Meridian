@@ -1603,3 +1603,56 @@ class TestRelayDecisionRecord:
         # This unknown should be a fallback blocker
         assert "model_id_unknown" in record.fallback_blockers
         assert not record.fallback_allowed
+
+    def test_decision_record_aegis_gate_decision_optional(self) -> None:
+        """Decision record has optional aegis_gate_decision field for gate outcomes."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should have aegis_gate_decision field
+        assert hasattr(record, "aegis_gate_decision")
+        # Defaults to None when not provided
+        assert record.aegis_gate_decision is None
+
+    def test_decision_record_aegis_gate_decision_immutable(self) -> None:
+        """Decision record aegis_gate_decision is immutable (frozen dataclass)."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should not be able to modify
+        with pytest.raises(AttributeError):
+            record.aegis_gate_decision = "allow"  # type: ignore
+
+    def test_decision_record_aegis_evidence_ids_optional(self) -> None:
+        """Decision record has optional aegis_evidence_ids field for evidence references."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should have aegis_evidence_ids field
+        assert hasattr(record, "aegis_evidence_ids")
+        # Defaults to empty tuple when not provided
+        assert record.aegis_evidence_ids == ()
+
+    def test_decision_record_aegis_waiver_present_optional(self) -> None:
+        """Decision record has optional aegis_waiver_present field for waiver tracking."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should have aegis_waiver_present field
+        assert hasattr(record, "aegis_waiver_present")
+        # Defaults to False when not provided
+        assert record.aegis_waiver_present is False
+
+    def test_decision_record_aegis_gate_severity_optional(self) -> None:
+        """Decision record has optional aegis_gate_severity field for severity level."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should have aegis_gate_severity field
+        assert hasattr(record, "aegis_gate_severity")
+        # Defaults to None when not provided
+        assert record.aegis_gate_severity is None
+
+    def test_decision_record_aegis_explanation_optional(self) -> None:
+        """Decision record has optional aegis_explanation field for gate explanation."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should have aegis_explanation field
+        assert hasattr(record, "aegis_explanation")
+        # Defaults to empty string when not provided
+        assert record.aegis_explanation == ""
