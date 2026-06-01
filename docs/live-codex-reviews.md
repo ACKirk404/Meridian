@@ -38,11 +38,21 @@ Proof command:
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
 
-## Next Candidate Task
+## Coordinator Override - Active Now
 
 Goal: review Build 3 FileMap registration for Relay proof payload contract docs after Build 3 marks it Ready for Codex Review.
 
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
 Allowed review files: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Task: poll `docs/live-build-3.md` and current `origin/main` for Build 3's FileMap registration of the Relay proof payload contract docs. When the Build 3 slice is marked Ready for Codex Review, verify the FileMap entry, docs mirror, required-path coverage, and tests. If the slice is not yet ready, append a read check and keep polling; do not mark idle.
+
+Proof command:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
 
 ## Coordinator Override - Completed / Passed
 
