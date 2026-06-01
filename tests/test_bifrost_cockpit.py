@@ -11,9 +11,13 @@ from bifrost.cockpit import (
     LaneRow,
     ProgressEvent,
     ProjectCard,
+    ProofGateStatus,
+    ProofStateView,
     SessionLifecycleItem,
     SessionLifecycleView,
     VoiceIOState,
+    _render_proof_state,
+    _e,
     render_cockpit_html,
     sample_cockpit_view_model,
     view_model_from_snapshot,
@@ -1036,3 +1040,145 @@ def test_session_lifecycle_no_blocker_when_empty():
     )
     doc = render_cockpit_html(vm)
     assert 'class="session-blocker"' not in doc
+
+
+# Proof State Tests
+
+def test_sample_view_model_has_proof_state():
+    vm = sample_cockpit_view_model()
+    assert vm.proof_state is not None
+    assert isinstance(vm.proof_state, ProofStateView)
+
+
+def test_proof_state_sample_has_gates():
+    vm = sample_cockpit_view_model()
+    assert len(vm.proof_state.gates) >= 3
+
+
+def test_proof_state_renders_with_sample_data():
+    vm = sample_cockpit_view_model()
+    doc = render_cockpit_html(vm)
+    assert 'class="proof-state"' in doc
+    assert 'aria-label="Proof State"' in doc
+
+
+def test_proof_state_shows_status():
+    vm = sample_cockpit_view_model()
+    doc = render_cockpit_html(vm)
+    assert 'class="proof-status"' in doc
+    assert 'executed' in doc
+
+
+def test_proof_state_shows_all_gates():
+    vm = sample_cockpit_view_model()
+    doc = render_cockpit_html(vm)
+    for gate in vm.proof_state.gates:
+        assert _e(gate.gate_name) in doc
+
+
+def test_proof_state_shows_gate_status():
+    vm = sample_cockpit_view_model()
+    doc = render_cockpit_html(vm)
+    assert 'class="gate-item gate-pass"' in doc
+
+
+def test_proof_state_shows_gate_reasons():
+    vm = sample_cockpit_view_model()
+    doc = render_cockpit_html(vm)
+    for gate in vm.proof_state.gates:
+        assert _e(gate.reason) in doc
+
+
+def test_proof_state_shows_findings():
+    vm = sample_cockpit_view_model()
+    doc = render_cockpit_html(vm)
+    assert 'class="finding-open"' in doc
+
+
+def test_proof_state_with_default_status_renders():
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.proof_state = ProofStateView()
+    html = _render_proof_state(vm.proof_state)
+    assert 'class="proof-state"' in html
+    assert 'no_proof' in html
+
+
+def test_proof_state_single_gate():
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.proof_state = ProofStateView(
+        proof_status="verified",
+        gates=[
+            ProofGateStatus(
+                gate_id="test_gate",
+                gate_name="Test Gate",
+                status="pass",
+                reason="Test reason",
+            )
+        ],
+    )
+    html = _render_proof_state(vm.proof_state)
+    assert 'class="proof-state"' in html
+    assert "Test Gate" in html
+
+
+def test_proof_state_escapes_gate_names():
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.proof_state = ProofStateView(
+        proof_status="verified",
+        gates=[
+            ProofGateStatus(
+                gate_id="test",
+                gate_name="<script>xss</script>",
+                status="pass",
+                reason="test",
+            )
+        ],
+    )
+    doc = render_cockpit_html(vm)
+    assert "<script>" not in doc
+    assert "&lt;script&gt;" in doc
+
+
+def test_proof_state_escapes_reasons():
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.proof_state = ProofStateView(
+        proof_status="verified",
+        gates=[
+            ProofGateStatus(
+                gate_id="test",
+                gate_name="Test",
+                status="pass",
+                reason="<script>alert('xss')</script>",
+            )
+        ],
+    )
+    doc = render_cockpit_html(vm)
+    # Check that the script tag is properly escaped in the gate-reason
+    assert 'class="gate-reason">&lt;script&gt;' in doc
+    assert "<script>" not in doc
+
+
+def test_proof_state_escapes_notes():
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.proof_state = ProofStateView(
+        proof_status="executed",
+        gates=[],
+        notes="<img src=x onerror=alert(1)>",
+    )
+    doc = render_cockpit_html(vm)
+    # Check that the img tag is properly escaped in the notes
+    assert 'class="proof-notes">&lt;img' in doc
+    assert "<img" not in doc
+
+
+def test_render_cockpit_includes_proof_state():
+    vm = sample_cockpit_view_model()
+    doc = render_cockpit_html(vm)
+    assert 'class="proof-state"' in doc
+
+
+def test_proof_state_in_cockpit_main_not_core():
+    vm = sample_cockpit_view_model()
+    doc = render_cockpit_html(vm)
+    main_section = doc[doc.find('<main class="cockpit-main">'):doc.find('</main>')]
+    assert 'class="proof-state"' in main_section

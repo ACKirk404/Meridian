@@ -122,6 +122,24 @@ class PromptPayloadView:
 
 
 @dataclass
+class ProofGateStatus:
+    gate_id: str
+    gate_name: str
+    status: str  # "pass" | "warning" | "block"
+    reason: str = ""
+
+
+@dataclass
+class ProofStateView:
+    proof_status: str = "no_proof"  # "no_proof" | "queue_read" | "verified" | "executed"
+    gates: list[ProofGateStatus] = field(default_factory=list)
+    blocker_count: int = 0
+    open_findings: int = 0
+    waived_count: int = 0
+    notes: str = ""
+
+
+@dataclass
 class SessionLifecycleItem:
     session_id: str
     session_name: str
@@ -167,6 +185,7 @@ class CockpitViewModel:
     provider_balance: ProviderBalanceView = field(default_factory=ProviderBalanceView)
     prompt_payload: PromptPayloadView = field(default_factory=PromptPayloadView)
     session_lifecycle: SessionLifecycleView = field(default_factory=SessionLifecycleView)
+    proof_state: ProofStateView = field(default_factory=ProofStateView)
     instrument: InstrumentBand = field(
         default_factory=lambda: InstrumentBand(
             beacon="ok", relay="ok", aegis="ok", compass="ok",
@@ -412,6 +431,33 @@ def sample_cockpit_view_model() -> CockpitViewModel:
                 ),
             ],
             active_session_id="build-5-bifrost",
+        ),
+        proof_state=ProofStateView(
+            proof_status="executed",
+            gates=[
+                ProofGateStatus(
+                    gate_id="unknown_route_class",
+                    gate_name="Unknown Route Class",
+                    status="pass",
+                    reason="route_class declared as direct_api",
+                ),
+                ProofGateStatus(
+                    gate_id="missing_model_id",
+                    gate_name="Missing Exact Model ID",
+                    status="pass",
+                    reason="model_id claude-opus-4-7 is exact/versioned",
+                ),
+                ProofGateStatus(
+                    gate_id="tier3_dual_lane",
+                    gate_name="Tier 3 Dual-Lane",
+                    status="pass",
+                    reason="risk_tier is Tier 2; dual-lane not required",
+                ),
+            ],
+            blocker_count=0,
+            open_findings=1,
+            waived_count=0,
+            notes="One review finding open: performance profiling incomplete for DeepSeek route",
         ),
         instrument=InstrumentBand(
             beacon="ok",
@@ -787,6 +833,56 @@ def _render_instrument_band(inst: InstrumentBand) -> str:
     )
 
 
+def _render_proof_state(proof: ProofStateView) -> str:
+    if not proof.proof_status:
+        return ""
+
+    gate_items = []
+    for gate in proof.gates:
+        status_class = f"gate-{_e(gate.status)}"
+        gate_items.append(
+            f'<div class="gate-item {status_class}" data-gate-id="{_e(gate.gate_id)}">'
+            f'<span class="gate-name">{_e(gate.gate_name)}</span>'
+            f'<span class="gate-status">{_e(gate.status)}</span>'
+            f'<span class="gate-reason">{_e(gate.reason)}</span>'
+            f"</div>"
+        )
+
+    blocker_html = ""
+    if proof.blocker_count > 0:
+        blocker_html = f'<span class="blocker-count">{proof.blocker_count} gates blocking</span>'
+
+    findings_html = ""
+    if proof.open_findings > 0 or proof.waived_count > 0:
+        findings_html = (
+            f'<span class="finding-open">{proof.open_findings} open findings</span>'
+            f'<span class="finding-waived">{proof.waived_count} waived</span>'
+        )
+
+    return (
+        '<section class="proof-state" aria-label="Proof State">'
+        '<div class="proof-header-main">'
+        '<h3>Proof State</h3>'
+        f'<span class="proof-status">{_e(proof.proof_status)}</span>'
+        f'{blocker_html}'
+        "</div>"
+        '<div class="proof-gates">'
+        + "".join(gate_items)
+        + "</div>"
+        + (
+            f'<div class="proof-summary">{findings_html}</div>'
+            if findings_html
+            else ""
+        )
+        + (
+            f'<span class="proof-notes">{_e(proof.notes)}</span>'
+            if proof.notes
+            else ""
+        )
+        + "</section>"
+    )
+
+
 def _render_session_lifecycle(lifecycle: SessionLifecycleView) -> str:
     if not lifecycle.sessions:
         return ""
@@ -848,6 +944,7 @@ def render_cockpit_html(vm: CockpitViewModel) -> str:
     prime = _render_prime_panel(vm)
     harness_dashboard = _render_harness_dashboard(vm.harnesses)
     session_lifecycle = _render_session_lifecycle(vm.session_lifecycle)
+    proof_state = _render_proof_state(vm.proof_state)
     provider_balance = _render_provider_balance(vm.provider_balance)
     prompt_payload = _render_prompt_payload(vm.prompt_payload)
     projects = _render_project_strip(vm.projects, vm.lanes)
@@ -871,6 +968,7 @@ def render_cockpit_html(vm: CockpitViewModel) -> str:
         f"{prime}\n"
         f"{harness_dashboard}\n"
         f"{session_lifecycle}\n"
+        f"{proof_state}\n"
         f"{provider_balance}\n"
         f"{prompt_payload}\n"
         "</main>\n"
