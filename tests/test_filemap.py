@@ -103,6 +103,7 @@ _REQUIRED_PATHS = [
     "docs/prime-queue-reconciliation-requirement.md",
     "docs/relay-completeness-audit.md",
     "docs/relay-heartbeat-model-routing-logic.md",
+    "docs/relay-aegis-risk-proof-gates.md",
     "docs/ui-integration-checklist.md",
     "tests/test_cockpit_provider.py",
     "tests/test_restart_resteer.py",

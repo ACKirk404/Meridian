@@ -924,6 +924,13 @@ def make_default_map() -> FileMap:
             notes="Draft routing logic; not runtime code yet. Provides context for Relay route selection, vendor decisions, and proof requirements.",
         ),
         FileMapEntry(
+            path="docs/relay-aegis-risk-proof-gates.md",
+            area=FileArea.AEGIS,
+            purpose="Relay-Aegis risk and proof gates contract: defines gates for Aegis to validate Relay routing decisions and enforce safety, proof, and validation requirements.",
+            related_tests=[],
+            notes="V2 architecture contract. Defines when Aegis must block, waive, or approve a Relay route based on risk tier, vendor validation, proof status, and human gates.",
+        ),
+        FileMapEntry(
             path="docs/ui-integration-checklist.md",
             area=FileArea.BUILD_PROCESS,
             purpose="Active UI integration gate: checklist for plugging live behavior into Meridian UI. Ensures every visible piece works, shows unavailability, or stays hidden.",
