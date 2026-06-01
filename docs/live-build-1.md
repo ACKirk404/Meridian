@@ -1087,6 +1087,7 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-05-31 10:35 -05:00 - Build 1 checked queue; status: idle (pulled origin/main; no Active Now task; Relay metadata/snapshot Ready for Codex Review; awaiting task promotion)
 2026-05-31 10:38 -05:00 - Build 1 checked queue; status: idle (pulled origin/main; no Active Now task; Relay metadata/snapshot Ready for Codex Review; awaiting task promotion)
 2026-05-31 10:41 -05:00 - Build 1 checked queue; status: idle (pulled origin/main; no Active Now task; Relay metadata/snapshot Ready for Codex Review; awaiting task promotion)
+2026-06-01 11:05 -05:00 - Build 1 checked queue; status: idle (pulled origin/main with build-2 read check); no Active Now task; Two Relay tasks ready for Codex Review; Next Candidate Task awaiting promotion; Build 1 idle and polling for next task assignment
 ```
 
 ## Write/Completion Log
