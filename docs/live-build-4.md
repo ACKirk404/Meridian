@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair Relay harness model-selection logic consistency findings from Codex Reviews B.
 
@@ -20,7 +20,7 @@ Task: make the deepened Relay routing docs internally consistent without broad r
 - Resolve the wrong-project/wrong-role session branch: the account-first decision tree currently sends a wrong session scope to direct API or aggregator, while the later fallback table says wrong project must start a project-specific session and aggregator is not safe for authoritative/high-risk work. Ensure wrong project/role/session-scope rejection starts a proper session or blocks before any API/aggregator fallback.
 - Align exact model identity across the Relay routing doc, Model Harness V2 contract, and DeepSeek handoff. The Relay routing doc names Claude/OpenAI/DeepSeek route families such as `claude-sonnet-4-6`, `GPT-5.3-Codex`, `deepseek-v4-pro`, and `deepseek-v4-flash`, while the metadata contract and DeepSeek handoff still use older normative exact ids such as `gpt-4o` and `deepseek-chat`; `deepseek-chat` is also described as a compatibility alias that should not be chosen for new routes. Decide whether these are placeholders, aliases, or exact runtime ids and document the registry resolution rule.
 
-Completion: mark Ready for Codex Review with files changed, proof, and no runtime/model-call/account-probing/process-control/UI/branch/Polaris changes.
+Completion: completed in commit `a5144d42` and routed to Reviews B for the focused Relay routing logic consistency repair review. Files changed: `docs/relay-heartbeat-model-routing-logic.md`, `docs/model-harness-v2-contract.md`. Tests not required because this is docs-only. No runtime/model-call/account-probing/process-control/UI/branch/Polaris changes were intended in this slice.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
