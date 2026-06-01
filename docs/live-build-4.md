@@ -8,6 +8,20 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: repair remaining Relay routing logic consistency findings from Codex Reviews B.
+
+Allowed files only: `docs/relay-heartbeat-model-routing-logic.md`, `docs/live-build-4.md`.
+
+Task: update `docs/relay-heartbeat-model-routing-logic.md` directly so it matches the Model Harness exact-id registry rule and removes the still-present routing contradictions. Required repairs:
+
+- Fix the account-first decision tree Step 2 so wrong project, wrong role, or wrong tools starts a project-specific/role-matched session or blocks; it must not fall through to direct API or aggregator as a wrong-scope bypass.
+- Fix the explicit fallback table so Tier 3+ account/session missing or expired no longer shows "Try direct API" while also saying "wait for auth" without the required proof/control distinction. State the allowed Tier 3+ choices clearly: start/re-auth a controllable session, use direct API only when direct proof/audit is explicitly required and credentials are valid, or block.
+- Fix the DeepSeek route table/preferred routing rows so `deepseek-chat` is the exact direct API dispatch id per Model Harness and handoff; do not describe it as a deprecated compatibility alias while also using it as the normative exact id. Marketing labels such as `deepseek-v4-pro`/`deepseek-v4-flash` may be described only as labels or registry metadata, not dispatch keys.
+
+Completion: mark Ready for Codex Review with files changed and proof. Do not add runtime code, model calls, account probing, process control, UI work, branch movement, or Polaris dependency.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair Relay harness model-selection logic consistency findings from Codex Reviews B.
@@ -794,6 +808,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-06-01 17:55 UTC - Build 4 checked queue; pulled origin/main (fast-forward 968d84b2 → e69b6529); no new Coordinator Override - Active Now section; prior Active Task marked Ready for Codex Review (b5c40b38); Next Candidate Task (convert deepened logic into implementation checklist) awaits coordinator promotion
 2026-06-01 17:57 UTC - Build 4 checked queue; pulled origin/main (already up to date at feda4a0b); no executable Coordinator Override - Active Now section; prior Active Task (deepen Relay routing logic, commit b5c40b38) marked Ready for Codex Review; Next Candidate Task (convert deepened logic into implementation checklist) awaits coordinator promotion
 2026-06-01 18:00 UTC - Build 4 checked queue; pulled origin/main (already up to date at 6d457e68); no executable Coordinator Override - Active Now section; prior Active Task (deepen Relay routing logic, commit b5c40b38) marked Ready for Codex Review; Next Candidate Task (convert deepened logic into implementation checklist) awaits coordinator promotion
+2026-06-12 20:35 UTC - Build 4 checked queue; pulled origin/main (already up to date at 8c4436ec); no executable Coordinator Override - Active Now section; all prior tasks marked Ready for Codex Review; Next Candidate Task (convert deepened logic into implementation checklist) awaits coordinator promotion
 ```
 
 ## Write/Completion Log
