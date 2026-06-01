@@ -1401,6 +1401,120 @@ body {
   white-space: pre-wrap;
 }
 
+.session-window-right.is-relay-models .session-top-icons,
+.session-window-right.is-relay-models .session-interface,
+.session-window-right.is-relay-models .session-prompt-input,
+.session-window-right.is-relay-models .session-response-output,
+.session-window-right.is-relay-models .session-model-status,
+.session-window-right.is-relay-models .session-text-slider {
+  display: none;
+}
+
+.relay-models-surface {
+  position: absolute;
+  inset: 12px 12px 12px 34px;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
+  overflow: hidden;
+  color: rgba(var(--session-electric-soft), 0.96);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.relay-models-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: start;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(var(--session-electric), 0.34);
+}
+
+.relay-models-title {
+  color: rgba(var(--session-electric-soft), 0.98);
+  font-size: 14px;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(var(--session-electric), 0.62);
+}
+
+.relay-models-status {
+  min-width: 82px;
+  border: 1px solid rgba(255, 176, 0, 0.58);
+  color: #ffb000;
+  padding: 4px 7px;
+  text-align: center;
+  font-size: 8px;
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.relay-models-body {
+  min-height: 0;
+  display: grid;
+  gap: 9px;
+  overflow: auto;
+  padding-right: 5px;
+}
+
+.relay-models-section {
+  border: 1px solid rgba(var(--session-electric), 0.26);
+  background: rgba(0, 0, 0, 0.44);
+  padding: 8px;
+}
+
+.relay-models-section-title {
+  margin-bottom: 6px;
+  color: rgba(var(--session-electric-soft), 0.88);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.relay-models-grid {
+  display: grid;
+  grid-template-columns: minmax(86px, 0.38fr) minmax(0, 1fr);
+  gap: 5px 8px;
+}
+
+.relay-models-key {
+  color: rgba(var(--session-electric-soft), 0.56);
+  text-transform: uppercase;
+}
+
+.relay-models-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.relay-models-list {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 5px;
+  list-style: none;
+}
+
+.relay-models-list li {
+  position: relative;
+  padding-left: 12px;
+}
+
+.relay-models-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 1px;
+  background: rgba(var(--session-electric), 0.82);
+  box-shadow: 0 0 5px rgba(var(--session-electric), 0.6);
+}
+
 .session-output-entry {
   margin: 0 0 12px;
 }
@@ -3289,6 +3403,46 @@ body {
   const harnessButtons = Array.from(document.querySelectorAll('.harness-dock-button'));
   const mockupButtons = Array.from(document.querySelectorAll('.spark-mockup'));
   const userTitle = document.querySelector('.session-window-right .session-title');
+  const rightWindow = document.querySelector('.session-window-right');
+  const rightWorkspace = rightWindow?.querySelector('.session-workspace');
+  const relayModels = {
+    access: [
+      ['account/session', 'Try first because it uses an existing paid/logged-in route and preserves vendor-native tools when the session is clean.'],
+      ['local CLI', 'Use next when the local account-backed tool has the right cwd, auth, and model identity.'],
+      ['direct API', 'Use when Relay needs exact model id, clean payload control, cost tracking, or stronger auditability.'],
+      ['aggregator API', 'Use only when fallback/comparison matters and the actual model/provider can be shown.'],
+    ],
+    choices: [
+      ['Anthropic', 'Use Opus for hardest reasoning/review, Sonnet as the balanced workhorse, and Haiku for fast light work.'],
+      ['OpenAI', 'Use Codex for coding, GPT reasoning/chat for planning and explanation, and realtime/audio for voice.'],
+      ['DeepSeek direct', 'Use as a candidate cost-aware reasoning/verification lane after validation gates are satisfied.'],
+      ['OpenRouter', 'Use as aggregator fallback/comparison only; never as hidden authority.'],
+    ],
+    when: [
+      ['no model', 'Do not call a model for deterministic local checks or formatting.'],
+      ['fast model', 'Use for low-risk summaries, classification, and extraction where speed/cost matter.'],
+      ['coding model', 'Use for repo edits, debugging, refactors, tests, and repair.'],
+      ['reasoning model', 'Use for architecture, ambiguous planning, and complex review.'],
+      ['review model', 'Use a different model family when the work needs independent comparison.'],
+      ['voice model', 'Use for spoken interaction only after voice setup and privacy controls exist.'],
+    ],
+    how: [
+      'match the job to a model class first: no model, fast, coding, reasoning, review, or voice',
+      'choose the safest usable access route in order: account/session, local CLI, direct API, aggregator',
+      'prefer direct/provider-controlled routes when identity, audit, or cost control matters',
+      'keep prompt payload bounded before dispatch',
+      'show model, vendor, access route, candidate/trust state, and cost pressure',
+      'show blockers instead of silently falling through to another route',
+    ],
+    blockers: [
+      'Auto routing disabled until model metadata and proof are wired',
+      'missing CLI login, API key, or provider auth',
+      'wrong cwd, account, model id, or session identity',
+      'unknown model/provider identity',
+      'prompt payload over budget',
+      'aggregator selected for authoritative high-risk work',
+    ],
+  };
   const lightningSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   lightningSvg.classList.add('spark-icon-strikes');
   lightningSvg.setAttribute('aria-hidden', 'true');
@@ -3367,6 +3521,40 @@ body {
   let harnessDisabledUntil = 0;
   if (buttons[0]) buttons[0].classList.add('is-selected');
   if (mockupButtons[0]) mockupButtons[0].classList.add('is-selected');
+  const escapeHtml = (value) => String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+  const relayGrid = (items) => `<div class="relay-models-grid">${items.map(([key, value]) => `<div class="relay-models-key">${escapeHtml(key)}</div><div class="relay-models-value">${escapeHtml(value)}</div>`).join('')}</div>`;
+  const relayList = (items) => `<ul class="relay-models-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+  const relaySection = (title, body) => `<section class="relay-models-section"><div class="relay-models-section-title">${escapeHtml(title)}</div>${body}</section>`;
+  const clearRelayModels = () => {
+    if (!rightWindow || !rightWorkspace) return;
+    rightWindow.classList.remove('is-relay-models');
+    rightWorkspace.querySelectorAll('.relay-models-surface').forEach((node) => node.remove());
+  };
+  const renderRelayModels = () => {
+    if (!rightWindow || !rightWorkspace) return;
+    clearRelayModels();
+    rightWindow.classList.add('is-relay-models');
+    rightWorkspace.removeAttribute('aria-hidden');
+    rightWorkspace.insertAdjacentHTML('beforeend', `
+      <div class="relay-models-surface" role="region" aria-label="Relay models">
+        <div class="relay-models-header">
+          <div class="relay-models-title">Relay Model Logic</div>
+          <div class="relay-models-status">Auto disabled</div>
+        </div>
+        <div class="relay-models-body">
+          ${relaySection('Access logic', relayGrid(relayModels.access))}
+          ${relaySection('Model choice logic', relayGrid(relayModels.choices))}
+          ${relaySection('When and why logic', relayGrid(relayModels.when))}
+          ${relaySection('Dispatch logic', relayList(relayModels.how))}
+          ${relaySection('Blocker logic', relayList(relayModels.blockers))}
+        </div>
+      </div>
+    `);
+  };
   const openSpark = () => {
     stage.classList.add('spark-menu-open');
     harnessDock.classList.remove('harness-dock-open');
@@ -3374,6 +3562,7 @@ body {
   const restoreUserPanel = () => {
     screen.classList.add('session-theme-aqua');
     screen.classList.remove('session-theme-green');
+    clearRelayModels();
     if (userTitle) userTitle.textContent = 'User';
   };
   const openHarness = () => {
@@ -3524,6 +3713,8 @@ body {
       screen.classList.remove('session-theme-aqua');
       screen.classList.remove('session-theme-green');
       if (userTitle) userTitle.textContent = button.dataset.sessionTitle || button.dataset.harness || 'User';
+      clearRelayModels();
+      if (button.dataset.harness === 'Relay') renderRelayModels();
       screen.classList.add('sessions-visible');
       harnessDisabledUntil = Date.now() + 2000;
       harnessDock.classList.remove('harness-dock-open');
