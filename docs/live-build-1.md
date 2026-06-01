@@ -80,6 +80,12 @@ Ready for Codex Review.
 - Next Candidate Task awaiting promotion; may be held pending review outcomes
 - Build 1 idle and polling for next task assignment
 
+**Build 1 Read Check** — 2026-06-01 06:00 -05:00
+- Status: queue poll; no Active Now task
+- Relay metadata binding and snapshot hardening tasks awaiting Codex review routing
+- Next Candidate Task (bind Relay metadata review findings) awaiting promotion
+- Build 1 idle and polling for next task assignment
+
 ## Next Candidate Task
 
 Goal: bind Relay metadata review findings after Codex Reviews A completes the `cf5debf` review.
