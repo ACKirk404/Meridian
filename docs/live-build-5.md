@@ -1,5 +1,29 @@
 # Live Build 5 Queue
 
+## Active Task - Repair Routed By Codex Reviews B
+
+Goal: repair the Bifrost provider balance and prompt payload visibility surface from commit `06e1c5c`.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Finding from Codex Reviews B:
+
+- `06e1c5c` adds `ProviderBalanceItem`, `ProviderBalanceView`, `PromptPayloadView`, `_render_provider_balance()`, and `_render_prompt_payload()`, but `render_cockpit_html()` never calls the new helpers, so the provider balance and prompt payload visibility surface required by `docs/bifrost-balance-payload-surface-contract.md` is absent from the rendered cockpit.
+- Existing tests still pass because no test asserts that the provider balance or prompt payload sections render.
+
+Repair requirements:
+
+- Insert the provider balance and prompt payload sections into the rendered cockpit in a visible, non-core location that preserves the quiet `PRIMED` command core.
+- Keep Bifrost render-only: no model/provider calls, no routing decisions, no queue mutation, no process control, no filesystem/network effects, no live microphone/TTS plumbing, no JavaScript, and no Electron-only dependency.
+- Add focused tests proving the rendered document includes `Provider Balance`, `Prompt Payload Visibility`, provider rows for Claude/OpenAI/DeepSeek with trust/health/budget/pressure details, prompt size/tokens/budget/delta/source/evidence or equivalent payload metadata, and prompt-drag warning behavior where applicable.
+- Preserve the existing quiet-core guard that provider labels and payload labels do not return to the central `PRIMED` command core.
+
+Proof command:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: mark the repair Ready for Codex Review with the repair commit hash and tests run.
+
 ## Completed Task - Ready For Codex Review
 
 Goal: write the session-card queue activation product contract.

@@ -2,17 +2,40 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
-## Coordinator Override - Active Now
+## Completed / Finding Routed
 
 Goal: review Build 5 provider balance and prompt payload visibility surface commit `06e1c5c`.
 
-Allowed review files: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md` for provenance only, and `docs/bifrost-balance-payload-surface-contract.md` for source-contract comparison only.
+Status: blocked by Codex Reviews B on 2026-05-31 22:44 -06:00. The provider balance and prompt payload view-model/render helpers were added and tests pass, but the new surfaces are never inserted into `render_cockpit_html()`, so the visible UI required by the contract does not render. Repair routed to Build 5.
+
+Scope:
+
+- Build 5 implementation commit `06e1c5c`.
+- Queue markers `81809ea` and `9f174bd`.
+- Queue provenance in `docs/live-build-5.md`.
+
+Allowed review files:
+
+- `bifrost/cockpit.py`
+- `bifrost/static/cockpit.css`
+- `tests/test_bifrost_cockpit.py`
+- `docs/live-build-5.md` for provenance and repair routing only.
+- `docs/bifrost-balance-payload-surface-contract.md` for source-contract comparison only.
 
 Proof command:
 
 - `python -m pytest tests/test_bifrost_cockpit.py -q`
 
-Completion: if clean, commit and push only `docs/live-codex-reviews-2.md`; if findings remain, route a focused repair into `docs/live-build-5.md`.
+Review result:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q` passed with 93 tests.
+- Commit `06e1c5c` adds structured `ProviderBalanceItem`, `ProviderBalanceView`, and `PromptPayloadView` data plus `_render_provider_balance()` and `_render_prompt_payload()` helpers.
+- `render_cockpit_html()` still renders only projects, Prime, harness dashboard, progress, and instrument band; it never calls either new helper or inserts provider/payload HTML.
+- Existing tests do not assert that provider balance or prompt payload surfaces render; the current HUD quiet-core test only verifies those labels are absent from the command core.
+- No live provider calls, routing decisions, queue mutation, process control, filesystem mutation, network calls, microphone/TTS plumbing, JavaScript, or Electron dependency were found in the reviewed implementation.
+- Because the required provider balance and prompt payload visibility surface is not visible in the rendered document, Build 5 is not cleared.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` and repair routing in `docs/live-build-5.md`. Build 5 repair pending.
 
 ## Next Candidate Task
 
@@ -965,6 +988,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews B checked queue; status: idle/running/blocke
 2026-05-31 22:39 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.
 2026-05-31 22:40 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.
 2026-05-31 22:42 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.
+2026-05-31 22:44 -06:00 - Codex Reviews B checked queue; status: running; notes: pulled latest origin/main first; executable Coordinator Override Active Now found for Build 5 commit 06e1c5c; starting provider balance and prompt payload visibility review.
 
 ## Review Log
 
@@ -985,6 +1009,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-05-31 22:18 -06:00 - Reviewed Build 5 commit 4a2838c (Round B17 HUD shell review); result: pass; tests: `python -m pytest tests/test_bifrost_cockpit.py -q` -> 80/80 passed in 0.17s; notes: rendered HUD has quiet PRIMED core, dominant Prime prompt, project drilldown/session state, harness scoped prompts, voice state surface, mission feed, and instrument band; old provider/build/top-nav/review labels are absent; no model calls, mutation controls, live microphone/TTS, or Electron-only dependency found.
 2026-05-31 22:21 -06:00 - Reviewed Build 3 commit 80ebea4 (Round B18 Session Lifecycle checklist FileMap registration); result: blocked; tests: `python -m pytest tests/test_filemap.py -q` -> 46/46 passed in 0.11s; notes: registration exists in runtime FileMap, docs/FileMap, and `_REQUIRED_PATHS`, but `docs/session-lifecycle-implementation-checklist.md` is missing from `HEAD`; repair routed to Build 3.
 2026-05-31 22:21 -06:00 - Reviewed Build 5 commit ff4cb69 (Round B19 Voice I/O surface review); result: pass; tests: `python -m pytest tests/test_bifrost_cockpit.py -q` -> 93/93 passed in 0.21s; notes: listening, dictating, thinking, speaking, muted, and blocked states render deterministically; controls are inert display affordances; no live microphone/TTS/model/queue/process/filesystem/network effects found; Prime prompt and quiet PRIMED core remain intact.
+2026-05-31 22:44 -06:00 - Reviewed Build 5 commit 06e1c5c (provider balance and prompt payload visibility surface); result: blocked; tests: `python -m pytest tests/test_bifrost_cockpit.py -q` -> 93/93 passed in 0.18s; notes: provider/payload view-model data and render helpers exist, but `render_cockpit_html()` never inserts the provider balance or prompt payload sections into the document; repair routed to Build 5.
 
 ## Proof Log
 
@@ -1014,6 +1039,7 @@ Minimum proof expectations:
 2026-05-31 22:18 -06:00 - Proof for Build 5 commit 4a2838c; proof type: test/diff/manual/reference; evidence: `python -m pytest tests/test_bifrost_cockpit.py -q` -> 80/80 passed; rendered HTML check confirmed PRIMED/prompt/project/harness/voice surfaces and old-label absence; `rg` scan found no live model call, filesystem mutation, queue mutation, microphone/TTS plumbing, or Electron-only dependency; source comparison to `docs/bifrost-v2-cockpit-extensions.md` matched the required Prime-first HUD direction; result: pass.
 2026-05-31 22:21 -06:00 - Proof for Build 3 commit 80ebea4; proof type: test/diff/reference; evidence: `git show 80ebea4 -- meridian_core/filemap.py docs/FileMap.md tests/test_filemap.py` shows registration in all three FileMap surfaces; `python -m pytest tests/test_filemap.py -q` -> 46/46 passed; `Test-Path docs/session-lifecycle-implementation-checklist.md` returned False; result: blocked.
 2026-05-31 22:21 -06:00 - Proof for Build 5 commit ff4cb69; proof type: test/diff/manual/reference; evidence: `python -m pytest tests/test_bifrost_cockpit.py -q` -> 93/93 passed; rendered-state script confirmed listening/dictating/thinking/speaking/muted/blocked states keep voice strip, Prime prompt, PRIMED core, and old-label exclusions; `rg` scan found no live microphone, TTS, model call, queue/process/filesystem/network side effects; source comparison to `docs/bifrost-voice-command-contract.md` matched the inert voice surface requirements; result: pass.
+2026-05-31 22:44 -06:00 - Proof for Build 5 commit 06e1c5c; proof type: test/diff/manual/reference; evidence: `python -m pytest tests/test_bifrost_cockpit.py -q` -> 93/93 passed; `git show --stat --oneline 06e1c5c -- bifrost/cockpit.py ...` shows only `bifrost/cockpit.py` changed; manual inspection confirms `_render_provider_balance()` and `_render_prompt_payload()` are defined but not called by `render_cockpit_html()`; `rg` scan found no live model calls, routing decisions, queue/process/filesystem/network effects, JavaScript, or Electron dependency; result: blocked.
 
 ## Findings
 
@@ -1032,6 +1058,7 @@ YYYY-MM-DD HH:MM TZ - Build <n> commit <hash>; severity: CRITICAL/HIGH/MEDIUM/LO
 2026-05-31 10:20 -06:00 - Build 3 commit 1378bda; severity: LOW (carryover); file: docs/FileMap.md vs meridian_core/filemap.py (entries for `docs/live-codex-reviews.md` and `docs/prime-orchestration-harness-prototype.md`); finding: the 2 LOW prose-divergence findings recorded in Round B1 remain present; Build 3 1378bda did not opportunistically reconcile them (permitted by its Active Task's "out of scope" allowance); action: defer (re-recorded as carryover so the follow-up Build 3 task can fold them in opportunistically).
 
 2026-05-31 22:21 -06:00 - Build 3 commit 80ebea4; severity: MEDIUM; file: docs/session-lifecycle-implementation-checklist.md / docs/FileMap.md / meridian_core/filemap.py / tests/test_filemap.py; finding: FileMap registration adds `docs/session-lifecycle-implementation-checklist.md` to runtime FileMap, docs/FileMap, and `_REQUIRED_PATHS`, but the registered checklist file is absent from `HEAD`; action: repair-task-written.
+2026-05-31 22:44 -06:00 - Build 5 commit 06e1c5c; severity: HIGH; file: bifrost/cockpit.py / tests/test_bifrost_cockpit.py; finding: provider balance and prompt payload view-model data plus render helpers were added, but `render_cockpit_html()` never calls the helpers, so the required visible provider balance and prompt payload surface is absent from the rendered cockpit; tests also do not assert these sections render; action: repair-task-written.
 
 ## Repair Routing Log
 
@@ -1045,6 +1072,7 @@ YYYY-MM-DD HH:MM TZ - Routed repair to Build <n>; queue: docs/live-build-<n>.md;
 2026-05-31 10:20 -06:00 - Routed repair to Build 3; queue: docs/live-build-3.md; finding: register `docs/live-codex-reviews-2.md` in FileMap.md and meridian_core/filemap.py (one row + one FileMapEntry under FileArea.BUILD_PROCESS, parallel to the existing `docs/live-codex-reviews.md` entry) and add the path to `_REQUIRED_PATHS` in tests/test_filemap.py. Opportunistically (still permitted, not required) reconcile the two LOW prose-divergence carryovers on the existing `live-codex-reviews.md` and `prime-orchestration-harness-prototype.md` entries; status: pending.
 
 2026-05-31 22:21 -06:00 - Routed repair to Build 3; queue: docs/live-build-3.md; finding: `80ebea4` registers `docs/session-lifecycle-implementation-checklist.md`, but that file is missing on disk at `HEAD`; restore/add the checklist or remove/defer registration until the file lands; status: pending.
+2026-05-31 22:44 -06:00 - Routed repair to Build 5; queue: docs/live-build-5.md; finding: commit `06e1c5c` defines provider balance/prompt payload render helpers but never inserts them into `render_cockpit_html()`, leaving the required visible surface absent; status: pending.
 
 ## Archived Prior Active Task - Do Not Execute
 
@@ -1283,6 +1311,7 @@ Write log:
 - 2026-05-31 22:39 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `ecf635b`; push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 - 2026-05-31 22:40 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `e80d154`; push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 - 2026-05-31 22:42 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `cf05010`; push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
+- 2026-05-31 22:44 -06:00 - Build 5 provider balance/prompt payload review completed by Codex Reviews B with repair routed; files changed: `docs/live-codex-reviews-2.md`, `docs/live-build-5.md`; tests run: `python -m pytest tests/test_bifrost_cockpit.py -q` (93 passed); commit: `95f0baa`; push status: pushed to `origin/main`; Obsidian update status: not updated (repair routed in queue).
 
 ## Coordinator Addendum - Round B5 V1 Cockpit Clearance
 
