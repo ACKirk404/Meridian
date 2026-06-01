@@ -583,5 +583,5 @@ Append entries here as items are verified.
 
 ```text
 YYYY-MM-DD HH:MM TZ - <item#> cleared; proof: <short note>; commit: <hash>
-2026-06-01 14:42 -06:00 - HN3 cleared; proof: Live Server Relay click shows scrollable RelayRouteAudit surface, hides prompt/response, Auto disabled; commit: 0f7dafba
+2026-06-01 14:42 -06:00 - HN3 cleared; proof: Live Server Relay click shows scrollable RelayRouteAudit surface, hides prompt/response, Auto disabled; commit: 871327bc
 ```
