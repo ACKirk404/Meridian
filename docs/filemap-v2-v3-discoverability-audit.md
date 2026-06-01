@@ -27,19 +27,19 @@ Every V2/V3 architecture file that changes Prime behavior, harness ownership, pr
   - Owner: Build 3.
   - Resolution: registered in `meridian_core/filemap.py` and `_REQUIRED_PATHS` in `tests/test_filemap.py`.
 
-## Pending Upstream Outputs
+## Resolved Upstream Outputs
 
-These files are expected from queued work but do not exist yet, so they are not FileMap misses today:
+All previously pending files have now landed and been registered in FileMap:
 
-- [ ] `docs/bifrost-voice-command-contract.md` - Build 5 active task.
-- [ ] `docs/bifrost-balance-payload-surface-contract.md` - Build 5 next candidate.
-- [ ] `docs/workflow-subagent-usage-checklist.md` - Build 4 active task.
-- [ ] `docs/deepseek-validation-benchmark-plan.md` - Build 4 next candidate.
-- [ ] `docs/session-lifecycle-implementation-checklist.md` - Build 2 active task.
+- [x] `docs/bifrost-voice-command-contract.md` - completed by Build 5, registered in FileMap.
+- [x] `docs/bifrost-balance-payload-surface-contract.md` - completed by Build 5, registered in FileMap.
+- [x] `docs/workflow-subagent-usage-checklist.md` - completed by Build 4, registered in FileMap.
+- [x] `docs/deepseek-validation-benchmark-plan.md` - completed by Build 4, registered in FileMap.
+- [x] `docs/session-lifecycle-implementation-checklist.md` - completed by Build 2, registered in FileMap.
 
 ## Prime Wake Implication
 
-Prime can now find both the workflow contract baseline and the newer architecture note that explains why harness work should move into bounded workflow/sub-agent contexts. The remaining items in this audit are pending upstream outputs, not current FileMap misses.
+Prime can now find all V2 architecture files needed for wake: V2 contract baselines, implementation guides, provider validation gates, and horizon planning. All built-and-review-cleared V2 artifacts are discoverable in the runtime FileMap.
 
 ## Completion Criteria
 

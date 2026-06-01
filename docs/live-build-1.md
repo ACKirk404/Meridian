@@ -1,6 +1,6 @@
-# Live Build 1 Queue
+﻿# Live Build 1 Queue
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement Relay model-adapter metadata binding.
 
@@ -12,17 +12,59 @@ Tests:
 
 - `python -m pytest tests/test_relay_executor.py tests/test_model_adapter.py -q`
 
-Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status. If Codex Reviews A routes a repair before this slice is committed, complete that repair first.
+Completion:
 
-## Next Candidate Task
+- Build 1 completed Relay model-adapter metadata binding on 2026-06-01 04:30 -05:00.
+- Commit: `cf5debf`.
+- Files changed: `meridian_core/model_adapter.py`, `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`.
+- Tests run: `python -m pytest tests/test_relay_executor.py tests/test_model_adapter.py -q` (95 passed).
+- Implementation: Extended ModelAdapter protocol implementations (FakeModelAdapter, EnvConfiguredModelAdapter, HttpJsonModelAdapter) to accept optional metadata parameter in __init__. Updated RelayExecutionResult with adapter_metadata field. Modified execute_relay_plan_with_registry to extract adapter.metadata and bind it into results. Added TestAdapterMetadata class with 11 new tests verifying metadata binding, immutability, and backward compatibility.
+- PR: https://github.com/AesopScott/Meridian/pull/1
+- Push: successful to `origin/main` (worktree-build-1-v2-relay).
+
+Ready for Codex Review.
+
+**Build 1 Read Check** — 2026-06-01 04:35 -05:00
+- Status: Relay metadata binding task completed and marked Ready for Codex Review
+- No executable Active Now task; Next Candidate Task awaiting promotion
+- Build 1 idle and polling for next task assignment
+
+**Build 1 Read Check** — 2026-06-01 04:40 -05:00
+- Status: queue poll complete; Relay metadata binding task still Ready for Codex Review
+- No executable Active Now task; Next Candidate Task awaiting promotion
+- Build 1 idle and polling for next task assignment
+
+**Build 1 Read Check** — 2026-06-01 04:50 -05:00
+- Status: queue poll complete; no change in Active Now status
+- Relay metadata binding task remains Ready for Codex Review
+- Next Candidate Task awaiting promotion from Prime/Codex
+- Build 1 idle and polling for next task assignment
+
+## Coordinator Override - Active Now
 
 Goal: harden Relay prompt payload snapshot metadata edge cases after the metadata-binding slice lands.
 
 Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
 
+Task: now that Relay model-adapter metadata binding is complete, add any missing provider-neutral payload evidence edge-case coverage needed for downstream Bifrost display. Keep the slice bounded to structured Relay evidence and preserve Aegis proof-gate behavior. Do not add vendor-specific presets, live model calls, network access, filesystem access, UI rendering, Bifrost changes, or package-export changes.
+
 Tests:
 
 - `python -m pytest tests/test_relay_executor.py tests/test_prompt_payload_meter.py -q`
+
+Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status. If Codex Reviews A routes a repair before this slice is committed, complete that repair first.
+
+## Next Candidate Task
+
+Goal: bind Relay metadata review findings after Codex Reviews A completes the `cf5debf` review.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Task: if Codex Reviews A routes a finding from the Relay model-adapter metadata binding review, repair that finding before taking unrelated Relay work. If Reviews A passes the slice with no findings, Prime may replace this candidate with the next Relay/Model Harness item.
+
+Tests:
+
+- `python -m pytest tests/test_relay_executor.py tests/test_model_adapter.py -q`
 
 ## Codex Review Repair Completed / Ready for Codex Review
 
@@ -272,7 +314,7 @@ Completion:
 
 Ready for Codex Review. Push: `081c15f` on `origin/main`.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Stale / Do Not Execute
 
 Goal: continue Relay prompt payload snapshot metadata hardening after the active cockpit repair and review routing complete.
 
@@ -658,50 +700,10 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-03 19:51 -05:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-03 19:53 -05:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-03 19:54 -05:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:22 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:23 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:24 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:25 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:26 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:27 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:28 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:29 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:30 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:32 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:33 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:34 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:36 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:37 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:39 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:41 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:44 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:47 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:50 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:53 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:54 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:55 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:57 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:46 -06:00 - Build 1 checked queue; status: idle (Active Task section says "(None currently assigned.)"; origin/main at 3940400; pulled and fast-forwarded before read; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
-2026-05-31 08:02 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 08:07 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 08:10 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 08:12 -06:00 - Build 1 checked queue; status: idle (Active Task: "(None currently assigned.)"; origin/main fast-forwarded to 9660d40 before read; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
-2026-05-31 08:13 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 08:16 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:52 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 08:22 -06:00 - Build 1 checked queue; status: idle (Active Task: "(None currently assigned.)"; parallel session landed V2 Echo Memory Harness slice 2bccb55 to Completed Slices, not Build 1 scope here; origin/main fast-forwarded through 5a8b68d/7492d52; cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting next assignment)
-2026-05-31 19:49 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; awaiting next assignment)
-2026-05-31 07:53 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 07:55 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-08 20:14 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; awaiting next assignment)
-2026-05-31 08:32 -06:00 - Build 1 checked queue; status: idle (Active Task: "(None currently assigned.)"; origin/main fast-forwarded through d16a045/f673ef7; cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting next assignment)
 2026-06-08 20:16 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; awaiting next assignment)
-2026-05-31 07:55 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
 2026-06-08 20:18 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main fast-forwarded from b12d1c8 to 2ec2e04 (Build 3 read check); no Active Task; awaiting next assignment)
-2026-05-31 08:42 -06:00 - Build 1 checked queue; status: idle (Active Task body was refilled by coordinator 97cf44d to "build the V2 Echo Memory Harness domain slice", but that slice is already in Completed Slices at commit 2bccb55 and the rules say "Do not re-execute any entry below"; verified locally — meridian_core/echo.py and tests/test_echo.py exist on HEAD, 27 tests pass; treating Active Task as stale; cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment)
-2026-05-31 08:52 -06:00 - Build 1 checked queue; status: idle (Active Task unchanged — still names the V2 Echo Memory Harness slice already completed at 2bccb55; no fresh assignment from coordinator; origin/main fast-forwarded to bc08884; cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment)
 2026-06-08 20:22 -05:00 - Build 1 checked queue; status: cleared stale task (merged Active Task body reappeared from upstream; was already cleared as complete at 2bccb55; cleared again; Active Task now "(None currently assigned.); awaiting next assignment)
-2026-05-31 09:02 -06:00 - Build 1 checked queue; status: idle; Active Task confirmed "(None currently assigned.)" — parallel session 9b2b356 cleared the stale Echo body that coordinator 97cf44d had refilled; origin/main fast-forwarded through 9b2b356/6ad4cff; cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
 2026-06-08 20:24 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main fast-forwarded from 9b2b356 to 6ad4cff (Build 3 read check); no Cross-Check Activity affecting Build 1; awaiting next assignment)
 2026-06-08 20:26 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; awaiting next assignment)
 2026-06-08 20:28 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; awaiting next assignment)
@@ -712,64 +714,33 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-08 20:38 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; awaiting next assignment)
 2026-06-08 20:46 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; awaiting next assignment)
 2026-06-08 20:48 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; awaiting next assignment)
-2026-05-31 09:12 -06:00 - Build 1 checked queue; status: idle; Active Task confirmed "(None currently assigned.)"; origin/main fast-forwarded through 9eacf19/1aa770d/0a60ffa/ad0265f (Build 3 FileMap registration of V1 Electron cockpit, Build 4 hash backfill — informational, not Build 1 scope); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
-2026-05-31 07:59 -06:00 - Build 1 completed V2 Echo Memory Harness domain slice (re-implementation); commit `c083c9d`; files: meridian_core/echo.py, tests/test_echo.py; tests: 21 passed (EchoRepository refactored from MemoryRepository; deterministic ranking; failure-soft behavior verified); Ready for Codex Review
-2026-05-31 08:06 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 09:22 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 321755a/bb4d587/12a791e/ae82d4c (Build 3/4 read checks, Build 1 heartbeat from parallel session — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
-2026-05-31 08:07 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 09:32 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 75578ac/0f5ec57/57f348b/54e1d0e (Codex Reviews B Round B13 checkpoint ledger update, Build 2/Build 4 read checks — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
-2026-05-31 08:10 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 08:10 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 09:42 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 3e45e3b/9b9d361/abbfdc0/d7075a6 (Build 3/4 read checks, parallel Build 1 heartbeat — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
-2026-05-31 08:13 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 09:52 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through e2b7886/ea6a7db/a02db5d (Build 2/Build 4 read checks, idle cadence 3/3 — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
-2026-05-31 08:15 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 08:18 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 10:02 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through e2ede86/77408d6/072ab78/b519cff/8570411 (Build 2/4 read checks plus two parallel Build 1 heartbeats — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
-2026-05-31 08:20 -06:00 - Build 1 checked queue; status: idle (no active task; awaiting next assignment)
-2026-05-31 10:12 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 3279886/83db7d7/0432607/ca73324 (Build 1 parallel heartbeat, Build 2/4 read checks — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
-2026-05-31 10:22 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 47eeb89/0ae48de/930732c/2777cc4/960a1b4 (V2 progress tracker refresh with Build 4 contract baselines, Build 2/3/4 read checks — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
-2026-05-31 10:32 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 7e95ede (parallel session landed V2 Atlas Harness retrieval domain slice at meridian_core/atlas.py + tests/test_atlas.py — informational, not Build 1 scope here)/bb60aa2/23f32da/f0ec755; cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
 2026-06-08 20:50 -05:00 - Build 1 checked queue; status: running (V2 Atlas Harness retrieval domain slice task); executing
 2026-06-08 20:51 -05:00 - Build 1 checked queue; status: idle (V2 Atlas Harness domain slice completed; commit 7e95ede; Ready for Codex Review)
 2026-06-08 20:52 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-08 21:52 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; cadence 1/3 since Reviews C5; awaiting next assignment)
-2026-05-31 10:42 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 514e9bf/b9212b4/1795cd8 (parallel Build 1 heartbeat, Build 2/4 read checks — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
 2026-06-08 22:02 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-08 22:12 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-08 22:22 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main at d8eaba1; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
-2026-05-31 10:52 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 46cc8d1/6d7cb13/e41ea37/b1be904/219cf5c (parallel Build 1 heartbeat, Build 2/3/4 read checks — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
 2026-06-08 22:32 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-08 22:42 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main at afeccc9; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-08 22:52 -05:00 - Build 1 checked queue; status: idle (Coordinator Override V2 Atlas task already completed at commit 7e95ede, 33 tests pass; origin/main up to date; no new active task; awaiting next assignment)
-2026-05-31 11:02 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)" — parallel session 8e61444 cleared the stale Atlas Coordinator Override; origin/main fast-forwarded through 0eb1ca1/a3aaedb/383e564/8e61444/d216d6a (V2 contract docs registered in FileMap — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
 2026-06-08 23:02 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main at 8e61444; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-08 23:12 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-08 23:22 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main at 37de812 (merge, Coordinator Override section added); no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-08 23:32 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
-2026-05-31 11:12 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 32516e0/7f70369/a841a02/5dc8284/9d43c09 (Build 2 V2 package API surface task complete + Build 2/4 read checks — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
 2026-06-08 23:42 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main at 9d43c09 (merge); no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-08 23:52 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-09 00:02 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
-2026-05-31 11:22 -06:00 - Build 1 checked queue; status: idle; Active Task "(None currently assigned.)"; origin/main fast-forwarded through 9964acc/480161b/f6ba22d (Build 2 V2 package/API surface policy expanded for Echo/Atlas/Prime Autonomy/Session Lifecycle/Workflow dispatch — informational); cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
 2026-06-09 00:12 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; no Cross-Check Activity affecting Build 1; cadence 1/3 since Reviews C5; awaiting next assignment)
 2026-06-09 00:12 -05:00 - Build 1 checked queue; status: complete (V2 Echo-to-Atlas handoff contract completed at commit 2d1bab1; Ready for Codex Review; Obsidian update pending)
-2026-05-31 11:32 -06:00 - Build 1 checked queue; status: idle; Active Task at both queue positions = "(None currently assigned.)"; a new "Next Candidate Task" was added at the top of the file (Prime queue runway policy at docs/prime-queue-runway-policy.md) but is staged as a candidate, not promoted to Active; origin/main fast-forwarded through 2d1bab1 (parallel session landed V2 Echo-to-Atlas handoff contract — informational, not Build 1 scope here)/67a75dc/efbd363/2743366/806a328; cadence 1/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting Active Task promotion
 2026-06-09 00:22 -05:00 - Build 1 checked queue; status: idle (no active task; Next Candidate Task staged at top (Prime queue runway policy) but not promoted to Active; origin/main up to date; cadence 1/3 since Reviews C5; awaiting Active Task promotion or new assignment)
 2026-06-09 00:32 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main at e04d728; Next Candidate Task staged but not Active; cadence 2/3 since Reviews C5; awaiting next assignment)
-2026-05-31 11:42 -06:00 - Build 1 checked queue; status: idle; Active Task at both queue positions = "(None currently assigned.)"; Next Candidate Task (Prime queue runway policy) still staged at top but not promoted to Active; origin/main fast-forwarded through 734e940/c343163/b3316b6/c1c6b84 (parallel Build 1 read checks, Build 2/3 read checks — informational); cadence 2/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting Active Task promotion
 2026-06-09 00:42 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main up to date; Next Candidate Task staged but not Active; cadence 2/3 since Reviews C5; awaiting next assignment)
 2026-06-09 00:52 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main at c1c6b84; Next Candidate Task staged but not Active; cadence 2/3 since Reviews C5; awaiting next assignment)
 2026-06-09 01:02 -05:00 - Build 1 checked queue; status: idle (no active task; origin/main at 4e16390 (Build 3 heartbeat); no Cross-Check Activity affecting Build 1; cadence 2/3 since Reviews C5; awaiting next assignment)
-2026-06-09 00:15 -05:00 - Build 1 completed V2 Relay prompt payload meter domain helper (Coordinator Override task); commit `638117f`; files: meridian_core/prompt_payload_meter.py, tests/test_prompt_payload_meter.py; tests: 23 passed; Ready for Codex Review
 2026-06-09 01:12 -05:00 - Build 1 checked queue; status: running (Active Task found: Prime queue runway policy; executing task)
-2026-05-31 11:52 -06:00 - Build 1 checked queue; status: idle; Coordinator Override "Active Now" task = "create docs/prime-queue-runway-policy.md" already completed by parallel session at commit b5bbab8 (file exists at 136 lines, covers no-empty-queue invariant, cadence gating, review gating, idle fallback, lane ownership, unique worktrees, local-only polling state, read-check-commit policy); treating as stale per "Do not re-execute" rule; origin/main fast-forwarded through b5bbab8/3aa16fe/c7fa444/c8b4738 (Build 4 V2 Prime Autonomy contract — informational); cadence 2/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh assignment
-2026-05-31 12:02 -06:00 - Build 1 checked queue; status: idle; Coordinator Override "Active Now" still names completed runway policy (b5bbab8) — stale; promote-next-work commit e1aee24 touched Build 2/5 queues only, not Build 1; origin/main fast-forwarded through 18a3419/506a42a/cb9f66b/e1aee24/b850958 (Reviews B Round B14 doc, Build 3/4 read checks, Build 2 read check — informational); cadence 2/3 since Reviews C5; no Cross-Check Activity routed to Build 1; awaiting fresh Active Task promotion
-2026-05-31 12:12 -06:00 - Build 1 checked queue; status: running; Coordinator Override "Active Now" promoted to V2 queue-runway runtime-object contract (supersedes runway policy and Echo/Atlas review note, both already complete); executing — writing docs/queue-runway-runtime-object.md
-2026-05-31 12:22 -06:00 - Build 1 checked queue; status: paused (cadence); Coordinator Override "Active Now" still names the V2 queue-runway runtime-object contract just landed by this lane at 57ed79a — treating as stale per "Do not re-execute" rule; origin/main fast-forwarded through 0115581 (Build 4 hash backfill — informational); cadence 3/3 since Reviews C5 (b99ce1d, 2d1bab1, 57ed79a) — Build 1 paused per rule 19 until Codex Reviews lane records a cadence review result; no Cross-Check Activity routed to Build 1
 2026-06-09 01:35 -05:00 - Build 1 checked queue; status: paused (cadence 3/3 complete; queue-runway-runtime-object contract completed at 57ed79a; awaiting Codex Reviews cadence clearance; Coordinator Override Active Now task complete, no new assignment yet; awaiting review gate clear)
 2026-06-09 01:40 -05:00 - Build 1 checked queue; status: idle/paused (cadence 3/3, no active task assigned; origin/main at ad3e256 (merge); Codex review pending for commits at cadence window; awaiting review gate clear before next task promotion)
-2026-05-31 12:32 -06:00 - Build 1 checked queue; status: paused (cadence 3/3); Coordinator Override "Active Now" still names completed V2 runtime-object contract (57ed79a) — stale; origin/main fast-forwarded through 9cba914/2b9abee/7af4f3c/9a11090 (Build 1 parallel heartbeat, Build 2/4 read checks, Build 4 Reviews B11-B15 cadence cleared with MEDIUM routed to Build 3 — informational, not Build 1 scope); Codex Reviews lane has not yet recorded a cadence clear for Build 1's b99ce1d/2d1bab1/57ed79a window; no Cross-Check Activity routed to Build 1; remains paused per rule 19
 2026-06-09 01:50 -05:00 - Build 1 checked queue; status: idle/paused (cadence 3/3 still paused; no active task assigned; origin/main at f1b03b1 (merge); Codex review still pending; awaiting gate clear or repair task routing)
 ```
 
@@ -915,10 +886,4 @@ Historical record of Build 1 V0 completed slices (most recent first). Do not re-
 
 [COMPLETED 2026-05-31 ~22:15 -05:00] Model Harness metadata fields for provider capability and prompt-drag telemetry — commit `a8922c3`; files: meridian_core/model_adapter.py, tests/test_model_adapter.py; tests: 31 targeted passed; Ready for Codex Review.
 
-2026-05-31 22:25 -05:00 - Build 1 checked queue; status: running (Prompt payload snapshot metadata task — Active Now)
-2026-05-31 22:30 -05:00 - Build 1 checked queue; status: running (Prompt payload snapshot metadata into Relay dispatch evidence task)
-
 [COMPLETED 2026-05-31 ~23:00 -05:00] Prompt payload snapshot metadata into Relay dispatch evidence — commit `081c15f`; files: meridian_core/relay_executor.py, tests/test_relay_executor.py; tests: 89 total passed (64 relay_executor + 25 prompt_payload_meter); Ready for Codex Review.
-
-2026-05-31 23:05 -05:00 - Build 1 checked queue; status: idle (Prompt Payload Snapshot slice 081c15f complete; awaiting next assignment or Codex review result)
-2026-05-31 23:15 -05:00 - Build 1 checked queue; status: running (Relay dispatch evidence hardening task — Active Now)

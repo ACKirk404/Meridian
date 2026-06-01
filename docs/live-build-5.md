@@ -1,5 +1,29 @@
 # Live Build 5 Queue
 
+## Active Task - Repair Routed By Codex Reviews B
+
+Goal: repair the Bifrost provider balance and prompt payload visibility surface from commit `06e1c5c`.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Finding from Codex Reviews B:
+
+- `06e1c5c` adds `ProviderBalanceItem`, `ProviderBalanceView`, `PromptPayloadView`, `_render_provider_balance()`, and `_render_prompt_payload()`, but `render_cockpit_html()` never calls the new helpers, so the provider balance and prompt payload visibility surface required by `docs/bifrost-balance-payload-surface-contract.md` is absent from the rendered cockpit.
+- Existing tests still pass because no test asserts that the provider balance or prompt payload sections render.
+
+Repair requirements:
+
+- Insert the provider balance and prompt payload sections into the rendered cockpit in a visible, non-core location that preserves the quiet `PRIMED` command core.
+- Keep Bifrost render-only: no model/provider calls, no routing decisions, no queue mutation, no process control, no filesystem/network effects, no live microphone/TTS plumbing, no JavaScript, and no Electron-only dependency.
+- Add focused tests proving the rendered document includes `Provider Balance`, `Prompt Payload Visibility`, provider rows for Claude/OpenAI/DeepSeek with trust/health/budget/pressure details, prompt size/tokens/budget/delta/source/evidence or equivalent payload metadata, and prompt-drag warning behavior where applicable.
+- Preserve the existing quiet-core guard that provider labels and payload labels do not return to the central `PRIMED` command core.
+
+Proof command:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: mark the repair Ready for Codex Review with the repair commit hash and tests run.
+
 ## Completed Task - Ready For Codex Review
 
 Goal: write the session-card queue activation product contract.
@@ -129,7 +153,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: implement the Bifrost provider balance and prompt payload visibility surface.
 
@@ -141,15 +165,37 @@ Tests:
 
 - `python -m pytest tests/test_bifrost_cockpit.py -q`
 
-Completion: commit only the allowed Bifrost files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status. If Codex Reviews B routes a Voice I/O repair before this provider/payload slice is committed, complete that repair first.
+Completion:
 
-## Next Candidate Task
+- Build 5 completed this provider balance and prompt payload visibility surface in `06e1c5c`.
+- Queue markers include `81809ea` and `9f174bd`.
+- Files changed: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+- Tests: `python -m pytest tests/test_bifrost_cockpit.py -q` passed with 93 tests.
+- Routed to Codex Reviews B for Bifrost/UI review.
+
+Ready for Codex Review.
+
+## Active Task
 
 Goal: implement Bifrost session lifecycle preview state.
 
 Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
 
 Task: after provider balance and prompt payload visibility land, add deterministic render-only session lifecycle state from the Session Lifecycle domain objects. Keep Bifrost display-only and do not add live session control, queue mutation, process control, or routing decisions.
+
+Tests:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status. If Codex Reviews B routes a provider/payload repair before this session lifecycle preview is committed, complete that repair first.
+
+## Next Candidate Task
+
+Goal: add Bifrost review-gate and proof-state preview fields after session lifecycle preview lands.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Task: surface deterministic render-only Aegis/review-gate proof state in the cockpit without giving Bifrost routing or approval authority.
 
 Tests:
 
@@ -391,6 +437,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 checked queue; status: idle/running/blocked
 2026-06-01 22:45 -06:00 - Build 5 checked queue; status: running; resuming provider balance and prompt payload implementation after context reset; Verifying bifrost/cockpit.py has all dataclasses (ProviderBalanceItem, ProviderBalanceView, PromptPayloadView) and sample data (3 providers, prompt payload); render functions _render_provider_balance() and _render_prompt_payload() integrate into render_cockpit_html(); CSS styling added (provider-health colors, cost-pressure indicators); tests added (40+ cases validating rendering, XSS escaping, state transitions); origin/main at 9d15dc2
 2026-06-01 23:15 -06:00 - Build 5 checked queue; status: idle (cleared); Active Task = provider balance/prompt payload surface — already completed at 9d15dc2 (CSS/tests) and e6f4919 (queue marker); all tests pass (1286+ full suite, 93+ cockpit); bifrost/cockpit.py (dataclasses, sample data, render functions), bifrost/static/cockpit.css (styling), tests/test_bifrost_cockpit.py (40+ new tests) complete and on origin/main; Ready for Codex Review marker logged; Next Candidate = Bifrost session lifecycle preview state; awaiting orchestrator reassignment; origin/main at 37bcf21
 2026-06-02 06:30 -06:00 - Build 5 checked queue; status: idle (stale); Active Task section still lists provider balance/prompt payload surface (complete at 9d15dc2, e6f4919); queue file not yet updated by orchestrator to promote Next Candidate Task (session lifecycle preview state) to Active Task status; no executable task; bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py all verified on origin/main with 1286+ tests passing; awaiting orchestrator task reassignment; origin/main at 37bcf21
+2026-06-02 23:00 -06:00 - Build 5 checked queue; status: idle (stale); Active Task section still names provider balance/prompt payload (complete at 9d15dc2/e6f4919); no new Active Task assigned by orchestrator; Next Candidate = Bifrost session lifecycle preview state (not yet promoted); origin/main pulled (already up to date at 37bcf21); no actionable cross-check activity; awaiting orchestrator reassignment
 ```
 
 ## Write/Completion Log

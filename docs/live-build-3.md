@@ -1,4 +1,4 @@
-﻿# Live Build 3 Queue
+# Live Build 3 Queue
 
 ## Queue Authority
 
@@ -10,17 +10,27 @@ Build 3 cadence for commit `67a75dc` plus marker `b3316b6` was cleared by Codex 
 
 ## Active Task
 
-Goal: repair the FileMap checklist registration while the checklist artifact is missing.
+Goal: register the Session Lifecycle checklist and runtime module in FileMap.
 
 Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
-Task: Codex Reviews B found that `80ebea4` registered `docs/session-lifecycle-implementation-checklist.md`, but the file is not present in current `HEAD`. Remove or pause that FileMap registration and required-path coverage until Build 2 restores the checklist artifact. Keep the repair mechanical and do not edit Build 2 files or runtime code.
+Task: reconcile the Session Lifecycle FileMap state now that `docs/session-lifecycle-implementation-checklist.md`, `meridian_core/session_lifecycle.py`, and `tests/test_session_lifecycle.py` are present on `origin/main`. Add or restore discoverability entries only for existing files, mirror them in `docs/FileMap.md`, and add required-path coverage in `tests/test_filemap.py`. Keep this mechanical and do not edit the checklist, runtime implementation, tests outside FileMap coverage, Build 2 queue, or review queues.
 
 Tests:
 
 - `python -m pytest tests/test_filemap.py -q`
 
 Completion: commit only the allowed FileMap repair files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
+## Next Candidate Task
+
+Goal: audit V2 FileMap drift after Session Lifecycle registration lands.
+
+Allowed files only: `docs/filemap-v2-v3-discoverability-audit.md`, `docs/live-build-3.md`.
+
+Task: check the current V2 progress tracker against FileMap and record any remaining discoverability gaps as follow-up tasks. Do not edit runtime FileMap in this docs-only audit.
+
+Tests: none required (docs-only).
 
 ## Completed / Ready For Codex Review
 
@@ -512,7 +522,9 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-11 02:45 UTC - Build 3 checked queue; status: idle; Active Task (FileMap repair) already complete (commit ba83a4c); cadence 3/3 since Round B5 — Codex review required before next task
 2026-06-11 03:00 UTC - Build 3 checked queue; status: idle; no executable Active Task; cadence 3/3 since Round B5 — initiating Codex review for commits 23efaf7, 80ebea4, ba83a4c
 2026-06-11 03:20 UTC - Build 3 checked queue; status: idle; Codex review complete (two repair iterations); cadence reset to 0/3 since Round B5; no new Active Task assigned; ready for next FileMap assignment
-2026-05-31 02:00 -06:00 - Build 3 checked queue; status: active task found (FileMap registration -- cockpit_provider.py + tests/test_cockpit_provider.py); starting work
+2026-06-11 03:35 UTC - Build 3 checked queue; status: idle; Active Task (Session Lifecycle FileMap registration) already complete (commits 92ff6f4 + 9bb93ad); V2 FileMap audit completed in previous session; cadence 1/3 since Round B5; no new Active Task assigned; awaiting next task assignment
+2026-06-11 03:40 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 03:45 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
 ```
 
 ## Write/Completion Log
@@ -553,6 +565,8 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-06-11 02:30 UTC - Build 3 completed FileMap repair (remove Session Lifecycle checklist registration pending file arrival); commit ba83a4c; files changed: meridian_core/filemap.py, tests/test_filemap.py, docs/FileMap.md; tests 46/46 filemap passing; Ready for Codex Review; cadence 3/3 since Round B5
 2026-06-11 02:50 UTC - Build 3 repair Active Task superseded: Session Lifecycle checklist artifact (docs/session-lifecycle-implementation-checklist.md) arrived in commit 7d20f47 (Build 2) along with runtime module (meridian_core/session_lifecycle.py); file exists on disk
 2026-06-11 03:15 UTC - Build 3 Codex review correction (Iteration 2): commit 1635f80; re-registered Session Lifecycle implementation checklist after discovering initial repair was overly aggressive; file exists and must be registered; files changed: meridian_core/filemap.py, tests/test_filemap.py; tests 46/46 filemap passing; push successful; cadence reset to 0/3 since Round B5; ready for next FileMap assignment
+2026-06-11 03:30 UTC - Build 3 completed V2 FileMap audit — verified all previously pending files now exist and are registered; updated docs/filemap-v2-v3-discoverability-audit.md to reflect current state; commit 92ff6f4; files changed: docs/filemap-v2-v3-discoverability-audit.md; tests 46/46 filemap passing; all V2 built-and-review-cleared artifacts now discoverable by Prime; cadence 1/3 since Round B5; Ready for Codex Review
+2026-06-11 03:35 UTC - Build 3 queue poll — appended Read Checks entry noting idle status and awaiting new task assignment; no code changes; cadence 1/3 since Round B5
 ```
 
 ## Cross-Check Activity
@@ -600,15 +614,15 @@ YYYY-MM-DD HH:MM TZ - Build 3 Codex review result: pass/no actionable findings/f
 
 ## Archived Prior Active Task - Do Not Execute
 
-Current Active Task - COMPLETED:
+Archived Completed Task:
 
 Coordinator Override task completed in commit `67a75dc`: Registered V1 Electron cockpit app shell (package.json, electron/main.js), Bifrost preview renderer (bifrost/preview.py, tests/test_bifrost_preview.py), and Prime queue reconciliation requirement (docs/prime-queue-reconciliation-requirement.md) in FileMap. All 5 entries now present with FileArea.BIFROST and FileArea.ARCHITECTURE classifications. Tests: 46/46 filemap passing. Ready for Codex Review.
 
-Next Active Task: awaiting new assignment.
+Archived: awaiting new assignment at time of archival.
 
 Prior stale task archived below.
 
-Current Active Task:
+Archived Stale Task:
 
 Goal: register the V2 detailed build plan in FileMap.
 
@@ -663,6 +677,7 @@ Historical record for reference. Authoritative detail is in the Write/Completion
 - **COMPLETED 2026-05-30 16:07 -06:00** — FileMap repair (Round B3 — prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md); commit 5e0facb; tests 46/46 filemap; cadence 1/3 since Round B3; Ready for Codex Review.
 - **COMPLETED 2026-05-30 16:03 -06:00** — FileMap refresh (model_adapter.py); commit be34fea; tests 46/46 filemap; Ready for Codex Review. Codex review cleared 2026-05-30 16:11 -06:00 (Reviews B; no findings; cadence window 774695f, 330f200, be34fea clear).
 
+```text
 2026-06-01 21:35 -06:00 - Build 3 completed FileMap registration (docs/v2-detailed-build-plan.md); commit b48b5c3; files changed: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py; tests 46/46 filemap passing; Obsidian update pending; Ready for Codex Review
 2026-06-01 21:40 -06:00 - Build 3 checked queue; status: idle; Active Task already complete (e0d7c08 + c7b43d1 pushed); cadence 1/3 since Round B5; awaiting next task assignment
 2026-06-02 00:00 UTC - Build 3 checked queue; status: idle; Active Task stale (V2 FileMap complete at e0d7c08/c7b43d1); cadence 1/3 since Round B5; awaiting next task assignment
@@ -712,3 +727,4 @@ Historical record for reference. Authoritative detail is in the Write/Completion
 2026-06-10 18:00 UTC - Build 3 checked queue; status: idle; no executable Active Task; cadence 3/3 since Round B5; awaiting Codex review clearance before next assignment
 2026-06-10 23:59 UTC - Build 3 checked queue; status: paused; cadence 3/3 since Round B5 complete; awaiting Codex review findings and next assignment
 2026-06-11 02:50 UTC - Build 3 checked queue; status: idle; pulled origin/main (e2f4078); Session Lifecycle checklist now exists; FileMap re-registered (filemap.py:576); repair Active Task superseded; cadence 3/3 since Round B5 — awaiting Codex review findings before next assignment
+```
