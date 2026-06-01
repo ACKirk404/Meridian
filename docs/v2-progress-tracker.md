@@ -10,7 +10,7 @@
 
 | Owner | Built/Review-Cleared | Built-Awaiting-Review | Contract Baseline | Needs Build | Total | Percent Complete |
 |---|---:|---:|---:|---:|---:|---:|
-| Prime Autonomy | 1 | 0 | 0 | 1 | 2 | 50% |
+| Prime Autonomy | 1 | 1 | 0 | 0 | 2 | 50% clear + 50% awaiting |
 | Echo Harness | 2 | 0 | 2 | 0 | 4 | 100% |
 | Atlas Harness | 2 | 0 | 1 | 0 | 3 | 100% |
 | Relay/Model Harness | 2 | 0 | 1 | 6 | 9 | 33% |
@@ -18,7 +18,7 @@
 | Session Lifecycle Harness | 1 | 0 | 1 | 2 | 4 | 50% |
 | Bifrost Harness | 1 | 0 | 2 | 6 | 9 | 33% |
 | Federation Harness | 1 | 0 | 0 | 0 | 1 | 100% |
-| **Total V2** | **12** | **0** | **7** | **15** | **34** | **35% Clear + 0% Awaiting + 21% Baseline** |
+| **Total V2** | **12** | **1** | **7** | **14** | **34** | **35% Clear + 3% Awaiting + 21% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
@@ -60,7 +60,9 @@
 
 ## Built But Awaiting Review
 
-- None currently.
+### Prime Autonomy
+
+- [ ] **Prime + Project State:** deterministic next-action selector taking project/backlog/lane/tier/review gate state - built in `57aad9a`, queue provenance in `a2b8cd0`; routed to Reviews A after duplicate Build 2 human-gate repair review was superseded by Reviews C.
 
 ## Contract Baselines Complete (Not Runtime Implementation)
 
@@ -98,7 +100,7 @@
 
 ### Prime Autonomy
 
-- [ ] **Prime + Project State:** deterministic next-action selector taking project/backlog/lane/tier/review gate state - integrates Echo memory query and Atlas retrieval hits as input placeholders.
+- None currently.
 
 ### Relay / Model Harness
 

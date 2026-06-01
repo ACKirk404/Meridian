@@ -4,11 +4,11 @@ This file is the standing queue for Codex Reviews A, the runtime/code review ses
 
 The build lanes build. Review lanes review.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Superseded
 
 Goal: verify the Build 2 PrimeNextAction human-gate repair.
 
-Status: active. Build 2 marked the V2 Prime next-action domain object repair Ready for Codex Review after `PrimeNextAction.is_executable()` was tightened to return false while `human_gate_required` is true.
+Status: superseded by Reviews C. Codex Reviews C passed repair commit `39c9ac8` on 2026-05-31 15:55 -06:00 with `python -m pytest tests/test_prime_autonomy.py -q` and `python -m pytest tests/test_prime_autonomy.py tests/test_filemap.py -q`. Reviews A should not re-run this stale duplicate task.
 
 Scope:
 
@@ -39,11 +39,11 @@ Review expectations:
 
 Completion: commit and push only `docs/live-codex-reviews.md` unless routing a repair into `docs/live-build-2.md`.
 
-## Next Candidate Review Task
+## Coordinator Override - Active Now
 
 Goal: review Build 1 Prime project-state next-action selector commit `57aad9a`.
 
-Status: queued behind the Build 2 human-gate repair verification.
+Status: active. The duplicate Build 2 human-gate repair review above was already cleared by Reviews C, so Reviews A is now routed to this Build 1 selector review.
 
 Scope:
 
