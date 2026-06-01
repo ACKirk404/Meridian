@@ -3587,6 +3587,28 @@ body {
   const relayGrid = (items) => `<div class="relay-models-grid">${items.map(([key, value]) => `<div class="relay-models-key">${escapeHtml(key)}</div><div class="relay-models-value">${escapeHtml(value)}</div>`).join('')}</div>`;
   const relayList = (items) => `<ul class="relay-models-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
   const relaySection = (title, body) => `<section class="relay-models-section"><div class="relay-models-section-title">${escapeHtml(title)}</div>${body}</section>`;
+  const relayBridgeRows = (status, detail) => [
+    ['bridge', status],
+    ['version', detail.version || 'unknown'],
+    ['visible context', detail.visibleContext ? 'enabled' : 'blocked'],
+    ['restart', detail.samePortRestart ? 'same-port reset recovery' : 'manual restart required'],
+  ];
+  const renderRelayBridgeStatus = async () => {
+    const bridgeNode = rightWorkspace?.querySelector('[data-relay-bridge-status]');
+    if (!bridgeNode) return;
+    try {
+      const response = await fetch('http://127.0.0.1:8767/health', { cache: 'no-store' });
+      const result = await response.json();
+      const detail = {
+        version: result.version,
+        visibleContext: Boolean(result.capabilities?.visibleTranscriptContext),
+        samePortRestart: Boolean(result.capabilities?.samePortRestart),
+      };
+      bridgeNode.innerHTML = relayGrid(relayBridgeRows(result.ok ? 'online' : 'degraded', detail));
+    } catch {
+      bridgeNode.innerHTML = relayGrid(relayBridgeRows('offline', { visibleContext: false, samePortRestart: false }));
+    }
+  };
   const clearRelayModels = () => {
     if (!rightWindow || !rightWorkspace) return;
     rightWindow.classList.remove('is-relay-models');
@@ -3604,6 +3626,7 @@ body {
           <div class="relay-models-status">Auto disabled</div>
         </div>
         <div class="relay-models-body">
+          ${relaySection('Bridge route', '<div data-relay-bridge-status></div>')}
           ${relaySection('Access logic', relayGrid(relayModels.access))}
           ${relaySection('Model choice logic', relayGrid(relayModels.choices))}
           ${relaySection('When and why logic', relayGrid(relayModels.when))}
@@ -3612,6 +3635,7 @@ body {
         </div>
       </div>
     `);
+    renderRelayBridgeStatus();
   };
   const openSpark = () => {
     stage.classList.add('spark-menu-open');

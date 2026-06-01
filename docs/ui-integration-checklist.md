@@ -516,6 +516,8 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | MB10 | Bridge restart endpoint | Local bridge exposes a same-port restart endpoint for Reset recovery. | `POST /api/restart` returns accepted, then `/health` and `/api/models` come back with visible-context capability. |
 | MB11 | Bridge capability parity | `/health` and `/api/models` advertise the same bridge version and capability flags, and the UI readiness line shows the active bridge generation. | Both endpoints report `visibleTranscriptContext`, `recentCallContextDiagnostics`, and `samePortRestart`; session status includes the bridge version. |
 | MB12 | Local-origin bridge access | Browser access to bridge endpoints is limited to the Meridian local UI origins. | Disallowed origins get `403`; command-line checks without an Origin header still work. |
+| MB13 | Bridge readiness self-heal | UI rechecks bridge readiness when the page regains focus or visibility. | Restart bridge externally, return to the page, and status refreshes without manual reload. |
+| MB14 | Relay bridge visibility | Relay panel shows live bridge access status from `/health`, not static copy. | Open Relay; Bridge route shows online/offline, version, visible-context state, and reset recovery state. |
 
 ## Harness UI Rules
 
