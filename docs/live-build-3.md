@@ -98,7 +98,7 @@ Tests: `python -m pytest tests/test_filemap.py -q`
 
 Completion: completed in `cf6e8c42`, queue/provenance updates through `5c56304a` and `51976cff`; marked Ready for Codex Review.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: register Build 5 static/sample right-panel rendering artifacts after that runtime slice lands.
 
@@ -108,9 +108,17 @@ Required sources: Build 5 commit `80373a88`, `bifrost/cockpit.py`, `bifrost/stat
 
 Task: verify the Build 5 right-panel mode runtime/test artifacts are discoverable through runtime FileMap and mirrored in `docs/FileMap.md`. Register only existing files that are missing. Keep this mechanical. Do not edit Bifrost runtime/CSS/tests, Relay, Aegis, Session Lifecycle, or review queues.
 
-Tests: `python -m pytest tests/test_filemap.py -q`
+Completion:
 
-Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+- Build 3 verified all four Build 5 Bifrost right-panel artifacts already registered from prior session.
+- Verified in filemap.py (make_default_map): bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py, docs/bifrost-right-panel-mode-contract.md.
+- Verified in docs/FileMap.md: all four files with accurate purpose and test references.
+- No new files to register; all artifacts already discoverable.
+- Tests: `python -m pytest tests/test_filemap.py -q` — 46 passed.
+- No files changed (verification only).
+- Cadence: 1/3 since Round B5.
+
+Ready for Codex Review.
 
 ## Next Candidate Task
 
@@ -1002,6 +1010,7 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-06-12 07:30 UTC - Build 3 completed FileMap audit for Relay/Session Lifecycle implementation files; registered meridian_core/relay_executor.py and tests/test_relay_executor.py; commit 536b43aa; files changed: meridian_core/filemap.py (2 entries), docs/FileMap.md (2 rows after relay_dispatch), tests/test_filemap.py (2 paths to _REQUIRED_PATHS); tests: python -m pytest tests/test_filemap.py -q â€” 46 passed; push: b81e02e1; cadence 2/3 since Round B5; Ready for Codex Review
 2026-06-12 07:35 UTC - Build 3 completed Aegis FileMap registration; registered docs/relay-aegis-risk-proof-gates.md (V2 Relay-Aegis gates contract); commit f4b89c79; files changed: meridian_core/filemap.py (1 entry, Aegis area), docs/FileMap.md (1 row), tests/test_filemap.py (1 path to _REQUIRED_PATHS); tests: python -m pytest tests/test_filemap.py -q â€” 46 passed; push: success; cadence 3/3 since Round B5; Ready for Codex Review
 2026-06-12 07:52 UTC - Build 3 completed Session Lifecycle/Bifrost FileMap registration; registered docs/bifrost-preview-package-api-note.md and docs/v1-bifrost-runtime-acceptance-checklist.md; commit d48768b3; files changed: meridian_core/filemap.py (2 entries, Bifrost area), docs/FileMap.md (2 rows), tests/test_filemap.py (2 paths to _REQUIRED_PATHS); tests: python -m pytest tests/test_filemap.py -q â€” 46 passed; push: success; cadence 1/3 since next round; Ready for Codex Review
+2026-06-01 23:08 UTC - Build 3 completed Build 5 right-panel rendering FileMap verification; verified bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py, docs/bifrost-right-panel-mode-contract.md all registered in filemap.py and docs/FileMap.md from prior session; no new files to register; tests: python -m pytest tests/test_filemap.py -q â€” 46 passed; no files changed (verification only); queue reorganized: Active Task moved to Completed; cadence 1/3 since Round B5; Ready for Codex Review
 ```
 
 ## Cross-Check Activity
@@ -1224,3 +1233,4 @@ Historical record for reference. Authoritative detail is in the Write/Completion
 2026-06-12 15:10 UTC - Build 3 checked queue; Active Task incomplete (FileMap audit — goal only, no Task description/Tests/Completion); status: idle; cadence 2/3 since Round B5
 2026-06-12 15:25 UTC - Build 3 checked queue; Active Task found and complete (FileMap audit for Relay/Session Lifecycle files from Build 1/2); executing audit now
 2026-06-01 23:06 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; awaiting next FileMap assignment
+2026-06-01 23:08 UTC - Build 3 checked queue; status: Active Task Build 5 Bifrost right-panel FileMap registration complete (verified: bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py, docs/bifrost-right-panel-mode-contract.md all registered); marking Ready for Codex Review; cadence 1/3 since Round B5
