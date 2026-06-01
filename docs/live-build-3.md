@@ -8,6 +8,20 @@ Only the first `Active Task` block in this file is executable. Lower archived/st
 
 Build 3 cadence for commit `67a75dc` plus marker `b3316b6` was cleared by Codex Reviews B on 2026-05-31 15:52 -06:00. FileMap tests passed (46 tests), and no repair was routed.
 
+## Active Task
+
+Goal: register the Session Lifecycle implementation checklist in FileMap.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: register `docs/session-lifecycle-implementation-checklist.md`, which landed in Build 2 commit `0296525`, so Prime can discover the implementation checklist at wake. Keep this mechanical: add a concise FileMap entry under the Session Lifecycle area, mirror it in `docs/FileMap.md`, and add required-path coverage in `tests/test_filemap.py`. Do not edit the checklist itself or Session Lifecycle runtime code.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion: commit only the allowed FileMap files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
 ## Completed / Ready For Codex Review
 
 Goal: audit V2 FileMap drift and register any existing missing V2 artifacts.
@@ -33,11 +47,11 @@ Ready for Codex Review.
 
 ## Next Candidate Task
 
-Goal: register the Session Lifecycle implementation checklist after Build 2 lands it.
+Goal: register the Session Lifecycle runtime module after Build 2 lands it.
 
 Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
-Task: when `docs/session-lifecycle-implementation-checklist.md` exists and has passed Codex review, register it under the Session Lifecycle/FileMap-appropriate area and add required-path coverage.
+Task: when `meridian_core/session_lifecycle.py` and `tests/test_session_lifecycle.py` land and pass review, register them under the Session Lifecycle area and add required-path coverage.
 
 ## Completed / Ready For Codex Review
 

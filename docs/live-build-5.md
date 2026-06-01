@@ -66,7 +66,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: implement the Bifrost V2 browser-first HUD shell for the latest UI direction.
 
@@ -90,9 +90,16 @@ Tests:
 
 - `python -m pytest tests/test_bifrost_cockpit.py -q`
 
-Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+Completion:
 
-## Next Candidate Task
+- Build 5 completed this HUD shell in `4a2838c`.
+- Files changed: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+- Tests: `python -m pytest tests/test_bifrost_cockpit.py -q` passed with 80 tests; full suite passed with 1095 tests.
+- Routed to Codex Reviews B for Bifrost/UI review.
+
+Ready for Codex Review.
+
+## Active Task
 
 Goal: implement the Bifrost V2 voice I/O surface state.
 
@@ -107,6 +114,20 @@ Requirements:
 - Keep voice action controls as inert/render-only affordances for this slice; no live microphone or TTS plumbing yet.
 - Preserve the large central prompt and quiet `PRIMED` core from the active HUD shell.
 - Add tests proving each voice state can render and old noisy provider/build labels remain absent.
+
+Tests:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: commit only the allowed Bifrost files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status. If Codex Reviews B routes a HUD-shell repair before this voice slice is committed, complete that repair first.
+
+## Next Candidate Task
+
+Goal: implement the Bifrost provider balance and prompt payload visibility surface.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Task: after the Voice I/O surface state lands, add the first deterministic provider-balance and prompt-payload visibility surface from `docs/bifrost-balance-payload-surface-contract.md`. Keep it render-only: Bifrost displays provider/payload telemetry supplied by Relay/Model Harness and does not make routing decisions.
 
 Tests:
 

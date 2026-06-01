@@ -184,13 +184,35 @@ Completion:
 
 Ready for Codex Review. Push: `f96c41a` on `origin/main`.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: wire prompt payload snapshot metadata into Relay dispatch evidence.
 
 Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
 
 Task: after Model Harness metadata lands, add provider-neutral prompt payload snapshot evidence to Relay dispatch planning/execution results without live vendor calls, UI work, filesystem access, or network access. Preserve Aegis proof-gate behavior and existing payload-only boundaries. The later Bifrost lane owns visual rendering; this slice only prepares structured runtime evidence.
+
+Tests:
+
+- `python -m pytest tests/test_relay_executor.py tests/test_prompt_payload_meter.py -q`
+
+Completion:
+
+- Build 1 completed Prompt Payload Snapshot metadata integration on 2026-05-31 ~23:00 -05:00.
+- Commit: `081c15f`.
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`.
+- Tests run: `python -m pytest tests/test_relay_executor.py tests/test_prompt_payload_meter.py -q` (89 passed).
+- Implementation: Extended RelayExecutionResult with optional payload_snapshot field. Added _snapshot_severity() helper to map PayloadStatus to EvidenceSeverity. Updated relay_execution_summary_to_proof_trail() to generate per-lane payload snapshot evidence with status-mapped severity (WARNING for DEGRADED, INFO for HEALTHY/WATCH). Modified all three execute_* functions to accept optional payload_snapshots tuple parameter and preserve snapshots through execution. Added 14 comprehensive tests.
+
+Ready for Codex Review. Push: `081c15f` on `origin/main`.
+
+## Coordinator Override - Active Now
+
+Goal: continue Relay prompt payload snapshot metadata hardening after the active cockpit repair and review routing complete.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Task: extend the Relay dispatch evidence slice if the active prompt payload snapshot metadata work lands before this candidate is promoted. Keep the work provider-neutral, pure, and bounded to structured evidence; do not add live vendor calls, UI work, filesystem access, network access, or Bifrost rendering.
 
 Tests:
 
@@ -825,3 +847,4 @@ Historical record of Build 1 V0 completed slices (most recent first). Do not re-
 [COMPLETED 2026-05-31 ~23:00 -05:00] Prompt payload snapshot metadata into Relay dispatch evidence — commit `081c15f`; files: meridian_core/relay_executor.py, tests/test_relay_executor.py; tests: 89 total passed (64 relay_executor + 25 prompt_payload_meter); Ready for Codex Review.
 
 2026-05-31 23:05 -05:00 - Build 1 checked queue; status: idle (Prompt Payload Snapshot slice 081c15f complete; awaiting next assignment or Codex review result)
+2026-05-31 23:15 -05:00 - Build 1 checked queue; status: running (Relay dispatch evidence hardening task — Active Now)

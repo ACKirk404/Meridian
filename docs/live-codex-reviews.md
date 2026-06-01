@@ -4,6 +4,33 @@ This file is the standing queue for Codex Reviews A, the runtime/code review ses
 
 The build lanes build. Review lanes review.
 
+## Coordinator Override - Active Now
+
+Goal: review Build 2 Session Lifecycle implementation checklist commit `0296525`.
+
+Scope:
+
+- Build 2 commit `0296525` - marks the checklist complete and records queue provenance.
+- Checklist artifact: `docs/session-lifecycle-implementation-checklist.md`.
+
+Allowed review files:
+
+- `docs/session-lifecycle-implementation-checklist.md`
+- `docs/session-lifecycle-v2-contract.md` for source-contract comparison only.
+- `docs/live-build-2.md` for provenance only.
+
+Proof commands:
+
+- Docs-only review; no tests required unless the review changes runtime or test files.
+
+Review expectations:
+
+- Verify the checklist faithfully translates the reviewed Session Lifecycle contract into code-ready enums, dataclasses, fields, legality helpers, executability helpers, proof expectations, tests, and out-of-scope boundaries.
+- Verify it preserves the unique-worktree, queue-routing, branch-permission, human-gate, no-live-process-control, no-destructive-command, no-vendor-account, and no-UI-automation boundaries.
+- Verify Build 2 has a valid follow-on runtime task and that any actionable checklist finding is routed back to Build 2 before the runtime slice is accepted.
+
+Completion: if clean, commit and push only `docs/live-codex-reviews.md` with the review result. If findings exist, route a focused repair into `docs/live-build-2.md` before normal work continues.
+
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review the Build 1 Model Harness and cockpit-state runtime cadence window.
@@ -696,6 +723,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-05-31 17:38 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current at `52d1ed2`; top Reviews A task remains completed/passed and no executable Active Task remains; build-lane Ready/Active markers were not executed.
 2026-05-31 22:09 -06:00 - Codex Reviews A checked queue; status: repair routed; notes: Build 1 runtime cadence window reviewed; Model Harness/Relay pieces passed, MEDIUM cockpit-state immutable snapshot repair routed to Build 1.
 2026-05-31 22:15 -06:00 - Codex Reviews A checked queue; status: idle; notes: pulled latest origin/main to `c4aa6b1`; queue top is completed/repair-routed and no executable Active Task is present; pending Build 1 repair remains routed to the build lane.
+2026-05-31 22:17 -06:00 - Codex Reviews A checked queue; status: idle; notes: pulled latest origin/main; queue top remains completed/repair-routed and no executable Active Task is present; pending Build 1 repair remains routed to the build lane.
 ```
 
 ## Review Log
@@ -1082,6 +1110,7 @@ Round 6 write log:
 - 2026-05-31 17:38 -06:00 - Codex Reviews A completed idle queue read after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `7e49a6a`; status-update commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or durable review finding.
 - 2026-05-31 22:09 -06:00 - Codex Reviews A completed Build 1 runtime cadence review and routed a MEDIUM cockpit-state immutability repair. Files changed: `docs/live-codex-reviews.md`, `docs/live-build-1.md`. Tests run: `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` (77 passed); `python -m pytest tests/test_cockpit_state.py -q` (25 passed); `python -m pytest tests/test_cognition_policy.py tests/test_aegis.py tests/test_relay_executor.py -q` (157 passed). Commit: this commit. Push status: pending. Obsidian update status: not updated yet.
 - 2026-05-31 22:15 -06:00 - Codex Reviews A completed idle queue read after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: `221f8e1`; status-update commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or new durable review finding.
+- 2026-05-31 22:17 -06:00 - Codex Reviews A completed idle queue read after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Commit: this commit. Push status: pending. Obsidian update status: not updated; no active review task or new durable review finding.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 

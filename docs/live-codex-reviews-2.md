@@ -2,6 +2,37 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
+## Coordinator Override - Active Now
+
+Goal: review Build 5 Bifrost V2 browser-first HUD shell commit `4a2838c`.
+
+Scope:
+
+- Build 5 implementation commit `4a2838c` and its surrounding pushed state for the HUD shell.
+- Queue provenance in `docs/live-build-5.md`.
+
+Allowed review files:
+
+- `bifrost/cockpit.py`
+- `bifrost/static/cockpit.css`
+- `tests/test_bifrost_cockpit.py`
+- `docs/live-build-5.md` for provenance only.
+- `docs/bifrost-v2-cockpit-extensions.md` and `docs/jarvis-ui-source-assessment.md` for source-direction comparison only.
+
+Proof commands:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Review expectations:
+
+- Verify the central Prime command bay is dominant and usable, the `PRIMED` core stays quiet, and old provider/build/top-nav noise is absent.
+- Verify the project-first rail, harness scoped prompts, voice state surface, mission feed, and instrument band render deterministically from static/sample state only.
+- Verify Bifrost remains display-only: no model calls, filesystem mutation, queue mutation, routing decisions, live microphone/TTS plumbing, or Electron-only dependency.
+- Verify the tests prove the key V2 HUD requirements and guard against old noisy labels returning.
+- If clean, clear Build 5 to continue the Voice I/O surface task. If findings exist, route a focused repair back to Build 5 before the voice slice proceeds.
+
+Completion: commit and push only `docs/live-codex-reviews-2.md` unless routing a repair into `docs/live-build-5.md`.
+
 ## Completed / Passed
 
 Goal: review Build 3 V2 FileMap drift audit registration for `docs/model-harness-v2-contract.md`.
@@ -1085,7 +1116,7 @@ Write log:
 - 2026-05-30 23:30 -06:00 - Round B1 completed by Codex Reviews B; result: 3 PASS (with 2 MEDIUM findings consolidated and routed to Build 3, 3 LOW findings recorded/deferred); tests: `python -m pytest tests/test_filemap.py -q` 46/46 (Build 3), docs-only (Build 4 and Build 5); ledger, review log, findings, and repair routing log updated.
 - 2026-05-31 10:20 -06:00 - Round B2 completed by Codex Reviews B; result: PASS-WITH-FINDINGS for Build 3 1378bda (Round B1 MEDIUM repair verified closed; 1 new MEDIUM finding routed for `docs/live-codex-reviews-2.md`; 2 LOW carryovers re-noted); tests: `python -m pytest tests/test_filemap.py -q` 46/46 in 0.12s; ledger, review log, proof log, findings, and repair routing log updated.
 - 2026-05-31 22:13 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `b1d2193` (metadata completed in `7c34c98`); push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
-- 2026-05-31 22:16 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: pending; push status: pending; Obsidian update status: not updated (no architecture finding or clearance).
+- 2026-05-31 22:16 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `80527c7`; push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 
 ## Coordinator Addendum - Round B5 V1 Cockpit Clearance
 
