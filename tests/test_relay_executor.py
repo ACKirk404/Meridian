@@ -1193,7 +1193,8 @@ class TestRelayDecisionRecord:
             assert summary.decision_record.proof_required == plan.route.audit.proof_required
 
     def test_decision_record_fallback_blockers_from_audit(self) -> None:
-        """Decision record fallback_blockers captures audit tuple."""
+        """Decision record fallback_blockers captures audit tuple plus vendor/model_id unknowns for Tier 2+."""
+        from meridian_core.relay import ModelRole
         for tier in (1, 2, 3, 4):
             plan = _make_plan(tier)
             summary = execute_relay_dispatch_plan(
@@ -1201,7 +1202,15 @@ class TestRelayDecisionRecord:
                 _constant_model_call("ok"),
                 include_decision_record=True,
             )
-            assert summary.decision_record.fallback_blockers == plan.route.audit.fallback_blockers
+            expected_blockers = list(plan.route.audit.fallback_blockers)
+            # Tier 2+ without adapter metadata adds vendor_unknown as explicit blocker
+            if tier >= 2:
+                expected_blockers.append("vendor_unknown")
+            # Check if plan has a builder lane for model_id extraction
+            has_builder_lane = any(lane.role == ModelRole.BUILDER for lane in plan.lanes)
+            if tier >= 2 and not has_builder_lane:
+                expected_blockers.append("model_id_unknown")
+            assert summary.decision_record.fallback_blockers == tuple(expected_blockers)
 
     def test_decision_record_human_gate_required_from_route(self) -> None:
         """Decision record human_gate_required matches route requirement."""
@@ -1538,3 +1547,181 @@ class TestRelayDecisionRecord:
             include_decision_record=True,
         )
         assert isinstance(summary.decision_record.fallback_blockers, tuple)
+
+    def test_decision_record_vendor_unknown_becomes_blocker_for_tier2plus(self) -> None:
+        """Decision record treats vendor='unknown' as explicit fallback blocker for Tier 2+."""
+        from meridian_core.relay_dispatch import RelayDispatchLane, RelayDispatchPlan
+
+        plan = _make_plan(2)
+        # Create plan with no lanes (clean audit, no builder lane to extract model_id from)
+        empty_lanes = ()
+        empty_plan = RelayDispatchPlan(route=plan.route, packet=plan.packet, lanes=empty_lanes)
+
+        # Build with no adapter metadata (so vendor="unknown" gets set)
+        record = _build_decision_record(empty_plan)
+
+        # vendor should be "unknown" due to Tier 2+ with no metadata
+        assert record.vendor == "unknown"
+        # This unknown should be a fallback blocker
+        assert "vendor_unknown" in record.fallback_blockers
+        assert not record.fallback_allowed
+
+    def test_decision_record_model_id_unknown_becomes_blocker_for_tier2plus(self) -> None:
+        """Decision record treats model_id='unknown' as explicit fallback blocker for Tier 2+."""
+        from meridian_core.relay_dispatch import RelayDispatchLane, RelayDispatchPlan
+
+        plan = _make_plan(2)
+        # Create plan with non-builder lanes only (no builder lane to extract model_id from)
+        non_builder_lanes = tuple(
+            RelayDispatchLane(
+                role=ModelRole.REVIEWER,  # Not builder
+                preferred_model=lane.preferred_model,
+                independent=lane.independent,
+                payload=lane.payload,
+            )
+            for lane in plan.lanes
+            if lane.role.value != "builder"
+        )
+        if not non_builder_lanes:
+            # If test setup doesn't have non-builder lanes, create one
+            builder_lane = next(l for l in plan.lanes if l.role.value == "builder")
+            non_builder_lanes = (
+                RelayDispatchLane(
+                    role=ModelRole.REVIEWER,
+                    preferred_model=builder_lane.preferred_model,
+                    independent=builder_lane.independent,
+                    payload=builder_lane.payload,
+                ),
+            )
+
+        no_builder_plan = RelayDispatchPlan(route=plan.route, packet=plan.packet, lanes=non_builder_lanes)
+
+        record = _build_decision_record(no_builder_plan)
+
+        # model_id should be "unknown" due to Tier 2+ with no builder lane
+        assert record.model_id == "unknown"
+        # This unknown should be a fallback blocker
+        assert "model_id_unknown" in record.fallback_blockers
+        assert not record.fallback_allowed
+
+    def test_decision_record_aegis_gate_decision_optional(self) -> None:
+        """Decision record has optional aegis_gate_decision field for gate outcomes."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should have aegis_gate_decision field
+        assert hasattr(record, "aegis_gate_decision")
+        # Defaults to None when not provided
+        assert record.aegis_gate_decision is None
+
+    def test_decision_record_aegis_gate_decision_immutable(self) -> None:
+        """Decision record aegis_gate_decision is immutable (frozen dataclass)."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should not be able to modify
+        with pytest.raises(AttributeError):
+            record.aegis_gate_decision = "allow"  # type: ignore
+
+    def test_decision_record_aegis_evidence_ids_optional(self) -> None:
+        """Decision record has optional aegis_evidence_ids field for evidence references."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should have aegis_evidence_ids field
+        assert hasattr(record, "aegis_evidence_ids")
+        # Defaults to empty tuple when not provided
+        assert record.aegis_evidence_ids == ()
+
+    def test_decision_record_aegis_waiver_present_optional(self) -> None:
+        """Decision record has optional aegis_waiver_present field for waiver tracking."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should have aegis_waiver_present field
+        assert hasattr(record, "aegis_waiver_present")
+        # Defaults to False when not provided
+        assert record.aegis_waiver_present is False
+
+    def test_decision_record_aegis_gate_severity_optional(self) -> None:
+        """Decision record has optional aegis_gate_severity field for severity level."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should have aegis_gate_severity field
+        assert hasattr(record, "aegis_gate_severity")
+        # Defaults to None when not provided
+        assert record.aegis_gate_severity is None
+
+    def test_decision_record_aegis_explanation_optional(self) -> None:
+        """Decision record has optional aegis_explanation field for gate explanation."""
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        # Should have aegis_explanation field
+        assert hasattr(record, "aegis_explanation")
+        # Defaults to empty string when not provided
+        assert record.aegis_explanation == ""
+
+    def test_decision_record_aegis_block_gate_adds_fallback_blocker(self) -> None:
+        """Decision record treats Aegis 'block' gate decision as explicit fallback blocker."""
+        plan = _make_plan(2)
+        record = _build_decision_record(
+            plan,
+            aegis_gate_decision="block",
+            aegis_explanation="security policy violation",
+        )
+        # block decision should add fallback blocker
+        assert "aegis_gate_blocked" in record.fallback_blockers
+        assert not record.fallback_allowed
+        # Aegis explanation should be stored
+        assert record.aegis_gate_decision == "block"
+        assert record.aegis_explanation == "security policy violation"
+        # Explanation should include Aegis context
+        assert "Aegis" in record.explanation_for_prime
+        assert "block" in record.explanation_for_prime
+
+    def test_decision_record_aegis_human_gate_adds_fallback_blocker(self) -> None:
+        """Decision record treats Aegis 'human_gate' decision as explicit fallback blocker."""
+        plan = _make_plan(2)
+        record = _build_decision_record(
+            plan,
+            aegis_gate_decision="human_gate",
+            aegis_explanation="escalation required",
+        )
+        # human_gate decision should add fallback blocker
+        assert "aegis_human_gate_required" in record.fallback_blockers
+        assert not record.fallback_allowed
+        # Aegis explanation should be stored
+        assert record.aegis_gate_decision == "human_gate"
+        assert record.aegis_explanation == "escalation required"
+        # Explanation should include Aegis context
+        assert "Aegis" in record.explanation_for_prime
+        assert "human_gate" in record.explanation_for_prime
+
+    def test_decision_record_aegis_demote_adds_explanation_only(self) -> None:
+        """Decision record treats Aegis 'demote' decision as non-silent demotion."""
+        plan = _make_plan(2)
+        record = _build_decision_record(
+            plan,
+            aegis_gate_decision="demote",
+            aegis_explanation="cost constraint triggered",
+        )
+        # demote decision should NOT add fallback blocker
+        assert "aegis_gate_blocked" not in record.fallback_blockers
+        assert "aegis_human_gate_required" not in record.fallback_blockers
+        # Aegis decision should be stored
+        assert record.aegis_gate_decision == "demote"
+        assert record.aegis_explanation == "cost constraint triggered"
+        # Explanation should note the demotion
+        assert "Aegis" in record.explanation_for_prime
+        assert "demoted" in record.explanation_for_prime or "demote" in record.explanation_for_prime
+
+    def test_decision_record_aegis_allow_decision_silent(self) -> None:
+        """Decision record handles Aegis 'allow' decision without adding blockers."""
+        plan = _make_plan(2)
+        record = _build_decision_record(
+            plan,
+            aegis_gate_decision="allow",
+            aegis_explanation="policy satisfied",
+        )
+        # allow decision should not add fallback blockers (handles normally)
+        assert "aegis_gate_blocked" not in record.fallback_blockers
+        assert "aegis_human_gate_required" not in record.fallback_blockers
+        # Aegis decision should still be stored for audit
+        assert record.aegis_gate_decision == "allow"
+        assert record.aegis_explanation == "policy satisfied"
