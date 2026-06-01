@@ -2529,3 +2529,7 @@ Next Candidate:
 ## Write / Completion Log
 
 - 2026-06-01 17:34 -06:00 — files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because no newly promoted executable Reviews B Active Task is present. Commit hash: pending at write time; see final handoff for pushed commit. Push status: pending at write time. Obsidian update status: not updated; queue provenance only.
+
+## Read Checks
+
+- 2026-06-01 17:34 -06:00 — re-read `docs/live-codex-reviews-2.md` after `origin/main` advanced to `8c4436ec`. Active Reviews B task is now promoted: review Build 4 Relay harness model-selection logic consistency repair at commit `a5144d42`. Executing the active docs/architecture review against current main.
