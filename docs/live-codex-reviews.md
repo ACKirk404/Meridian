@@ -38,9 +38,23 @@ Proof command:
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Passed
 
 Goal: review Build 1 Relay-Bifrost proof payload contract docs.
+
+Status: passed by Codex Reviews A on 2026-06-01 16:52 -06:00. Current `origin/main` contains contract-doc commit `7cb80bbb`, and the required Relay executor proof passes.
+
+Review result:
+
+- `python -m pytest tests/test_relay_executor.py -q` passed with 145 tests.
+- `git merge-base --is-ancestor 7cb80bbb HEAD` passed, proving the reviewed contract commit is present in the current checkout.
+- `docs/relay-bifrost-proof-payload-contract.md` accurately lists the stable `AegisGateEvidenceSummary.to_dict()` keys: `gate_decision`, `severity`, `evidence_ids`, `waiver_present`, `explanation`, and `fallback_blockers_from_aegis`.
+- The contract matches the runtime/test guarantees for immutable payload values, deterministic output, downstream Bifrost/Prime display intent, JSON tuple/list caveat, and FileMap registration handoff to Build 3.
+- Scoped inspection found no claims that Bifrost should make live Relay/Aegis/Bifrost calls, model/account/process calls, UI implementation changes, branch movement, or Polaris dependency.
+
+Finding: none. Residual risk: Build 3 still must register `docs/relay-bifrost-proof-payload-contract.md` in FileMap after this review clears.
+
+Completion: Build 1 Relay-Bifrost proof payload contract docs are review-cleared. Build 3 FileMap registration for Relay proof payload contract docs remains the next review candidate.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
 
@@ -54,11 +68,21 @@ Proof command:
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
 
-## Next Candidate Task
+## Coordinator Override - Active Now
 
 Goal: review Build 3 FileMap registration for Relay proof payload contract docs after Build 3 marks it Ready for Codex Review.
 
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
 Allowed review files: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Task: poll `docs/live-build-3.md` and current `origin/main` for Build 3's FileMap registration of `docs/relay-bifrost-proof-payload-contract.md`. When Build 3 marks that FileMap slice Ready for Codex Review, verify the runtime FileMap entry, `docs/FileMap.md` mirror, required-path coverage, and `tests/test_filemap.py` proof. If the slice is not yet ready, append a read check and keep polling; do not mark idle.
+
+Proof command:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
 
 ## Coordinator Override - Completed / Passed
 
@@ -1134,6 +1158,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-06-01 16:45 -06:00 - Codex Reviews A checked queue; status: running/not-ready; notes: origin/main current after pull; active Build 3 FileMap proof-payload registration poll executed; docs/live-build-3.md has Ready markers, but no specific Relay proof payload contract docs FileMap slice or proof-payload registration target is marked Ready; continuing to poll and not marking idle.
 2026-06-01 16:47 -06:00 - Codex Reviews A checked queue; status: running/not-ready; notes: origin/main current after pull; active Build 3 FileMap proof-payload registration poll repeated; no proof-payload/payload-contract target appears in docs/live-build-3.md, meridian_core/filemap.py, docs/FileMap.md, or tests/test_filemap.py; Build 3's own Active Task is unrelated Build 5 FileMap work and was not executed by Reviews A.
 2026-06-01 16:49 -06:00 - Codex Reviews A checked queue; status: running/not-ready; notes: origin/main current after pull; active Build 3 FileMap proof-payload registration poll repeated; scoped search again found no proof-payload/payload-contract target in Build 3/FileMap files; three-change queue-only Codex review check over the polling updates found no actionable findings.
+2026-06-01 16:52 -06:00 - Codex Reviews A checked queue; status: running; notes: origin/main current after pull; active Build 1 Relay-Bifrost proof payload contract docs review found for commit `7cb80bbb`; executing assigned proof scope only.
 ```
 
 ## Review Log
@@ -1172,6 +1197,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-06-01 16:26 -06:00 - Reviewed Build 1 Relay proof payload serialization landing commit `7079ceb8`; result: pass; tests: `python -m pytest tests/test_relay_executor.py -q` 145 passed; notes: `AegisGateEvidenceSummary.to_dict()` exposes stable gate decision/severity/evidence ids/waiver/explanation/Aegis blocker keys, preserves immutable deterministic values, and scoped side-effect scan found no live Aegis/model/vendor/account/UI/process/branch/Polaris calls.
 2026-06-01 16:28 -06:00 - Reviewed Build 2 Session Lifecycle routing-action implementation; result: finding/repair-routed; tests: `python -m pytest tests/test_session_lifecycle.py -q` 20 passed; notes: required archive/request-human-gate Relay-selected actions are missing from `SessionAction`, and context-fill/review-gate/permission-boundary reasons are typed but not reached or tested.
 2026-06-01 16:39 -06:00 - Reviewed Build 2 Session Lifecycle routing-action repair commit `558af555`; result: pass; tests: `python -m pytest tests/test_session_lifecycle.py -q` 24 passed; notes: `SessionAction` now represents archive and request-human-gate, required context-fill/review-gate/permission-boundary reasons are reachable and tested, and scoped side-effect scan found no live process/model/UI/branch/Polaris calls.
+2026-06-01 16:52 -06:00 - Reviewed Build 1 Relay-Bifrost proof payload contract docs commit `7cb80bbb`; result: pass; tests: `python -m pytest tests/test_relay_executor.py -q` 145 passed; notes: contract matches `AegisGateEvidenceSummary.to_dict()` stable keys, immutable value expectations, deterministic output, Bifrost/Prime display intent, FileMap registration handoff, and out-of-scope boundaries without live Relay/Aegis/Bifrost/model/account/process/branch/Polaris claims.
 ```
 
 ## Proof Log
@@ -1241,6 +1267,7 @@ YYYY-MM-DD HH:MM TZ - Proof for Build <n> commit <hash>; proof type: diff/test/r
 2026-06-01 16:26 -06:00 - Proof for Build 1 Relay proof payload serialization landing commit `7079ceb8`; proof type: test/diff/reference; evidence: `python -m pytest tests/test_relay_executor.py -q` -> 145 passed; `git merge-base --is-ancestor 7079ceb8 HEAD` passed; scoped diff/inspection found `AegisGateEvidenceSummary.to_dict()` stable-key serialization and regression tests for empty/data/stable-key/immutable/deterministic output; side-effect scan found no live Aegis/model/vendor/account/UI/process/branch/Polaris calls; result: pass.
 2026-06-01 16:28 -06:00 - Proof for Build 2 Session Lifecycle routing-action implementation; proof type: test/diff/reference; evidence: `python -m pytest tests/test_session_lifecycle.py -q` -> 20 passed; scoped inspection found `SessionAction` lacks archive/request-human-gate actions at `meridian_core/session_lifecycle.py:87`, `suggest_routing_action()` never returns context-fill/review-gate/permission-boundary reasons at `meridian_core/session_lifecycle.py:199`, and routing tests omit those reason cases at `tests/test_session_lifecycle.py:78`; side-effect scan found no live process/model/UI/branch/Polaris calls; result: fail-repair-routed.
 2026-06-01 16:39 -06:00 - Proof for Build 2 Session Lifecycle routing-action repair commit `558af555`; proof type: test/diff/reference; evidence: `python -m pytest tests/test_session_lifecycle.py -q` -> 24 passed; `git merge-base --is-ancestor 558af555 HEAD` passed; scoped diff/inspection found `SessionAction.ARCHIVE`, `SessionAction.REQUEST_HUMAN_GATE`, reachable `CONTEXT_FILL`/`REVIEW_GATE`/`PERMISSION_BOUNDARY` routing paths, and regression tests for each repaired path; side-effect scan found no live process/model/UI/branch/Polaris calls; result: pass.
+2026-06-01 16:52 -06:00 - Proof for Build 1 Relay-Bifrost proof payload contract docs commit `7cb80bbb`; proof type: test/diff/reference; evidence: `python -m pytest tests/test_relay_executor.py -q` -> 145 passed; `git merge-base --is-ancestor 7cb80bbb HEAD` passed; scoped diff/inspection confirmed the contract lists the six `AegisGateEvidenceSummary.to_dict()` keys proven by `tests/test_relay_executor.py::TestAegisGateEvidenceSummary`, documents immutable tuple/scalar values and JSON tuple/list caveat, assigns FileMap registration to Build 3, and avoids live Relay/Aegis/Bifrost/model/account/process/branch/Polaris claims; result: pass.
 ```
 
 Minimum proof expectations:
@@ -1300,6 +1327,7 @@ YYYY-MM-DD HH:MM TZ - Build <n> commit <hash>; severity: CRITICAL/HIGH/MEDIUM/LO
 2026-06-01 16:28 -06:00 - Build 2 Session Lifecycle routing-action implementation; severity: HIGH; file: meridian_core/session_lifecycle.py:87; finding: `SessionAction` cannot represent required Relay-selected `archive` or `request_human_gate` actions, so Prime cannot model the full action set from the active queue contract; required repair: add/represent these actions and cover serialization/tests; owner: Build 2.
 2026-06-01 16:28 -06:00 - Build 2 Session Lifecycle routing-action implementation; severity: MEDIUM; file: meridian_core/session_lifecycle.py:199 and tests/test_session_lifecycle.py:78; finding: `CONTEXT_FILL`, `REVIEW_GATE`, and `PERMISSION_BOUNDARY` reasons are typed but not reachable through routing logic or covered by routing tests; required repair: make required reasons reachable or explicitly represented and test them; owner: Build 2.
 2026-06-01 16:39 -06:00 - Build 2 commit `558af555`; severity: none; file: meridian_core/session_lifecycle.py and tests/test_session_lifecycle.py; finding: no CRITICAL, HIGH, MEDIUM, or LOW findings in the scoped Session Lifecycle routing-action repair review; action: clear, no repair task written.
+2026-06-01 16:52 -06:00 - Build 1 commit `7cb80bbb`; severity: none; file: docs/relay-bifrost-proof-payload-contract.md, meridian_core/relay_executor.py, and tests/test_relay_executor.py; finding: no CRITICAL, HIGH, MEDIUM, or LOW findings in the scoped Relay-Bifrost proof payload contract docs review; action: clear, no repair task written.
 ```
 
 ## Repair Routing Log
@@ -1625,6 +1653,7 @@ Round 6 write log:
 - 2026-06-01 16:45 -06:00 - Codex Reviews A completed Build 3 FileMap proof-payload readiness poll after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (slice not ready; proof command deferred). Proof commands: inspected `docs/live-build-3.md`, searched proof-payload/FileMap scope with `rg`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no review finding; specific Relay proof payload contract docs FileMap slice is not Ready for Codex Review, so Reviews A remains polling and did not mark idle. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; polling state recorded only.
 - 2026-06-01 16:47 -06:00 - Codex Reviews A completed Build 3 FileMap proof-payload readiness poll after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (slice not ready; proof command deferred). Proof commands: `rg -n "proof payload|proof-payload|proof_payload|payload contract|Relay proof payload|relay proof payload|proof contract|AegisGateEvidenceSummary|aegis_gate_evidence" docs/live-build-3.md meridian_core/filemap.py docs/FileMap.md tests/test_filemap.py`, inspected `docs/live-build-3.md`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no review finding; specific Relay proof payload contract docs FileMap slice is still not Ready for Codex Review, and unrelated Build 3 Active Task was not executed. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; polling state recorded only.
 - 2026-06-01 16:49 -06:00 - Codex Reviews A completed Build 3 FileMap proof-payload readiness poll and three-change queue-only Codex review check after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (slice not ready; proof command deferred). Proof commands: `rg -n "proof payload|proof-payload|proof_payload|payload contract|Relay proof payload|relay proof payload|proof contract|AegisGateEvidenceSummary|aegis_gate_evidence" docs/live-build-3.md meridian_core/filemap.py docs/FileMap.md tests/test_filemap.py`, inspected `docs/live-build-3.md`, `git diff --check d4e78836..HEAD -- docs/live-codex-reviews.md`, and `git diff --stat d4e78836..HEAD -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings in the three polling/provenance updates; specific Relay proof payload contract docs FileMap slice is still not Ready for Codex Review. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; polling state recorded only.
+- 2026-06-01 16:52 -06:00 - Codex Reviews A completed Build 1 Relay-Bifrost proof payload contract docs review for commit `7cb80bbb`. Files changed: `docs/live-codex-reviews.md`. Tests run: `python -m pytest tests/test_relay_executor.py -q` (145 passed). Proof commands: `git merge-base --is-ancestor 7cb80bbb HEAD`, scoped inspection of `docs/relay-bifrost-proof-payload-contract.md`, `meridian_core/relay_executor.py`, and `tests/test_relay_executor.py`, side-effect/claim scan with `rg`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings; Build 1 contract docs passed and Build 3 FileMap registration remains next candidate. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue records pass only.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
