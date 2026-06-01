@@ -448,6 +448,12 @@ def make_default_map() -> FileMap:
             notes="Proof-blocking is severity + status aware; ESCALATED is always blocking.",
         ),
         FileMapEntry(
+            path="tests/test_aegis.py",
+            area=FileArea.AEGIS,
+            purpose="Test suite for meridian_core/aegis.py: covers proof harness, AegisEvidence, ProofTrail, and review console integration.",
+            related_tests=[],
+        ),
+        FileMapEntry(
             path="meridian_core/review_console.py",
             area=FileArea.REVIEW_CONSOLE,
             purpose="Promptable review/gating surface for cross-check, proof, artifacts, plans, gates.",

@@ -10,6 +10,38 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: add waiver and approval record validation to the Aegis route-gate runtime slice.
+
+Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
+
+Task: extend the pure Aegis gate validators so any gate that accepts a waiver, human acknowledgment, premium-cost approval, or Tier 4 approval requires structured evidence: actor, scope, timestamp, reason, and either expiration or evidence reference when applicable. A bare boolean must not satisfy the gate.
+
+Tests:
+
+- `python -m pytest tests/test_aegis.py -q` — All 172 tests passed (73 legacy evidence/proof trail tests + 99 gate validators)
+
+Completion: completed 2026-06-13 17:35 -05:00.
+
+Ready for Codex Review:
+
+- Commits: `a4826c14` (completed implementation), merged and pushed as `d15c83e0`
+- Files: `meridian_core/aegis.py`, `tests/test_aegis.py`
+- Tests: all 172 passed
+- Implementation:
+  1. Added `WaiverRecord` dataclass with fields: waiver_id, actor, scope, timestamp, reason, optional expiration/evidence_url, and `is_valid()` method checking all required fields are non-empty strings
+  2. Added `ApprovalRecord` dataclass with fields: approval_id, actor, scope, timestamp, reason, optional expiration, and `is_valid()` method
+  3. Updated `gate_tier3_dual_lane_requirement()` to accept `waiver_record: WaiverRecord | None` instead of bare boolean; only demote to Tier 2 if `waiver_record.is_valid()` returns True
+  4. Updated `gate_cost_exposure()` to accept `approval_record: ApprovalRecord | None` for Tier 2+ premium cost cases; only allow if `approval_record.is_valid()` returns True
+  5. Added 6 new test cases validating waiver/approval validation (bare boolean blocks, valid records allow, invalid records block)
+
+## Next Candidate Task
+
+Goal: add Aegis gate summary helpers for Relay/Bifrost display after waiver/approval validation clears review.
+
+Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: repair Relay-Aegis risk/proof gate contract contradictions found by Codex Reviews B.
 
 Allowed files only: `docs/relay-aegis-risk-proof-gates.md`, `docs/live-build-4.md`.
@@ -474,6 +506,9 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-06-13 15:50 -05:00 - Build 4 checked queue; status: idle; no executable Active Task; repair task marked Ready for Codex Review (commit 3337fbc8 pushed); Next Candidate Task still awaits coordinator promotion; origin/main up to date; cadence 1/3
 2026-06-13 16:12 -05:00 - Build 4 checked queue; status: idle; no executable Active Task; all prior tasks completed and marked Ready for Codex Review; Next Candidate Task (bind Aegis gate outputs) awaits coordinator promotion; origin/main up to date; cadence 1/3
 2026-06-13 17:30 -05:00 - Build 4 checked queue; status: idle; no executable Active Task; no change since last check; Next Candidate Task awaits coordinator promotion; origin/main up to date; cadence 1/3
+2026-06-13 17:35 -05:00 - Build 4 checked queue; status: idle; found Active Task (waiver/approval validation) completed in prior context; all 172 tests passed; implementation verified against spec; marking task Ready for Codex Review and documenting completion; origin/main synced; cadence 1/3
+2026-06-13 17:36 -05:00 - Build 4 checked queue; status: idle; no executable Active Task (waiver/approval task marked Completed/Ready for Codex Review, not Active Now); Next Candidate Task (gate summary helpers) awaits coordinator promotion; origin/main synced; cadence 1/3 — awaiting Codex review or task assignment
+2026-06-13 17:37 -05:00 - Build 4 checked queue; status: idle; no executable Active Task; no new Coordinator Override - Active Now section; waiver/approval task marked Ready for Codex Review; Next Candidate Task awaits coordinator promotion; origin/main up to date; cadence 1/3
 ```
 
 ## Write/Completion Log
@@ -508,6 +543,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 completed <task>; commit <hash>; tests <result>
 2026-06-01 15:30 -06:00 - Build 4 completed Aegis gate validators implementation (meridian_core/aegis.py + tests/test_aegis.py); commit ad46acc3 (parallel merge with other work); files changed: meridian_core/aegis.py (464 additions), tests/test_aegis.py (393 additions); tests: 166 passed; gates: 9 pure validators + GateDecision/GateResult types; Ready for Codex Review; cadence 2/3
 2026-06-01 15:36 -06:00 - Build 4 completed repair of Relay-Aegis risk/proof gate contract contradictions (Codex Reviews B findings); commit 07b53885 (worktree diverged from origin/main); files changed: docs/relay-aegis-risk-proof-gates.md; repairs: Tier 2 DeepSeek (requires PASSED), Tier 2 aggregator (allows with proof), waiver/approval fields (actor, scope, timestamp, reason, expiration/evidence); Ready for Codex Review; cadence 3/3 — PAUSE FOR CODEX REVIEW
 2026-06-13 15:48 -05:00 - Build 4 completed repair of Relay-Aegis risk/proof gate contract contradictions (RETAKE after queue verification); commit 30c62e90 (pushed as 0a5ed589 merge); files changed: docs/relay-aegis-risk-proof-gates.md; repairs applied: (1) Tier 2 Per-Tier table: updated DeepSeek from "validation pending allowed" to "requires PASSED", Aggregator from "block" to "OK (with proof)"; (2) Aggregator Authority Gate: clarified Tier 2 allowance with explicit proof + known selected_model; (3) Waiver/Approval Records section: added with JSON schema for waiver_record and approval_record; tests: docs-only; pushed to origin/main; Ready for Codex Review; cadence 1/3
+2026-06-13 17:35 -05:00 - Build 4 completed waiver and approval record validation implementation (Coordinator Override - Active Now task); commit a4826c14 (pushed as d15c83e0 merge); files changed: meridian_core/aegis.py, tests/test_aegis.py; implementation: WaiverRecord and ApprovalRecord dataclasses with is_valid() validation; gate updates for tier3_dual_lane_requirement (accepts waiver_record) and cost_exposure (accepts approval_record); test coverage: 6 new test cases + 166 existing = 172 total passing; proof: bare booleans blocked, structured records validated; pushed to origin/main; Ready for Codex Review; cadence 1/3
 ```
 
 ## Cross-Check Activity
