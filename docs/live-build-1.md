@@ -4,7 +4,7 @@
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Relay summary serialization for Aegis gate evidence.
 
@@ -16,11 +16,16 @@ Required sources: current `RelayDecisionRecord` Aegis evidence fields, `RelayExe
 
 Task: add provider-neutral summary serialization for Aegis gate evidence so downstream Bifrost/Prime surfaces can show gate decision, severity, evidence ids, waiver presence, explanation, and any Relay fallback blocker generated from Aegis evidence. Keep this as deterministic data serialization only. Do not call Aegis validators, call models, inspect accounts, touch UI, move branches, edit Bifrost, or touch Polaris.
 
-Tests:
+Completion:
 
-- `python -m pytest tests/test_relay_executor.py -q`
+- Build 1 completed Relay summary serialization for Aegis gate evidence on 2026-06-01 16:25 -06:00.
+- Commit: `180df8c6` (feat: Add Relay summary serialization for Aegis gate evidence).
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`.
+- Tests run: `python -m pytest tests/test_relay_executor.py -q` (140 tests: 133 original + 7 new serialization tests).
+- Implementation: Added AegisGateEvidenceSummary frozen dataclass with gate_decision, severity, evidence_ids, waiver_present, explanation, and fallback_blockers_from_aegis fields. Added aegis_gate_evidence_summary() method to RelayExecutionSummary to extract Aegis evidence from decision_record for downstream serialization. Filters only aegis_* prefixed blockers from fallback_blockers. Provider-neutral with no external calls or model invocations.
+- Push: successful to worktree branch; ready for merge.
 
-Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+Ready for Codex Review.
 
 ## Next Candidate Task
 
