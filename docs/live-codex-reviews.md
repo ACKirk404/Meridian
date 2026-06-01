@@ -504,7 +504,7 @@ This is the review lane's cursor. Update it after every review pass so the next 
 | Build lane | Last reviewed commit | Last reviewed task | Review status | Pending finding / repair | Next action |
 | --- | --- | --- | --- | --- | --- |
 | Build 1 | f56af55 | Model Harness/cockpit-state runtime cadence window (`653488b`, `0560eb4`, `869faa4`, `f353c8d`, `f56af55`) | repair routed | MEDIUM: `PrimeCockpitSnapshot` stores mutable `lanes`/`progress_events` lists if callers pass lists, violating immutable snapshot semantics | Build 1 repair task written in `docs/live-build-1.md` |
-| Build 2 | 40def3d | V2 Prime next-action domain object (`prime_autonomy.py`) | repair routed | MEDIUM: `PrimeNextAction.is_executable()` ignores `human_gate_required`, making human-gated high-risk actions executable when no blockers exist | Build 2 repair task written in `docs/live-build-2.md` |
+| Build 2 | 0296525 | Session Lifecycle implementation checklist marker | repair routed | MEDIUM: `docs/session-lifecycle-implementation-checklist.md` is missing from `HEAD`, and `0296525` only updates queue provenance despite claiming the artifact was created | Build 2 repair task written in `docs/live-build-2.md` |
 | Build 3 | ef934b1 | FileMap refresh + FileMap Relay maturity repair (7ec16ac..ef934b1) | passed | observational: next FileMap refresh should add `meridian_core/relay_dispatch.py` (introduced by Build 1 fd35a81 after this commit) | await next Ready for Codex Review marker |
 | Build 4 | 736b6af | architecture consistency pass — Q button reference + cadence closure | passed | none | await next Ready for Codex Review marker |
 | Build 5 | d1d32af | Bifrost cockpit queue status brief + V0 cockpit layout brief (818bb31..d1d32af) | passed | none — Build 5 cadence pause cleared by this review | await next Ready for Codex Review marker |
@@ -579,6 +579,14 @@ Allowed review files: `meridian_core/model_adapter.py`, `meridian_core/relay_exe
 Tests to run: `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`; `python -m pytest tests/test_cockpit_state.py -q`; `python -m pytest tests/test_cognition_policy.py tests/test_aegis.py tests/test_relay_executor.py -q`
 Out of scope: Build 2 docs/API cadence work; Build 3/4/5 markers; product implementation changes
 Reason: Build 1 cadence trigger/Ready markers for Model Harness adapter contract, adapter registry/dispatch bridge, env-gated HTTP JSON transport including its repair, and cockpit snapshot/event domain shape
+
+2026-05-31 22:17 -06:00 - Round 9 scope (Codex Reviews A - Build 2 Session Lifecycle checklist review)
+Build lanes: Build 2
+Commit range(s): Build 2 checklist marker `0296525`
+Allowed review files: `docs/session-lifecycle-implementation-checklist.md`, `docs/session-lifecycle-v2-contract.md` for source-contract comparison only, `docs/live-build-2.md` for provenance and repair routing only
+Tests to run: docs-only review; no tests required unless runtime/test files change
+Out of scope: executing Build 2 runtime Active Task; implementing `meridian_core/session_lifecycle.py`; Build 3/4/5 markers
+Reason: active Reviews A queue task for Build 2 Session Lifecycle implementation checklist
 ```
 
 Scope rules:
@@ -744,7 +752,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-05-31 17:38 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current at `52d1ed2`; top Reviews A task remains completed/passed and no executable Active Task remains; build-lane Ready/Active markers were not executed.
 2026-05-31 22:09 -06:00 - Codex Reviews A checked queue; status: repair routed; notes: Build 1 runtime cadence window reviewed; Model Harness/Relay pieces passed, MEDIUM cockpit-state immutable snapshot repair routed to Build 1.
 2026-05-31 22:15 -06:00 - Codex Reviews A checked queue; status: idle; notes: pulled latest origin/main to `c4aa6b1`; queue top is completed/repair-routed and no executable Active Task is present; pending Build 1 repair remains routed to the build lane.
-2026-05-31 22:17 -06:00 - Codex Reviews A checked queue; status: idle; notes: pulled latest origin/main; queue top remains completed/repair-routed and no executable Active Task is present; pending Build 1 repair remains routed to the build lane.
+2026-05-31 22:17 -06:00 - Codex Reviews A checked queue; status: repair routed; notes: active Build 2 Session Lifecycle checklist review executed; MEDIUM missing-checklist-artifact repair routed to Build 2.
 ```
 
 ## Review Log
@@ -775,6 +783,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-05-31 15:24 -06:00 - Reviewed Build 1 FileMap registration commit `9fa9cdf`; result: pass; tests: `python -m pytest tests/test_filemap.py -q` 46 passed; notes: FileMap now registers prompt payload meter and Prime Autonomy runtime/test paths in `make_default_map()`, `_REQUIRED_PATHS`, and `docs/FileMap.md`; after latest `origin/main`, Build 1 queue marker points to commit `9fa9cdf`.
 2026-05-31 15:34 -06:00 - Reviewed Build 1 Prime queue runway policy repair commit `b13f10f`; result: pass; tests: not run (docs-only); notes: policy now rejects read-check-only commits as valid work, requires ahead-of-idle runway plus explicit cadence/review/human/provider gates, preserves worktree/queue/branch/cadence invariants, and Build 1 has a valid next Active Task after the completed repair.
 2026-05-31 22:09 -06:00 - Reviewed Build 1 runtime cadence window `653488b`, `0560eb4`, `869faa4`, `f353c8d`, `f56af55`; result: finding/repair-routed; tests: `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` 77 passed; `python -m pytest tests/test_cockpit_state.py -q` 25 passed; `python -m pytest tests/test_cognition_policy.py tests/test_aegis.py tests/test_relay_executor.py -q` 157 passed; notes: Model adapter registry, HTTP transport final repaired state, Relay registry dispatch, and Aegis proof gate behavior passed; `PrimeCockpitSnapshot` stores mutable list inputs and needs tuple normalization.
+2026-05-31 22:17 -06:00 - Reviewed Build 2 checklist marker `0296525`; result: finding/repair-routed; tests: not run (docs-only review); notes: `docs/session-lifecycle-v2-contract.md` exists, but `docs/session-lifecycle-implementation-checklist.md` is missing from `HEAD`; `0296525` only changes `docs/live-build-2.md`, so the Ready marker cannot be accepted and the runtime task remains blocked.
 ```
 
 ## Proof Log
@@ -832,6 +841,7 @@ YYYY-MM-DD HH:MM TZ - Proof for Build <n> commit <hash>; proof type: diff/test/r
 2026-05-31 17:28 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff --check 085c4b1..HEAD -- docs/live-codex-reviews.md` and `git diff 085c4b1..HEAD -- docs/live-codex-reviews.md` show only queue read/write bookkeeping after the last cadence checkpoint; queue top remains completed/passed with no active task; result: pass.
 2026-05-31 17:32 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff --check b6e92d5..HEAD -- docs/live-codex-reviews.md` and `git diff b6e92d5..HEAD -- docs/live-codex-reviews.md` show only queue read/write bookkeeping after the last cadence checkpoint; queue top remains completed/passed with no active task; result: pass.
 2026-05-31 22:09 -06:00 - Proof for Build 1 runtime cadence window `653488b`, `0560eb4`, `869faa4`, `f353c8d`, `f56af55`; proof type: test/diff/manual; evidence: targeted tests passed 77, 25, and 157 tests; diff inspection confirmed adapter resolution is preflighted before model calls, proof gates block dispatch for high tiers, HTTP transport validates config before network and parses JSON `text`; manual edge proof showed `PrimeCockpitSnapshot` stores list inputs directly and the snapshot length changes after mutating the original list; result: fail-repair-routed.
+2026-05-31 22:17 -06:00 - Proof for Build 2 checklist marker `0296525`; proof type: docs/diff/reference; evidence: `Get-Content docs/session-lifecycle-implementation-checklist.md` failed because the file is absent; `git show --stat --oneline 0296525` showed only `docs/live-build-2.md` changed; `docs/session-lifecycle-v2-contract.md` exists as the source contract; result: fail-repair-routed.
 ```
 
 Minimum proof expectations:
