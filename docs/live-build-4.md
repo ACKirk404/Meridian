@@ -33,9 +33,23 @@ Ready for Codex Review:
 - Per-tier enforcement and stop conditions defined
 - Integration with Relay routing and Model Harness metadata specified
 
+## Coordinator Override - Active Now
+
+Goal: convert the Aegis risk/proof gate contract into bounded runtime test cases.
+
+Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
+
+Task: implement the first Aegis runtime/test slice for the reviewed Relay-Aegis risk/proof gate contract. Add typed or helper-level proof gates for unknown route class, missing exact model id, Tier 3 dual-lane requirement, unsafe fallback, missing proof refs, unvalidated DeepSeek, aggregator authority limits, account/session risk, and cost exposure. Keep it pure and deterministic. Do not call models, inspect accounts, move branches, edit Relay runtime, edit Bifrost, or touch Polaris.
+
+Tests:
+
+- `python -m pytest tests/test_aegis.py -q`
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+
 ## Next Candidate Task
 
-Goal: after review clears, convert the Aegis risk/proof gate contract into bounded runtime test cases.
+Goal: bind Aegis gate outputs into Relay decision-record proof after the runtime tests clear review.
 
 Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
 
@@ -407,6 +421,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-06-01 15:22 -06:00 - Build 4 executing Active Task; created worktree C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis; beginning document creation from sources: relay-completeness-audit.md, relay-heartbeat-model-routing-logic.md, deepseek-validation-benchmark-plan.md, model-harness-v2-contract.md, Aegis docs; origin/main up to date
 2026-06-01 15:25 -06:00 - Build 4 checked queue; status: idle; Active Task moved to Completed/Ready for Codex Review (a8a7aca8); no new executable Active Task; Next Candidate Task (convert gates to runtime test cases) awaits coordinator promotion; origin/main synced; cadence 1/3
 2026-06-01 15:27 -06:00 - Build 4 checked queue; status: idle; no executable Active Task; prior branch divergence resolved by origin/main advancement; local main now synced with origin/main (13237596); Next Candidate Task (convert gates to runtime test cases) still awaits coordinator promotion; cadence 1/3
+2026-06-01 15:28 -06:00 - Build 4 checked queue; status: running; NEW ACTIVE TASK FOUND = convert Aegis risk/proof gate contract into bounded runtime test cases (meridian_core/aegis.py + tests/test_aegis.py); pulled origin/main; now at c58aee40; beginning implementation of 9 gate validators with focused test coverage
 ```
 
 ## Write/Completion Log

@@ -8,6 +8,26 @@ The build lanes build. Review lanes review.
 
 Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review Build 1 Relay decision-record implementation commit `decfb84e` and its current `origin/main` state.
+
+Allowed review files: `meridian_core/relay.py`, `meridian_core/relay_executor.py`, `tests/test_relay.py`, `tests/test_relay_executor.py`, and `docs/live-build-1.md` for repair routing only.
+
+Task: verify the Relay decision-record implementation closes the previously routed HIGH/HIGH/MEDIUM findings: pre-dispatch route proof, route class/session action/fallback/context/proof fields, Tier 3 lane-independence evidence, and downstream-safe result/proof surface. Do not implement repairs. If findings remain, route a focused repair into `docs/live-build-1.md`; if clean, mark passed and promote the next review candidate.
+
+Proof commands:
+
+- `python -m pytest tests/test_relay.py tests/test_relay_executor.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: review Build 2 Session Lifecycle routing-action implementation after it is marked Ready for Codex Review.
+
+Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, and `docs/live-build-2.md` for provenance/routing only.
+
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review the current Relay/account/session routing design before the next runtime slice is accepted.
@@ -874,6 +894,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-06-01 15:20 -06:00 - Codex Reviews A checked queue; status: running; notes: origin/main already current after pull; Relay/account/session routing Active Task found and reviewed; unrelated dirty files `docs/live-build-4.md` and `docs/live-codex-reviews-2.md` left untouched.
 2026-06-01 15:25 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main already current after pull; top review item is completed/repair-routed and no executable Active Task / Coordinator Override - Active Now block is present; Build 2 item remains Next Candidate only; unrelated dirty `docs/live-build-4.md` left untouched.
 2026-06-01 15:27 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after ff-only pull; top review item remains completed/repair-routed and no executable Active Task / Coordinator Override - Active Now block is present; Build 2 items remain Next Candidate only; three-change queue-only Codex review check found no actionable findings.
+2026-06-01 15:29 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main already current after ff-only pull; top review item remains completed/repair-routed and no executable Active Task / Coordinator Override - Active Now block is present; Build 2 items remain Next Candidate only; unrelated dirty Build 5/Bifrost files left untouched.
 ```
 
 ## Review Log
@@ -1308,6 +1329,7 @@ Round 6 write log:
 - 2026-06-01 15:20 -06:00 - Codex Reviews A completed Relay/account/session routing design review. Files changed: `docs/live-codex-reviews.md`. Tests run: `python -m pytest tests/test_relay_executor.py -q` (80 passed); proof command: `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: HIGH x2 and MEDIUM x1 routed to Build 1's existing Relay decision-record Active Task; no implementation changed by Reviews A. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue records routing only.
 - 2026-06-01 15:25 -06:00 - Codex Reviews A completed idle queue read after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update); proof command: `git diff --check -- docs/live-codex-reviews.md`. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or new durable review finding.
 - 2026-06-01 15:27 -06:00 - Codex Reviews A completed idle queue read and three-change queue-only Codex review check after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (queue-only documentation update); proof commands: `git diff --check -- docs/live-codex-reviews.md`, `git diff -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or new durable review finding.
+- 2026-06-01 15:29 -06:00 - Codex Reviews A completed idle queue read after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update); proof command: `git diff --check -- docs/live-codex-reviews.md`. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or new durable review finding.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 

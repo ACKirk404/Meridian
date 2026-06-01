@@ -33,6 +33,20 @@ Goal: audit FileMap coverage for any Relay/Session Lifecycle implementation file
 
 Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
+Task: compare current `origin/main` against FileMap coverage for the Relay decision-record and Session Lifecycle routing work that landed after the previous FileMap pass. Verify `meridian_core/relay.py`, `meridian_core/relay_executor.py`, `tests/test_relay.py`, `tests/test_relay_executor.py`, `meridian_core/session_lifecycle.py`, and `tests/test_session_lifecycle.py` are still discoverable with accurate V2 purpose text. Add missing entries or required-path coverage only for files that exist. Do not edit Relay, Session Lifecycle, UI, review queues, or source design docs.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: register any new Aegis risk/proof runtime files or tests after Build 4 lands its runtime slice.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
 ## Cadence Cleared
 
 Build 3 cadence for commit `67a75dc` plus marker `b3316b6` was cleared by Codex Reviews B on 2026-05-31 15:52 -06:00. FileMap tests passed (46 tests), and no repair was routed.

@@ -4,6 +4,26 @@
 
 Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: harden Relay decision-record stop-condition coverage while Codex review runs.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Task: add focused, provider-neutral tests and implementation hooks for stop-condition evidence around the new Relay decision record. Cover unknown route class, unknown session action, unsafe silent fallback, missing proof refs, and Tier 3 dual-lane independence being absent or waived. Keep this bounded to data/evidence behavior. Do not add live vendor calls, account automation, CLI execution, UI rendering, filesystem/process control, branch movement, or vendor-specific secrets.
+
+Tests:
+
+- `python -m pytest tests/test_relay_executor.py -q`
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: bind any Codex review findings from the Relay decision-record coverage and stop-condition slices.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement Relay decision-record coverage from the completeness audit.
