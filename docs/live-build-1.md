@@ -526,6 +526,10 @@ Tests:
 - Significant pull: UI/scripts work from another lane (ui-integration-checklist.md, meridian-model-bridge.js, index.html, package.json)
 - Build 1 idle and polling for next task assignment
 
+**Build 1 Read Check** — 2026-06-01 15:35 -05:00
+- Status: queue poll complete; no Active Now task
+- Build 1 idle and polling for next task assignment
+
 Goal: make `PrimeCockpitSnapshot` preserve its promised immutable snapshot shape when callers pass mutable lane/event sequences.
 
 Allowed files only: `meridian_core/cockpit_state.py`, `tests/test_cockpit_state.py`, `docs/live-build-1.md`.
