@@ -48,6 +48,12 @@ Ready for Codex Review.
 - Next Candidate Task still awaiting promotion from Prime/Codex
 - Build 1 idle and polling for next task assignment
 
+**Build 1 Read Check** — 2026-06-12 (continued monitoring)
+- Status: queue poll complete; no Active Now task
+- Relay decision-record stop-condition coverage Ready for Codex Review
+- Next Candidate Task awaiting promotion from Prime/Codex
+- Build 1 idle and polling for next task assignment
+
 **Build 1 Read Check** — 2026-06-12 (extended poll)
 - Status: queue poll complete; no Active Now task
 - Relay decision-record stop-condition coverage Ready for Codex Review
