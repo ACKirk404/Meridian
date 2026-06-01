@@ -763,21 +763,21 @@ def gate_cost_exposure(
             reason=f"cost_posture={cost_posture!r}",
         )
 
-    if cost_justified:
-        return GateResult(
-            gate_name="cost_exposure",
-            decision=GateDecision.ALLOW,
-            reason="premium cost justified",
-        )
-
     if risk_tier <= 1:
+        # Tier 0-1: premium cost allowed if cost_justified or by default
+        if cost_justified:
+            return GateResult(
+                gate_name="cost_exposure",
+                decision=GateDecision.ALLOW,
+                reason="premium cost justified",
+            )
         return GateResult(
             gate_name="cost_exposure",
             decision=GateDecision.ALLOW,
             reason=f"Tier {risk_tier}: premium cost allowed with warning",
         )
 
-    # Tier >= 2: premium cost requires explicit user approval
+    # Tier >= 2: premium cost requires explicit user approval, not cost_justified alone
     if approval_record is not None and approval_record.is_valid():
         return GateResult(
             gate_name="cost_exposure",
