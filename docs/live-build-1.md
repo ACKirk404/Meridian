@@ -4,6 +4,20 @@
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: repair Relay proof payload negative-path deterministic test collection.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Required repair from Codex Reviews A: current-main review of commit `26a71632` found `TestAegisGateEvidenceSummary.test_evidence_summary_to_dict_multiple_calls_identical` is defined twice. The later existing definition shadows the newly added negative-path deterministic test, so pytest collects only one method with that name. Rename the newly added deterministic negative-path test, or add a uniquely named equivalent, to prove deterministic immutable `to_dict()` output for incomplete/partial evidence. Keep the repair test-only.
+
+Proof required before requeue: `python -m pytest tests/test_relay_executor.py -q` and `python -m pytest tests/test_relay_executor.py::TestAegisGateEvidenceSummary --collect-only -q`.
+
+Completion: mark Ready for Codex Review with the current-main commit hash and exact files changed.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair review visibility for Relay proof payload negative-path tests.
