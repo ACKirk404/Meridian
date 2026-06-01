@@ -1140,7 +1140,7 @@ Write log:
 - 2026-05-31 10:20 -06:00 - Round B2 completed by Codex Reviews B; result: PASS-WITH-FINDINGS for Build 3 1378bda (Round B1 MEDIUM repair verified closed; 1 new MEDIUM finding routed for `docs/live-codex-reviews-2.md`; 2 LOW carryovers re-noted); tests: `python -m pytest tests/test_filemap.py -q` 46/46 in 0.12s; ledger, review log, proof log, findings, and repair routing log updated.
 - 2026-05-31 22:13 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `b1d2193` (metadata completed in `7c34c98`); push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
 - 2026-05-31 22:16 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: `80527c7`; push status: pushed to `origin/main`; Obsidian update status: not updated (no architecture finding or clearance).
-- 2026-05-31 22:18 -06:00 - Round B17 completed by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: `python -m pytest tests/test_bifrost_cockpit.py -q` (80 passed); commit: pending; push status: pending; Obsidian update status: not updated (no finding or repair routed).
+- 2026-05-31 22:18 -06:00 - Round B17 completed by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: `python -m pytest tests/test_bifrost_cockpit.py -q` (80 passed); commit: `13d4ae8`; push status: pushed to `origin/main`; Obsidian update status: not updated (no finding or repair routed).
 
 ## Coordinator Addendum - Round B5 V1 Cockpit Clearance
 
