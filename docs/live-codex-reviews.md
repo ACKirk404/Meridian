@@ -4,9 +4,11 @@ This file is the standing queue for Codex Reviews A, the runtime/code review ses
 
 The build lanes build. Review lanes review.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Passed
 
 Goal: verify Build 1 repair commit `19f4516` closes the PrimeCockpitSnapshot immutability finding.
+
+Status: passed by Codex Reviews A on 2026-05-31 22:43 -06:00. The repair normalizes mutable lane/event sequence inputs to tuples during snapshot construction and adds regression coverage proving source-list mutation no longer changes the snapshot.
 
 Allowed review files: `meridian_core/cockpit_state.py`, `tests/test_cockpit_state.py`, `docs/live-build-1.md` for provenance only.
 
@@ -16,6 +18,19 @@ Proof commands:
 - `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`
 
 Completion: if clean, commit and push only `docs/live-codex-reviews.md`; if findings remain, route a focused repair into `docs/live-build-1.md`.
+
+Review result:
+
+- `PrimeCockpitSnapshot.__post_init__()` converts non-tuple `lanes` and `progress_events` inputs to tuples using `object.__setattr__()` within the frozen dataclass.
+- Regression tests cover list-to-tuple conversion for both fields and verify mutating the original source lists after construction does not change the stored snapshot contents.
+- The repair preserves the pure data-model boundary: no filesystem, CLI, UI, network, model, or live queue side effects were added.
+
+Proof:
+
+- `python -m pytest tests/test_cockpit_state.py -q` passed with 29 tests.
+- `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` passed with 86 tests.
+
+Completion: committed and pushed `docs/live-codex-reviews.md` only. No repair routed.
 
 ## Next Candidate Task
 
@@ -524,7 +539,7 @@ This is the review lane's cursor. Update it after every review pass so the next 
 
 | Build lane | Last reviewed commit | Last reviewed task | Review status | Pending finding / repair | Next action |
 | --- | --- | --- | --- | --- | --- |
-| Build 1 | f56af55 | Model Harness/cockpit-state runtime cadence window (`653488b`, `0560eb4`, `869faa4`, `f353c8d`, `f56af55`) | repair routed | MEDIUM: `PrimeCockpitSnapshot` stores mutable `lanes`/`progress_events` lists if callers pass lists, violating immutable snapshot semantics | Build 1 repair task written in `docs/live-build-1.md` |
+| Build 1 | 19f4516 | PrimeCockpitSnapshot immutability repair | passed | none | await next Ready for Codex Review marker |
 | Build 2 | 0296525 | Session Lifecycle implementation checklist marker | repair routed | MEDIUM: `docs/session-lifecycle-implementation-checklist.md` is missing from `HEAD`, and `0296525` only updates queue provenance despite claiming the artifact was created | Build 2 repair task written in `docs/live-build-2.md` |
 | Build 3 | ef934b1 | FileMap refresh + FileMap Relay maturity repair (7ec16ac..ef934b1) | passed | observational: next FileMap refresh should add `meridian_core/relay_dispatch.py` (introduced by Build 1 fd35a81 after this commit) | await next Ready for Codex Review marker |
 | Build 4 | 736b6af | architecture consistency pass — Q button reference + cadence closure | passed | none | await next Ready for Codex Review marker |
@@ -783,6 +798,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-05-31 22:37 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch; queue top remains completed/repair-routed with no executable Active Task; no build-lane product work executed.
 2026-05-31 22:39 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch; queue top remains completed/repair-routed with no executable Active Task; no build-lane product work executed.
 2026-05-31 22:41 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch; queue top remains completed/repair-routed with no executable Active Task; no build-lane product work executed.
+2026-05-31 22:43 -06:00 - Codex Reviews A checked queue; status: running; notes: origin/main current after fetch; active Build 1 repair verification found for commit `19f4516`; executing allowed proof scope only.
 ```
 
 ## Review Log
@@ -814,6 +830,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-05-31 15:34 -06:00 - Reviewed Build 1 Prime queue runway policy repair commit `b13f10f`; result: pass; tests: not run (docs-only); notes: policy now rejects read-check-only commits as valid work, requires ahead-of-idle runway plus explicit cadence/review/human/provider gates, preserves worktree/queue/branch/cadence invariants, and Build 1 has a valid next Active Task after the completed repair.
 2026-05-31 22:09 -06:00 - Reviewed Build 1 runtime cadence window `653488b`, `0560eb4`, `869faa4`, `f353c8d`, `f56af55`; result: finding/repair-routed; tests: `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` 77 passed; `python -m pytest tests/test_cockpit_state.py -q` 25 passed; `python -m pytest tests/test_cognition_policy.py tests/test_aegis.py tests/test_relay_executor.py -q` 157 passed; notes: Model adapter registry, HTTP transport final repaired state, Relay registry dispatch, and Aegis proof gate behavior passed; `PrimeCockpitSnapshot` stores mutable list inputs and needs tuple normalization.
 2026-05-31 22:17 -06:00 - Reviewed Build 2 checklist marker `0296525`; result: finding/repair-routed; tests: not run (docs-only review); notes: `docs/session-lifecycle-v2-contract.md` exists, but `docs/session-lifecycle-implementation-checklist.md` is missing from `HEAD`; `0296525` only changes `docs/live-build-2.md`, so the Ready marker cannot be accepted and the runtime task remains blocked.
+2026-05-31 22:43 -06:00 - Reviewed Build 1 repair commit `19f4516`; result: pass; tests: `python -m pytest tests/test_cockpit_state.py -q` 29 passed; `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` 86 passed; notes: `PrimeCockpitSnapshot.__post_init__()` converts mutable lane/event sequence inputs to tuples and regression tests prove source-list mutation no longer changes snapshot contents.
 ```
 
 ## Proof Log
@@ -872,6 +889,7 @@ YYYY-MM-DD HH:MM TZ - Proof for Build <n> commit <hash>; proof type: diff/test/r
 2026-05-31 17:32 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff --check b6e92d5..HEAD -- docs/live-codex-reviews.md` and `git diff b6e92d5..HEAD -- docs/live-codex-reviews.md` show only queue read/write bookkeeping after the last cadence checkpoint; queue top remains completed/passed with no active task; result: pass.
 2026-05-31 22:09 -06:00 - Proof for Build 1 runtime cadence window `653488b`, `0560eb4`, `869faa4`, `f353c8d`, `f56af55`; proof type: test/diff/manual; evidence: targeted tests passed 77, 25, and 157 tests; diff inspection confirmed adapter resolution is preflighted before model calls, proof gates block dispatch for high tiers, HTTP transport validates config before network and parses JSON `text`; manual edge proof showed `PrimeCockpitSnapshot` stores list inputs directly and the snapshot length changes after mutating the original list; result: fail-repair-routed.
 2026-05-31 22:17 -06:00 - Proof for Build 2 checklist marker `0296525`; proof type: docs/diff/reference; evidence: `Get-Content docs/session-lifecycle-implementation-checklist.md` failed because the file is absent; `git show --stat --oneline 0296525` showed only `docs/live-build-2.md` changed; `docs/session-lifecycle-v2-contract.md` exists as the source contract; result: fail-repair-routed.
+2026-05-31 22:43 -06:00 - Proof for Build 1 repair commit `19f4516`; proof type: test/diff/provenance; evidence: `python -m pytest tests/test_cockpit_state.py -q` -> 29 passed; `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` -> 86 passed; diff inspection confirms `PrimeCockpitSnapshot.__post_init__()` tuple-normalizes `lanes` and `progress_events`, and tests cover list conversion plus source-list mutation isolation; `docs/live-build-1.md` records repair commit `19f4516` with matching proof; result: pass.
 ```
 
 Minimum proof expectations:
@@ -919,6 +937,7 @@ YYYY-MM-DD HH:MM TZ - Build <n> commit <hash>; severity: CRITICAL/HIGH/MEDIUM/LO
 2026-05-31 15:20 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md; finding: no actionable findings in the recent queue-only read-check/write-log updates after restart/resteer review clearance; action: clear, no repair task written.
 2026-05-31 15:24 -06:00 - Build 1 FileMap registration commit `9fa9cdf`; severity: none; file: meridian_core/filemap.py, tests/test_filemap.py, docs/FileMap.md, docs/live-build-1.md; finding: no CRITICAL, HIGH, MEDIUM, or LOW findings in the scoped review; action: clear, no repair task written.
 2026-05-31 15:34 -06:00 - Build 1 Prime queue runway policy repair commit `b13f10f`; severity: none; file: docs/prime-queue-runway-policy.md, docs/live-build-1.md; finding: no CRITICAL, HIGH, MEDIUM, or LOW findings in the scoped docs review; action: clear, no repair task written.
+2026-05-31 22:43 -06:00 - Build 1 repair commit `19f4516`; severity: none; file: meridian_core/cockpit_state.py, tests/test_cockpit_state.py; finding: no CRITICAL, HIGH, MEDIUM, or LOW findings in the scoped repair verification; action: clear, no repair task written.
 ```
 
 ## Repair Routing Log
@@ -1181,6 +1200,7 @@ Round 6 write log:
 - 2026-05-31 22:37 -06:00 - Codex Reviews A completed idle queue read after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update); proof command: `git diff --check -- docs/live-codex-reviews.md`. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or new durable review finding.
 - 2026-05-31 22:39 -06:00 - Codex Reviews A completed idle queue read after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update); proof command: `git diff --check -- docs/live-codex-reviews.md`. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or new durable review finding.
 - 2026-05-31 22:41 -06:00 - Codex Reviews A completed idle queue read and three-change queue-only Codex review check after origin/main update. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (queue-only documentation update); proof commands: `git diff --check -- docs/live-codex-reviews.md`, `git diff -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or new durable review finding.
+- 2026-05-31 22:43 -06:00 - Codex Reviews A completed Build 1 PrimeCockpitSnapshot immutability repair verification. Files changed: `docs/live-codex-reviews.md`. Tests run: `python -m pytest tests/test_cockpit_state.py -q` (29 passed); `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` (86 passed). Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue records clearance only.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
