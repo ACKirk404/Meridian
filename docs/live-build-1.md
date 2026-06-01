@@ -58,6 +58,13 @@ Ready for Codex Review.
 - Session code/doc changes: 4 total (3 code + 1 docs); previous Codex review at 3 changes
 - Build 1 idle and awaiting next task promotion or queue update
 
+**Build 1 Read Check** — 2026-06-01 17:25 -06:00 (Continued Poll)
+- Status: Queue poll complete; no "Coordinator Override - Active Now" task
+- Latest origin/main: commit `18bb61df` (Session Lifecycle action coverage repair)
+- Relay proof payload contract task still Ready for Codex Review (commit eafa0c17)
+- Next Candidate Task still awaiting Prime/Codex promotion
+- Build 1 idle and polling for next task assignment
+
 ## Next Candidate Task
 
 Goal: add Relay proof payload negative-path tests after the docs/FileMap request clears review.
