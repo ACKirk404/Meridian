@@ -800,6 +800,20 @@ def make_default_map() -> FileMap:
             notes="Owner: Build 4. Read before planning or executing any V1 Bifrost integration slice.",
         ),
         FileMapEntry(
+            path="docs/bifrost-preview-package-api-note.md",
+            area=FileArea.BIFROST,
+            purpose="Bifrost Electron preview package API policy: establishes that Bifrost exports (preview generation, app-shell helpers) should not automatically become meridian_core root exports due to deployment optionality and infrastructure concerns.",
+            related_tests=[],
+            notes="Design policy document. Read before adding public exports to bifrost.__init__ or considering root-level re-exports.",
+        ),
+        FileMapEntry(
+            path="docs/v1-bifrost-runtime-acceptance-checklist.md",
+            area=FileArea.BIFROST,
+            purpose="V1 Bifrost cockpit runtime acceptance checklist: gate document for declaring V1 cockpit ready for session use, organized by harness owner with proof expectations.",
+            related_tests=[],
+            notes="Owner: Build 4. Build process gate. Read before declaring V1 cockpit runtime complete.",
+        ),
+        FileMapEntry(
             path="meridian_core/cockpit_state.py",
             area=FileArea.BIFROST,
             purpose="Prime cockpit snapshot and event domain types for V1 Bifrost: CockpitStatus, CockpitSnapshot, CockpitEvent, and lane/harness state models. Pure immutable data — no filesystem, CLI, or UI code.",
