@@ -23,7 +23,6 @@ _REQUIRED_PATHS = [
     "docs/workflows-subagent-harness-architecture.md",
     "docs/workflow-subagent-usage-checklist.md",
     "docs/session-lifecycle-v2-contract.md",
-    "docs/session-lifecycle-implementation-checklist.md",
     "docs/federation-harness-horizon.md",
     "docs/session-card-queue-activation-contract.md",
     "docs/bifrost-voice-command-contract.md",

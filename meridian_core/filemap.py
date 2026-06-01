@@ -573,13 +573,6 @@ def make_default_map() -> FileMap:
             notes="Read before implementing meridian_core/session_lifecycle.py or any live session orchestration controls.",
         ),
         FileMapEntry(
-            path="docs/session-lifecycle-implementation-checklist.md",
-            area=FileArea.BUILD_PROCESS,
-            purpose="Session Lifecycle implementation checklist: verification steps for spawning, watching, steering, recovering, and handing off sessions per V2 contract.",
-            related_tests=[],
-            notes="Implementation guide. Use during development of meridian_core/session_lifecycle.py and live session orchestration features.",
-        ),
-        FileMapEntry(
             path="docs/federation-harness-horizon.md",
             area=FileArea.ARCHITECTURE,
             purpose="Federation harness horizon plan: multi-Meridian and multi-user collaboration concepts, permission boundaries, and Prime-to-Prime handoff vocabulary.",
