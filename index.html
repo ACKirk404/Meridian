@@ -3647,6 +3647,13 @@ body {
     clearRelayModels();
     if (userTitle) userTitle.textContent = 'User';
   };
+  const refreshRelayPanel = () => {
+    if (rightWorkspace?.querySelector('.relay-models-surface')) renderRelayBridgeStatus();
+  };
+  window.addEventListener('focus', refreshRelayPanel);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshRelayPanel();
+  });
   const openHarness = () => {
     if (Date.now() < harnessDisabledUntil) return;
     harnessDock.classList.add('harness-dock-open');
