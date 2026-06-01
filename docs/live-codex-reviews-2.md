@@ -2,9 +2,454 @@
 
 This file is the standing queue for a second specialized Codex Reviews session.
 
+## Completed / Passed
+
+Goal: review Build 3 DeepSeek validation benchmark FileMap registration.
+
+Status: passed by coordinator on 2026-06-01. The DeepSeek validation benchmark plan is discoverable through runtime FileMap, docs/FileMap, and required-path coverage. No repair routed.
+
+Scope:
+
+- Build 3/coordinator commit `add63a7` - registers `docs/deepseek-validation-benchmark-plan.md` in runtime FileMap, docs/FileMap, required-path coverage, and marks Build 3 ready for review.
+
+Allowed review files:
+
+- `meridian_core/filemap.py`
+- `docs/FileMap.md`
+- `tests/test_filemap.py`
+- `docs/live-build-3.md` for provenance only.
+
+Proof command:
+
+- `python -m pytest tests/test_filemap.py -q` passed with 46 tests.
+
+Review result:
+
+- `docs/deepseek-validation-benchmark-plan.md` is present in `make_default_map()`, `docs/FileMap.md`, and `_REQUIRED_PATHS`.
+- The entry is under the Model Harness area and does not grant DeepSeek autonomous coding, review-clearing, branch movement, or worktree authority.
+- The Build 3 queue now has a fresh executable FileMap audit task plus a next candidate.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus Build 3 queue runway update. No repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+
+## Completed / Passed
+
+Goal: review Build 4 DeepSeek validation benchmark plan.
+
+Status: passed by Codex Reviews B/coordinator on 2026-05-31. The benchmark plan creates a concrete DeepSeek proof ladder without granting autonomous coding, review-clearing, branch movement, or worktree authority. No repair routed.
+
+Scope:
+
+- Build 4 commit `a9695d1` - creates `docs/deepseek-validation-benchmark-plan.md` and advances Build 4 to the Model Harness V2 metadata contract.
+
+Allowed review files:
+
+- `docs/deepseek-validation-benchmark-plan.md`
+- `docs/deepseek-provider-validation-gate.md` for source comparison only.
+- `docs/bifrost-balance-payload-surface-contract.md` for route/payload visibility comparison only.
+- `docs/live-build-4.md` for provenance only.
+
+Proof:
+
+- Docs-only review; no tests required unless the review touches runtime code.
+
+Review expectations:
+
+- Verify the plan requires direct DeepSeek API proof and treats aggregator/OpenRouter substitution as a route mismatch.
+- Verify Q-mode prompt flatness is tested across repeated idle queue polls.
+- Verify docs, small coding, and representative build-slice benchmark rounds are separated by trust level.
+- Verify Codex review remains required for DeepSeek-produced coding/build artifacts until explicit higher trust state exists.
+- Verify DeepSeek cannot clear reviews, move branches, mutate worktrees, bypass Relay/Aegis, or receive autonomous coding authority while candidate-state.
+- Verify promotion and demotion triggers are concrete and reversible.
+- Verify Build 4 has a valid next active task for `docs/model-harness-v2-contract.md`.
+Review result:
+
+- Docs-only review; no tests required for the benchmark plan itself.
+- Direct DeepSeek API proof is mandatory; aggregator/OpenRouter substitution is treated as a route mismatch.
+- Q-mode prompt flatness is tested across repeated idle queue polls and additive growth blocks queue usage.
+- Docs tasks, small coding patch drafts, and representative Meridian build slices are separated by validation level.
+- DeepSeek-produced coding/build artifacts continue to require Codex review until an explicit higher trust state exists.
+- DeepSeek cannot clear reviews, move branches, mutate worktrees, bypass Relay/Aegis, or receive autonomous coding authority while candidate-state.
+- Promotion and demotion triggers are concrete, evidence-based, and reversible.
+- Build 4 has a valid next active task: `docs/model-harness-v2-contract.md`.
+- Follow-up completed by coordinator: register `docs/deepseek-validation-benchmark-plan.md` in FileMap and required-path coverage.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus FileMap follow-up registration. No Build 4 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+
+## Completed / Passed
+
+Goal: review Build 4 workflow/sub-agent usage checklist.
+
+Status: passed by Codex Reviews B on 2026-05-31. The checklist turns the workflow/sub-agent architecture and contract into an operational Prime routing checklist without claiming runtime implementation. No repair routed.
+
+Scope:
+
+- Build 4 commit `ac9cef8` - creates `docs/workflow-subagent-usage-checklist.md` and advances Build 4 to the DeepSeek validation benchmark plan.
+
+Allowed review files:
+
+- `docs/workflow-subagent-usage-checklist.md`
+- `docs/workflow-subagent-harness-contract.md` for source comparison only.
+- `docs/workflows-subagent-harness-architecture.md` for source comparison only.
+- `docs/live-build-4.md` for provenance only.
+
+Proof:
+
+- Docs-only review; no tests required unless the review touches runtime code.
+
+Review expectations:
+
+- Verify the checklist converts the workflow/sub-agent architecture into operational Prime decisions rather than duplicating the whole contract.
+- Verify it distinguishes normal Relay/model calls from bounded workflow/sub-agent work.
+- Verify Echo, Atlas, Aegis, Relay, Bifrost, Beacon, and Session Lifecycle routing is covered.
+- Verify prompt-drag guardrails prohibit raw transcripts, raw logs, raw file bodies, raw search dumps, and heartbeat history from returning to Prime.
+- Verify restart vs. resteer remains Prime/Session Lifecycle owned; workflows do not restart or resteer themselves.
+- Verify Build 4 has a valid next active task for the DeepSeek validation benchmark plan.
+- If clean, record proof and clear the docs slice. If findings exist, route a focused repair back to Build 4.
+- If clean, route FileMap registration for `docs/workflow-subagent-usage-checklist.md` to Build 3.
+
+Review result:
+
+- Docs-only review; no tests required.
+- The checklist distinguishes direct Relay/Model Harness calls from bounded workflow/sub-agent work.
+- Echo, Atlas, Aegis, Relay, Bifrost, Beacon, and Session Lifecycle routing is covered.
+- Prompt-drag guardrails explicitly prohibit raw transcripts, raw logs, raw file bodies, raw search dumps, raw HTML/CSS dumps, and heartbeat history from returning to Prime.
+- Restart vs. resteer remains Prime/Session Lifecycle owned; workflows cannot restart or resteer themselves.
+- Build 4 has a valid next active task: `docs/deepseek-validation-benchmark-plan.md`.
+- Follow-up routed to Build 3 / coordinator: register `docs/workflow-subagent-usage-checklist.md` in FileMap and required-path coverage.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus FileMap follow-up registration. No Build 4 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+
+## Completed / Passed
+
+Goal: review Build 3 Bifrost V2 UI docs FileMap registration.
+
+Status: passed by Codex Reviews B on 2026-05-31. The active Bifrost V2 cockpit/JARVIS source docs are discoverable through runtime FileMap, docs/FileMap, and required-path coverage. No repair routed.
+
+Scope:
+
+- Build 3 commit `d496472` - registers `docs/bifrost-v2-cockpit-extensions.md` and `docs/jarvis-ui-source-assessment.md` in runtime FileMap, docs/FileMap, required-path coverage, and marks Build 3 ready for review.
+
+Allowed review files:
+
+- `meridian_core/filemap.py`
+- `docs/FileMap.md`
+- `tests/test_filemap.py`
+- `docs/live-build-3.md` for provenance only.
+
+Proof command:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Review expectations:
+
+- Verify both Bifrost V2 UI direction docs are present in `make_default_map()`, `docs/FileMap.md`, and `_REQUIRED_PATHS`.
+- Verify both entries are under the Bifrost/session harness area.
+- Verify the entries do not claim runtime UI completion, provider routing authority, or decision ownership by Bifrost.
+- Verify Build 3 has a valid next candidate and is not left on read-check-only work.
+- If clean, record proof and clear the FileMap slice. If findings exist, route a focused repair back to Build 3.
+
+Review result:
+
+- `python -m pytest tests/test_filemap.py -q` passed with 46 tests.
+- `docs/bifrost-v2-cockpit-extensions.md` and `docs/jarvis-ui-source-assessment.md` are present in `make_default_map()`, `docs/FileMap.md`, and `_REQUIRED_PATHS`.
+- Both entries are under the Bifrost/session harness area.
+- The entries are scoped as source/contract discoverability and do not claim completed runtime UI implementation, provider routing authority, or Bifrost-owned decision logic.
+- Build 3 has a valid next candidate for registering completed Session Lifecycle / Workflow / DeepSeek docs after they land, and should not create read-check-only commits.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus tracker reconciliation. No Build 3 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+
 ## Queue Authority
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
+
+## Completed / Passed
+
+Goal: review Build 3 Bifrost balance/payload contract FileMap registration.
+
+Status: passed by Codex Reviews B on 2026-05-31. The Bifrost balance/payload contract is discoverable through runtime FileMap and required-path coverage. No repair routed.
+
+Scope:
+
+- Build 3 commit `e9c6824` - registers `docs/bifrost-balance-payload-surface-contract.md` in runtime FileMap and required-path coverage, then marks Build 3 ready for review.
+
+Allowed review files:
+
+- `meridian_core/filemap.py`
+- `tests/test_filemap.py`
+- `docs/live-build-3.md` for provenance only.
+
+Proof command:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Review expectations:
+
+- Verify `docs/bifrost-balance-payload-surface-contract.md` is present in both `make_default_map()` and `_REQUIRED_PATHS`.
+- Verify the FileMap entry is under the Bifrost area and does not claim provider routing or billing API implementation.
+- Verify Build 3 is not left with an executable stale implementation task after completion.
+- If clean, record proof and clear the FileMap slice. If findings exist, route a focused repair back to Build 3.
+
+Review result:
+
+- `python -m pytest tests/test_filemap.py -q` passed with 46 tests.
+- `docs/bifrost-balance-payload-surface-contract.md` is present in both `make_default_map()` and `_REQUIRED_PATHS`.
+- The FileMap entry is under the Bifrost area and describes a UI/product contract, not provider routing or billing API implementation.
+- Build 3 is back to awaiting the next FileMap assignment and should not create read-check-only commits.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus tracker reconciliation. No Build 3 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+
+## Completed / Passed With Follow-Up
+
+Goal: review Build 5 Bifrost balance and prompt payload surface contract.
+
+Status: passed by Codex Reviews B on 2026-05-31. The contract covers provider balance, prompt payload visibility, Q-mode prompt drag, DeepSeek route/trust warnings, and keeps routing decisions outside Bifrost. FileMap follow-up routed to Build 3 because the new doc exists and is not yet discoverable.
+
+Scope:
+
+- Build 5 commit `70d3af4` - creates `docs/bifrost-balance-payload-surface-contract.md` and marks Build 5 ready for Codex Review.
+
+Allowed review files:
+
+- `docs/bifrost-balance-payload-surface-contract.md`
+- `docs/live-build-5.md` for provenance only.
+
+Proof:
+
+- Docs-only review; no tests required.
+
+Review expectations:
+
+- Verify the contract covers the Polaris-style Balance surface and per-prompt payload meter for Claude, OpenAI, DeepSeek, and future adapters.
+- Verify it includes provider health, trust state, context/prompt budgets, payload label, budget percent, growth delta, cost/quota pressure, and evidence source.
+- Verify Q-mode prompt-drag rules explicitly catch additive prompt growth and route DeepSeek degradation if Q-mode payloads grow unexpectedly.
+- Verify DeepSeek direct API vs aggregator/OpenRouter route mismatch is visible and DeepSeek candidate trust cannot clear reviews, move branches, or receive autonomous coding authority.
+- Verify Bifrost displays structured Relay/Model Harness telemetry but does not make routing decisions.
+- Verify Build 5 is not left with a stale executable task after completion.
+- If clean, record proof and clear the contract. If findings exist, route a focused repair back to Build 5.
+
+Review result:
+
+- Docs-only review; no tests required.
+- Contract covers Claude, OpenAI, DeepSeek, future adapters, provider health, trust state, context/prompt budgets, payload label, budget percent, growth delta, cost/quota pressure, and evidence source.
+- Q-mode rules explicitly catch additive prompt growth and mark DeepSeek degraded when Q-mode payloads grow unexpectedly.
+- DeepSeek direct API vs OpenRouter/aggregator route mismatch is visible, and candidate-state DeepSeek cannot clear reviews, move branches, or receive autonomous coding authority.
+- Bifrost displays Relay/Model Harness telemetry and does not make provider routing decisions.
+- Build 5 is back to awaiting the next Bifrost assignment and should not create read-check-only commits.
+- Follow-up routed to Build 3: register `docs/bifrost-balance-payload-surface-contract.md` in FileMap and required-path coverage.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus Build 3 follow-up routing. No Build 5 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+
+## Completed / Passed
+
+Goal: review Build 3 Bifrost voice command FileMap registration.
+
+Status: passed by Codex Reviews B on 2026-05-31. The Bifrost voice command contract is discoverable through runtime FileMap and required-path coverage. No repair routed.
+
+Scope:
+
+- Build 3 commit `2760013` - registers `docs/bifrost-voice-command-contract.md` in runtime FileMap and required-path coverage, then marks Build 3 ready for review.
+
+Allowed review files:
+
+- `meridian_core/filemap.py`
+- `tests/test_filemap.py`
+- `docs/live-build-3.md` for provenance only.
+
+Proof command:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Review expectations:
+
+- Verify `docs/bifrost-voice-command-contract.md` is present in both `make_default_map()` and `_REQUIRED_PATHS`.
+- Verify the FileMap entry is under the Bifrost area and does not claim runtime speech implementation.
+- Verify Build 3 is not left with an executable stale implementation task after completion.
+- If clean, record proof and clear the FileMap slice. If findings exist, route a focused repair back to Build 3.
+
+Review result:
+
+- `python -m pytest tests/test_filemap.py -q` passed with 46 tests.
+- `docs/bifrost-voice-command-contract.md` is present in both `make_default_map()` and `_REQUIRED_PATHS`.
+- The FileMap entry is under the Bifrost area and describes the doc as a UI/product contract, not runtime speech implementation.
+- Build 3 is back to awaiting the next FileMap assignment and should not create read-check-only commits.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` only. No Build 3 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+
+## Completed / Passed With Follow-Up
+
+Goal: review Build 5 Bifrost voice command contract.
+
+Status: passed by Codex Reviews B on 2026-05-31. The voice contract covers input and output states, typed intents, command families, confirmation gating, and keeps orchestration outside Bifrost. FileMap follow-up routed to Build 3 because the new doc now exists and is not yet discoverable.
+
+Scope:
+
+- Build 5 commit `d04b441` - creates `docs/bifrost-voice-command-contract.md` and marks Build 5 ready for Codex Review while promoting the provider-balance/prompt-payload surface contract as the next active task.
+
+Allowed review files:
+
+- `docs/bifrost-voice-command-contract.md`
+- `docs/live-build-5.md` for provenance only.
+
+Proof:
+
+- Docs-only review; no tests required.
+
+Review expectations:
+
+- Verify the contract covers full voice-enabled input and output: listening/dictation, prompt submission, spoken Prime output, mute/stop controls, and state visibility.
+- Verify voice commands map to typed intents instead of letting Bifrost own orchestration decisions.
+- Verify harness panel, project/lane, dictation, read-aloud, and proof command families are present.
+- Verify risky or low-confidence commands are confirmation-gated and destructive actions remain out of scope.
+- Verify Build 5 now has a valid next Active Task for provider balance and prompt payload visibility.
+- If clean, record proof and clear the voice contract. If findings exist, route a focused repair back to Build 5.
+
+Review result:
+
+- Docs-only review; no tests required.
+- Voice states include `muted`, `idle`, `listening`, `dictating`, `thinking`, `speaking`, and `blocked`.
+- Command families cover harness panel focus, project/lane focus, prompt dictation/submission, spoken output controls, and proof/status requests.
+- `VoiceCommandIntent` normalizes speech into typed intent fields before Prime receives it.
+- Low-confidence or risky commands are confirmation-gated, destructive actions are out of scope, and Bifrost is explicitly not the decision engine.
+- Build 5 now has a valid next Active Task: `docs/bifrost-balance-payload-surface-contract.md`.
+- Follow-up routed to Build 3: register `docs/bifrost-voice-command-contract.md` in FileMap and required-path coverage.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus Build 3 follow-up routing. No Build 5 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+
+## Completed / Passed
+
+Goal: review Build 3 V2/V3 FileMap discoverability audit and follow-up registration.
+
+Status: passed by Codex Reviews B on 2026-05-31 after a coordinator repair. Initial review found stale audit wording that still described `docs/workflows-subagent-harness-architecture.md` as unresolved after it had been registered; repair commit `9ff982a` corrected the audit and queue provenance. No further repair routed.
+
+Scope:
+
+- Build 3 commit `3c6f647` - creates `docs/filemap-v2-v3-discoverability-audit.md`, registers `docs/workflows-subagent-harness-architecture.md` and `docs/filemap-v2-v3-discoverability-audit.md` in runtime FileMap and required-path coverage, and marks Build 3 ready for review.
+- Repair commit `9ff982a` - updates the audit so the workflow architecture registration is listed as resolved and pending upstream outputs remain distinct from current FileMap misses.
+
+Allowed review files:
+
+- `docs/filemap-v2-v3-discoverability-audit.md`
+- `meridian_core/filemap.py`
+- `tests/test_filemap.py`
+- `docs/live-build-3.md` for provenance only.
+
+Proof command:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Review expectations:
+
+- Verify the audit accurately distinguishes registered files, a real FileMap miss, and pending upstream outputs that do not exist yet.
+- Verify `docs/workflows-subagent-harness-architecture.md` and `docs/filemap-v2-v3-discoverability-audit.md` are present in both `make_default_map()` and `_REQUIRED_PATHS`.
+- Verify the entries are classified under sensible FileMap areas and do not claim runtime implementation.
+- Verify Build 3 is not left with an executable stale task after completion.
+- If clean, record proof and clear the docs/FileMap slice. If findings exist, route a focused repair back to Build 3.
+
+Review result:
+
+- `python -m pytest tests/test_filemap.py -q` passed with 46 tests.
+- `docs/workflows-subagent-harness-architecture.md` and `docs/filemap-v2-v3-discoverability-audit.md` are present in both `make_default_map()` and `_REQUIRED_PATHS`.
+- The audit now accurately distinguishes resolved FileMap coverage from pending upstream outputs that do not exist yet.
+- FileMap entries are architecture/FileMap scoped and do not claim runtime implementation.
+- Build 3 is not left with an executable stale implementation task; it is explicitly awaiting the next FileMap assignment and should not create read-check-only commits.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` only after repair. No Build 3 repair remains open.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+
+## Completed / Passed
+
+Goal: review Build 3 V2 contract-wave and Echo/Atlas FileMap registration.
+
+Status: passed by Codex Reviews B on 2026-05-31. The V2 contract-wave docs and Echo/Atlas runtime/test files are discoverable through the runtime FileMap and required-path test coverage. No repair routed.
+
+Scope:
+
+- Implementation commit `a138b1d` - registers V2 contract-wave documents plus Echo/Atlas runtime/test files in `meridian_core/filemap.py` and `tests/test_filemap.py`.
+- Queue provenance commit `dc9b58e` - marks the Build 3 slice ready for Codex Review and promotes the next Build 3 candidate so the lane is not empty.
+
+Allowed review files:
+
+- `meridian_core/filemap.py`
+- `tests/test_filemap.py`
+- `docs/live-build-3.md` for provenance only.
+
+Proof command:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Review expectations:
+
+- Verify all eight required paths are present in both `make_default_map()` and `_REQUIRED_PATHS`: `docs/session-lifecycle-v2-contract.md`, `docs/federation-harness-horizon.md`, `docs/session-card-queue-activation-contract.md`, `docs/deepseek-provider-validation-gate.md`, `meridian_core/echo.py`, `tests/test_echo.py`, `meridian_core/atlas.py`, and `tests/test_atlas.py`.
+- Verify Echo/Atlas entries have appropriate owner areas, purposes, and related tests without claiming persistence, embeddings, network calls, or live filesystem mutation.
+- Verify the contract docs are discoverable under sensible architecture/build/model/Bifrost areas.
+- Verify Build 3 no longer has the completed FileMap registration as an executable Active Task and now has a valid next Active Task.
+- If clean, record proof and clear the FileMap slice. If findings exist, route a focused repair back to Build 3.
+
+Review result:
+
+- `python -m pytest tests/test_filemap.py -q` passed with 46 tests.
+- All eight required paths are present in both `make_default_map()` and `_REQUIRED_PATHS`: `docs/session-lifecycle-v2-contract.md`, `docs/federation-harness-horizon.md`, `docs/session-card-queue-activation-contract.md`, `docs/deepseek-provider-validation-gate.md`, `meridian_core/echo.py`, `tests/test_echo.py`, `meridian_core/atlas.py`, and `tests/test_atlas.py`.
+- Echo/Atlas entries are scoped as pure deterministic domain helpers and do not claim persistence, embeddings, network calls, or live filesystem mutation.
+- Contract docs are discoverable under model, build-process, architecture, and Bifrost areas.
+- Build 3 now has a valid next Active Task: `docs/filemap-v2-v3-discoverability-audit.md`.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md` plus tracker reconciliation. No Build 3 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
+
+## Completed / Passed
+
+Goal: review Build 1 Echo/Atlas handoff review note.
+
+Status: passed by Codex Reviews B on 2026-05-31. The note correctly separates Echo memory from Atlas retrieval and keeps integration gaps visible. No repair routed to Build 1.
+
+Scope:
+
+- Build 1 commits `a350f7f` and `1c81d2b`.
+- File under review: `docs/echo-atlas-handoff-review-note.md`.
+- Queue provenance only: `docs/live-build-1.md`.
+
+Review expectations:
+
+- Verify the note accurately distinguishes Echo as durable decision/context memory and Atlas as file/doc retrieval.
+- Verify it does not overclaim runtime maturity, live persistence, embeddings, cross-project retrieval, automatic gap detection, or Prime runtime wiring.
+- Verify follow-up work is phrased as V2/V3 follow-up items rather than already-built capability if current runtime evidence does not prove it.
+- Verify the note routes FileMap/Atlas integration, Prime composition, Relay/context use, and persistence gaps to appropriate future owners.
+- If findings exist, route a focused docs repair back to Build 1. If clean, record proof and clear the docs/architecture slice.
+
+Proof: docs-only review; no tests required unless the review touches runtime code.
+
+Review result:
+
+- `docs/echo-atlas-handoff-review-note.md` accurately distinguishes Echo as decision/context memory and Atlas as file/doc retrieval.
+- The note identifies remaining Prime integration gaps instead of claiming Prime is already wired: persistence/lifecycle, live FileMap source provider, Prime composition, Relay context use, mismatch logging, and session-scoped caching.
+- The note's "operational" wording is acceptable for the domain objects because Reviews A already cleared Atlas commit `7e95ede` and Echo repair `8e8c87b`; however, the tracker and FileMap were stale.
+- Follow-up routed by coordinator: `docs/v2-progress-tracker.md` now counts Atlas ranking as built/review-cleared, and Build 3's active FileMap task now includes `meridian_core/atlas.py` and `tests/test_atlas.py`.
+
+Proof:
+
+- `python -m pytest tests/test_atlas.py -q` passed with 33 tests.
+
+Completion: committed and pushed `docs/live-codex-reviews-2.md`, `docs/v2-progress-tracker.md`, and `docs/live-build-3.md`. No Build 1 repair routed.
+
+No active task. Continue polling for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
 ## Completed / Passed
 

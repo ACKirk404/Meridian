@@ -30,7 +30,7 @@ Ready for Codex Review:
 - Tests: not required (docs-only)
 - Commit: `e37030e`
 
-## Active Task — Completed / Ready For Codex Review
+## Completed / Ready For Codex Review
 
 Goal: write a Bifrost voice-control command palette contract.
 
@@ -40,11 +40,77 @@ Task: define the voice-first commands for opening harness panels, switching proj
 
 Tests: none required, docs-only.
 
-Completion: committed `docs/bifrost-voice-command-contract.md` with 25 voice commands across 7 categories (navigation, focus, dictation, Prime output, wake/boot, queue/build, cockpit control). Ready for Codex Review. Commit hash to be backfilled after push.
+Completion:
+
+- Coordinator completed this docs-only Bifrost voice command contract on 2026-05-31.
+- Files changed: `docs/bifrost-voice-command-contract.md`, `docs/live-build-5.md`.
+- Tests: not required (docs-only).
+- Commit: `d04b441`.
+
+Ready for Codex Review.
+
+## Completed / Ready For Codex Review
+
+Goal: write the Bifrost provider balance and prompt payload visibility surface contract.
+
+Allowed files only: `docs/bifrost-balance-payload-surface-contract.md`, `docs/live-build-5.md`.
+
+Task: define how Bifrost should expose the Polaris-style Balance button and per-prompt payload meter for Claude, OpenAI, DeepSeek, and future adapters. Cover provider health, token/cost pressure, prompt-size label, growth/flat Q-mode state, warning/degraded states, and the rule that Bifrost displays structured Relay/Model Harness telemetry but does not make routing decisions.
+
+Completion:
+
+- Coordinator completed this docs-only Bifrost balance/payload surface contract on 2026-05-31.
+- Files changed: `docs/bifrost-balance-payload-surface-contract.md`, `docs/live-build-5.md`.
+- Tests: not required (docs-only).
+- Commit: `70d3af4`.
+
+Ready for Codex Review.
+
+## Active Task
+
+Goal: implement the Bifrost V2 browser-first HUD shell for the latest UI direction.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Task: move the current Bifrost preview toward the latest Scott-approved HUD-grid direction, using `docs/bifrost-v2-cockpit-extensions.md` as the source of truth.
+
+Requirements:
+
+- Keep the cockpit browser-first HTML/CSS; do not add Electron-only dependencies.
+- Make the central Prime command bay the dominant surface. The prompt/input area must be large enough for real conversation, not a small widget.
+- Keep the center presence core quiet: only `PRIMED` plus a pulsing orb/state. Do not put provider balance, Claude/OpenAI/DeepSeek, prompt payload, queue, proof, Prime, B1-B5, ABH, tier, version, or numbered HUD labels inside that core.
+- Remove permanent top navigation noise. Panels should be summonable through Prime/voice or scoped controls, not a top row of buttons.
+- Make the left rail project-first: show project names first; when a project is selected, reveal that project's sessions and let unrelated lane contents disappear from that rail.
+- Bottom harness/system controls should open focused harness windows with their own scoped prompt to interact with Meridian about that harness.
+- Keep Voice I/O visibly first-class: listening/thinking/speaking/muted state, text prompt, microphone affordance, spoken-output affordance.
+- Use sample/static view-model data only; Bifrost displays state and does not make Prime/Relay/Aegis routing decisions.
+- Add or update focused render tests proving the old noisy labels and top-nav text are absent, the large prompt is present, project drilldown/session state renders, harness scoped prompts render, and voice state renders.
+
+Tests:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
 
 ## Next Candidate Task
 
-(none — awaiting orchestrator assignment)
+Goal: implement the Bifrost V2 voice I/O surface state.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Task: after the HUD shell lands and clears immediate review/repair blockers, add the first visible Voice I/O surface state from `docs/bifrost-voice-command-contract.md`.
+
+Requirements:
+
+- Add deterministic view-model/sample-data fields for listening, dictating, thinking, speaking, muted, and blocked states.
+- Render microphone input, spoken-output, mute/stop controls, and a concise state label without letting the UI own orchestration decisions.
+- Keep voice action controls as inert/render-only affordances for this slice; no live microphone or TTS plumbing yet.
+- Preserve the large central prompt and quiet `PRIMED` core from the active HUD shell.
+- Add tests proving each voice state can render and old noisy provider/build labels remain absent.
+
+Tests:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
 
 ## ~~Codex Repair - Active Now~~ (COMPLETED 2026-05-31 13:54 -06:00)
 
@@ -273,7 +339,6 @@ YYYY-MM-DD HH:MM TZ - Build 5 checked queue; status: idle/running/blocked
 2026-05-31 18:30 -06:00 - Build 5 checked queue; status: running; orchestrator handoff supersedes stale "V1 Harness Dashboard" Active Task — new Active Task = build openable V1 Electron cockpit app shell (package.json, electron/, bifrost/preview.py, tests/test_bifrost_preview.py, docs/v0-v1-progress-tracker.md); Electron shell loads `bifrost/preview.html` generated by `python -m bifrost.preview` with contextIsolation, sandbox, nodeIntegration:false, and remote-navigation blocking; npm `start` regenerates preview then launches Electron; node_modules NOT vendored; origin/main fast-forwarded to 5cf1651 before commit
 2026-05-31 18:45 -06:00 - Build 5 checked queue; status: idle; Electron cockpit app shell committed at 6b3e652; tests: 107 passed (tests/test_bifrost_preview.py tests/test_bifrost_cockpit.py), 1095 passed full suite; V1 cockpit tracker now 13/13; cadence at 3/3 in current window (after d13f1d1, 5c89e87, 6b3e652) — pausing normal build work per rule 21 until Codex Reviews lane records cadence review result; Ready for Codex Review marker logged below; Cross-Check Activity: none; origin/main at 5cf1651 → 6b3e652
 2026-05-31 13:51 -06:00 - Build 5 checked queue; status: running; Active Task = Codex repair for Bifrost V2 contract queue/path contradictions; origin/main already up to date
-2026-07-17 03:00 UTC - Build 5 checked queue; status: running; Active Task found: Bifrost voice-control command palette contract (docs/bifrost-voice-command-contract.md); executing
 ```
 
 ## Write/Completion Log
@@ -296,7 +361,6 @@ YYYY-MM-DD HH:MM TZ - Build 5 completed <task>; commit <hash>; tests <result>
 2026-05-31 03:31 -06:00 - Codex coordinator took over stalled Build 5 Harness Dashboard implementation slice; commit pending; tests: 79 passed (tests/test_bifrost_cockpit.py), 104 passed (tests/test_bifrost_cockpit.py tests/test_cockpit_state.py)
 2026-05-31 18:45 -06:00 - Build 5 completed openable V1 Electron cockpit app shell at bifrost/preview.py, electron/main.js, package.json, tests/test_bifrost_preview.py, docs/v0-v1-progress-tracker.md; commit 6b3e652; tests: 107 passed (tests/test_bifrost_preview.py + tests/test_bifrost_cockpit.py), 1095 passed full suite
 2026-05-31 13:54 -06:00 - Build 5 completed Codex repair for Bifrost V2 queue/path contradictions; commit 4558cf1; files changed: docs/live-build-5.md; files verified: docs/v2-detailed-build-plan.md; tests: not run (docs-only); push status: pushed to origin/main; Obsidian update: completed (`Meridian_Build/2026-05-31 Build 5 Bifrost V2 Queue Path Repair.md`)
-2026-07-17 03:00 UTC - Build 5 completed Bifrost voice-control command palette contract; commit pending; files: docs/bifrost-voice-command-contract.md, docs/live-build-5.md; tests: none (docs-only); push status: pending; Obsidian update: pending
 ```
 
 ## Ready for Codex Review
@@ -316,7 +380,6 @@ Append entries here when a completed slice is ready for the Codex Reviews lane t
 2026-05-31 03:31 -06:00 - Build 5 slice Ready for Codex Review; commit 9328272; files: bifrost/__init__.py, bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py, docs/live-build-5.md; tests: 79 passed (tests/test_bifrost_cockpit.py), 104 passed (tests/test_bifrost_cockpit.py tests/test_cockpit_state.py); note: final V1 cockpit item
 2026-05-31 18:45 -06:00 - Build 5 slice Ready for Codex Review; commit 6b3e652; files: bifrost/preview.py, electron/main.js, package.json, tests/test_bifrost_preview.py, docs/v0-v1-progress-tracker.md; tests: 107 passed (tests/test_bifrost_preview.py + tests/test_bifrost_cockpit.py), 1095 passed full suite; note: openable V1 Electron cockpit app shell — V1 cockpit count now 13/13 in docs/v0-v1-progress-tracker.md; 3rd task-changing commit in current cadence window after d13f1d1 and 5c89e87, so Build 5 pauses normal build work per rule 21 until Codex Reviews lane records a cadence review result
 2026-05-31 13:54 -06:00 - Build 5 slice Ready for Codex Review; commit 4558cf1; files changed: docs/live-build-5.md; files verified: docs/v2-detailed-build-plan.md; tests: not run (docs-only); Obsidian update: completed (`Meridian_Build/2026-05-31 Build 5 Bifrost V2 Queue Path Repair.md`); note: Codex repair archived stale lower Active Task block and verified V2 likely-files path is aligned with docs/bifrost-v2-cockpit-extensions.md
-2026-07-17 03:00 UTC - Build 5 slice Ready for Codex Review; commit pending; files: docs/bifrost-voice-command-contract.md, docs/live-build-5.md; tests: none (docs-only); note: Bifrost voice-control command palette contract — 25 commands across 7 categories; 1st task-changing commit in new cadence window (after all prior cadences cleared)
 ```
 
 ## Cross-Check Activity

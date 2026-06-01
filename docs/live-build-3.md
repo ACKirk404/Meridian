@@ -10,30 +10,288 @@ Build 3 cadence for commit `67a75dc` plus marker `b3316b6` was cleared by Codex 
 
 ## Active Task
 
-Goal: register new V2 contract-wave documents in FileMap.
+Goal: audit V2 FileMap drift and register any existing missing V2 artifacts.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/filemap-v2-v3-discoverability-audit.md`, `docs/live-build-3.md`.
+
+Task: compare `docs/v2-progress-tracker.md`, current V2 queue files, and existing repository files against the runtime FileMap. Register only completed existing V2 docs/modules/tests that are missing from `make_default_map()`, `docs/FileMap.md`, or `_REQUIRED_PATHS`.
+
+Requirements:
+
+- Do not create product docs or runtime modules in this slice.
+- Do not edit Build 1, Build 2, Build 4, Build 5, or review queue files.
+- Do not register files that do not exist.
+- Do not register transient read-check reports, helper scratch scripts, local config, or worker worktree gitlinks.
+- If no missing existing V2 artifacts remain, update `docs/filemap-v2-v3-discoverability-audit.md` with the checked sources and result instead of creating read-check-only commits.
+- Keep changes mechanical and small.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion: commit only this FileMap/audit slice, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+
+## Next Candidate Task
+
+Goal: register the Session Lifecycle implementation checklist after Build 2 lands it.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: when `docs/session-lifecycle-implementation-checklist.md` exists and has passed Codex review, register it under the Session Lifecycle/FileMap-appropriate area and add required-path coverage.
+
+## Completed / Ready For Codex Review
+
+Goal: register the DeepSeek validation benchmark plan in FileMap.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: add FileMap coverage for `docs/deepseek-validation-benchmark-plan.md`, which was created by Build 4/coordinator in commit `a9695d1` and cleared by Reviews B with FileMap follow-up.
+
+Requirements:
+
+- Add a concise `FileMapEntry` under the Model Harness area.
+- Add the path to `docs/FileMap.md`.
+- Add the path to `_REQUIRED_PATHS` in `tests/test_filemap.py`.
+- Do not edit `docs/deepseek-validation-benchmark-plan.md`.
+- Keep the change mechanical and small.
+
+Tests: `python -m pytest tests/test_filemap.py -q`.
+
+Completion:
+
+- Coordinator completed this FileMap registration on 2026-05-31.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests run: `python -m pytest tests/test_filemap.py -q` (46 passed).
+- Commit: `add63a7`.
+
+Ready for Codex Review after tests and commit hash are recorded.
+
+## Completed / Ready For Codex Review
+
+Goal: register new V2 contract-wave documents plus Echo/Atlas runtime files in FileMap.
 
 Allowed files only: `meridian_core/filemap.py`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
-Task: inspect current FileMap registrations and add missing entries for the new V2 contract-wave documents only if they are not already discoverable:
+Task: inspect current FileMap registrations and add missing entries for the new V2 contract-wave documents plus Echo/Atlas runtime files only if they are not already discoverable:
 
 - `docs/session-lifecycle-v2-contract.md`
 - `docs/federation-harness-horizon.md`
 - `docs/session-card-queue-activation-contract.md`
 - `docs/deepseek-provider-validation-gate.md`
+- `meridian_core/echo.py`
+- `tests/test_echo.py`
+- `meridian_core/atlas.py`
+- `tests/test_atlas.py`
 
 Keep this mechanical and small. Do not edit the documents themselves. Add or update tests only for required-path/default-map coverage.
 
 Tests: `python -m pytest tests/test_filemap.py -q`.
 
-Completion: commit only this FileMap registration slice, push, update Obsidian, and mark Ready for Codex Review.
+Completion:
 
-## Next Candidate Task
+- Coordinator completed this FileMap registration slice on 2026-05-31.
+- Files changed: `meridian_core/filemap.py`, `tests/test_filemap.py`.
+- Tests run: `python -m pytest tests/test_filemap.py -q` (46 passed).
+- Implementation commit: `a138b1d`.
+
+Ready for Codex Review. Routed to Codex Reviews B by coordinator.
+
+## Completed / Ready For Codex Review
 
 Goal: add a lightweight FileMap audit note for V2/V3 discoverability.
 
 Allowed files only: `docs/filemap-v2-v3-discoverability-audit.md`, `docs/live-build-3.md`.
 
 Task: create a short docs-only audit listing which V2/V3 architecture files must be discoverable by Prime at wake. Mark any missing registrations as follow-up tasks rather than editing runtime code.
+
+Completion:
+
+- Coordinator completed this docs-only audit on 2026-05-31.
+- File changed: `docs/filemap-v2-v3-discoverability-audit.md`.
+- Tests: not required (docs-only).
+- Finding: `docs/workflows-subagent-harness-architecture.md` exists but is not registered in `meridian_core/filemap.py`.
+
+Ready for Codex Review.
+
+## Completed / Ready For Codex Review
+
+Goal: register the workflow/sub-agent architecture note and this audit in FileMap.
+
+Allowed files only: `meridian_core/filemap.py`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: add FileMap coverage for:
+
+- `docs/workflows-subagent-harness-architecture.md`
+- `docs/filemap-v2-v3-discoverability-audit.md`
+
+Keep this mechanical. Do not edit either document. Add/update required-path coverage only.
+
+Tests: `python -m pytest tests/test_filemap.py -q`.
+
+Completion:
+
+- Coordinator completed this FileMap registration on 2026-05-31.
+- Files changed: `meridian_core/filemap.py`, `tests/test_filemap.py`.
+- Tests run: `python -m pytest tests/test_filemap.py -q` (46 passed).
+- Commit: `3c6f647`.
+- Audit wording repaired by coordinator after review caught stale unresolved-follow-up language; repair commit `9ff982a`.
+
+Ready for Codex Review.
+
+## Archived Idle Placeholder
+
+Goal: await next FileMap assignment.
+
+Allowed files only: `docs/live-build-3.md`.
+
+Task: no executable FileMap implementation task is currently assigned. Continue polling and do not create read-check-only commits. If a new V2/V3 doc lands without FileMap coverage, record the gap in the Cross-Check Activity section and wait for Prime/Codex to assign the exact registration slice.
+
+## Completed / Ready For Codex Review
+
+Goal: register the Bifrost voice command contract in FileMap.
+
+Allowed files only: `meridian_core/filemap.py`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: add FileMap coverage for `docs/bifrost-voice-command-contract.md`, which was created by Build 5 in commit `d04b441` and cleared by Reviews B with FileMap follow-up.
+
+Requirements:
+
+- Add a concise `FileMapEntry` under the Bifrost area.
+- Add the path to `_REQUIRED_PATHS` in `tests/test_filemap.py`.
+- Do not edit `docs/bifrost-voice-command-contract.md`.
+- Keep the change mechanical and small.
+
+Tests: `python -m pytest tests/test_filemap.py -q`.
+
+Completion:
+
+- Coordinator completed this FileMap registration on 2026-05-31.
+- Files changed: `meridian_core/filemap.py`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests run: `python -m pytest tests/test_filemap.py -q` (46 passed).
+- Commit: `2760013`.
+
+Ready for Codex Review.
+
+## Archived Idle Placeholder
+
+Goal: await next FileMap assignment.
+
+Allowed files only: `docs/live-build-3.md`.
+
+Task: no executable FileMap implementation task is currently assigned. Continue polling and do not create read-check-only commits. If a new V2/V3 doc lands without FileMap coverage, record the gap in the Cross-Check Activity section and wait for Prime/Codex to assign the exact registration slice.
+
+## Completed / Ready For Codex Review
+
+Goal: register the Bifrost balance and prompt payload surface contract in FileMap.
+
+Allowed files only: `meridian_core/filemap.py`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: add FileMap coverage for `docs/bifrost-balance-payload-surface-contract.md`, which was created by Build 5 in commit `70d3af4` and cleared by Reviews B with FileMap follow-up.
+
+Requirements:
+
+- Add a concise `FileMapEntry` under the Bifrost area.
+- Add the path to `_REQUIRED_PATHS` in `tests/test_filemap.py`.
+- Do not edit `docs/bifrost-balance-payload-surface-contract.md`.
+- Keep the change mechanical and small.
+
+Tests: `python -m pytest tests/test_filemap.py -q`.
+
+Completion:
+
+- Coordinator completed this FileMap registration on 2026-05-31.
+- Files changed: `meridian_core/filemap.py`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests run: `python -m pytest tests/test_filemap.py -q` (46 passed).
+- Commit: `e9c6824`.
+
+Ready for Codex Review.
+
+## Completed / Ready For Codex Review
+
+Goal: register the active Bifrost V2 cockpit/JARVIS source docs in FileMap.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: add FileMap coverage for the active Bifrost V2 UI direction documents:
+
+- `docs/bifrost-v2-cockpit-extensions.md`
+- `docs/jarvis-ui-source-assessment.md`
+
+Requirements:
+
+- Keep the registration mechanical and small.
+- Add concise Bifrost-area entries in `make_default_map()` and mirror them in `docs/FileMap.md`.
+- Add both paths to required-path coverage in `tests/test_filemap.py`.
+- Do not edit the Bifrost docs themselves, runtime cockpit code, CSS, or tests outside FileMap coverage.
+- Preserve the distinction that these are source/contract docs, not proof of completed runtime UI implementation.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion:
+
+- Coordinator completed this FileMap registration on 2026-05-31.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests run: `python -m pytest tests/test_filemap.py -q`.
+- Commit: `d496472`.
+
+Ready for Codex Review.
+
+## Completed / Ready For Codex Review
+
+Goal: register the next completed V2 checklist/benchmark docs in FileMap after they land.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: when Build 2 and/or Build 4 complete their current docs, register only the files that exist and are not already discoverable:
+
+- `docs/session-lifecycle-implementation-checklist.md`
+- `docs/workflow-subagent-usage-checklist.md`
+- `docs/deepseek-validation-benchmark-plan.md`
+
+Requirements:
+
+- Do not create the docs; only register completed docs after they exist.
+- Keep the registration mechanical and small.
+- Add required-path coverage for each registered file.
+- If none of the files exist when this candidate is promoted, stop and report that there is no valid FileMap target instead of inventing placeholder work.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion:
+
+- Coordinator registered the completed workflow usage checklist on 2026-05-31.
+- Registered file: `docs/workflow-subagent-usage-checklist.md`.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests run: `python -m pytest tests/test_filemap.py -q`.
+- Commit: `a9d6a33`.
+
+Ready for Codex Review.
+
+## Next Candidate Task
+
+Goal: register the next completed V2 checklist/benchmark docs in FileMap after they land.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: when Build 2 and/or Build 4 complete the remaining docs, register only the files that exist and are not already discoverable:
+
+- `docs/session-lifecycle-implementation-checklist.md`
+- `docs/deepseek-validation-benchmark-plan.md`
+
+Requirements:
+
+- Do not create the docs; only register completed docs after they exist.
+- Keep the registration mechanical and small.
+- Add required-path coverage for each registered file.
+- If neither file exists when this candidate is promoted, stop and report that there is no valid FileMap target instead of inventing placeholder work.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
 
 This file is the standing assignment queue for Build 3.
 

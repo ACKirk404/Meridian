@@ -1,4 +1,4 @@
-﻿# Live Build 1 Queue
+# Live Build 1 Queue
 
 ## Codex Review Repair Completed / Verified
 
@@ -116,36 +116,33 @@ Completion:
 - Tests: not required (docs-only).
 - Ready for Codex Review. Routed to Codex Reviews B for docs/architecture review.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement the Prime project-state next-action selector.
 
 Allowed files only: `meridian_core/prime_autonomy.py`, `tests/test_prime_autonomy.py`, `docs/live-build-1.md`.
 
-Task: extend Prime Autonomy with a deterministic project-state selector that chooses the next Prime action from project/backlog/lane/tier/review-gate state without model calls. This completes the remaining Prime Autonomy V2 item after `PrimeNextAction`.
+Completion:
 
-Requirements:
+- Build 1 completed this slice on 2026-06-09 00:15 -05:00.
+- Commit: `57aad9a`.
+- Files changed: `meridian_core/prime_autonomy.py`, `tests/test_prime_autonomy.py`.
+- Tests run: `python -m pytest tests/test_prime_autonomy.py -q` — 55 passed (35 existing regression + 20 new).
+- Obsidian: `2026-06-09 Build 1 Prime Project-State Selector.md` written.
 
-- Keep the implementation stdlib-only, deterministic, frozen/immutable where new data objects are introduced, and free of filesystem/network/session side effects.
-- Do not call Echo or Atlas directly; accept Echo/Atlas signal placeholders as plain data inputs if useful.
-- Include review gate, human gate, blockers, risk tier, queue state, and confidence in the selected `PrimeNextAction`.
-- Prefer safe `PAUSE_AND_WAIT` / `ESCALATE_ERROR` outcomes when required state is missing, blocked, review-gated, or human-gated.
-- Preserve the existing `PrimeNextAction`, `select_prime_next_action()`, and `make_prime_next_action()` behavior.
-- Add focused tests proving deterministic priority ordering, review-gate blocking, human-gate behavior, safe fallback on missing state, and no regression to existing executability semantics.
-
-Tests:
-
-- `python -m pytest tests/test_prime_autonomy.py -q`
-
-Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+Ready for Codex Review.
 
 ## Next Candidate Task
 
-Goal: integrate prompt payload meter into Relay/Bifrost after Codex review clears this domain helper and FileMap registration.
+Goal: add Model Harness metadata fields for provider capability and prompt-drag telemetry.
 
-Allowed files: to be assigned by Prime/Codex after review.
+Allowed files only: `meridian_core/model_adapter.py`, `tests/test_model_adapter.py`, `docs/live-build-1.md`.
 
-Task: wire the prompt payload snapshot into the Relay dispatch surface and Bifrost prompt visibility panel without increasing prompt drag.
+Task: extend the provider-neutral Model Harness adapter contract with structured metadata needed by Relay and Bifrost: provider name, model name, capability tier, context budget, prompt payload budget, trust state, and whether external review is required. Keep it provider-neutral and do not add live vendor calls. Include DeepSeek candidate-state metadata without granting autonomous coding, branch movement, or review-clearing authority.
+
+Tests:
+
+- `python -m pytest tests/test_model_adapter.py -q`
 
 ## Archived Prior Candidate - Promoted Above
 
@@ -620,8 +617,6 @@ YYYY-MM-DD HH:MM TZ - Build 1 checked queue; status: idle/running/blocked
 2026-06-09 01:40 -05:00 - Build 1 checked queue; status: idle/paused (cadence 3/3, no active task assigned; origin/main at ad3e256 (merge); Codex review pending for commits at cadence window; awaiting review gate clear before next task promotion)
 2026-05-31 12:32 -06:00 - Build 1 checked queue; status: paused (cadence 3/3); Coordinator Override "Active Now" still names completed V2 runtime-object contract (57ed79a) — stale; origin/main fast-forwarded through 9cba914/2b9abee/7af4f3c/9a11090 (Build 1 parallel heartbeat, Build 2/4 read checks, Build 4 Reviews B11-B15 cadence cleared with MEDIUM routed to Build 3 — informational, not Build 1 scope); Codex Reviews lane has not yet recorded a cadence clear for Build 1's b99ce1d/2d1bab1/57ed79a window; no Cross-Check Activity routed to Build 1; remains paused per rule 19
 2026-06-09 01:50 -05:00 - Build 1 checked queue; status: idle/paused (cadence 3/3 still paused; no active task assigned; origin/main at f1b03b1 (merge); Codex review still pending; awaiting gate clear or repair task routing)
-
-2026-06-15 19:30 -05:00 - Build 1 checked queue; status: running (Active Task found: Coordinator Override - implement Prime project-state next-action selector; executing)
 ```
 
 ## Write/Completion Log

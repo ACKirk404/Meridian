@@ -32,21 +32,13 @@ Ready for Codex Review:
 - Tests: not required (docs-only)
 - Commit: `e37030e`
 
-## Coordinator Override - Completed / Ready For Codex Review
+## Coordinator Override - Active Now
 
 Goal: write the Session Lifecycle implementation checklist so the runtime slice is bounded before code begins.
 
 Allowed files only: `docs/session-lifecycle-implementation-checklist.md`, `docs/live-build-2.md`.
 
 Task: convert `docs/session-lifecycle-v2-contract.md` into a code-ready implementation checklist. Include enum/dataclass names, fields, legality helpers, executability helpers, proof expectations, tests to write, and what must remain out of runtime execution until later. Do not implement `meridian_core/session_lifecycle.py` until the contract is reviewed.
-
-Completion: coordinator completed this implementation checklist slice in `78d9bdd`. File `docs/session-lifecycle-implementation-checklist.md` created with 229 lines covering: enums (SessionHarnessRole, SessionStatus, SessionCommandIntent), dataclasses (SessionLifecycleState, SessionCommandPlan) with all fields and legality/executability helpers, invariant validators, proof expectations, 30+ test specs, FileMap registration, and out-of-runtime deferrals.
-
-Ready for Codex Review:
-
-- Files: `docs/session-lifecycle-implementation-checklist.md`, `docs/live-build-2.md`
-- Tests: not required (docs-only)
-- Commit: `78d9bdd`
 
 ## ~~Codex Repair Active Task - Reviews A Round 6~~
 
@@ -89,11 +81,15 @@ Completion: commit only this Bifrost integration contract slice, push, update Ob
 
 ## Next Candidate Task
 
-Goal: integrate Prime next action into the Bifrost cockpit view model after Codex review clears this domain object.
+Goal: implement the Session Lifecycle domain objects after the checklist and review clear.
 
-Allowed files: to be assigned by Prime/Codex after review.
+Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
 
-Task: expose Prime next action in the cockpit snapshot without letting Bifrost own decision logic.
+Task: create the first runtime slice for `SessionLifecycleState` and `SessionCommandPlan` from `docs/session-lifecycle-v2-contract.md` and `docs/session-lifecycle-implementation-checklist.md`. Model spawn, watch, poll_queue, steer, stop_request, transfer, archive, restart, resteer, recover_from_limit, and request_human_gate as typed actions without executing live process control. Include legality/executability helpers, proof refs, queue routing, unique-worktree and branch-permission constraints, and human-gate behavior.
+
+Tests:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
 
 ## Superseded Task
 
@@ -440,8 +436,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-06-05 02:00 -06:00 - Build 2 checked queue; status: idle (no new Active Task; cadence 1 of 3; polling)
 2026-06-05 02:10 -06:00 - Build 2 checked queue; status: idle (no new Active Task; cadence 1 of 3; polling)
 2026-06-05 02:30 -06:00 - Build 2 checked queue; Active Task found: V2 Prime next-action domain object (Coordinator Override); executing
-2026-06-05 16:00 -06:00 - Build 2 checked queue; status: running (Active Task found -- Session Lifecycle implementation checklist); executing
-2026-05-31 16:23 -06:00 - Build 2 checked queue; status: idle (Session Lifecycle implementation checklist already complete at 78d9bdd; task marked Complete / Ready for Codex Review; awaiting next assignment)
+2026-06-05 02:45 -06:00 - Build 2 checked queue; status: idle (V2 Prime next-action domain object complete commit 40def3d; linter repair commit 594e0d9/631e764 applied; 30 tests passing; cadence 1 of 3; Ready for Codex Review; polling)
 ```
 
 ## Write/Completion Log
@@ -450,6 +445,7 @@ Append entries here when this file is modified or an active task is completed.
 
 ```text
 YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; files changed: <list>; tests <result>; Ready for Codex Review
+2026-06-05 02:45 -06:00 - Build 2 linter repair: is_executable() now gates on human_gate_required; commit 594e0d9 (merged as 631e764); tests 30 passed; anomaly: commit swept in staged changes from shared main worktree (live-build-4.md, live-build-5.md, FileMap, 3 deleted docs — all from other sessions, code verified correct); addressing Codex Reviews A MEDIUM finding from 2026-05-31 13:06; Ready for Codex Review
 2026-05-31 13:06 -06:00 - Codex Reviews A routed MEDIUM repair task for PrimeNextAction human-gate executability; files changed: docs/live-build-2.md; tests run by Reviews A before routing: `python -m pytest tests/test_prime_autonomy.py -q` 30 passed, `python -m pytest tests/test_prime_autonomy.py tests/test_filemap.py -q` 76 passed; commit pending from Reviews A; push pending; Obsidian status: updated `Meridian_Build/2026-05-31 Prime Autonomy Human Gate Review Finding.md`.
 2026-05-30 10:33 -06:00 - Codex assigned Prompt Metrics package API + FileMap exposure; commit pending; tests pending
 2026-05-30 10:37 -06:00 - Codex strengthened polling contract; commit pending; tests not required
@@ -484,7 +480,6 @@ YYYY-MM-DD HH:MM TZ - Build 2 completed <task>; commit <hash>; files changed: <l
 2026-05-31 08:52 -06:00 - Build 2 completed V2 harness maturity/build-number policy (Coordinator Override); commit 34c21b4; files changed: docs/harness-maturity-build-policy.md (new, defines build number tracking, maturity levels, review status, and readiness states for Prime/Bifrost/Relay/Aegis/Beacon/Echo/Atlas/Workflow), docs/live-build-2.md; tests none required (docs-only); cadence count: 3 of 3 since 47eeb89; Ready for Codex Review
 2026-05-31 08:54 -06:00 - Build 2 completed public exports readiness checklist (Coordinator Override); commit 9a2e4e5; files changed: docs/public-exports-readiness-checklist.md (new, 6-section checklist for export-readiness: runtime stability, tests, docs, registry, naming, safety/risk mitigation; per-harness status for Echo/Atlas/Prime/Session/Workflow), docs/live-build-2.md; tests none required (docs-only); cadence count: 1 of 3 (cadence reset after harness maturity policy); Ready for Codex Review
 2026-06-05 02:45 -06:00 - Build 2 completed V2 Prime next-action domain object (Coordinator Override); commit 40def3d; files changed: meridian_core/prime_autonomy.py (new, PrimeActionType/Confidence/RiskTier/Source enums, PrimeNextAction frozen dataclass, select_prime_next_action/make_prime_next_action helpers), tests/test_prime_autonomy.py (new, 30 comprehensive tests: enums, immutability, fallback selection, blocker handling, human-gate propagation, confidence/risk mapping); tests 30 passed; cadence count: 1 of 3; Ready for Codex Review
-2026-05-31 16:23 -06:00 - Build 2 completed Session Lifecycle implementation checklist (already committed by coordinator); commit 78d9bdd; files changed: docs/session-lifecycle-implementation-checklist.md (229 lines new), docs/live-build-2.md; tests: not required (docs-only); Ready for Codex Review
 ```
 
 ## Cross-Check Activity

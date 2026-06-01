@@ -10,17 +10,21 @@
 
 | Owner | Built/Review-Cleared | Built-Awaiting-Review | Contract Baseline | Needs Build | Total | Percent Complete |
 |---|---:|---:|---:|---:|---:|---:|
-| Prime Autonomy | 0 | 0 | 0 | 2 | 2 | 0% |
-| Echo Harness | 1 | 0 | 2 | 0 | 3 | 100% |
-| Atlas Harness | 0 | 0 | 1 | 2 | 3 | 33% |
-| Relay/Model Harness | 2 | 0 | 1 | 4 | 7 | 43% |
+| Prime Autonomy | 1 | 0 | 0 | 1 | 2 | 50% |
+| Echo Harness | 2 | 0 | 2 | 0 | 4 | 100% |
+| Atlas Harness | 2 | 0 | 1 | 0 | 3 | 100% |
+| Relay/Model Harness | 2 | 0 | 1 | 6 | 9 | 33% |
 | Aegis Harness | 2 | 0 | 0 | 0 | 2 | 100% |
-| Session Lifecycle Harness | 1 | 0 | 1 | 1 | 3 | 67% |
-| Bifrost Harness | 0 | 0 | 0 | 7 | 7 | 0% |
-| Federation Harness | 0 | 0 | 0 | 1 | 1 | 0% |
-| **Total V2** | **6** | **0** | **5** | **17** | **28** | **21% Clear + 0% Awaiting + 18% Baseline** |
+| Session Lifecycle Harness | 1 | 0 | 1 | 2 | 4 | 50% |
+| Bifrost Harness | 1 | 0 | 2 | 6 | 9 | 33% |
+| Federation Harness | 1 | 0 | 0 | 0 | 1 | 100% |
+| **Total V2** | **12** | **0** | **7** | **15** | **34** | **35% Clear + 0% Awaiting + 21% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
+
+### Prime Autonomy
+
+- [x] **Prime + Autonomy Contract:** `PrimeNextAction` domain object with action type, confidence, blockers, human-gate requirements, immutable evidence, and deterministic executability semantics - built in `40def3d`, repaired in `39c9ac8`; review cleared by Reviews C on 2026-05-31.
 
 ### Aegis Harness
 
@@ -35,10 +39,24 @@
 ### Echo Harness
 
 - [x] **Echo + Runtime:** `MemoryRecord`, `MemoryQuery`, `MemoryHit` domain objects with deterministic ranking by project/recency/importance/pinning - built in `2bccb55`, repaired in `8e8c87b`; review cleared by Reviews A on 2026-05-31.
+- [x] **Echo + FileMap Integration:** `meridian_core/echo.py` and `tests/test_echo.py` registered in runtime FileMap and required-path coverage - built in `a138b1d`; review cleared by Reviews B on 2026-05-31.
+
+### Atlas Harness
+
+- [x] **Atlas + Ranking:** deterministic file/docs-first retrieval using `AtlasQuery`, `AtlasHit`, `AtlasResult`, source-aware ranking, and failure-soft behavior - built in `7e95ede`; review cleared by Reviews A on 2026-05-31 with `tests/test_atlas.py` passing.
+- [x] **Atlas + FileMap Integration:** `meridian_core/atlas.py` and `tests/test_atlas.py` registered in runtime FileMap and required-path coverage - built in `a138b1d`; review cleared by Reviews B on 2026-05-31.
 
 ### Session Lifecycle Harness
 
 - [x] **Prime + Session Lifecycle:** `restart_resteer.py` domain objects and deterministic evaluator for empty build queues, wrong queue routing, shared/main worktree violations, quota blocks, proof blocks, launch failures, and review cadence gates - built in `8b4c8ac`, repaired in `40def3d`; contract baseline in `27e1b1f`; review cleared by Reviews A on 2026-05-31.
+
+### Federation Harness
+
+- [x] **Federation Harness + Planning:** `docs/federation-harness-horizon.md` defines the planning-only multi-Meridian boundary, consent model, typed handoff packets, unsafe shared-state exclusions, Bifrost panel implication, and V2 out-of-scope limits - built in `e37030e`; review cleared by Reviews B on 2026-05-31.
+
+### Bifrost Harness
+
+- [x] **Bifrost + FileMap Integration:** active Bifrost V2 cockpit direction docs (`docs/bifrost-v2-cockpit-extensions.md`, `docs/jarvis-ui-source-assessment.md`) registered in runtime FileMap, `docs/FileMap.md`, and required-path coverage - built in `d496472`; review cleared by Reviews B on 2026-05-31.
 
 ## Built But Awaiting Review
 
@@ -63,6 +81,11 @@
 
 - [x] **Model Harness + DeepSeek Validation Gate:** `docs/deepseek-provider-validation-gate.md` - DeepSeek is a primary provider candidate, but not trusted for autonomous coding/review-clearing until direct API routing, prompt payload metering, bounded Q-mode behavior, and coding benchmark proof are recorded.
 
+### Bifrost Harness
+
+- [x] **Bifrost + Voice Command Contract:** `docs/bifrost-voice-command-contract.md` - voice input/output states, typed voice command intents, dictation, read-aloud controls, and proof/status command families defined; review-cleared and FileMap-registered on 2026-05-31.
+- [x] **Bifrost + Balance/Payload Contract:** `docs/bifrost-balance-payload-surface-contract.md` - provider balance, prompt payload visibility, Q-mode prompt-drag warnings, and DeepSeek route/trust display contract defined; review-cleared and FileMap-registered on 2026-05-31.
+
 ## In Progress / Stabilizing
 
 - None currently. V2 domain slices enter full build queue after Codex cadence review completes.
@@ -75,17 +98,7 @@
 
 ### Prime Autonomy
 
-- [ ] **Prime + Autonomy Contract:** `PrimeNextAction` domain object with action type, confidence, blockers, human-gate requirements - module: `meridian_core/prime_autonomy.py`; tests: `tests/test_prime_autonomy.py`; contract: `docs/prime-autonomy-v2-contract.md`.
 - [ ] **Prime + Project State:** deterministic next-action selector taking project/backlog/lane/tier/review gate state - integrates Echo memory query and Atlas retrieval hits as input placeholders.
-
-### Echo Harness
-
-- [ ] **Echo + FileMap Integration:** FileMap registration of memory storage location by Build 3.
-
-### Atlas Harness
-
-- [ ] **Atlas + Ranking:** deterministic, cheap ranking by path/area/purpose/notes - no embeddings in first slice; builds on contract baseline from `docs/atlas-retrieval-contract.md`.
-- [ ] **Atlas + FileMap Integration:** FileMap registration of Atlas query surface by Build 3.
 
 ### Relay / Model Harness
 
@@ -109,12 +122,6 @@
 - [ ] **Bifrost + Prompt Payload Visibility:** surface Relay prompt payload size, budget pressure, and growth/flat status next to model dispatch and queue-poll events so Scott and Prime can see prompt drag in real time.
 - [ ] **Bifrost + Voice I/O Surface:** visible microphone input, spoken Prime output, NASA-style boot/status audio state, mute controls, and listening/thinking/speaking indicators; runtime speech plumbing may follow the initial surface.
 - [ ] **Bifrost + Cockpit Render:** static render tests and HTML escaping tests for new V2 view-model fields.
-- [ ] **Bifrost + FileMap Integration:** FileMap registration of Bifrost cockpit extension surface by Build 3.
-
-### Federation Harness
-
-- [ ] **Federation Harness + Planning:** multi-Meridian/multi-user collaboration architecture (planning phase only) - document: `docs/federation-harness-horizon.md`; no network protocol or permission model implementation in V2 first wave.
-
 ## Review Gates for V2
 
 - Every V2 domain slice must include unit tests and pass before marked built.

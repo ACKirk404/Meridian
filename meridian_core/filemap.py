@@ -33,6 +33,7 @@ class FileArea:
     OBJECTIVES       = "Mission Objectives recall"
     RISK_ENGINE      = "Risk Tier Engine"
     COUNCIL          = "Council cognition"
+    PRIME_AUTONOMY   = "Prime Autonomy"
     PLANNING         = "Planning harness"
     RELAY_ROUTING    = "Relay routing"
     RELAY_DISPATCH   = "Relay dispatch"
@@ -342,6 +343,20 @@ def make_default_map() -> FileMap:
             notes="Public/private provider implementations stay outside Relay core; adapter receives only approved payload text.",
         ),
         FileMapEntry(
+            path="docs/deepseek-provider-validation-gate.md",
+            area=FileArea.MODEL_HARNESS,
+            purpose="DeepSeek provider validation gate: proof requirements before DeepSeek can become a trusted primary provider for Q-mode build work.",
+            related_tests=[],
+            notes="DeepSeek remains candidate-gated until direct API, prompt-payload flatness, benchmark, and Codex review proof pass.",
+        ),
+        FileMapEntry(
+            path="docs/deepseek-validation-benchmark-plan.md",
+            area=FileArea.MODEL_HARNESS,
+            purpose="DeepSeek validation benchmark plan: repeatable proof ladder for direct API routing, Q-mode prompt flatness, coding trust, promotion, and demotion.",
+            related_tests=[],
+            notes="Use before promoting DeepSeek beyond candidate state or routing DeepSeek build-lane queue work.",
+        ),
+        FileMapEntry(
             path="meridian_core/restart_resteer.py",
             area=FileArea.DOMAIN_MODEL,
             purpose="Prime restart/resteer domain objects and evaluator: detects empty queues, wrong queue routing, shared/main worktree violations, quota blocks, proof blocks, launch failures, and review cadence gates.",
@@ -363,11 +378,39 @@ def make_default_map() -> FileMap:
             notes="Domain-only. Measures Relay overhead vs. vendor baseline. See docs/relay-prompt-metrics-integration-brief.md.",
         ),
         FileMapEntry(
+            path="meridian_core/prompt_payload_meter.py",
+            area=FileArea.PROMPT_METRICS,
+            purpose="Relay prompt payload visibility helper: PromptPayloadSnapshot and PayloadStatus classify prompt size, budget pressure, growth deltas, and Q-mode prompt drag.",
+            related_tests=["tests/test_prompt_payload_meter.py"],
+            notes="V2 helper for visible prompt payload meter. Pure deterministic logic; no model calls, filesystem reads, or live dispatch.",
+        ),
+        FileMapEntry(
+            path="tests/test_prompt_payload_meter.py",
+            area=FileArea.PROMPT_METRICS,
+            purpose="Regression tests for PromptPayloadSnapshot and PayloadStatus, including zero/invalid budget failure-soft behavior and queue-mode growth detection.",
+            related_tests=[],
+            notes="Read before changing prompt payload thresholds or display-label semantics.",
+        ),
+        FileMapEntry(
             path="docs/relay-prompt-metrics-integration-brief.md",
             area=FileArea.PROMPT_METRICS,
             purpose="Architectural plan for wiring PromptMetricSample collection into Relay dispatch, including Polaris-style visible prompt payload size, budget pressure, and growth/flat status in Bifrost/Compass surfaces.",
             related_tests=[],
             notes="Planning only; no runtime changes yet.",
+        ),
+        FileMapEntry(
+            path="meridian_core/prime_autonomy.py",
+            area=FileArea.PRIME_AUTONOMY,
+            purpose="Prime next-action domain model: immutable PrimeNextAction with action type, confidence, risk tier, source, targets, blockers, human gate, rationale, and evidence refs.",
+            related_tests=["tests/test_prime_autonomy.py"],
+            notes="V2 Prime Autonomy seed. Human-gated actions are not executable until a later approval model records approval.",
+        ),
+        FileMapEntry(
+            path="tests/test_prime_autonomy.py",
+            area=FileArea.PRIME_AUTONOMY,
+            purpose="Regression tests for PrimeNextAction, fallback/strict constructors, immutable evidence/blocker sets, confidence/risk mappings, and human-gate executability.",
+            related_tests=[],
+            notes="Read before changing PrimeNextAction execution semantics or public constructor behavior.",
         ),
         FileMapEntry(
             path="meridian_core/prompt_packet.py",
@@ -460,11 +503,39 @@ def make_default_map() -> FileMap:
             notes="V2 entry-point. Read before implementing or extending Atlas harness or Prime's context query logic.",
         ),
         FileMapEntry(
+            path="meridian_core/atlas.py",
+            area=FileArea.FILE_MAP,
+            purpose="Atlas runtime harness: deterministic FileMap/docs-first retrieval with source-aware ranking for Prime context selection.",
+            related_tests=["tests/test_atlas.py"],
+            notes="Pure retrieval/ranking helper; no embeddings, network calls, or live filesystem mutation.",
+        ),
+        FileMapEntry(
+            path="tests/test_atlas.py",
+            area=FileArea.FILE_MAP,
+            purpose="Test suite for Atlas deterministic retrieval, source-aware ranking, and failure-soft behavior.",
+            related_tests=[],
+            notes="Run before changing meridian_core/atlas.py or Atlas FileMap behavior.",
+        ),
+        FileMapEntry(
             path="docs/echo-memory-contract.md",
             area=FileArea.ARCHITECTURE,
             purpose="Echo memory contract: persistent memory interface for V2. Defines storage structure, session isolation, recall guarantees, and integration with Prime's long-term decision making.",
             related_tests=[],
             notes="V2 entry-point. Read before implementing or extending Echo harness or Prime's persistent state logic.",
+        ),
+        FileMapEntry(
+            path="meridian_core/echo.py",
+            area=FileArea.PRODUCT_RECALL,
+            purpose="Echo runtime harness: deterministic memory records, query filters, and ranking for Prime recall without model calls.",
+            related_tests=["tests/test_echo.py"],
+            notes="Pure in-memory repository/domain slice; durable storage integration remains future work.",
+        ),
+        FileMapEntry(
+            path="tests/test_echo.py",
+            area=FileArea.PRODUCT_RECALL,
+            purpose="Test suite for Echo memory records, query ranking, pinning, recency, and corrupt-record failure-soft behavior.",
+            related_tests=[],
+            notes="Run before changing meridian_core/echo.py or Echo ranking semantics.",
         ),
         FileMapEntry(
             path="docs/workflow-subagent-harness-contract.md",
@@ -474,32 +545,32 @@ def make_default_map() -> FileMap:
             notes="V2 entry-point. Read before designing or implementing new harness types or multi-step workflow orchestration.",
         ),
         FileMapEntry(
-            path="docs/session-lifecycle-v2-contract.md",
+            path="docs/workflows-subagent-harness-architecture.md",
             area=FileArea.ARCHITECTURE,
-            purpose="Session Lifecycle V2 contract: Prime's typed session management for spawn, watch, steer, recover, transfer, and archive. Defines SessionLifecycleState, SessionHeartbeat, and per-lane fields for queue, role, worktree, model, cadence, and proof state.",
+            purpose="Workflow/sub-agent harness architecture note: explains how harness work should run in bounded workflow contexts so Prime's orchestrator context stays lean.",
             related_tests=[],
-            notes="V2 entry-point. Read before implementing Prime session lifecycle logic or Bifrost session rendering.",
+            notes="Read before designing Prime workflow delegation, harness offloading, or context-window protection behavior.",
+        ),
+        FileMapEntry(
+            path="docs/workflow-subagent-usage-checklist.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="Operational checklist Prime uses to decide when bounded harness work should run in a workflow/sub-agent context instead of Prime's orchestrator window or a single Relay call.",
+            related_tests=[],
+            notes="V2 workflow operating guide. Read before dispatching Echo, Atlas, Aegis, Relay, Bifrost, Beacon, or Session Lifecycle work into workflow contexts.",
+        ),
+        FileMapEntry(
+            path="docs/session-lifecycle-v2-contract.md",
+            area=FileArea.BUILD_PROCESS,
+            purpose="Session Lifecycle V2 contract: typed state and command-plan responsibilities for spawning, watching, steering, recovering, and handing off sessions.",
+            related_tests=[],
+            notes="Read before implementing meridian_core/session_lifecycle.py or any live session orchestration controls.",
         ),
         FileMapEntry(
             path="docs/federation-harness-horizon.md",
             area=FileArea.ARCHITECTURE,
-            purpose="Federation Harness horizon plan: V2 planning boundary for connecting Meridian instances. Defines discovery, permission, Prime-to-Prime handoff, and shared-work principles without V3 runtime implementation.",
+            purpose="Federation harness horizon plan: multi-Meridian and multi-user collaboration concepts, permission boundaries, and Prime-to-Prime handoff vocabulary.",
             related_tests=[],
-            notes="V2 planning only. Do not pull Federation runtime into V0, V1, or V2 build.",
-        ),
-        FileMapEntry(
-            path="docs/session-card-queue-activation-contract.md",
-            area=FileArea.ARCHITECTURE,
-            purpose="Session card queue activation contract: product/UI contract for Q-mode queue activation inherited from Polaris. Defines per-session queue binding, idle polling, heartbeat visibility, and Prime recovery without manual supervision.",
-            related_tests=[],
-            notes="V2 entry-point. Read before implementing session queue activation or queue polling behavior in Bifrost or Session Lifecycle.",
-        ),
-        FileMapEntry(
-            path="docs/deepseek-provider-validation-gate.md",
-            area=FileArea.ARCHITECTURE,
-            purpose="DeepSeek provider validation gate: defines the staged validation process for DeepSeek as a candidate model provider. Starts in candidate state; Prime must not assign autonomous code-writing or orchestration authority until the gate is passed.",
-            related_tests=[],
-            notes="V2 entry-point. Read before adding DeepSeek to Relay routing or assigning autonomous coding lanes.",
+            notes="Planning only; V2 architecture entry point for later V3 federation runtime.",
         ),
 
         FileMapEntry(
@@ -550,6 +621,13 @@ def make_default_map() -> FileMap:
             purpose="V3 parking lot: horizon ideas for external reach, federation, and deeper distribution. Not active scope â€” do not pull V3 effort during V0, V1, or V2.",
             related_tests=[],
             notes="Parking lot, not a roadmap. Owner: Build 4. Ideas only until V2 closes.",
+        ),
+        FileMapEntry(
+            path="docs/filemap-v2-v3-discoverability-audit.md",
+            area=FileArea.FILE_MAP,
+            purpose="V2/V3 FileMap discoverability audit: identifies architecture and horizon docs Prime must find at wake, plus follow-up FileMap registration gaps.",
+            related_tests=[],
+            notes="Build 3 audit. Update after new V2/V3 architecture docs land.",
         ),
         FileMapEntry(
             path="docs/prime-orchestration-state-model.md",
@@ -615,6 +693,41 @@ def make_default_map() -> FileMap:
             purpose="Session queue activation brief: how the Bifrost harness activates and manages worker sessions from the live build queue. Covers queue polling, lane state tracking, and session lifecycle.",
             related_tests=[],
             notes="Design brief. Owner: Build 5. Companion to bifrost-cockpit-queue-status-brief.md.",
+        ),
+        FileMapEntry(
+            path="docs/session-card-queue-activation-contract.md",
+            area=FileArea.BIFROST,
+            purpose="Session-card queue activation product contract: Meridian Q-mode behavior, queue routing, heartbeat status, and degraded-state visibility.",
+            related_tests=[],
+            notes="Read before adding Q controls, polling UI, queue state display, or session-card lifecycle wiring.",
+        ),
+        FileMapEntry(
+            path="docs/bifrost-voice-command-contract.md",
+            area=FileArea.BIFROST,
+            purpose="Bifrost voice command contract: voice input/output states, typed command intents, harness panel commands, dictation, read-aloud controls, and proof/status commands.",
+            related_tests=[],
+            notes="UI/product contract only. Read before adding microphone, dictation, spoken Prime output, or voice-command cockpit behavior.",
+        ),
+        FileMapEntry(
+            path="docs/bifrost-balance-payload-surface-contract.md",
+            area=FileArea.BIFROST,
+            purpose="Bifrost provider balance and prompt payload surface contract: provider health, trust state, prompt-size visibility, Q-mode prompt drag, and DeepSeek route/trust warnings.",
+            related_tests=[],
+            notes="UI/product contract only. Bifrost displays Relay/Model Harness telemetry but does not choose provider routing.",
+        ),
+        FileMapEntry(
+            path="docs/jarvis-ui-source-assessment.md",
+            area=FileArea.BIFROST,
+            purpose="Source assessment for JARVIS/HUD UI references that can shape Bifrost's Prime-first command center without importing unsafe or incompatible code.",
+            related_tests=[],
+            notes="Read before reusing external UI patterns. Source assessment only; not proof of completed runtime UI implementation.",
+        ),
+        FileMapEntry(
+            path="docs/bifrost-v2-cockpit-extensions.md",
+            area=FileArea.BIFROST,
+            purpose="Bifrost V2 cockpit extension contract: browser-first HUD direction, central Prime command bay, quiet PRIMED presence core, project rail, harness consoles, and voice-first interaction layer.",
+            related_tests=["tests/test_bifrost_cockpit.py"],
+            notes="Active V2 UI direction. Bifrost displays state; Prime/Relay/Aegis own decisions and routing.",
         ),
         FileMapEntry(
             path="docs/v1-bifrost-cockpit-implementation-brief.md",

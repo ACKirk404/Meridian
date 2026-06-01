@@ -1,4 +1,4 @@
-﻿"""Tests for Prime Autonomy domain model."""
+"""Tests for Prime Autonomy domain model."""
 
 import pytest
 from meridian_core.prime_autonomy import (
@@ -7,10 +7,10 @@ from meridian_core.prime_autonomy import (
     PrimeActionRiskTier,
     PrimeActionSource,
     PrimeNextAction,
+    ProjectStateSignal,
     select_prime_next_action,
     make_prime_next_action,
-    ProjectState,
-    select_prime_project_action,
+    select_next_action_from_project_state,
 )
 
 
@@ -309,358 +309,216 @@ class TestRoundTripImmutability:
         assert len(action.evidence) == 3
 
 
-class TestProjectStateImmutability:
-    """Test that ProjectState is a frozen dataclass."""
+class TestProjectStateSignal:
+    """Test ProjectStateSignal construction and immutability."""
 
-    def test_project_state_is_frozen(self):
-        state = ProjectState(lane_id="build-1")
-        with pytest.raises(Exception):
-            state.lane_id = "build-2"
-
-    def test_project_state_defaults(self):
-        state = ProjectState()
-        assert state.lane_id == ""
+    def test_default_state(self):
+        state = ProjectStateSignal()
         assert state.active_task is None
-        assert state.next_candidate is None
-        assert state.cadence_count == 0
-        assert state.cadence_limit == 3
-        assert state.review_gate_blocked is False
+        assert state.candidate_task is None
+        assert state.review_gate_open is True
+        assert state.commits_since_review == 0
         assert state.human_gate_required is False
         assert state.blockers == frozenset()
-        assert state.queue_state == "idle"
+        assert state.lane_id is None
         assert state.risk_tier == PrimeActionRiskTier.SAFE
-        assert state.confidence == PrimeActionConfidence.FALLBACK
+        assert state.echo_signal is None
+        assert state.atlas_signal is None
 
-    def test_project_state_with_blockers_is_frozen(self):
-        state = ProjectState(blockers=frozenset(["net_down"]))
-        with pytest.raises(AttributeError):
-            state.blockers.add("disk_full")
+    def test_immutable_state(self):
+        state = ProjectStateSignal(active_task="task_001")
+        with pytest.raises(Exception):
+            state.active_task = "task_002"
 
-
-class TestSelectPrimeProjectActionBlockers:
-    """Test that blockers take absolute priority."""
-
-    def test_blockers_escalate_error(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="do work",
-            blockers=frozenset(["api_limit"]),
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.ESCALATE_ERROR
-        assert action.confidence == PrimeActionConfidence.HIGH
-        assert "api_limit" in action.rationale
-
-    def test_blockers_override_everything(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="important work",
-            next_candidate="more work",
-            queue_state="running",
-            blockers=frozenset(["critical_outage"]),
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.ESCALATE_ERROR
-
-    def test_multiple_blockers_listed(self):
-        state = ProjectState(
-            blockers=frozenset(["a", "b", "c"]),
-        )
-        action = select_prime_project_action(state)
-        assert "a" in action.rationale
-        assert "b" in action.rationale
-        assert "c" in action.rationale
-
-
-class TestSelectPrimeProjectActionReviewGate:
-    """Test review gate blocking."""
-
-    def test_review_gate_blocked_pauses(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="do work",
-            review_gate_blocked=True,
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
-        assert action.confidence == PrimeActionConfidence.HIGH
-
-    def test_cadence_limit_reached_pauses(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="do work",
-            cadence_count=3,
-            cadence_limit=3,
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
-
-    def test_cadence_exceeds_limit_pauses(self):
-        state = ProjectState(
-            lane_id="build-1",
-            cadence_count=5,
-            cadence_limit=3,
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
-
-    def test_cadence_below_limit_proceeds(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="do work",
-            cadence_count=2,
-            cadence_limit=3,
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type != PrimeActionType.PAUSE_AND_WAIT
-
-
-class TestSelectPrimeProjectActionHumanGate:
-    """Test human gate behavior."""
-
-    def test_human_gate_pauses(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="risky work",
+    def test_with_all_fields(self):
+        state = ProjectStateSignal(
+            active_task="task_001",
+            candidate_task="task_002",
+            review_gate_open=False,
+            commits_since_review=4,
             human_gate_required=True,
+            blockers=frozenset(["blocker_a"]),
+            lane_id="build-1",
+            risk_tier=PrimeActionRiskTier.HIGH,
+            echo_signal="echo context",
+            atlas_signal="atlas context",
         )
-        action = select_prime_project_action(state)
+        assert state.active_task == "task_001"
+        assert state.candidate_task == "task_002"
+        assert state.lane_id == "build-1"
+        assert state.echo_signal == "echo context"
+        assert state.atlas_signal == "atlas context"
+
+    def test_blockers_is_frozenset(self):
+        state = ProjectStateSignal(blockers=frozenset(["b1", "b2"]))
+        assert isinstance(state.blockers, frozenset)
+
+
+class TestSelectNextActionFromProjectState:
+    """Test deterministic priority ordering of project-state selector."""
+
+    def test_none_state_returns_pause_fallback(self):
+        """Missing state → PAUSE_AND_WAIT with FALLBACK confidence."""
+        action = select_next_action_from_project_state(None)
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.confidence == PrimeActionConfidence.FALLBACK
+        assert action.source == PrimeActionSource.ERROR_RECOVERY
+
+    def test_no_arg_returns_pause_fallback(self):
+        """No argument defaults to None state."""
+        action = select_next_action_from_project_state()
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.confidence == PrimeActionConfidence.FALLBACK
+
+    def test_empty_state_polls_session(self):
+        """Default state (no active task, gate open) → POLL_SESSION."""
+        state = ProjectStateSignal()
+        action = select_next_action_from_project_state(state)
+        assert action.action_type == PrimeActionType.POLL_SESSION
+        assert action.confidence == PrimeActionConfidence.HIGH
+
+    def test_active_task_advances_cognition(self):
+        """Active task with clear state → ADVANCE_COGNITION."""
+        state = ProjectStateSignal(active_task="task_001")
+        action = select_next_action_from_project_state(state)
+        assert action.action_type == PrimeActionType.ADVANCE_COGNITION
+        assert action.confidence == PrimeActionConfidence.HIGH
+
+    def test_human_gate_returns_pause_not_executable(self):
+        """Human gate required → PAUSE_AND_WAIT, not executable."""
+        state = ProjectStateSignal(active_task="task_001", human_gate_required=True)
+        action = select_next_action_from_project_state(state)
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.human_gate_required is True
+        assert action.is_executable() is False
+
+    def test_blockers_return_escalate_error(self):
+        """Active blockers → ESCALATE_ERROR."""
+        state = ProjectStateSignal(
+            active_task="task_001",
+            blockers=frozenset(["external_service_down"]),
+        )
+        action = select_next_action_from_project_state(state)
+        assert action.action_type == PrimeActionType.ESCALATE_ERROR
+        assert action.is_blocked() is True
+
+    def test_review_gate_closed_returns_pause(self):
+        """Explicitly closed review gate → PAUSE_AND_WAIT."""
+        state = ProjectStateSignal(active_task="task_001", review_gate_open=False)
+        action = select_next_action_from_project_state(state)
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.human_gate_required is False
+
+    def test_commit_limit_exceeded_returns_pause(self):
+        """Three commits since review trips cadence gate → PAUSE_AND_WAIT."""
+        state = ProjectStateSignal(active_task="task_001", commits_since_review=3)
+        action = select_next_action_from_project_state(state)
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+
+    def test_two_commits_since_review_still_advances(self):
+        """Two commits since review is under the limit → ADVANCE_COGNITION."""
+        state = ProjectStateSignal(active_task="task_001", commits_since_review=2)
+        action = select_next_action_from_project_state(state)
+        assert action.action_type == PrimeActionType.ADVANCE_COGNITION
+
+    def test_high_risk_tier_triggers_human_gate(self):
+        """HIGH risk tier without explicit human gate → auto-gates, not executable."""
+        state = ProjectStateSignal(
+            active_task="task_001",
+            risk_tier=PrimeActionRiskTier.HIGH,
+        )
+        action = select_next_action_from_project_state(state)
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.human_gate_required is True
+        assert action.is_executable() is False
+
+    def test_medium_risk_does_not_auto_gate(self):
+        """MEDIUM risk tier does not auto-trigger human gate."""
+        state = ProjectStateSignal(
+            active_task="task_001",
+            risk_tier=PrimeActionRiskTier.MEDIUM,
+        )
+        action = select_next_action_from_project_state(state)
+        assert action.action_type == PrimeActionType.ADVANCE_COGNITION
+        assert action.human_gate_required is False
+
+    def test_priority_human_gate_before_blockers(self):
+        """Human gate takes priority over blockers."""
+        state = ProjectStateSignal(
+            active_task="task_001",
+            human_gate_required=True,
+            blockers=frozenset(["something"]),
+        )
+        action = select_next_action_from_project_state(state)
         assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
         assert action.human_gate_required is True
 
-    def test_human_gate_without_active_task_pauses(self):
-        state = ProjectState(
-            lane_id="build-1",
-            human_gate_required=True,
+    def test_priority_blockers_before_review_gate(self):
+        """Blockers take priority over review gate."""
+        state = ProjectStateSignal(
+            active_task="task_001",
+            blockers=frozenset(["service_down"]),
+            review_gate_open=False,
         )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
-
-    def test_no_human_gate_proceeds(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="normal work",
-            human_gate_required=False,
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type != PrimeActionType.PAUSE_AND_WAIT
-
-
-class TestSelectPrimeProjectActionEmptyQueue:
-    """Test behavior when no tasks are available."""
-
-    def test_empty_queue_escalates(self):
-        state = ProjectState(lane_id="build-1")
-        action = select_prime_project_action(state)
+        action = select_next_action_from_project_state(state)
         assert action.action_type == PrimeActionType.ESCALATE_ERROR
 
-    def test_empty_queue_with_rationale(self):
-        state = ProjectState(lane_id="build-1")
-        action = select_prime_project_action(state)
-        assert "no active task" in action.rationale.lower()
-
-
-class TestSelectPrimeProjectActionLaneState:
-    """Test lane-state gating."""
-
-    def test_blocked_lane_pauses(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="do work",
-            queue_state="blocked",
-        )
-        action = select_prime_project_action(state)
+    def test_priority_review_gate_before_active_task(self):
+        """Review gate takes priority over active task."""
+        state = ProjectStateSignal(active_task="task_001", review_gate_open=False)
+        action = select_next_action_from_project_state(state)
         assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
 
-    def test_paused_lane_pauses(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="do work",
-            queue_state="paused",
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
-
-    def test_running_lane_proceeds(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="do work",
-            queue_state="running",
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type != PrimeActionType.PAUSE_AND_WAIT
-
-
-class TestSelectPrimeProjectActionActiveTask:
-    """Test behavior when an active task is present."""
-
-    def test_active_task_advances(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="implement feature X",
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.ADVANCE_COGNITION
-
-    def test_active_task_uses_project_risk_and_confidence(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="risky merge",
+    def test_priority_high_risk_before_review_gate(self):
+        """HIGH risk tier gates before review gate check."""
+        state = ProjectStateSignal(
+            active_task="task_001",
             risk_tier=PrimeActionRiskTier.HIGH,
-            confidence=PrimeActionConfidence.HIGH,
+            review_gate_open=False,
         )
-        action = select_prime_project_action(state)
-        assert action.risk_tier == PrimeActionRiskTier.HIGH
-        assert action.confidence == PrimeActionConfidence.HIGH
+        action = select_next_action_from_project_state(state)
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.human_gate_required is True  # came from high-risk, not review-gate
 
-    def test_active_task_rationale_includes_task(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="deploy to production",
+    def test_lane_id_propagated_to_action(self):
+        """Lane ID is carried into the selected action."""
+        state = ProjectStateSignal(active_task="task_001", lane_id="build-1")
+        action = select_next_action_from_project_state(state)
+        assert action.target_lane == "build-1"
+
+    def test_active_task_advance_is_executable(self):
+        """Normal active task with open gate is executable."""
+        state = ProjectStateSignal(active_task="task_001")
+        action = select_next_action_from_project_state(state)
+        assert action.is_executable() is True
+
+    def test_poll_session_is_executable(self):
+        """Poll-session action (no active task) is executable."""
+        state = ProjectStateSignal()
+        action = select_next_action_from_project_state(state)
+        assert action.is_executable() is True
+
+    def test_echo_atlas_signal_fields_accepted(self):
+        """Echo/Atlas signal placeholders are accepted without side effects."""
+        state = ProjectStateSignal(
+            active_task="task_001",
+            echo_signal="recent_memory_key",
+            atlas_signal="docs/live-build-1.md",
         )
-        action = select_prime_project_action(state)
-        assert "deploy to production" in action.rationale
-
-
-class TestSelectPrimeProjectActionNextCandidate:
-    """Test behavior with only a next candidate task."""
-
-    def test_next_candidate_polls(self):
-        state = ProjectState(
-            lane_id="build-1",
-            next_candidate="write docs",
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.POLL_SESSION
-
-    def test_next_candidate_medium_confidence(self):
-        state = ProjectState(
-            lane_id="build-1",
-            next_candidate="write docs",
-        )
-        action = select_prime_project_action(state)
-        assert action.confidence == PrimeActionConfidence.MEDIUM
-
-    def test_active_task_beats_next_candidate(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="urgent fix",
-            next_candidate="write docs",
-        )
-        action = select_prime_project_action(state)
+        action = select_next_action_from_project_state(state)
         assert action.action_type == PrimeActionType.ADVANCE_COGNITION
 
-
-class TestSelectPrimeProjectActionPriority:
-    """Test deterministic priority ordering."""
-
-    def test_blockers_beat_review_gate(self):
-        state = ProjectState(
-            blockers=frozenset(["outage"]),
-            review_gate_blocked=True,
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.ESCALATE_ERROR
-
-    def test_blockers_beat_human_gate(self):
-        state = ProjectState(
-            blockers=frozenset(["outage"]),
-            human_gate_required=True,
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.ESCALATE_ERROR
-
-    def test_review_gate_beats_human_gate(self):
-        state = ProjectState(
-            review_gate_blocked=True,
-            human_gate_required=True,
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
-        assert "Review gate" in action.rationale
-
-    def test_review_gate_beats_active_task(self):
-        state = ProjectState(
-            review_gate_blocked=True,
-            active_task="do work",
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
-
-    def test_human_gate_beats_active_task(self):
-        state = ProjectState(
-            human_gate_required=True,
-            active_task="do work",
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
-
-    def test_empty_queue_beats_blocked_lane(self):
-        state = ProjectState(
-            lane_id="build-1",
-            queue_state="idle",
-        )
-        action = select_prime_project_action(state)
-        assert action.action_type == PrimeActionType.ESCALATE_ERROR
-
-
-class TestSelectPrimeProjectActionDeterminism:
-    """Test that identical inputs produce identical outputs."""
-
-    def test_same_input_same_output(self):
-        state = ProjectState(
-            lane_id="build-1",
-            active_task="task A",
-            risk_tier=PrimeActionRiskTier.MEDIUM,
-            confidence=PrimeActionConfidence.MEDIUM,
-        )
-        a1 = select_prime_project_action(state)
-        a2 = select_prime_project_action(state)
-        assert a1.action_type == a2.action_type
-        assert a1.rationale == a2.rationale
-        assert a1.evidence == a2.evidence
-        assert a1.confidence == a2.confidence
-
-    def test_different_input_different_output(self):
-        s1 = ProjectState(active_task="task A")
-        s2 = ProjectState(blockers=frozenset(["X"]))
-        a1 = select_prime_project_action(s1)
-        a2 = select_prime_project_action(s2)
-        assert a1.action_type != a2.action_type
-
-
-class TestNoRegressionExistingApi:
-    """Prove existing select_prime_next_action and make_prime_next_action still work."""
-
-    def test_select_prime_next_action_unchanged(self):
+    def test_existing_select_prime_next_action_unaffected(self):
+        """Regression: existing select_prime_next_action still returns safe defaults."""
         action = select_prime_next_action()
         assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
         assert action.confidence == PrimeActionConfidence.FALLBACK
 
-    def test_make_prime_next_action_unchanged(self):
+    def test_existing_make_prime_next_action_unaffected(self):
+        """Regression: existing make_prime_next_action still builds correctly."""
         action = make_prime_next_action(
             action_type=PrimeActionType.RUN_WORKFLOW,
-            confidence=PrimeActionConfidence.HIGH,
+            confidence=PrimeActionConfidence.MEDIUM,
         )
         assert action.action_type == PrimeActionType.RUN_WORKFLOW
-        assert action.confidence == PrimeActionConfidence.HIGH
-
-    def test_is_executable_still_respects_human_gate(self):
-        action = PrimeNextAction(
-            action_type=PrimeActionType.ADVANCE_COGNITION,
-            confidence=PrimeActionConfidence.HIGH,
-            risk_tier=PrimeActionRiskTier.HIGH,
-            source=PrimeActionSource.COGNITION_POLICY,
-            human_gate_required=True,
-        )
-        assert action.is_executable() is False
-
-    def test_is_blocked_still_works(self):
-        action = PrimeNextAction(
-            action_type=PrimeActionType.POLL_SESSION,
-            confidence=PrimeActionConfidence.HIGH,
-            risk_tier=PrimeActionRiskTier.SAFE,
-            source=PrimeActionSource.SESSION_STATE,
-            blockers=frozenset(["block"]),
-        )
-        assert action.is_blocked() is True
+        assert action.is_executable() is True
