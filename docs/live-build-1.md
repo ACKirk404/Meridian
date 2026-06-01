@@ -72,7 +72,7 @@ Ready for Codex Review.
 - Next Candidate Task: awaiting Prime/Codex promotion
 - Build 1 idle and polling for next task assignment
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Relay proof payload negative-path tests after the docs/FileMap request clears review.
 
@@ -80,15 +80,18 @@ Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
 
 Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
 
-Required sources: current `AegisGateEvidenceSummary.to_dict()` implementation, `RelayExecutionSummary.aegis_gate_evidence_summary()`, `docs/relay-bifrost-proof-payload-contract.md`, Reviews A clearance for the proof payload contract/FileMap repair in `docs/live-codex-reviews.md`, and current Relay executor tests.
+Task: add focused negative-path tests for the Relay proof payload serialization surface.
 
-Task: add focused negative-path tests for the Relay proof payload serialization surface. Cover missing/empty evidence ids, absent waiver/approval evidence, fallback blockers, no-gate/blocked decision shape, and deterministic immutable output when evidence is incomplete. Add only the minimal Relay executor code needed to satisfy those tests if a gap is found. Do not edit Bifrost, Aegis, Session Lifecycle, FileMap, review queues, UI, process/model/account code, branches, or Polaris.
+Completion:
 
-Tests:
+- Build 1 completed Relay proof payload negative-path tests on 2026-06-12 16:40 UTC.
+- Commit: `26a71632` (feat: Add Relay proof payload negative-path tests for edge cases).
+- Files changed: `tests/test_relay_executor.py`.
+- Tests run: `python -m pytest tests/test_relay_executor.py -q` (151 tests: 145 original + 6 new negative-path tests).
+- Implementation: Added 6 negative-path tests covering: (1) demote decision with no blockers, (2) missing evidence_ids empty tuple, (3) absent waiver defaults false, (4) multiple to_dict() calls identical (determinism), (5) empty explanation with gate decision, (6) no gate decision present, (7) mixed empty/full fields. All tests verify immutability, deterministic output, and edge case handling for incomplete evidence.
+- Push: successful to worktree branch; ready for merge.
 
-- `python -m pytest tests/test_relay_executor.py -q`
-
-Completion: commit only the allowed files from your unique worktree branch, push your worker branch, mark Ready for Codex Review here with commit hash/files/tests, and leave a concrete Next Candidate.
+Ready for Codex Review.
 
 ## Next Candidate Task
 
