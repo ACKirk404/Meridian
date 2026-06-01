@@ -759,3 +759,189 @@ class TestPayloadSnapshot:
         )
         assert len(summary.results) == 1
         assert summary.results[0].payload_snapshot is snapshot
+
+
+class TestPayloadSnapshotEdgeCases:
+    """Edge case tests for payload snapshot metadata in Relay evidence."""
+
+    def test_payload_snapshot_with_none_budget_evidence(self) -> None:
+        """Evidence formatting when snapshot has None budget_tokens."""
+        snapshot_no_budget = PromptPayloadSnapshot(
+            raw_prompt_chars=2000,
+            estimated_tokens=500,
+            budget_tokens=None,
+        )
+        result = RelayExecutionResult(
+            role=ModelRole.BUILDER,
+            preferred_model="gpt-4",
+            output="output",
+            payload_snapshot=snapshot_no_budget,
+        )
+        summary = RelayExecutionSummary(results=(result,), errors=())
+        trail = relay_execution_summary_to_proof_trail(summary)
+
+        payload_evidence = next(
+            e for e in trail.evidence if "payload" in e.id
+        )
+        assert payload_evidence.severity == EvidenceSeverity.INFO
+        assert "0.0%" in payload_evidence.summary
+        assert snapshot_no_budget.status == PayloadStatus.HEALTHY
+
+    def test_payload_snapshot_with_zero_budget_evidence(self) -> None:
+        """Evidence formatting when snapshot has zero budget_tokens."""
+        snapshot_zero_budget = PromptPayloadSnapshot(
+            raw_prompt_chars=0,
+            estimated_tokens=0,
+            budget_tokens=0,
+        )
+        result = RelayExecutionResult(
+            role=ModelRole.BUILDER,
+            preferred_model="test-model",
+            output="output",
+            payload_snapshot=snapshot_zero_budget,
+        )
+        summary = RelayExecutionSummary(results=(result,), errors=())
+        trail = relay_execution_summary_to_proof_trail(summary)
+
+        payload_evidence = next(
+            e for e in trail.evidence if "payload" in e.id
+        )
+        assert payload_evidence.severity == EvidenceSeverity.INFO
+        assert "0.0%" in payload_evidence.summary
+        assert snapshot_zero_budget.status == PayloadStatus.HEALTHY
+
+    def test_payload_snapshot_queue_mode_growth_evidence(self) -> None:
+        """Evidence includes queue-mode growth status in snapshot metadata."""
+        snapshot_queue_growth = PromptPayloadSnapshot(
+            raw_prompt_chars=5000,
+            estimated_tokens=1050,
+            prior_estimated_tokens=1000,
+            queue_mode=True,
+        )
+        result = RelayExecutionResult(
+            role=ModelRole.REVIEWER,
+            preferred_model="reviewer-model",
+            output="review",
+            payload_snapshot=snapshot_queue_growth,
+        )
+        summary = RelayExecutionSummary(results=(result,), errors=())
+        trail = relay_execution_summary_to_proof_trail(summary)
+
+        payload_evidence = next(
+            e for e in trail.evidence if "payload" in e.id
+        )
+        assert payload_evidence.severity == EvidenceSeverity.INFO
+        assert "watch" in payload_evidence.summary.lower()
+        assert snapshot_queue_growth.status == PayloadStatus.WATCH
+
+    def test_payload_snapshot_multiple_lanes_mixed_statuses(self) -> None:
+        """Evidence for multiple lanes with different snapshot statuses."""
+        snapshot_healthy = PromptPayloadSnapshot(
+            raw_prompt_chars=500,
+            estimated_tokens=100,
+            budget_tokens=2000,
+        )
+        snapshot_degraded = PromptPayloadSnapshot(
+            raw_prompt_chars=5000,
+            estimated_tokens=2500,
+            budget_tokens=2000,
+        )
+        result1 = RelayExecutionResult(
+            role=ModelRole.BUILDER,
+            preferred_model="gpt-4",
+            output="output1",
+            payload_snapshot=snapshot_healthy,
+        )
+        result2 = RelayExecutionResult(
+            role=ModelRole.REVIEWER,
+            preferred_model="claude-3-opus",
+            output="output2",
+            payload_snapshot=snapshot_degraded,
+        )
+        summary = RelayExecutionSummary(results=(result1, result2), errors=())
+        trail = relay_execution_summary_to_proof_trail(summary)
+
+        payload_evidence_ids = [e.id for e in trail.evidence if "payload" in e.id]
+        assert len(payload_evidence_ids) == 2
+        assert "relay-payload-0-builder" in payload_evidence_ids
+        assert "relay-payload-1-reviewer" in payload_evidence_ids
+
+        builder_evidence = next(
+            e for e in trail.evidence if e.id == "relay-payload-0-builder"
+        )
+        assert builder_evidence.severity == EvidenceSeverity.INFO
+
+        reviewer_evidence = next(
+            e for e in trail.evidence if e.id == "relay-payload-1-reviewer"
+        )
+        assert reviewer_evidence.severity == EvidenceSeverity.WARNING
+
+    def test_payload_snapshot_partial_snapshots_tuple(self) -> None:
+        """Execute with partial snapshots tuple (fewer than lanes)."""
+        plan = _make_plan(2)
+        snapshot = PromptPayloadSnapshot(
+            raw_prompt_chars=1000,
+            estimated_tokens=300,
+            budget_tokens=4000,
+        )
+        snapshots = (snapshot, None)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            payload_snapshots=snapshots,
+        )
+        assert len(summary.results) == 2
+        assert summary.results[0].payload_snapshot is snapshot
+        assert summary.results[1].payload_snapshot is None
+
+    def test_payload_snapshot_evidence_not_leaked_to_errors(self) -> None:
+        """Lane errors do not include payload snapshot evidence."""
+        def failing_call(payload: str) -> str:
+            raise RuntimeError("model failed")
+
+        snapshot = PromptPayloadSnapshot(
+            raw_prompt_chars=1000,
+            estimated_tokens=300,
+            budget_tokens=4000,
+        )
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            failing_call,
+            payload_snapshots=(snapshot,),
+        )
+        assert len(summary.errors) == 1
+        assert len(summary.results) == 0
+
+        trail = relay_execution_summary_to_proof_trail(summary)
+        error_evidence = next(
+            e for e in trail.evidence if "error" in e.id
+        )
+        assert error_evidence.severity == EvidenceSeverity.ERROR
+        payload_evidence = [e for e in trail.evidence if "payload" in e.id]
+        assert len(payload_evidence) == 0
+
+    def test_snapshot_severity_mapping_completeness(self) -> None:
+        """_snapshot_severity maps all PayloadStatus values correctly."""
+        from meridian_core.relay_executor import _snapshot_severity
+
+        snapshot_healthy = PromptPayloadSnapshot(
+            raw_prompt_chars=500,
+            estimated_tokens=100,
+            budget_tokens=2000,
+        )
+        assert _snapshot_severity(snapshot_healthy) == EvidenceSeverity.INFO
+
+        snapshot_watch = PromptPayloadSnapshot(
+            raw_prompt_chars=5000,
+            estimated_tokens=1600,
+            budget_tokens=2000,
+        )
+        assert _snapshot_severity(snapshot_watch) == EvidenceSeverity.INFO
+
+        snapshot_degraded = PromptPayloadSnapshot(
+            raw_prompt_chars=5000,
+            estimated_tokens=2500,
+            budget_tokens=2000,
+        )
+        assert _snapshot_severity(snapshot_degraded) == EvidenceSeverity.WARNING
