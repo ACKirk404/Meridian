@@ -242,7 +242,7 @@ Completion:
 
 Ready for Codex Review.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: add Bifrost review-gate and proof-state preview fields after session lifecycle preview lands.
 
@@ -254,7 +254,37 @@ Tests:
 
 - `python -m pytest tests/test_bifrost_cockpit.py -q`
 
-Completion: commit only the allowed files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+Completion:
+
+- Build 5 completed this proof state preview surface in `f9b68e6a`.
+- Files changed: `bifrost/cockpit.py`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+- Tests: `python -m pytest tests/test_bifrost_cockpit.py -q` = 127 passed (112 original + 15 new).
+- Verification summary (2026-06-01 18:15):
+  - ProofGateStatus dataclass for individual gate check results (gate_id, gate_name, status, reason)
+  - ProofStateView dataclass container (proof_status, gates list, blocker_count, open_findings, waived_count, notes)
+  - Sample proof state data in sample_cockpit_view_model() with 3 gates: unknown_route_class (pass), missing_model_id (pass), tier3_dual_lane (pass)
+  - _render_proof_state() function at line 836 with CSS state classes (gate-pass, gate-warning, gate-block)
+  - Integration into render_cockpit_html() at line 948 with output at line 972
+  - Full rendering includes proof status, gate items with reason, blocker count, findings summary, and notes
+  - HTML escaping verified via _e() function for all dynamic content (gate names, reasons, notes)
+  - 15 new tests covering: data presence (3 tests), rendering (5 tests), XSS escaping (3 tests), integration (2 tests), edge cases (2 tests)
+- Routed to Codex Reviews B for Bifrost/UI review.
+
+Ready for Codex Review.
+
+## Active Task
+
+Goal: add Bifrost review-gate and proof-state preview styling and layout enhancements.
+
+Allowed files only: `bifrost/static/cockpit.css`, `docs/live-build-5.md`.
+
+Task: after proof state preview structure lands, add CSS styling and layout for the proof state surface to match the visual style of provider balance and prompt payload surfaces. Include gate status indicators, findings summary styling, and responsive layout.
+
+Tests:
+
+- Visual verification in browser: `python -m http.server -d bifrost/static 8000`
+
+Completion: commit only the allowed files, push to `origin/main`, and mark Ready for Codex Review with commit hash, files changed, and visual verification notes.
 
 ## Next Candidate Task
 
