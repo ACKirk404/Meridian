@@ -46,16 +46,5 @@ def test_relay_harness_shows_backend_audit_contract() -> None:
         "independent_dual_model_lanes",
         "prompt_payload_budget",
         "Auto disabled",
-        "routing principles",
-        "heartbeat flow",
-        "provider candidates",
-        "Anthropic direct",
-        "OpenAI direct",
-        "DeepSeek direct",
-        "OpenRouter aggregator",
-        "risk register",
-        "promotion rules",
-        "product implications",
-        "Auto mode remains disabled until runtime metadata and proof exist",
     ):
         assert expected in html

@@ -3446,32 +3446,6 @@ body {
     source: 'meridian_core/relay.py RelayRouteAudit',
     mode: 'Harness',
     owner: 'Relay',
-    principles: [
-      'Prime owns decision intention',
-      'Relay owns model/vendor route selection',
-      'Aegis owns proof and risk gates',
-      'Bifrost displays routing state and does not choose',
-      'existing account/session routes precede paid/direct API routes when safe',
-      'direct provider APIs are preferred for high-trust work when account/session routes cannot satisfy proof/control',
-      'aggregator routes are lower-trust unless separately proven',
-      'DeepSeek direct is a candidate primary route, not automatically trusted',
-      'Auto routing stays disabled until Relay metadata and proof are implemented',
-    ],
-    heartbeatFlow: [
-      ['intent', 'plan, build, review, verify, summarize, research, route, voice, or explain'],
-      ['surface', 'active project, right-panel mode, selected session/harness/settings surface'],
-      ['risk', 'Tier 0-4, human gate, proof required, account/public/destructive sensitivity'],
-      ['context', 'focused packet, reuse session, summarize/reset, large context, or no model'],
-      ['role', 'orchestrator, builder, reviewer, verifier, researcher, release operator, voice, classifier'],
-      ['session', 'reuse, start_new, summarize_and_reset, transfer, or no_session'],
-      ['model class', 'highest reasoning, coding, fast cheap, independent review, voice, fallback'],
-      ['access route', 'account/session, local CLI, direct API, aggregator API'],
-      ['budget', 'quota, API cost posture, context pressure, prompt payload size'],
-      ['trust block', 'unknown trust, expired review, prompt drag, route mismatch, missing metadata'],
-      ['dual lane', 'Tier 3 requires independent dual-model lanes; Tier 2 uses when warranted'],
-      ['Prime answer', 'selected route, reason, risk notes, rejected alternatives, proof requirements'],
-      ['Bifrost answer', 'model/vendor, route class, trust, cost pressure, payload size, warning state'],
-    ],
     routePrecedence: ['account_session', 'local_cli', 'direct_api', 'aggregator_api'],
     outputShape: [
       'route_id',
@@ -3550,42 +3524,6 @@ body {
       'direct provider API when pinned model id, auditability, or Tier 3 proof requires it',
       'aggregator API only for low-risk fallback, comparison, or exploration',
       'aggregator cannot be authoritative for Tier 3 or higher',
-    ],
-    providerCandidates: [
-      ['Anthropic direct', 'claude-opus-4-8 for Tier 3-4 prep, architecture, deep review; claude-sonnet-4-6 workhorse; claude-haiku-4-5 fast triage'],
-      ['OpenAI direct', 'GPT-5.3-Codex for agentic coding; GPT-5.2 / pro for planning; latest Chat for conversation; realtime/audio for Spark voice'],
-      ['DeepSeek direct', 'deepseek-v4-pro and deepseek-v4-flash are candidate direct lanes; external validation required before high-risk authority'],
-      ['DeepSeek aliases', 'deepseek-chat and deepseek-reasoner are compatibility aliases only, not preferred new route choices'],
-      ['OpenRouter aggregator', 'low-risk exploration, fallback, comparison, explicit allowlist and provider preferences required'],
-    ],
-    riskRegister: [
-      'unknown exact model id: query provider registry before enabling route',
-      'aggregator route mismatch: show actual model/provider and cap authority',
-      'cost surprise: expose premium route and Balance pressure',
-      'prompt drag: require payload snapshot and growth delta',
-      'data retention/provider policy: prefer direct or deny-data-collection when available',
-      'missing CLI/API key/login: show setup guidance; do not silently fall back',
-      'context nearly full: summarize and start a role-appropriate session',
-      'cross-project context bleed: block reuse and start project-specific session',
-      'unvalidated DeepSeek route: candidate trust until external validation passes',
-      'voice privacy: visible mic state, permission check, transcript policy',
-    ],
-    promotionRules: [
-      'provider/model id is current and verified from registry',
-      'endpoint route is known as direct or aggregator',
-      'allowed task types are explicit',
-      'risk-tier cap is explicit',
-      'prompt payload telemetry exists',
-      'cost posture is known or marked unknown',
-      'Aegis has a proof policy for the route',
-      'external review passes where required',
-    ],
-    productImplications: [
-      'Relay harness panel shows logic items, not a chat prompt',
-      'Models surface shows model/vendor route options and trust states',
-      'Balance surface shows cost, quota, payload, and trust pressure',
-      'Filter surface controls what context Relay includes',
-      'Auto mode remains disabled until runtime metadata and proof exist',
     ],
     telemetry: [
       'route_class',
@@ -3710,17 +3648,11 @@ body {
             ['contract', relayHarnessLogic.source],
             ['surface', 'right pane replaces prompt UI in Harness mode'],
           ]))}
-          ${sectionHtml('routing principles', listHtml(relayHarnessLogic.principles))}
-          ${sectionHtml('heartbeat flow', kvHtml(relayHarnessLogic.heartbeatFlow))}
           ${sectionHtml('route precedence', listHtml(relayHarnessLogic.routePrecedence))}
           ${sectionHtml('output shape', listHtml(relayHarnessLogic.outputShape))}
           ${sectionHtml('session lifecycle', listHtml(relayHarnessLogic.sessionLifecycle))}
           ${sectionHtml('risk tiers', relayHarnessLogic.tiers.map(tierHtml).join(''))}
           ${sectionHtml('vendor policy', listHtml(relayHarnessLogic.vendorPolicy))}
-          ${sectionHtml('provider candidates', kvHtml(relayHarnessLogic.providerCandidates))}
-          ${sectionHtml('risk register', listHtml(relayHarnessLogic.riskRegister))}
-          ${sectionHtml('promotion rules', listHtml(relayHarnessLogic.promotionRules))}
-          ${sectionHtml('product implications', listHtml(relayHarnessLogic.productImplications))}
           ${sectionHtml('telemetry required', listHtml(relayHarnessLogic.telemetry))}
         </div>
       </div>
