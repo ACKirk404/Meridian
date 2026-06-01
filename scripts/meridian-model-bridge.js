@@ -9,6 +9,12 @@ const DEFAULT_CWD = process.env.MERIDIAN_MODEL_CWD || process.cwd();
 const RECENT_CALLS_LIMIT = Number(process.env.MERIDIAN_MODEL_RECENT_CALLS || 40);
 const SESSION_TRANSCRIPT_LIMIT = Number(process.env.MERIDIAN_SESSION_TRANSCRIPT_LIMIT || 12);
 const SESSION_TRANSCRIPT_CHAR_LIMIT = Number(process.env.MERIDIAN_SESSION_TRANSCRIPT_CHAR_LIMIT || 12000);
+const BRIDGE_VERSION = 'visible-transcript-v1';
+const BRIDGE_CAPABILITIES = {
+  visibleTranscriptContext: true,
+  recentCallContextDiagnostics: true,
+  samePortRestart: true,
+};
 const recentCalls = [];
 
 if (process.argv.includes('--self-test')) {
@@ -36,7 +42,8 @@ if (process.argv.includes('--self-test')) {
     emptyPrompt.prompt === 'Fresh question'
   );
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-  console.log(JSON.stringify({ ok: setupOk && contextOk, samples, setupFlags, contextOk }, null, 2));
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart;
+  console.log(JSON.stringify({ ok: setupOk && contextOk && capabilitiesOk, samples, setupFlags, contextOk, capabilitiesOk }, null, 2));
   process.exit(0);
 }
 
@@ -249,10 +256,9 @@ async function modelStatus() {
   ]);
   return {
     ok: true,
-    capabilities: {
-      visibleTranscriptContext: true,
-      recentCallContextDiagnostics: true,
-    },
+    service: 'meridian-model-bridge',
+    version: BRIDGE_VERSION,
+    capabilities: BRIDGE_CAPABILITIES,
     models: [
       {
         backend: 'codex',
@@ -346,7 +352,12 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && req.url === '/health') {
-    sendJson(res, 200, { ok: true, service: 'meridian-model-bridge' });
+    sendJson(res, 200, {
+      ok: true,
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+    });
     return;
   }
 
