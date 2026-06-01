@@ -759,3 +759,117 @@ class TestPayloadSnapshot:
         )
         assert len(summary.results) == 1
         assert summary.results[0].payload_snapshot is snapshot
+
+
+class TestAdapterMetadata:
+    def test_execution_result_without_metadata(self) -> None:
+        result = RelayExecutionResult(
+            role=ModelRole.BUILDER,
+            preferred_model="gpt-4",
+            output="output text",
+        )
+        assert result.adapter_metadata is None
+
+    def test_execution_result_with_metadata(self) -> None:
+        from meridian_core.model_adapter import ModelHarnessMetadata
+
+        metadata = ModelHarnessMetadata(
+            provider_name="openai",
+            model_name="gpt-4",
+            capability_tier="premium",
+            context_budget=8192,
+            prompt_payload_budget=4096,
+            trust_state="verified",
+            requires_external_review=False,
+        )
+        result = RelayExecutionResult(
+            role=ModelRole.BUILDER,
+            preferred_model="gpt-4",
+            output="output text",
+            adapter_metadata=metadata,
+        )
+        assert result.adapter_metadata is metadata
+        assert result.adapter_metadata.provider_name == "openai"
+        assert result.adapter_metadata.model_name == "gpt-4"
+
+    def test_fake_adapter_provides_default_metadata(self) -> None:
+        adapter = FakeModelAdapter("ok")
+        assert adapter.metadata is not None
+        assert adapter.metadata.provider_name == "fake"
+        assert adapter.metadata.model_name == "fake-model"
+        assert adapter.metadata.capability_tier == "test"
+
+    def test_fake_adapter_with_custom_metadata(self) -> None:
+        from meridian_core.model_adapter import ModelHarnessMetadata
+
+        custom_metadata = ModelHarnessMetadata(
+            provider_name="custom",
+            model_name="custom-model",
+            capability_tier="experimental",
+            context_budget=2048,
+            prompt_payload_budget=1024,
+            trust_state="untested",
+            requires_external_review=True,
+        )
+        adapter = FakeModelAdapter("ok", metadata=custom_metadata)
+        assert adapter.metadata.provider_name == "custom"
+        assert adapter.metadata.requires_external_review is True
+
+    def test_execute_with_registry_includes_metadata_in_results(self) -> None:
+        plan = _make_plan(1)
+        adapter = FakeModelAdapter("response")
+        registry = AdapterRegistry().register_model(plan.lanes[0].preferred_model, adapter)
+        summary = execute_relay_plan_with_registry(plan, registry)
+        assert len(summary.results) == 1
+        assert summary.results[0].adapter_metadata is not None
+        assert summary.results[0].adapter_metadata.provider_name == "fake"
+
+    def test_execute_with_registry_multiple_lanes_includes_metadata_per_lane(self) -> None:
+        plan = _make_plan(2)
+        builder_adapter = FakeModelAdapter("builder-response")
+        reviewer_adapter = FakeModelAdapter("reviewer-response")
+        registry = (
+            AdapterRegistry()
+            .register_model(plan.lanes[0].preferred_model, builder_adapter)
+            .register_model(plan.lanes[1].preferred_model, reviewer_adapter)
+        )
+        summary = execute_relay_plan_with_registry(plan, registry)
+        assert len(summary.results) == 2
+        assert summary.results[0].adapter_metadata is not None
+        assert summary.results[1].adapter_metadata is not None
+
+    def test_metadata_fields_present_in_result(self) -> None:
+        plan = _make_plan(1)
+        adapter = FakeModelAdapter("ok")
+        registry = AdapterRegistry().register_model(plan.lanes[0].preferred_model, adapter)
+        summary = execute_relay_plan_with_registry(plan, registry)
+        metadata = summary.results[0].adapter_metadata
+
+        assert metadata.provider_name is not None
+        assert metadata.model_name is not None
+        assert metadata.capability_tier is not None
+        assert metadata.context_budget is not None
+        assert metadata.prompt_payload_budget is not None
+        assert metadata.trust_state is not None
+        assert isinstance(metadata.requires_external_review, bool)
+
+    def test_execute_dispatch_plan_without_registry_has_no_metadata(self) -> None:
+        plan = _make_plan(1)
+        summary = execute_relay_dispatch_plan(plan, _constant_model_call("ok"))
+        assert len(summary.results) == 1
+        assert summary.results[0].adapter_metadata is None
+
+    def test_adapter_metadata_immutable(self) -> None:
+        from meridian_core.model_adapter import ModelHarnessMetadata
+
+        metadata = ModelHarnessMetadata(
+            provider_name="openai",
+            model_name="gpt-4",
+            capability_tier="premium",
+            context_budget=8192,
+            prompt_payload_budget=4096,
+            trust_state="verified",
+            requires_external_review=False,
+        )
+        with pytest.raises((AttributeError, TypeError)):
+            metadata.provider_name = "anthropic"  # type: ignore[misc]

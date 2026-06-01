@@ -18,7 +18,12 @@ from .aegis import (
     ProofTrail,
 )
 from .cognition_policy import evaluate_cognition_policy
-from .model_adapter import AdapterRegistry, MissingAdapterError, ModelAdapter  # noqa: F401
+from .model_adapter import (
+    AdapterRegistry,
+    MissingAdapterError,
+    ModelAdapter,
+    ModelHarnessMetadata,
+)
 from .prompt_payload_meter import PromptPayloadSnapshot
 from .relay import ModelRole
 from .relay_dispatch import RelayDispatchPlan
@@ -29,12 +34,13 @@ ModelCallFn = ModelAdapter
 
 @dataclass(frozen=True)
 class RelayExecutionResult:
-    """Successful output for one lane with optional payload snapshot metadata."""
+    """Successful output for one lane with optional payload snapshot and adapter metadata."""
 
     role: ModelRole
     preferred_model: str
     output: str
     payload_snapshot: PromptPayloadSnapshot | None = None
+    adapter_metadata: ModelHarnessMetadata | None = None
 
 
 @dataclass(frozen=True)
@@ -210,6 +216,7 @@ def execute_relay_plan_with_registry(
                     preferred_model=lane.preferred_model,
                     output=output,
                     payload_snapshot=snapshot,
+                    adapter_metadata=adapter.metadata,
                 )
             )
         except Exception as exc:  # noqa: BLE001

@@ -17,10 +17,29 @@ from typing import Callable, Mapping, Protocol
 from .relay import ModelRole
 
 
+@dataclass(frozen=True)
+class ModelHarnessMetadata:
+    """Provider-neutral Model Harness metadata for capability and budget tracking."""
+
+    provider_name: str
+    model_name: str
+    capability_tier: str
+    context_budget: int
+    prompt_payload_budget: int
+    trust_state: str
+    requires_external_review: bool
+    deepseek_candidate_state: Mapping[str, str] | None = None
+
+
 class ModelAdapter(Protocol):
     """Callable boundary: receive approved payload text, return model text."""
 
     def __call__(self, payload: str) -> str: ...
+
+    @property
+    def metadata(self) -> ModelHarnessMetadata:
+        """Return Model Harness metadata for this adapter."""
+        ...
 
 
 class ModelAdapterConfigError(RuntimeError):
@@ -49,13 +68,30 @@ class ModelAdapterConfig:
 class FakeModelAdapter:
     """Deterministic test adapter that records payload-only calls."""
 
-    def __init__(self, response: str = "fake model response") -> None:
+    def __init__(
+        self,
+        response: str = "fake model response",
+        metadata: ModelHarnessMetadata | None = None,
+    ) -> None:
         self.response = response
         self.received_payloads: list[str] = []
+        self._metadata = metadata or ModelHarnessMetadata(
+            provider_name="fake",
+            model_name="fake-model",
+            capability_tier="test",
+            context_budget=4096,
+            prompt_payload_budget=2048,
+            trust_state="test",
+            requires_external_review=False,
+        )
 
     def __call__(self, payload: str) -> str:
         self.received_payloads.append(payload)
         return self.response
+
+    @property
+    def metadata(self) -> ModelHarnessMetadata:
+        return self._metadata
 
 
 class MissingAdapterError(RuntimeError):
@@ -115,14 +151,28 @@ class EnvConfiguredModelAdapter:
         transport: Callable[[str, ModelAdapterConfig, str], str],
         *,
         env: Mapping[str, str] | None = None,
+        metadata: ModelHarnessMetadata | None = None,
     ) -> None:
         self.config = config
         self._transport = transport
         self._env = env
+        self._metadata = metadata or ModelHarnessMetadata(
+            provider_name=config.provider,
+            model_name=config.model,
+            capability_tier="standard",
+            context_budget=4096,
+            prompt_payload_budget=2048,
+            trust_state="unknown",
+            requires_external_review=False,
+        )
 
     def __call__(self, payload: str) -> str:
         api_key = self.config.require_api_key(self._env)
         return self._transport(payload, self.config, api_key)
+
+    @property
+    def metadata(self) -> ModelHarnessMetadata:
+        return self._metadata
 
 
 @dataclass(frozen=True)
@@ -196,10 +246,20 @@ class HttpJsonModelAdapter:
         *,
         env: Mapping[str, str] | None = None,
         http_post: Callable[[str, str, str, str, str], str] | None = None,
+        metadata: ModelHarnessMetadata | None = None,
     ) -> None:
         self._config = config
         self._env = env
         self._http_post = http_post if http_post is not None else _stdlib_http_post
+        self._metadata = metadata or ModelHarnessMetadata(
+            provider_name=config.provider,
+            model_name=config.model,
+            capability_tier="standard",
+            context_budget=4096,
+            prompt_payload_budget=2048,
+            trust_state="unknown",
+            requires_external_review=False,
+        )
 
     def __call__(self, payload: str) -> str:
         api_key = self._config.require_api_key(self._env)
@@ -211,3 +271,7 @@ class HttpJsonModelAdapter:
             self._config.model,
             api_key,
         )
+
+    @property
+    def metadata(self) -> ModelHarnessMetadata:
+        return self._metadata
