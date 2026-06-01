@@ -8,9 +8,22 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 2 Session Lifecycle routing-action implementation.
+
+Status: repair routed by Codex Reviews A on 2026-06-01 16:28 -06:00. The proof command passes, but the implementation does not fully satisfy the active queue contract for Relay-selected archive/request-human-gate actions or required reason coverage.
+
+Review result:
+
+- `python -m pytest tests/test_session_lifecycle.py -q` passed with 20 tests.
+- `SessionAction` currently represents `REUSE`, `START_NEW`, `SUMMARIZE_RESET`, `TRANSFER`, and `AVOID`, but not the required Relay-selected `archive` or `request_human_gate` actions.
+- `SessionActionReason.CONTEXT_FILL`, `REVIEW_GATE`, and `PERMISSION_BOUNDARY` are typed but not reachable through `suggest_routing_action()` and are not covered by routing tests.
+- Unique-worktree, assigned-queue, and branch-permission fields remain present in `SessionLifecycleState` / `SessionCommandPlan`; no live process control, model calls, UI calls, branch movement, or Polaris dependency was found in the scoped side-effect scan.
+
+Finding: HIGH incomplete routing action surface, plus MEDIUM missing required reason coverage. Focused repair routed to Build 2 in `docs/live-build-2.md`.
+
+Completion: Build 2 Session Lifecycle routing-action implementation is not review-cleared. Build 2 must repair the action/reason coverage and mark Ready for Codex Review again.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
 
@@ -1134,6 +1147,7 @@ YYYY-MM-DD HH:MM TZ - Reviewed Build <n> commit <hash>; result: pass/finding/blo
 2026-06-01 16:04 -06:00 - Reviewed Build 1 Relay repair commits `c3d91214` and `69e9ff55`; result: finding/repair-routed; tests: `python -m pytest tests/test_relay_executor.py -q` 121 passed against current checkout; notes: both target commits exist locally but are not ancestors of current `HEAD`/`origin/main`, so the Ready marker cannot be accepted and the proof did not exercise their vendor/model blocker or Aegis evidence changes.
 2026-06-01 16:20 -06:00 - Reviewed Build 1 Relay summary serialization landing commit `ff6893c6`; result: pass; tests: `python -m pytest tests/test_relay_executor.py -q` 140 passed; notes: commit is ancestor of current `HEAD`, AegisGateEvidenceSummary and RelayExecutionSummary.aegis_gate_evidence_summary() expose gate decision, severity, evidence ids, waiver presence, explanation, and Aegis-derived blockers without live Aegis/model/vendor/account side effects.
 2026-06-01 16:26 -06:00 - Reviewed Build 1 Relay proof payload serialization landing commit `7079ceb8`; result: pass; tests: `python -m pytest tests/test_relay_executor.py -q` 145 passed; notes: `AegisGateEvidenceSummary.to_dict()` exposes stable gate decision/severity/evidence ids/waiver/explanation/Aegis blocker keys, preserves immutable deterministic values, and scoped side-effect scan found no live Aegis/model/vendor/account/UI/process/branch/Polaris calls.
+2026-06-01 16:28 -06:00 - Reviewed Build 2 Session Lifecycle routing-action implementation; result: finding/repair-routed; tests: `python -m pytest tests/test_session_lifecycle.py -q` 20 passed; notes: required archive/request-human-gate Relay-selected actions are missing from `SessionAction`, and context-fill/review-gate/permission-boundary reasons are typed but not reached or tested.
 ```
 
 ## Proof Log
@@ -1201,6 +1215,7 @@ YYYY-MM-DD HH:MM TZ - Proof for Build <n> commit <hash>; proof type: diff/test/r
 2026-06-01 16:10 -06:00 - Proof for Reviews A idle queue cadence check; proof type: diff/manual; evidence: `git diff --check 12255ddb..HEAD -- docs/live-codex-reviews.md docs/live-build-1.md` and `git diff 12255ddb..HEAD -- docs/live-codex-reviews.md docs/live-build-1.md` show Reviews A repair/provenance entries, idle bookkeeping, and Build 1 queue readiness/provenance notes since the 16:01 cadence checkpoint; Reviews A queue top remains completed/repair-routed with no executable Active Task; result: pass.
 2026-06-01 16:20 -06:00 - Proof for Build 1 Relay summary serialization landing commit `ff6893c6`; proof type: test/diff/reference; evidence: `python -m pytest tests/test_relay_executor.py -q` -> 140 passed; `git merge-base --is-ancestor ff6893c6 HEAD` passed; scoped diff/inspection found frozen `AegisGateEvidenceSummary`, `RelayExecutionSummary.aegis_gate_evidence_summary()`, gate decision/severity/evidence ids/waiver/explanation/blocker coverage, and prior vendor/model/Aegis blocker tests still present; side-effect scan found no live Aegis/model/vendor/account/UI/process/branch/Polaris calls; result: pass.
 2026-06-01 16:26 -06:00 - Proof for Build 1 Relay proof payload serialization landing commit `7079ceb8`; proof type: test/diff/reference; evidence: `python -m pytest tests/test_relay_executor.py -q` -> 145 passed; `git merge-base --is-ancestor 7079ceb8 HEAD` passed; scoped diff/inspection found `AegisGateEvidenceSummary.to_dict()` stable-key serialization and regression tests for empty/data/stable-key/immutable/deterministic output; side-effect scan found no live Aegis/model/vendor/account/UI/process/branch/Polaris calls; result: pass.
+2026-06-01 16:28 -06:00 - Proof for Build 2 Session Lifecycle routing-action implementation; proof type: test/diff/reference; evidence: `python -m pytest tests/test_session_lifecycle.py -q` -> 20 passed; scoped inspection found `SessionAction` lacks archive/request-human-gate actions at `meridian_core/session_lifecycle.py:87`, `suggest_routing_action()` never returns context-fill/review-gate/permission-boundary reasons at `meridian_core/session_lifecycle.py:199`, and routing tests omit those reason cases at `tests/test_session_lifecycle.py:78`; side-effect scan found no live process/model/UI/branch/Polaris calls; result: fail-repair-routed.
 ```
 
 Minimum proof expectations:
@@ -1257,6 +1272,8 @@ YYYY-MM-DD HH:MM TZ - Build <n> commit <hash>; severity: CRITICAL/HIGH/MEDIUM/LO
 2026-06-01 16:10 -06:00 - Reviews A idle queue cadence check; severity: LOW/none; file: docs/live-codex-reviews.md and docs/live-build-1.md; finding: no actionable findings in the recent Reviews A queue/provenance updates since the 16:01 cadence checkpoint; action: clear, no repair task written.
 2026-06-01 16:20 -06:00 - Build 1 commit `ff6893c6`; severity: none; file: meridian_core/relay_executor.py and tests/test_relay_executor.py; finding: no CRITICAL, HIGH, MEDIUM, or LOW findings in the scoped Relay summary serialization review; action: clear, no repair task written.
 2026-06-01 16:26 -06:00 - Build 1 commit `7079ceb8`; severity: none; file: meridian_core/relay_executor.py and tests/test_relay_executor.py; finding: no CRITICAL, HIGH, MEDIUM, or LOW findings in the scoped Relay proof payload serialization review; action: clear, no repair task written.
+2026-06-01 16:28 -06:00 - Build 2 Session Lifecycle routing-action implementation; severity: HIGH; file: meridian_core/session_lifecycle.py:87; finding: `SessionAction` cannot represent required Relay-selected `archive` or `request_human_gate` actions, so Prime cannot model the full action set from the active queue contract; required repair: add/represent these actions and cover serialization/tests; owner: Build 2.
+2026-06-01 16:28 -06:00 - Build 2 Session Lifecycle routing-action implementation; severity: MEDIUM; file: meridian_core/session_lifecycle.py:199 and tests/test_session_lifecycle.py:78; finding: `CONTEXT_FILL`, `REVIEW_GATE`, and `PERMISSION_BOUNDARY` reasons are typed but not reachable through routing logic or covered by routing tests; required repair: make required reasons reachable or explicitly represented and test them; owner: Build 2.
 ```
 
 ## Repair Routing Log
@@ -1280,6 +1297,7 @@ YYYY-MM-DD HH:MM TZ - Routed repair to Build <n>; queue: docs/live-build-<n>.md;
 2026-05-31 22:09 -06:00 - Routed repair to Build 1; queue: docs/live-build-1.md; finding: `PrimeCockpitSnapshot` must normalize or protect mutable `lanes`/`progress_events` inputs so immutable snapshot semantics hold; status: pending.
 2026-06-01 15:55 -06:00 - Routed repair to Build 1; queue: docs/live-build-1.md; finding: missing safe vendor metadata for Tier 2+ must become an explicit blocking fallback blocker, not only `vendor='unknown'`; status: pending.
 2026-06-01 16:04 -06:00 - Routed repair to Build 1; queue: docs/live-build-1.md; finding: Ready-for-review commits `c3d91214` and `69e9ff55` are not visible in current `origin/main`, so Reviews A cannot clear the Relay repair until the approved branch path lands or requeues a current-main target; status: pending.
+2026-06-01 16:28 -06:00 - Routed repair to Build 2; queue: docs/live-build-2.md; finding: Session Lifecycle routing-action implementation lacks required archive/request-human-gate action representation and lacks reachable/tested context-fill, review-gate, and permission-boundary reasons; status: pending.
 ```
 
 ## Coordinator Addendum - Planning Harness Review
@@ -1573,6 +1591,7 @@ Round 6 write log:
 - 2026-06-01 16:10 -06:00 - Codex Reviews A completed idle queue read and three-change Codex review check after origin/main pull. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (queue/provenance-only documentation update); proof commands: `git diff --check 12255ddb..HEAD -- docs/live-codex-reviews.md docs/live-build-1.md`, `git diff 12255ddb..HEAD -- docs/live-codex-reviews.md docs/live-build-1.md`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings; no implementation changed by Reviews A. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or new durable review finding.
 - 2026-06-01 16:20 -06:00 - Codex Reviews A completed Build 1 Relay summary serialization review for commit `ff6893c6`. Files changed: `docs/live-codex-reviews.md`. Tests run: `python -m pytest tests/test_relay_executor.py -q` (140 passed); proof commands: `git merge-base --is-ancestor ff6893c6 HEAD`, scoped Relay summary inspection, side-effect scan with `rg`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings; Build 1 Relay summary serialization passed and Build 2 Session Lifecycle remains next candidate. Commit: this commit. Push status: pushed to `origin/main`; unrelated dirty implementation files left unstaged/out of scope. Obsidian update status: not updated; review queue records pass only.
 - 2026-06-01 16:26 -06:00 - Codex Reviews A completed Build 1 Relay proof payload serialization review for commit `7079ceb8`. Files changed: `docs/live-codex-reviews.md`. Tests run: `python -m pytest tests/test_relay_executor.py -q` (145 passed); proof commands: `git merge-base --is-ancestor 7079ceb8 HEAD`, `git diff 7079ceb8^..7079ceb8 -- meridian_core/relay_executor.py tests/test_relay_executor.py`, side-effect scan with `rg`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings; Build 1 Relay proof payload serialization passed and Build 2 Session Lifecycle remains next candidate. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue records pass only.
+- 2026-06-01 16:28 -06:00 - Codex Reviews A completed Build 2 Session Lifecycle routing-action review. Files changed: `docs/live-codex-reviews.md`; Build 2 queue repair route is present on `origin/main` via `94242a93`. Tests run: `python -m pytest tests/test_session_lifecycle.py -q` (20 passed); proof commands: scoped inspection of `meridian_core/session_lifecycle.py` and `tests/test_session_lifecycle.py`, side-effect scan with `rg`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: HIGH missing archive/request-human-gate action representation and MEDIUM missing reachable/tested context-fill/review-gate/permission-boundary reasons routed to Build 2; no implementation changed by Reviews A. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue and Build 2 queue record repair routing only.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
