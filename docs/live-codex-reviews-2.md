@@ -786,6 +786,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews B checked queue; status: idle/running/blocke
 2026-06-01 08:50 -06:00 - Codex Reviews B checked queue; status: idle; notes: no new Ready for Codex Review markers; Build 3 5e0facb still pending Round B4 verification.
 2026-06-01 09:05 -06:00 - Codex Reviews B checked queue; status: idle; notes: no new Ready for Codex Review markers; Build 3 5e0facb still pending Round B4 verification.
 2026-06-01 09:20 -06:00 - Codex Reviews B Round B4 executed; status: PASS-WITH-MEDIUM-FINDING; commit reviewed: 5e0facb; tests: python -m pytest tests/test_filemap.py -q → 46/46 in 0.09s; finding: 3 docs registered in filemap.py and _REQUIRED_PATHS but absent from docs/FileMap.md (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md); repair task written to Build 3 Active Task; results in Obsidian (2026-06-01 Codex Reviews B Round B4 Result.md); cadence 2/3 since Round B3; awaiting Round B5 trigger.
+2026-05-31 22:13 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.
 
 ## Review Log
 
@@ -1082,6 +1083,7 @@ Write log:
 - 2026-05-30 12:22 -06:00 - Coordinator created Codex Reviews B and queued Round B1 for docs/architecture review scaling.
 - 2026-05-30 23:30 -06:00 - Round B1 completed by Codex Reviews B; result: 3 PASS (with 2 MEDIUM findings consolidated and routed to Build 3, 3 LOW findings recorded/deferred); tests: `python -m pytest tests/test_filemap.py -q` 46/46 (Build 3), docs-only (Build 4 and Build 5); ledger, review log, findings, and repair routing log updated.
 - 2026-05-31 10:20 -06:00 - Round B2 completed by Codex Reviews B; result: PASS-WITH-FINDINGS for Build 3 1378bda (Round B1 MEDIUM repair verified closed; 1 new MEDIUM finding routed for `docs/live-codex-reviews-2.md`; 2 LOW carryovers re-noted); tests: `python -m pytest tests/test_filemap.py -q` 46/46 in 0.12s; ledger, review log, proof log, findings, and repair routing log updated.
+- 2026-05-31 22:13 -06:00 - Read-check-only update by Codex Reviews B; files changed: `docs/live-codex-reviews-2.md`; tests run: not run (queue read-check only); commit: pending; push status: pending; Obsidian update status: not updated (no architecture finding or clearance).
 
 ## Coordinator Addendum - Round B5 V1 Cockpit Clearance
 
