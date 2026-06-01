@@ -409,6 +409,7 @@ YYYY-MM-DD HH:MM TZ - Build 5 completed <task>; commit <hash>; tests <result>
 2026-05-31 18:45 -06:00 - Build 5 completed openable V1 Electron cockpit app shell at bifrost/preview.py, electron/main.js, package.json, tests/test_bifrost_preview.py, docs/v0-v1-progress-tracker.md; commit 6b3e652; tests: 107 passed (tests/test_bifrost_preview.py + tests/test_bifrost_cockpit.py), 1095 passed full suite
 2026-05-31 13:54 -06:00 - Build 5 completed Codex repair for Bifrost V2 queue/path contradictions; commit 4558cf1; files changed: docs/live-build-5.md; files verified: docs/v2-detailed-build-plan.md; tests: not run (docs-only); push status: pushed to origin/main; Obsidian update: completed (`Meridian_Build/2026-05-31 Build 5 Bifrost V2 Queue Path Repair.md`)
 2026-05-31 22:08 -06:00 - Build 5 completed Bifrost V2 browser-first HUD shell implementation; all 80 tests pass; Prime command bay dominant, quiet PRIMED core, voice I/O visible, project-first rail, harness on-demand consoles, mission feed, bottom instrumentation; commit pending; tests: 80 passed (tests/test_bifrost_cockpit.py), 1095 passed full suite
+2026-06-01 09:15 -06:00 - Build 5 completed Bifrost provider balance and prompt payload visibility surface; commit 06e1c5c; files changed: bifrost/cockpit.py, tests/test_bifrost_cockpit.py, docs/live-build-5.md; tests: 93 passed (tests/test_bifrost_cockpit.py); push status: already on origin/main; Obsidian update: pending
 ```
 
 ## Ready for Codex Review
