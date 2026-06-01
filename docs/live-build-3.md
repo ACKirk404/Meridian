@@ -86,11 +86,13 @@ Ready for Codex Review.
 
 ## Active Task
 
-Goal: await Build 5/Bifrost or Build 2/Session Lifecycle follow-up runtime slices and register any new discoverable files.
+Goal: register current Aegis runtime gate artifacts and Bifrost right-panel contract artifacts in FileMap.
 
 Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 
-Task: monitor current Session Lifecycle and Bifrost harness runtime state. When Build 2 or Build 5 lands new runtime slices or documentation files, inspect and register any that are not already discoverable in FileMap. Do not create files; only register completed artifacts after they exist on origin/main.
+Required sources: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/relay-aegis-risk-proof-gates.md`, `docs/bifrost-right-panel-mode-contract.md`, and current FileMap entries.
+
+Task: verify the Aegis runtime gate implementation/tests and the Bifrost right-panel mode contract are discoverable through runtime FileMap and mirrored in `docs/FileMap.md`. Add missing entries and required-path coverage only for files that exist. Keep this mechanical. Do not edit Aegis, Bifrost runtime, Relay, Session Lifecycle, or review queues.
 
 Tests: `python -m pytest tests/test_filemap.py -q`
 
@@ -98,7 +100,7 @@ Completion: commit only allowed files, push to `origin/main`, mark Ready for Cod
 
 ## Next Candidate Task
 
-Goal: audit FileMap coverage for any new domain model or Beacon harness files that land from Build 4.
+Goal: register Build 5 static/sample right-panel rendering artifacts after that runtime slice lands.
 
 Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
 

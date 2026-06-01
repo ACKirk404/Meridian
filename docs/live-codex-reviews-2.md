@@ -8,6 +8,41 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Completed / Finding Routed
 
+Goal: review Build 4 Aegis runtime gate implementation and Build 3 FileMap registrations.
+
+Status: blocked by Codex Reviews B on 2026-06-01 15:53 -06:00. The nine Aegis route-gate validators are pure/deterministic and the focused test suite passes, but the runtime slice still permits bare booleans for waiver/cost approval and lacks selected model/vendor evidence validation for Tier 2 aggregator routes after the contract repair. Focused repair routed to Build 4. Build 3 FileMap registrations passed.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Allowed review files: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/relay-aegis-risk-proof-gates.md`, `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, `docs/live-build-4.md`, and `docs/live-codex-reviews-2.md` for provenance/routing only.
+
+Task: review the Build 4 Aegis gate runtime slice for deterministic pure validation of the nine route-gate categories and confirm tests cover allow/demote/block behavior. Also review Build 3's FileMap registrations for Relay executor, Aegis gate contract, and any newly registered Bifrost docs. Do not edit runtime code. If findings exist, route focused repairs to Build 4 or Build 3; otherwise mark passed and promote the Build 5 Bifrost contract/render review candidate.
+
+Proof commands:
+
+- `python -m pytest tests/test_aegis.py tests/test_filemap.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+Review result:
+
+- `python -m pytest tests/test_aegis.py tests/test_filemap.py -q` passed with 212 tests.
+- Aegis route-gate implementation is pure and deterministic at helper level: `GateDecision`, `GateResult`, and nine gate functions cover unknown route class, exact model id, Tier 3 dual-lane, proof requirement, unsafe fallback, DeepSeek validation, aggregator authority, account/session risk, and cost exposure.
+- Finding 1: `meridian_core/aegis.py` `gate_tier3_dual_lane_requirement()` accepts `has_waiver: bool`, and `tests/test_aegis.py` proves `has_waiver=True` demotes Tier 3 single-lane work. `docs/relay-aegis-risk-proof-gates.md` now says bare waiver booleans are not acceptable and waivers require actor, scope, timestamp, reason, and expiration/evidence. Why it matters: a runtime gate could waive Tier 3 independence without an audit record. Recommended owning lane: Build 4.
+- Finding 2: `meridian_core/aegis.py` `gate_cost_exposure()` accepts `cost_justified: bool`, and `tests/test_aegis.py` proves premium Tier 2 cost can allow from that boolean. The repaired contract requires approval evidence, not a bare cost boolean. Why it matters: premium-cost or Tier 4 approval could bypass user-consent traceability. Recommended owning lane: Build 4.
+- Finding 3: `meridian_core/aegis.py` `gate_aggregator_authority()` does not accept or validate selected model/vendor evidence, while `docs/relay-aegis-risk-proof-gates.md` requires Tier 2 aggregator routes to include explicit proof metadata and known `selected_model` before dispatch. Why it matters: Relay could allow an aggregator route without proving what provider/model Bifrost should show. Recommended owning lane: Build 4.
+- Build 3 FileMap registrations passed: Relay executor, Aegis gate contract, and Bifrost right-panel mode contract are present in `docs/FileMap.md`, `meridian_core/filemap.py`, and `_REQUIRED_PATHS`.
+
+Completion: focused repair routed into `docs/live-build-4.md`; no Build 3 repair routed. Next candidate remains Build 5 Bifrost right-panel mode rendering after it is marked Ready for Codex Review.
+
+## Next Candidate Task
+
+Goal: review Build 5 Bifrost right-panel mode rendering after it is marked Ready for Codex Review.
+
+Allowed review files: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/bifrost-right-panel-mode-contract.md`, `docs/live-build-5.md`, and `docs/live-codex-reviews-2.md` for provenance/routing only.
+
+## Completed / Finding Routed
+
 Goal: review Build 4 Relay-Aegis risk/proof gate contract and Build 3 FileMap follow-up readiness.
 
 Status: blocked by Codex Reviews B on 2026-06-01 15:35 -06:00. The contract covers the required safety dimensions, but three wording/record-shape contradictions would make the runtime-test slice ambiguous. Focused docs-only repair routed to Build 4. Build 3 FileMap follow-up readiness passed.
@@ -1056,6 +1091,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews B checked queue; status: idle/running/blocke
 2026-06-01 15:47 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; top queue remains completed Build 4 finding routed plus non-executable Build 3 next candidate only.
 2026-06-01 15:49 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; top queue remains completed Build 4 finding routed plus non-executable Build 3 next candidate only.
 2026-06-01 15:52 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; top queue remains completed Build 4 finding routed plus non-executable Build 3 next candidate only.
+2026-06-01 15:53 -06:00 - Codex Reviews B checked queue; status: running; notes: pulled latest origin/main first; executable Coordinator Override Active Now found for Build 4 Aegis runtime gate implementation and Build 3 FileMap registration review.
 2026-06-01 09:20 -06:00 - Codex Reviews B Round B4 executed; status: PASS-WITH-MEDIUM-FINDING; commit reviewed: 5e0facb; tests: python -m pytest tests/test_filemap.py -q → 46/46 in 0.09s; finding: 3 docs registered in filemap.py and _REQUIRED_PATHS but absent from docs/FileMap.md (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md); repair task written to Build 3 Active Task; results in Obsidian (2026-06-01 Codex Reviews B Round B4 Result.md); cadence 2/3 since Round B3; awaiting Round B5 trigger.
 2026-05-31 22:13 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.
 2026-05-31 22:16 -06:00 - Codex Reviews B checked queue; status: idle; notes: pulled latest origin/main first; no executable Active Task in docs/live-codex-reviews-2.md; archived/stale Active Task sections were not executed; no review scope opened.

@@ -30,13 +30,27 @@ Completion:
 
 Ready for Codex Review.
 
-## No Active Task
+## Coordinator Override - Active Now
 
-No new executable task assigned. Awaiting orchestrator assignment or next candidate promotion.
+Goal: implement static/sample Bifrost rendering for the reviewed right-panel mode contract.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-5-bifrost`.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Required sources: `docs/bifrost-right-panel-mode-contract.md`, `docs/ui-integration-checklist.md`, and existing Bifrost cockpit render patterns.
+
+Task: add deterministic static/sample rendering for the three mutually exclusive right-panel modes. User Session mode keeps prompt/response and live-session selector affordances. Settings mode uses the full right panel for Meridian configuration items and no prompt/response window. Harness mode uses the full right panel for searchable harness logic items and no prompt/response window. Add tests that prove the prompt window is absent in Settings/Harness modes and present only in User Session mode. Do not edit `index.html`, call models, touch Polaris, or add live session process control.
+
+Tests:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
 
 ## Next Candidate Task
 
-Goal: implement static/sample Bifrost rendering for the reviewed right-panel mode contract.
+Goal: add interactive-state view-model tests for right-panel mode switching after the static/sample render clears review.
 
 Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
 

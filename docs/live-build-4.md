@@ -8,6 +8,30 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: add waiver and approval record validation to the Aegis route-gate runtime slice.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
+
+Required sources: `docs/relay-aegis-risk-proof-gates.md`, especially the waiver/approval record repair, and current Aegis gate tests.
+
+Task: extend the pure Aegis gate validators so any gate that accepts a waiver, human acknowledgment, premium-cost approval, or Tier 4 approval requires structured evidence: actor, scope, timestamp, reason, and either expiration or evidence reference when applicable. A bare boolean must not satisfy the gate. Also require the aggregator authority gate to validate that Tier 2 aggregator routes include explicit proof metadata plus selected model/vendor evidence before allowing dispatch. Do not call models, inspect accounts, edit Relay, edit Bifrost, move branches, or touch Polaris.
+
+Tests:
+
+- `python -m pytest tests/test_aegis.py -q`
+
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review, and leave a concrete Next Candidate.
+
+## Next Candidate Task
+
+Goal: add Aegis gate summary helpers for Relay/Bifrost display after waiver/approval validation clears review.
+
+Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair Relay-Aegis risk/proof gate contract contradictions found by Codex Reviews B.
