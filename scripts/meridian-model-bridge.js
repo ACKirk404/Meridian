@@ -12,7 +12,12 @@ if (process.argv.includes('--self-test')) {
     classifySetupError('codex', 'codex is not recognized as an internal or external command'),
     classifySetupError('max', 'not authenticated, please login'),
   ];
-  console.log(JSON.stringify({ ok: samples.every(Boolean), samples }, null, 2));
+  const setupFlags = [
+    needsSetup('codex', 'codex is not recognized as an internal or external command'),
+    needsSetup('max', 'not authenticated, please login'),
+    needsSetup('codex', 'Process exited with code 1'),
+  ];
+  console.log(JSON.stringify({ ok: samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2], samples, setupFlags }, null, 2));
   process.exit(0);
 }
 
@@ -121,6 +126,22 @@ function classifySetupError(backend, errorText) {
   return text || `${name} CLI failed before returning a response. ${installHint(backend)}`;
 }
 
+function needsSetup(backend, errorText) {
+  const text = String(errorText || '').toLowerCase();
+  return (
+    text.includes('not recognized') ||
+    text.includes('command not found') ||
+    text.includes('enoent') ||
+    text.includes('could not be found') ||
+    text.includes('login') ||
+    text.includes('not authenticated') ||
+    text.includes('unauthorized') ||
+    text.includes('authentication') ||
+    text.includes('api key') ||
+    text.includes('sign in')
+  );
+}
+
 function spawnModelProcess(command, cwd) {
   return spawn(command.bin, command.args, {
     cwd: cwd || DEFAULT_CWD,
@@ -206,12 +227,13 @@ function runModel({ backend, prompt, cwd }) {
     }, Number(process.env.MERIDIAN_MODEL_TIMEOUT_MS || 60000));
 
     child.on('close', (code) => {
+      const rawError = stderr.trim() || `Process exited with code ${code}`;
       finish({
         ok: code === 0,
         text: normalizeModelText(backend, stdout),
-        error: code === 0 ? null : classifySetupError(backend, stderr.trim() || `Process exited with code ${code}`),
+        error: code === 0 ? null : classifySetupError(backend, rawError),
         model: command.model,
-        setupRequired: code === 0 ? false : true,
+        setupRequired: code === 0 ? false : needsSetup(backend, rawError),
       });
     });
   });

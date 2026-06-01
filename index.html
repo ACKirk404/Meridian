@@ -3162,6 +3162,7 @@ body {
     const status = statusFor(input);
     if (status) status.textContent = text || '';
   };
+  const readinessForBackend = (backend) => modelReadiness.find((item) => item.backend === backend);
   const updateModelReadiness = async () => {
     if (!modelSelect) return;
     try {
@@ -3187,6 +3188,13 @@ body {
     if (!prompt) return;
     const selectedBackend = modelSelect?.value || 'codex';
     const backend = selectedBackend === 'auto' ? 'codex' : selectedBackend;
+    if (!modelReadiness.length) await updateModelReadiness();
+    const selectedReadiness = readinessForBackend(backend);
+    if (selectedReadiness && !selectedReadiness.installed) {
+      setStatus(input, `${selectedReadiness.cli} setup required`);
+      pushEntry(input, 'setup', `Error: ${selectedReadiness.setupHint || 'Install and sign in to the selected model CLI.'}`, selectedReadiness.label || backend);
+      return;
+    }
     input.dataset.sessionSending = 'true';
     pushEntry(input, 'user', prompt);
     input.value = '';
