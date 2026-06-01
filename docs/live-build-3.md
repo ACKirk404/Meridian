@@ -12,7 +12,7 @@ Only the first `Active Task` block in this file is executable. Lower archived/st
 
 Build 3 cadence for commit `67a75dc` plus marker `b3316b6` was cleared by Codex Reviews B on 2026-05-31 15:52 -06:00. FileMap tests passed (46 tests), and no repair was routed.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: register the Session Lifecycle checklist and runtime module in FileMap.
 
@@ -24,7 +24,13 @@ Tests:
 
 - `python -m pytest tests/test_filemap.py -q`
 
-Completion: commit only the allowed FileMap repair files, push to `origin/main`, update Obsidian, and mark Ready for Codex Review with commit hash, files changed, tests run, and Obsidian status.
+Completion:
+
+- Build 3 completed Session Lifecycle FileMap registration through commits 80ebea4 (register), ba83a4c (repair), 1635f80 (re-register after Codex review correction).
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`.
+- Tests: `python -m pytest tests/test_filemap.py -q` — 46 passed.
+- V2 audit completed in commit 92ff6f4; all V2 artifacts now discoverable.
+- Ready for Codex Review.
 
 ## Next Candidate Task
 
@@ -559,6 +565,23 @@ YYYY-MM-DD HH:MM TZ - Build 3 checked queue; status: idle/running/blocked
 2026-06-11 06:20 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
 2026-06-11 06:25 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
 2026-06-11 06:30 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 06:35 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 06:40 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 06:45 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; Active Task section archived to Completed/Ready For Codex Review; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 06:50 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 06:55 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:00 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:05 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:10 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:15 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:20 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:25 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:30 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:35 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:40 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:45 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:50 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
+2026-06-11 07:55 UTC - Build 3 checked queue; status: idle; no new Active Task assigned; cadence 1/3 since Round B5; ready for next FileMap assignment
 ```
 
 ## Write/Completion Log
@@ -587,11 +610,11 @@ YYYY-MM-DD HH:MM TZ - Build 3 completed <task>; commit <hash>; tests <result>
 2026-05-31 00:35 -06:00 - Build 3 completed FileMap refresh (4 uncatalogued docs: v0-build-readiness-map, prime-orchestration-state-model, bifrost-v0-cockpit-layout-brief, bifrost-harness-dashboard-brief); commit 1378bda; tests 46/46 filemap, 785 full suite; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py
 2026-05-31 00:48 -06:00 - Build 3 completed Round B4 FileMap repair (prime-status-console-cli-brief.md, non-orchestrator-surface-naming.md, bifrost-configurable-progress-surface-brief.md — 3 missing rows added to docs/FileMap.md only); commit c388f47; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md. Cadence: 2/3 since Round B3.
 2026-05-31 00:57 -06:00 - Build 3 completed FileMap registration (8 entries: bifrost/__init__.py, bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py, tests/test_cockpit_state.py, meridian_core/cockpit_state.py, docs/v1-bifrost-live-data-contract.md, docs/v1-bifrost-integration-sequence.md); commits ca6f55f + e89df81 (via concurrent lane merge); tests 95/95 (46 filemap + 49 bifrost_cockpit); Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py. Cadence: 3/3 since Round B3 — Codex review required before next task.
+2026-05-31 02:18 -06:00 - Coordinator review repair: `tests/test_cockpit_provider.py` was listed in `_REQUIRED_PATHS` and docs/FileMap.md but missing from make_default_map(); added the missing FileMapEntry; tests 69 passed (tests/test_filemap.py + tests/test_cockpit_provider.py); Ready for Codex Review after commit
+2026-05-31 04:24 -06:00 - Coordinator assigned FileMap registration for `docs/v2-detailed-build-plan.md`; commit 123a1fe; tests pending (`python -m pytest tests/test_filemap.py -q`)
 2026-05-31 11:20 -06:00 - Build 3 FileMap repair (Round B2 — live-codex-reviews-2.md + A-lane label + prose-divergence fixes) intercepted: work already present in commit 45497b1 (Build 1 cross-lane repair); local edits verified identical to HEAD; tests 46/46 filemap; no new commit required; task closed
 2026-05-31 16:05 -06:00 - Build 3 completed FileMap hygiene (register v0-v1-progress-tracker.md; fix stale relay_executor claims in v0-build-readiness-map.md); commit 774695f; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py, docs/v0-v1-progress-tracker.md, docs/v0-build-readiness-map.md
 2026-05-31 21:05 -06:00 - Build 3 completed FileMap refresh (v1-capability-plan, v1-bifrost-cockpit-implementation-brief, v2-horizon-plan, v3-parking-lot); commit 330f200; tests 46/46 filemap; Obsidian updated; Ready for Codex Review — files: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py
-2026-05-31 02:18 -06:00 - Coordinator review repair: `tests/test_cockpit_provider.py` was listed in `_REQUIRED_PATHS` and docs/FileMap.md but missing from make_default_map(); added the missing FileMapEntry; tests 69 passed (tests/test_filemap.py + tests/test_cockpit_provider.py); Ready for Codex Review after commit
-2026-05-31 04:24 -06:00 - Coordinator assigned FileMap registration for `docs/v2-detailed-build-plan.md`; commit 123a1fe; tests pending (`python -m pytest tests/test_filemap.py -q`)
 2026-06-09 17:00 UTC - Build 3 completed FileMap registration (V2 contract docs: echo-memory-contract.md, atlas-retrieval-contract.md, workflow-subagent-harness-contract.md, agentic-ai-framework-checklist.md, v3-parking-lot refresh); commit d216d6a; files changed: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py; tests 46/46 filemap passing; Obsidian update pending; Ready for Codex Review; cadence 2/3 since Round B5
 2026-06-10 06:45 UTC - Build 3 completed Coordinator Override task (V1 Electron cockpit app shell + Prime queue reconciliation registration); commit 67a75dc; files changed: docs/FileMap.md, meridian_core/filemap.py, tests/test_filemap.py; tests 46/46 filemap passing; entries added: package.json, electron/main.js, bifrost/preview.py, tests/test_bifrost_preview.py, docs/prime-queue-reconciliation-requirement.md; Ready for Codex Review; cadence 3/3 since Round B5
 2026-06-11 00:45 UTC - Build 3 completed V2 FileMap audit; found and registered missing artifact: docs/model-harness-v2-contract.md; files changed: meridian_core/filemap.py, tests/test_filemap.py, docs/FileMap.md; commit 23efaf7; tests 46/46 filemap passing; Ready for Codex Review; cadence 1/3 since Round B5
