@@ -24,6 +24,11 @@ Completion:
 
 Ready for Codex Review.
 
+**Build 1 Read Check** — 2026-06-01 04:35 -05:00
+- Status: Relay metadata binding task completed and marked Ready for Codex Review
+- No executable Active Now task; Next Candidate Task awaiting promotion
+- Build 1 idle and polling for next task assignment
+
 ## Next Candidate Task
 
 Goal: harden Relay prompt payload snapshot metadata edge cases after the metadata-binding slice lands.
