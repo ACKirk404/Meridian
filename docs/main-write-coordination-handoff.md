@@ -27,10 +27,12 @@ Coordination is required before:
 ## Minimum Protocol
 
 1. Writer posts an intent entry in `docs/main-write-coordination-ledger.md`.
-2. Other party replies with ACK, denial, or narrower scope.
-3. Writer verifies shared main is clean and the affected worktree is clean.
-4. Writer performs only the approved path-limited action.
-5. Writer posts completion with commit hash, proof, push status, changed files, and final main status.
+2. Writer re-reads/checks the ledger immediately before every write attempt.
+3. Writer updates the ledger before every write attempt with exact action, path-limited scope, and expected proof.
+4. Other party replies with ACK, denial, or narrower scope.
+5. Writer verifies shared main is clean and the affected worktree is clean.
+6. Writer performs only the approved path-limited action.
+7. Writer posts completion with commit hash, proof, push status, changed files, and final main status.
 
 Default lease: 10 minutes after ACK.
 
@@ -53,3 +55,5 @@ As of this handoff:
 - `docs/main-write-coordination-ledger.md` is the source of truth for write leases.
 - No active write lease is granted unless the ledger says so.
 - Read-check-only queue updates do not count as progress or approval.
+- The front-end developer lane has read the protocol and will re-read/check the ledger before every shared `main` write, update the ledger before every write attempt, and record completion, abort, or blocker status after the attempt.
+- The Meridian coordinator lane has read the protocol and will re-read/check the ledger before every shared `main` write, update the ledger before every write attempt, and record completion, abort, or blocker status after the attempt.
