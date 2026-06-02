@@ -114,6 +114,117 @@ class SessionActionReason(Enum):
     DUAL_LANE_NEEDED = "dual_lane_needed"
 
 
+class PermissionState(Enum):
+    """Branch/worktree permission lock state."""
+
+    LOCKED_BY_DEFAULT = "locked_by_default"
+    UNLOCKED_TEMPORARY = "unlocked_temporary"
+    UNLOCKED_PERMANENT = "unlocked_permanent"
+
+
+class OperationScope(Enum):
+    """Types of operations requiring permission control."""
+
+    BRANCH_MOVE = "branch_move"
+    WORKTREE_CREATE = "worktree_create"
+    ARCHIVE = "archive"
+    RESTART = "restart"
+    RESTEER = "resteer"
+    RECOVER_FROM_LIMIT = "recover_from_limit"
+
+
+class FindingType(Enum):
+    """Types of Beacon staleness/blocker findings."""
+
+    RESTART = "restart"
+    RESTEER = "resteer"
+
+
+@dataclass(frozen=True)
+class PermissionContext:
+    """Approval scope and escalation state for session operations."""
+
+    approved_by: str
+    approval_scope: frozenset[OperationScope]
+    escalation_gate: bool
+    escalation_reason: Optional[str]
+    branch_permission_state: PermissionState
+    last_permission_change: datetime
+
+    def is_operation_approved(self, operation: OperationScope) -> bool:
+        """True if operation is in approval scope."""
+        return operation in self.approval_scope
+
+    def is_permission_locked(self) -> bool:
+        """True if branch is currently locked."""
+        return self.branch_permission_state == PermissionState.LOCKED_BY_DEFAULT
+
+    def requires_approval_for_operation(self, operation: OperationScope) -> bool:
+        """True if operation requires explicit approval."""
+        return self.is_permission_locked() and not self.is_operation_approved(operation)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to JSON-safe dict."""
+        return {
+            "approved_by": self.approved_by,
+            "approval_scope": [op.value for op in self.approval_scope],
+            "escalation_gate": self.escalation_gate,
+            "escalation_reason": self.escalation_reason,
+            "branch_permission_state": self.branch_permission_state.value,
+            "last_permission_change": self.last_permission_change.isoformat(),
+        }
+
+
+@dataclass(frozen=True)
+class RestartResteerFinding:
+    """Advisory finding for stale or blocked sessions."""
+
+    session_id: str
+    finding_type: FindingType
+    reason: str
+    evidence_stale_seconds: int
+    evidence_last_queue_read_at: datetime
+    evidence_blocker_summary: Optional[str]
+    recommended_action: str
+    timestamp: datetime
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to JSON-safe dict."""
+        return {
+            "session_id": self.session_id,
+            "finding_type": self.finding_type.value,
+            "reason": self.reason,
+            "evidence_stale_seconds": self.evidence_stale_seconds,
+            "evidence_last_queue_read_at": self.evidence_last_queue_read_at.isoformat(),
+            "evidence_blocker_summary": self.evidence_blocker_summary,
+            "recommended_action": self.recommended_action,
+            "timestamp": self.timestamp.isoformat(),
+        }
+
+
+@dataclass(frozen=True)
+class PrimeAutonomyInput:
+    """What Prime receives when selecting next action."""
+
+    current_sessions: list["SessionLifecycleState"]
+    queues_by_harness: dict[str, list[str]]
+    approvals_pending: list[tuple[str, str]]
+    restart_resteer_findings: list[RestartResteerFinding]
+    recent_completions: list[str]
+    timestamp: datetime
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to JSON-safe dict."""
+        return {
+            "current_sessions": [s.to_dict() for s in self.current_sessions],
+            "queues_by_harness": self.queues_by_harness,
+            "approvals_pending": self.approvals_pending,
+            "restart_resteer_findings": [f.to_dict() for f in self.restart_resteer_findings],
+            "recent_completions": self.recent_completions,
+            "timestamp": self.timestamp.isoformat(),
+        }
+
+
 @dataclass(frozen=True)
 class SessionLifecycleState:
     """Authoritative snapshot of a session.
@@ -160,7 +271,7 @@ class SessionLifecycleState:
     blocker_summary: Optional[str]
 
     # Permissions
-    permission_context: dict[str, Any]
+    permission_context: PermissionContext
 
     # Relay Routing Decisions
     routing_action: Optional[SessionAction] = None
@@ -245,6 +356,21 @@ class SessionLifecycleState:
             return (SessionAction.REUSE, SessionActionReason.CONTEXT_HEALTHY)
         return (SessionAction.START_NEW, SessionActionReason.CONTEXT_POLLUTION)
 
+    def is_permission_locked(self) -> bool:
+        """True if branch is currently locked."""
+        return self.permission_context.is_permission_locked()
+
+    def requires_approval_for_operation(self, operation: OperationScope) -> bool:
+        """True if operation requires explicit approval."""
+        return self.permission_context.requires_approval_for_operation(operation)
+
+    def can_execute_operation(self, operation: OperationScope) -> bool:
+        """True if operation can execute without escalation."""
+        return (
+            self.permission_context.is_operation_approved(operation)
+            and not self.permission_context.escalation_gate
+        )
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize to JSON-safe dict for Bifrost."""
         return {
@@ -268,7 +394,7 @@ class SessionLifecycleState:
             "proof_state": self.proof_state.value,
             "health_state": self.health_state.value,
             "blocker_summary": self.blocker_summary,
-            "permission_context": self.permission_context,
+            "permission_context": self.permission_context.to_dict(),
             "routing_action": self.routing_action.value if self.routing_action else None,
             "routing_reason": self.routing_reason.value if self.routing_reason else None,
         }

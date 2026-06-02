@@ -12,6 +12,12 @@ from meridian_core.session_lifecycle import (
     HealthState,
     SessionAction,
     SessionActionReason,
+    PermissionState,
+    OperationScope,
+    FindingType,
+    PermissionContext,
+    RestartResteerFinding,
+    PrimeAutonomyInput,
     SessionLifecycleState,
     SessionCommandPlan,
 )
@@ -24,6 +30,14 @@ class TestSessionLifecycleState:
     def healthy_state(self):
         """Create a healthy session state."""
         now = datetime.now(timezone.utc)
+        permission_context = PermissionContext(
+            approved_by="scott",
+            approval_scope=frozenset([OperationScope.BRANCH_MOVE]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            last_permission_change=now,
+        )
         return SessionLifecycleState(
             session_id="session-1",
             session_name="Build 2",
@@ -45,7 +59,7 @@ class TestSessionLifecycleState:
             proof_state=ProofState.QUEUE_READ,
             health_state=HealthState.HEALTHY,
             blocker_summary=None,
-            permission_context={"user": "scott"},
+            permission_context=permission_context,
         )
 
     def test_immutability(self, healthy_state):
@@ -357,3 +371,260 @@ class TestSessionCommandPlan:
             }
         )
         assert archive_for_fill.command_intent == CommandIntent.ARCHIVE
+
+
+class TestPermissionContext:
+    """Tests for PermissionContext dataclass."""
+
+    @pytest.fixture
+    def locked_context(self):
+        """Create a locked permission context."""
+        now = datetime.now(timezone.utc)
+        return PermissionContext(
+            approved_by="scott",
+            approval_scope=frozenset(),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.LOCKED_BY_DEFAULT,
+            last_permission_change=now,
+        )
+
+    @pytest.fixture
+    def unlocked_context(self):
+        """Create an unlocked permission context."""
+        now = datetime.now(timezone.utc)
+        return PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.BRANCH_MOVE, OperationScope.RESTART]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            last_permission_change=now,
+        )
+
+    def test_permission_context_immutability(self, locked_context):
+        """Verify permission context is frozen."""
+        with pytest.raises((AttributeError, TypeError)):
+            locked_context.approval_scope = frozenset([OperationScope.BRANCH_MOVE])
+
+    def test_is_operation_approved_true(self, unlocked_context):
+        """Test is_operation_approved when operation is in scope."""
+        assert unlocked_context.is_operation_approved(OperationScope.BRANCH_MOVE)
+
+    def test_is_operation_approved_false(self, unlocked_context):
+        """Test is_operation_approved when operation is not in scope."""
+        assert not unlocked_context.is_operation_approved(OperationScope.ARCHIVE)
+
+    def test_is_permission_locked_true(self, locked_context):
+        """Test is_permission_locked for locked state."""
+        assert locked_context.is_permission_locked()
+
+    def test_is_permission_locked_false(self, unlocked_context):
+        """Test is_permission_locked for unlocked state."""
+        assert not unlocked_context.is_permission_locked()
+
+    def test_requires_approval_locked_approved(self, unlocked_context):
+        """Test requires_approval when unlocked and approved."""
+        assert not unlocked_context.requires_approval_for_operation(OperationScope.BRANCH_MOVE)
+
+    def test_requires_approval_locked_not_approved(self, locked_context):
+        """Test requires_approval when locked and not approved."""
+        assert locked_context.requires_approval_for_operation(OperationScope.BRANCH_MOVE)
+
+    def test_permission_context_to_dict(self, unlocked_context):
+        """Test serialization to dict."""
+        serialized = unlocked_context.to_dict()
+        assert serialized["approved_by"] == "prime"
+        assert "branch_move" in serialized["approval_scope"]
+        assert serialized["branch_permission_state"] == "unlocked_temporary"
+
+
+class TestRestartResteerFinding:
+    """Tests for RestartResteerFinding dataclass."""
+
+    @pytest.fixture
+    def restart_finding(self):
+        """Create a restart finding."""
+        now = datetime.now(timezone.utc)
+        return RestartResteerFinding(
+            session_id="session-1",
+            finding_type=FindingType.RESTART,
+            reason="Session idle for 45 minutes",
+            evidence_stale_seconds=2700,
+            evidence_last_queue_read_at=now,
+            evidence_blocker_summary=None,
+            recommended_action="Restart with existing worktree",
+            timestamp=now,
+        )
+
+    def test_restart_finding_immutability(self, restart_finding):
+        """Verify restart finding is frozen."""
+        with pytest.raises((AttributeError, TypeError)):
+            restart_finding.finding_type = FindingType.RESTEER
+
+    def test_restart_finding_to_dict(self, restart_finding):
+        """Test serialization to dict."""
+        serialized = restart_finding.to_dict()
+        assert serialized["session_id"] == "session-1"
+        assert serialized["finding_type"] == "restart"
+        assert serialized["evidence_stale_seconds"] == 2700
+
+
+class TestPrimeAutonomyInput:
+    """Tests for PrimeAutonomyInput dataclass."""
+
+    @pytest.fixture
+    def prime_input(self):
+        """Create Prime autonomy input."""
+        now = datetime.now(timezone.utc)
+        permission_context = PermissionContext(
+            approved_by="scott",
+            approval_scope=frozenset([OperationScope.BRANCH_MOVE]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            last_permission_change=now,
+        )
+        session = SessionLifecycleState(
+            session_id="session-1",
+            session_name="Build 2",
+            project_name="Meridian",
+            project_path="/path/to/meridian",
+            harness_role=HarnessRole.BUILD,
+            assigned_queue_file="docs/live-build-2.md",
+            model_provider="anthropic",
+            model_name="claude-opus-4-7",
+            status=SessionStatus.POLLING,
+            worktree_path="/worktree/build-2",
+            branch_name="main",
+            current_task_id=None,
+            last_queue_read_at=now,
+            last_queue_write_at=now,
+            last_prompt_sent_at=now,
+            last_prompt_payload_size=5000,
+            review_cadence_state=ReviewCadenceState.NONE,
+            proof_state=ProofState.QUEUE_READ,
+            health_state=HealthState.HEALTHY,
+            blocker_summary=None,
+            permission_context=permission_context,
+        )
+        return PrimeAutonomyInput(
+            current_sessions=[session],
+            queues_by_harness={"build": ["docs/live-build-2.md"]},
+            approvals_pending=[("session-1", "branch merge requires approval")],
+            restart_resteer_findings=[],
+            recent_completions=["commit-abc123"],
+            timestamp=now,
+        )
+
+    def test_prime_input_immutability(self, prime_input):
+        """Verify prime input is frozen."""
+        with pytest.raises((AttributeError, TypeError)):
+            prime_input.current_sessions = []
+
+    def test_prime_input_to_dict(self, prime_input):
+        """Test serialization to dict."""
+        serialized = prime_input.to_dict()
+        assert len(serialized["current_sessions"]) == 1
+        assert serialized["queues_by_harness"]["build"] == ["docs/live-build-2.md"]
+        assert len(serialized["approvals_pending"]) == 1
+
+
+class TestSessionLifecycleStatePermissions:
+    """Tests for SessionLifecycleState permission helper methods."""
+
+    @pytest.fixture
+    def locked_state(self):
+        """Create a session with locked permissions."""
+        now = datetime.now(timezone.utc)
+        permission_context = PermissionContext(
+            approved_by="scott",
+            approval_scope=frozenset(),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.LOCKED_BY_DEFAULT,
+            last_permission_change=now,
+        )
+        return SessionLifecycleState(
+            session_id="session-2",
+            session_name="Build 3",
+            project_name="Meridian",
+            project_path="/path/to/meridian",
+            harness_role=HarnessRole.BUILD,
+            assigned_queue_file="docs/live-build-3.md",
+            model_provider="anthropic",
+            model_name="claude-opus-4-7",
+            status=SessionStatus.POLLING,
+            worktree_path="/worktree/build-3",
+            branch_name="main",
+            current_task_id=None,
+            last_queue_read_at=now,
+            last_queue_write_at=now,
+            last_prompt_sent_at=now,
+            last_prompt_payload_size=5000,
+            review_cadence_state=ReviewCadenceState.NONE,
+            proof_state=ProofState.QUEUE_READ,
+            health_state=HealthState.HEALTHY,
+            blocker_summary=None,
+            permission_context=permission_context,
+        )
+
+    @pytest.fixture
+    def unlocked_state(self):
+        """Create a session with unlocked permissions."""
+        now = datetime.now(timezone.utc)
+        permission_context = PermissionContext(
+            approved_by="scott",
+            approval_scope=frozenset([OperationScope.BRANCH_MOVE]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            last_permission_change=now,
+        )
+        return SessionLifecycleState(
+            session_id="session-1",
+            session_name="Build 2",
+            project_name="Meridian",
+            project_path="/path/to/meridian",
+            harness_role=HarnessRole.BUILD,
+            assigned_queue_file="docs/live-build-2.md",
+            model_provider="anthropic",
+            model_name="claude-opus-4-7",
+            status=SessionStatus.POLLING,
+            worktree_path="/worktree/build-2",
+            branch_name="main",
+            current_task_id=None,
+            last_queue_read_at=now,
+            last_queue_write_at=now,
+            last_prompt_sent_at=now,
+            last_prompt_payload_size=5000,
+            review_cadence_state=ReviewCadenceState.NONE,
+            proof_state=ProofState.QUEUE_READ,
+            health_state=HealthState.HEALTHY,
+            blocker_summary=None,
+            permission_context=permission_context,
+        )
+
+    def test_is_permission_locked_true(self, locked_state):
+        """Test is_permission_locked returns true for locked state."""
+        assert locked_state.is_permission_locked()
+
+    def test_is_permission_locked_false(self, unlocked_state):
+        """Test is_permission_locked returns false for unlocked state."""
+        assert not unlocked_state.is_permission_locked()
+
+    def test_requires_approval_branch_move_unlocked(self, unlocked_state):
+        """Test requires_approval_for_operation when approved."""
+        assert not unlocked_state.requires_approval_for_operation(OperationScope.BRANCH_MOVE)
+
+    def test_requires_approval_branch_move_locked(self, locked_state):
+        """Test requires_approval_for_operation when locked."""
+        assert locked_state.requires_approval_for_operation(OperationScope.BRANCH_MOVE)
+
+    def test_can_execute_operation_approved_no_escalation(self, unlocked_state):
+        """Test can_execute_operation when approved and no escalation."""
+        assert unlocked_state.can_execute_operation(OperationScope.BRANCH_MOVE)
+
+    def test_can_execute_operation_not_approved(self, locked_state):
+        """Test can_execute_operation when not approved."""
+        assert not locked_state.can_execute_operation(OperationScope.BRANCH_MOVE)
