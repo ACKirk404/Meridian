@@ -8,6 +8,22 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review current-main Build 2 Session Lifecycle permissions contract-completeness repair.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/session-lifecycle-permissions-implementation-checklist.md`, `docs/session-lifecycle-permissions-prime-beacon-contract.md`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
+
+Task: review current `origin/main` commit `e486de2d` for the Build 2 Session Lifecycle permissions contract-completeness repair. Verify the prior HIGH/MEDIUM findings are closed: `PermissionContext` includes secondary approval, unlock expiry, and task scope with invariants/tests; `SessionLifecycleState.can_accept_work()` enforces permission lock, expiry, and scope; `heartbeat_stale()` uses the reviewed prompt-sent/seconds semantics or explicitly reconciles contract language; and `PrimeAutonomyInput` no longer exposes mutable containers by reference. Confirm `python -m pytest tests/test_session_lifecycle.py -q` passes and no live process control, model calls, UI/Bifrost/FileMap edits, branch movement, or Polaris dependency was added. If findings exist, route the smallest focused repair to Build 2; otherwise mark passed and leave a concrete Next Candidate.
+
+Proof command:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+
+Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review current-main Build 2 Session Lifecycle permissions and Prime/Beacon binding implementation.
@@ -1454,6 +1470,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-06-01 18:08 -06:00 - Codex Reviews A checked queue; status: repair routed; notes: active Build 2 Session Lifecycle permissions/Prime-Beacon binding review found target commit `6e2f2a5f` is not an ancestor of current HEAD/origin/main, so visibility repair was routed instead of running proof against the wrong checkout.
 2026-06-01 18:11 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current at `5568043b`; top Build 2 permissions/Prime-Beacon binding review is completed/repair-routed and no executable Active Task remains in the assigned Reviews A queue.
 2026-06-01 18:14 -06:00 - Codex Reviews A checked queue; status: repair routed; notes: active current-main Build 2 Session Lifecycle permissions/Prime-Beacon binding review executed; proof passed but contract-completeness findings were routed to Build 2.
+2026-06-01 18:19 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current at `e486de2d`; top Build 2 permissions/Prime-Beacon binding review remains completed/repair-routed and no executable Active Task remains in the assigned Reviews A queue.
 ```
 
 ## Review Log
@@ -1977,6 +1994,7 @@ Round 6 write log:
 - 2026-06-01 18:08 -06:00 - Codex Reviews A completed Build 2 Session Lifecycle permissions and Prime/Beacon binding visibility review for assigned commit `6e2f2a5f` after origin/main reread. Files changed: `docs/live-codex-reviews.md`, `docs/live-build-2.md`. Tests run: not run because the assigned commit is not an ancestor of current `HEAD` / `origin/main`; running the proof test here would not prove the queued slice. Proof commands: `git merge-base --is-ancestor 6e2f2a5f HEAD` (failed), `git merge-base --is-ancestor 6e2f2a5f origin/main` (failed), `git branch --contains 6e2f2a5f --all`, `git show --stat --oneline --name-only 6e2f2a5f`, `git diff --stat 6e2f2a5f..HEAD -- meridian_core/session_lifecycle.py tests/test_session_lifecycle.py`, and `git diff --check -- docs/live-codex-reviews.md docs/live-build-2.md`. Findings/fixes: HIGH review provenance/branch visibility routed to Build 2; assigned commit `6e2f2a5f` is only on the Build 2 worktree branch/remotes and not current main. Commit: this commit. Push status: pending. Obsidian update status: not updated; review queue and Build 2 queue record repair routing only.
 - 2026-06-01 18:11 -06:00 - Codex Reviews A completed idle queue read after origin/main fetch. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof commands: `git fetch origin main`, inspected the top of `docs/live-codex-reviews.md`, verified `HEAD` and `origin/main` at `5568043b`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no new finding; no executable Active Task present after Build 2 permissions/Prime-Beacon binding visibility repair routing. Commit: `9cbd0449`; status-update commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no new durable review finding or clearance.
 - 2026-06-01 18:14 -06:00 - Codex Reviews A completed current-main Build 2 Session Lifecycle permissions and Prime/Beacon binding implementation review for commit `7e96994a` after origin/main fetch. Files changed: `docs/live-codex-reviews.md`, `docs/live-build-2.md`. Tests run: `python -m pytest tests/test_session_lifecycle.py -q` (52 passed). Proof commands: `git merge-base --is-ancestor 7e96994a HEAD`, `git merge-base --is-ancestor 7e96994a origin/main`, `git diff-tree --no-commit-id --name-only -r 7e96994a`, `git show --stat --oneline --name-only 7e96994a`, scoped inspection of `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/session-lifecycle-permissions-prime-beacon-contract.md`, and `docs/session-lifecycle-permissions-implementation-checklist.md`, side-effect scan with `rg`, and `git diff --check -- docs/live-codex-reviews.md docs/live-build-2.md`. Findings/fixes: HIGH PermissionContext missing expiry/task-scope/dual-signer fields and invariants, HIGH `can_accept_work()` ignores permission lock/expiry/task scope, MEDIUM `heartbeat_stale()` uses queue-read/minutes instead of prompt-sent/seconds semantics, and MEDIUM `PrimeAutonomyInput` exposes mutable containers; focused repair routed to Build 2. Commit: `01f61ba6`; status-update commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue and Build 2 queue record repair routing only.
+- 2026-06-01 18:19 -06:00 - Codex Reviews A completed idle queue read after origin/main fetch. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof commands: `git fetch origin main`, inspected the top of `docs/live-codex-reviews.md`, verified `HEAD` and `origin/main` at `e486de2d`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no new finding; no executable Active Task present after Build 2 permissions/Prime-Beacon binding contract-completeness repair routing. Commit: this commit. Push status: pending. Obsidian update status: not updated; no new durable review finding or clearance.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
