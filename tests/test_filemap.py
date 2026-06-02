@@ -66,6 +66,7 @@ _REQUIRED_PATHS = [
     "meridian_core/prompt_payload_meter.py",
     "tests/test_prompt_payload_meter.py",
     "docs/relay-prompt-payload-visibility-implementation-checklist.md",
+    "docs/relay-bifrost-prompt-payload-meter-checklist.md",
     "docs/relay-dispatch-hardening-implementation-checklist.md",
     "docs/relay-promptpacket-proof-metadata-implementation-checklist.md",
     "docs/relay-aegis-promptpacket-policy-integration-checklist.md",

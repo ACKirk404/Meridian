@@ -546,6 +546,13 @@ def make_default_map() -> FileMap:
             notes="Read before implementing prompt payload evidence, budget labels, growth/watch/degraded states, or Bifrost payload visibility.",
         ),
         FileMapEntry(
+            path="docs/relay-bifrost-prompt-payload-meter-checklist.md",
+            area=FileArea.PROMPT_METRICS,
+            purpose="Build-ready checklist for carrying reviewed PromptPayloadSnapshot, budget, and growth metadata through Relay dispatch into a Bifrost-visible prompt payload meter.",
+            related_tests=["tests/test_prompt_payload_meter.py", "tests/test_relay_executor.py", "tests/test_bifrost_cockpit.py"],
+            notes="Docs-only checklist. Read before wiring prompt payload meter evidence into Relay dispatch, Aegis policy blockers, or Bifrost cockpit rendering.",
+        ),
+        FileMapEntry(
             path="docs/relay-dispatch-hardening-implementation-checklist.md",
             area=FileArea.RELAY_DISPATCH,
             purpose="Build-ready checklist for provider-neutral Relay dispatch hardening: envelope boundaries, exact model id handling, payload evidence propagation, Aegis proof hooks, blocked/error states, and Bifrost handoff.",

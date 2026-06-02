@@ -10,6 +10,32 @@ Only the first `Active Task` block in this file is executable. Lower archived/st
 
 ## Completed / Ready For Codex Review
 
+Goal: keep FileMap current after latest visible prompt payload meter and review/provenance movement on main.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-3-filemap`.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: concrete FileMap audit after prompt-meter runtime/frontend/advisory movement, current live queue/review provenance, and current visible `origin/main`.
+
+Completion:
+
+- Build 3 audited visible current `origin/main` while the assigned branch reported clean but `behind 2`; no sync, merge, rebase, reset, cherry-pick, or branch movement was performed.
+- Inspected changed/referenced paths from `d06ec3dd..origin/main` (18 changed paths) and prompt-meter movement from `db7259c6^..origin/main` (8 changed paths), all five live-build queue files, both live review provenance files, runtime FileMap entries, `docs/FileMap.md`, and `_REQUIRED_PATHS`.
+- Inspected called-out prompt-meter paths: `meridian_core/relay_executor.py`, `meridian_core/aegis.py`, `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, related tests, `docs/relay-bifrost-prompt-payload-meter-checklist.md`, and `docs/relay-prompt-payload-visibility-implementation-checklist.md`.
+- Registered missing existing artifact: `docs/relay-bifrost-prompt-payload-meter-checklist.md` in runtime FileMap, `docs/FileMap.md`, and `_REQUIRED_PATHS`.
+- Out-of-scope evidence: `.mcp.json` appeared in the broad movement diff and contains a Polaris MCP connector URL; per no-touch-Polaris instructions it was not registered in FileMap.
+- Audit evidence: focused coverage check across 49 inspected FileMap-relevant changed/referenced existing paths found no remaining runtime FileMap, `docs/FileMap.md`, or `_REQUIRED_PATHS` gaps after registration.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests: `python -m pytest tests/test_filemap.py -q` - 47 passed.
+- Diff proof: `git diff --check` - passed.
+- Commit: this queue-marker commit.
+- Next Candidate: bind runtime validation or review findings before unrelated FileMap cleanup.
+
+Ready for Codex Review.
+
+## Completed / Ready For Codex Review
+
 Goal: keep FileMap current after latest provider-result validation movement and coordinator/readiness provenance on main.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-3-filemap`.
