@@ -285,6 +285,14 @@ Coordinator containment recovery after post-review promotion - 2026-06-02:
 - Shared main was restored to clean `origin/main` at `0957fdef` after quarantine. Final shared-main check: on `main`, aligned with `origin/main`, no staged files, no dirty files, and no untracked worker artifacts.
 - Recovered the interrupted worktree alignment from the Git config-lock collision. All seven assigned worktrees were clean afterward: Build 1 `codex/aligned-build-1-payload-evidence-20260601-2210`; Build 2 `codex/aligned-build-2-command-plan-20260601-2210`; Build 3 `codex/aligned-build-3-filemap-clearance-20260601-2210`; Build 4 `codex/aligned-build-4-dispatch-hardening-checklist-20260601-2210`; Build 5 `codex/aligned-build-5-payload-visibility-20260601-2210`; Reviews A `codex/aligned-reviews-a-poll-20260601-2210`; Reviews B `codex/aligned-reviews-b-poll-20260601-2210`.
 
+Coordinator Build 2/3/4 movement - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified affected worktrees Build 2, Build 3, and Build 4 were clean before movement. Build 1 and Build 5 remained dirty/in-progress and were not moved.
+- Approved and completed path-limited movement of clean local completions onto shared main: Build 2 commits `b83a7159` and `c4137ae7` landed as `ee00bc4a` and `42783048`; Build 3 commits `e86f155c` and `4ae665af` landed as `4ee53306` and `e1e35d9c`; Build 4 commits `a39bba00` and `5e8fefcc` landed as `bc103ba2` and `12df3514`.
+- Movement scope stayed limited to Build 2 `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, and `docs/live-build-2.md`; Build 3 `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, and `docs/live-build-3.md`; Build 4 `docs/relay-dispatch-hardening-implementation-checklist.md` and `docs/live-build-4.md`.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_session_lifecycle.py -q` passed 76/76; `python -m pytest tests/test_filemap.py -q` passed 46/46; `git diff --check ee00bc4a^..HEAD` passed; Build 4 text/shape inspection found the required dispatch envelope, metadata pass-through, Aegis, Bifrost, FileMap, credential/raw prompt, exact model, blocked/error, and test terms.
+- Next coordinator action: push this movement and route Reviews A to review Build 2 then Build 3 current-main Ready markers, and Reviews B to review Build 4 current-main Ready marker.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
