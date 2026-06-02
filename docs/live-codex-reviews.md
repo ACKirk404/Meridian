@@ -22,6 +22,35 @@ Completion: commit only review provenance/finding/pass updates locally in `docs/
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review Build 2 Session Lifecycle command-preview proof fields.
+
+Status: passed by Codex Reviews A on 2026-06-02 10:01 -06:00. Candidate `HEAD` is `34a7bbe7`, and Build 2 commits `fa5f2f82` and `34a7bbe7` are ancestors of the assigned candidate branch.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Review scope: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+- `git diff --check fa5f2f82^..34a7bbe7`
+
+Review result:
+
+- Containment checks for `fa5f2f82` and `34a7bbe7` passed on the assigned candidate branch.
+- Scope check shows implementation/test changes limited to `meridian_core/session_lifecycle.py` and `tests/test_session_lifecycle.py`, with Build 2 queue provenance in `docs/live-build-2.md`.
+- `python -m pytest tests/test_session_lifecycle.py -q` passed with 116 tests.
+- `git diff --check fa5f2f82^..34a7bbe7` passed.
+- Verified `SessionCommandPreviewProof` is frozen, deterministic, display-safe, and serializes target/reason/evidence refs, expected transition, queue/worktree/branch context, Aegis gate result/status, proof requirement, executability flags, rollback/recovery note, permission state, and blockers.
+- Verified `build_command_preview_proof()` only derives preview metadata from `SessionLifecycleState` plus an existing `SessionCommandStagingReviewPacket`, preserves the UI-review blocker and non-executable behavior, and forces `is_executable_now=False` / `requires_human_ui_review=True`.
+- Verified no restart, resteer, archive execution, process/session spawning or inspection, model/provider calls, UI/FileMap/Relay/Aegis edits, branch/worktree movement, main writes, or Polaris dependency was introduced.
+
+Finding: none.
+
+Completion: Build 2 Session Lifecycle command-preview proof fields are review-cleared. No repair routed.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review Build 1 Relay visible prompt payload meter edge-consumer hardening.
 
 Status: passed by Codex Reviews A on 2026-06-02 09:29 -06:00. Candidate `HEAD` is `bca290d8`, and Build 1 commits `fd2d3206` and `bca290d8` are ancestors of the assigned candidate branch.
