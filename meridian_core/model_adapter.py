@@ -12,7 +12,7 @@ import os
 import urllib.request
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Callable, Mapping, Protocol
+from typing import Any, Callable, Mapping, Protocol
 
 from .relay import ModelRole
 
@@ -164,6 +164,99 @@ def deepseek_candidate_metadata_preset(lane: str = "default_quality") -> ModelHa
         if preset.lane == lane:
             return preset.to_metadata()
     raise ModelAdapterConfigError(f"Unknown DeepSeek candidate lane: {lane}")
+
+
+@dataclass(frozen=True)
+class ModelRouteMetadataBinding:
+    """Provider-neutral route/capability/budget snapshot for Relay evidence."""
+
+    provider_name: str
+    model_name: str
+    capability_tier: str
+    route_risk_tier: int
+    route_cost_posture: str
+    route_latency_posture: str
+    context_budget: int
+    prompt_payload_budget: int
+    trust_state: str
+    requires_external_review: bool
+    prompt_payload_status: str | None = None
+    prompt_payload_estimated_tokens: int | None = None
+    prompt_payload_budget_percent: float | None = None
+    prompt_payload_growth_tokens: int | None = None
+    prompt_payload_growth_percent: float | None = None
+
+    def __post_init__(self) -> None:
+        if self.route_risk_tier < 0:
+            raise ModelAdapterConfigError("route_risk_tier must be non-negative")
+        if self.context_budget < 0:
+            raise ModelAdapterConfigError("context_budget must be non-negative")
+        if self.prompt_payload_budget < 0:
+            raise ModelAdapterConfigError("prompt_payload_budget must be non-negative")
+
+    def to_dict(self) -> dict[str, object]:
+        """Return a stable, serializable shape for Relay/Bifrost evidence."""
+        return {
+            "provider_name": self.provider_name,
+            "model_name": self.model_name,
+            "capability_tier": self.capability_tier,
+            "route_risk_tier": self.route_risk_tier,
+            "route_cost_posture": self.route_cost_posture,
+            "route_latency_posture": self.route_latency_posture,
+            "context_budget": self.context_budget,
+            "prompt_payload_budget": self.prompt_payload_budget,
+            "trust_state": self.trust_state,
+            "requires_external_review": self.requires_external_review,
+            "prompt_payload_status": self.prompt_payload_status,
+            "prompt_payload_estimated_tokens": self.prompt_payload_estimated_tokens,
+            "prompt_payload_budget_percent": self.prompt_payload_budget_percent,
+            "prompt_payload_growth_tokens": self.prompt_payload_growth_tokens,
+            "prompt_payload_growth_percent": self.prompt_payload_growth_percent,
+        }
+
+
+def _metadata_value(value: Any) -> str:
+    return value.value if hasattr(value, "value") else str(value)
+
+
+def bind_model_route_metadata(
+    adapter_metadata: ModelHarnessMetadata,
+    *,
+    route_risk_tier: int,
+    route_cost_posture: Any,
+    route_latency_posture: Any,
+    payload_snapshot: Any | None = None,
+) -> ModelRouteMetadataBinding:
+    """Bind adapter capability metadata to a Relay route without vendor branching."""
+    return ModelRouteMetadataBinding(
+        provider_name=adapter_metadata.provider_name,
+        model_name=adapter_metadata.model_name,
+        capability_tier=adapter_metadata.capability_tier,
+        route_risk_tier=route_risk_tier,
+        route_cost_posture=_metadata_value(route_cost_posture),
+        route_latency_posture=_metadata_value(route_latency_posture),
+        context_budget=adapter_metadata.context_budget,
+        prompt_payload_budget=adapter_metadata.prompt_payload_budget,
+        trust_state=adapter_metadata.trust_state,
+        requires_external_review=adapter_metadata.requires_external_review,
+        prompt_payload_status=(
+            _metadata_value(payload_snapshot.status)
+            if payload_snapshot is not None and hasattr(payload_snapshot, "status")
+            else None
+        ),
+        prompt_payload_estimated_tokens=(
+            payload_snapshot.estimated_tokens if payload_snapshot is not None else None
+        ),
+        prompt_payload_budget_percent=(
+            payload_snapshot.budget_percent if payload_snapshot is not None else None
+        ),
+        prompt_payload_growth_tokens=(
+            payload_snapshot.growth_tokens if payload_snapshot is not None else None
+        ),
+        prompt_payload_growth_percent=(
+            payload_snapshot.growth_percent if payload_snapshot is not None else None
+        ),
+    )
 
 
 class ModelAdapter(Protocol):

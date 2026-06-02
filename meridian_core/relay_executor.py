@@ -23,6 +23,8 @@ from .model_adapter import (
     MissingAdapterError,
     ModelAdapter,
     ModelHarnessMetadata,
+    ModelRouteMetadataBinding,
+    bind_model_route_metadata,
 )
 from .prompt_payload_meter import PromptPayloadSnapshot
 from .relay import ModelRole
@@ -79,6 +81,7 @@ class RelayDecisionRecord:
     aegis_waiver_present: bool = False  # whether waiver was applied
     aegis_gate_severity: str | None = None  # severity level from gate
     aegis_explanation: str = ""  # gate evaluation explanation
+    route_metadata: ModelRouteMetadataBinding | None = None
 
 
 @dataclass(frozen=True)
@@ -90,6 +93,7 @@ class RelayExecutionResult:
     output: str
     payload_snapshot: PromptPayloadSnapshot | None = None
     adapter_metadata: ModelHarnessMetadata | None = None
+    route_metadata: ModelRouteMetadataBinding | None = None
 
 
 @dataclass(frozen=True)
@@ -244,6 +248,7 @@ def _build_decision_record(
     plan: RelayDispatchPlan,
     payload_snapshot: PromptPayloadSnapshot | None = None,
     adapter_metadata: ModelHarnessMetadata | None = None,
+    route_metadata: ModelRouteMetadataBinding | None = None,
     aegis_gate_decision: str | None = None,
     aegis_explanation: str = "",
 ) -> RelayDecisionRecord:
@@ -288,9 +293,20 @@ def _build_decision_record(
         fallback_blockers.append("human_gate_proof_missing")
         fallback_allowed = False
 
+    if route_metadata is None and adapter_metadata is not None:
+        route_metadata = bind_model_route_metadata(
+            adapter_metadata,
+            route_risk_tier=route.risk_tier,
+            route_cost_posture=route.cost_posture,
+            route_latency_posture=route.latency_posture,
+            payload_snapshot=payload_snapshot,
+        )
+
     # Populate vendor from adapter metadata or mark unknown for nontrivial tiers
     vendor = None
-    if adapter_metadata is not None:
+    if route_metadata is not None:
+        vendor = route_metadata.provider_name
+    elif adapter_metadata is not None:
         vendor = adapter_metadata.provider_name
     elif route.risk_tier >= 2:
         vendor = "unknown"
@@ -327,7 +343,9 @@ def _build_decision_record(
         fallback_allowed = False
 
     prompt_payload_status = None
-    if payload_snapshot is not None:
+    if route_metadata is not None and route_metadata.prompt_payload_status is not None:
+        prompt_payload_status = route_metadata.prompt_payload_status
+    elif payload_snapshot is not None:
         prompt_payload_status = payload_snapshot.status.value
 
     account_or_api_source = "unknown"
@@ -378,6 +396,7 @@ def _build_decision_record(
         explanation_for_prime=explanation,
         aegis_gate_decision=aegis_gate_decision,
         aegis_explanation=aegis_explanation,
+        route_metadata=route_metadata,
     )
 
 
@@ -470,8 +489,23 @@ def execute_relay_plan_with_registry(
     results: list[RelayExecutionResult] = []
     errors: list[RelayExecutionError] = []
     snapshots = payload_snapshots or tuple(None for _ in plan.lanes)
+    resolved_route_metadata = tuple(
+        bind_model_route_metadata(
+            adapter.metadata,
+            route_risk_tier=plan.route.risk_tier,
+            route_cost_posture=plan.route.cost_posture,
+            route_latency_posture=plan.route.latency_posture,
+            payload_snapshot=snapshot,
+        )
+        for adapter, snapshot in zip(resolved_adapters, snapshots)
+    )
 
-    for lane, adapter, snapshot in zip(plan.lanes, resolved_adapters, snapshots):
+    for lane, adapter, snapshot, route_metadata in zip(
+        plan.lanes,
+        resolved_adapters,
+        snapshots,
+        resolved_route_metadata,
+    ):
         try:
             output = adapter(lane.payload)
             results.append(
@@ -481,6 +515,7 @@ def execute_relay_plan_with_registry(
                     output=output,
                     payload_snapshot=snapshot,
                     adapter_metadata=adapter.metadata,
+                    route_metadata=route_metadata,
                 )
             )
         except Exception as exc:  # noqa: BLE001
@@ -496,7 +531,13 @@ def execute_relay_plan_with_registry(
     if include_decision_record:
         first_snapshot = snapshots[0] if snapshots else None
         first_adapter_metadata = resolved_adapters[0].metadata if resolved_adapters else None
-        decision_record = _build_decision_record(plan, first_snapshot, first_adapter_metadata)
+        first_route_metadata = resolved_route_metadata[0] if resolved_route_metadata else None
+        decision_record = _build_decision_record(
+            plan,
+            first_snapshot,
+            first_adapter_metadata,
+            first_route_metadata,
+        )
 
     return RelayExecutionSummary(
         results=tuple(results),

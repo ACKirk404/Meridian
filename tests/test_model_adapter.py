@@ -18,9 +18,14 @@ from meridian_core.model_adapter import (
     ModelCandidateRoutePreset,
     ModelAdapterConfig,
     ModelAdapterConfigError,
+    ModelHarnessMetadata,
+    ModelRouteMetadataBinding,
+    bind_model_route_metadata,
     deepseek_candidate_metadata_preset,
     deepseek_candidate_route_presets,
 )
+from meridian_core.prompt_payload_meter import PromptPayloadSnapshot
+from meridian_core.relay import CostPosture, LatencyPosture
 from meridian_core.relay import ModelRole
 
 
@@ -276,6 +281,122 @@ class TestDeepSeekCandidatePresets:
     def test_unknown_preset_lane_raises(self) -> None:
         with pytest.raises(ModelAdapterConfigError, match="Unknown DeepSeek candidate lane"):
             deepseek_candidate_metadata_preset("review_clearance")
+
+
+class TestModelRouteMetadataBinding:
+    def test_bind_model_route_metadata_carries_capability_tier_and_route_tier(self) -> None:
+        metadata = ModelHarnessMetadata(
+            provider_name="provider",
+            model_name="exact-model",
+            capability_tier="standard",
+            context_budget=8192,
+            prompt_payload_budget=4096,
+            trust_state="trusted",
+            requires_external_review=False,
+        )
+        binding = bind_model_route_metadata(
+            metadata,
+            route_risk_tier=2,
+            route_cost_posture=CostPosture.STANDARD,
+            route_latency_posture=LatencyPosture.FAST,
+        )
+        assert binding.provider_name == "provider"
+        assert binding.model_name == "exact-model"
+        assert binding.capability_tier == "standard"
+        assert binding.route_risk_tier == 2
+        assert binding.route_cost_posture == "standard"
+        assert binding.route_latency_posture == "fast"
+
+    def test_bind_model_route_metadata_carries_budget_and_prompt_drag(self) -> None:
+        metadata = ModelHarnessMetadata(
+            provider_name="provider",
+            model_name="exact-model",
+            capability_tier="standard",
+            context_budget=8192,
+            prompt_payload_budget=4096,
+            trust_state="trusted",
+            requires_external_review=False,
+        )
+        snapshot = PromptPayloadSnapshot(
+            raw_prompt_chars=5000,
+            estimated_tokens=1600,
+            budget_tokens=2000,
+            prior_estimated_tokens=1500,
+            queue_mode=True,
+        )
+        binding = bind_model_route_metadata(
+            metadata,
+            route_risk_tier=2,
+            route_cost_posture=CostPosture.STANDARD,
+            route_latency_posture=LatencyPosture.FAST,
+            payload_snapshot=snapshot,
+        )
+        assert binding.context_budget == 8192
+        assert binding.prompt_payload_budget == 4096
+        assert binding.prompt_payload_status == "watch"
+        assert binding.prompt_payload_estimated_tokens == 1600
+        assert binding.prompt_payload_budget_percent == 80.0
+        assert binding.prompt_payload_growth_tokens == 100
+
+    def test_route_metadata_binding_to_dict_is_stable(self) -> None:
+        binding = ModelRouteMetadataBinding(
+            provider_name="provider",
+            model_name="exact-model",
+            capability_tier="standard",
+            route_risk_tier=1,
+            route_cost_posture="minimal",
+            route_latency_posture="fast",
+            context_budget=4096,
+            prompt_payload_budget=2048,
+            trust_state="trusted",
+            requires_external_review=False,
+        )
+        assert binding.to_dict() == binding.to_dict()
+        assert tuple(binding.to_dict().keys()) == (
+            "provider_name",
+            "model_name",
+            "capability_tier",
+            "route_risk_tier",
+            "route_cost_posture",
+            "route_latency_posture",
+            "context_budget",
+            "prompt_payload_budget",
+            "trust_state",
+            "requires_external_review",
+            "prompt_payload_status",
+            "prompt_payload_estimated_tokens",
+            "prompt_payload_budget_percent",
+            "prompt_payload_growth_tokens",
+            "prompt_payload_growth_percent",
+        )
+
+    def test_route_metadata_binding_rejects_negative_route_tier(self) -> None:
+        with pytest.raises(ModelAdapterConfigError, match="route_risk_tier"):
+            ModelRouteMetadataBinding(
+                provider_name="provider",
+                model_name="exact-model",
+                capability_tier="standard",
+                route_risk_tier=-1,
+                route_cost_posture="minimal",
+                route_latency_posture="fast",
+                context_budget=4096,
+                prompt_payload_budget=2048,
+                trust_state="trusted",
+                requires_external_review=False,
+            )
+
+    def test_deepseek_candidate_metadata_binds_without_special_case(self) -> None:
+        binding = bind_model_route_metadata(
+            deepseek_candidate_metadata_preset("fast"),
+            route_risk_tier=1,
+            route_cost_posture=CostPosture.MINIMAL,
+            route_latency_posture=LatencyPosture.FAST,
+        )
+        assert binding.provider_name == "deepseek"
+        assert binding.model_name == "deepseek-chat"
+        assert binding.capability_tier == "candidate-fast"
+        assert binding.trust_state == "candidate"
+        assert binding.requires_external_review is True
 
 
 class TestHttpJsonModelAdapter:

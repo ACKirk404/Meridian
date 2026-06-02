@@ -12,7 +12,12 @@ from meridian_core.aegis import (
     EvidenceType,
     ProofTrail,
 )
-from meridian_core.model_adapter import AdapterRegistry, FakeModelAdapter, MissingAdapterError
+from meridian_core.model_adapter import (
+    AdapterRegistry,
+    FakeModelAdapter,
+    MissingAdapterError,
+    ModelHarnessMetadata,
+)
 from meridian_core.prompt_payload_meter import PayloadStatus, PromptPayloadSnapshot
 from meridian_core.relay import ModelRole, route_from_tier
 from meridian_core.relay_dispatch import RelayDispatchLane, RelayDispatchPlan
@@ -959,10 +964,9 @@ class TestAdapterMetadata:
             output="output text",
         )
         assert result.adapter_metadata is None
+        assert result.route_metadata is None
 
     def test_execution_result_with_metadata(self) -> None:
-        from meridian_core.model_adapter import ModelHarnessMetadata
-
         metadata = ModelHarnessMetadata(
             provider_name="openai",
             model_name="gpt-4",
@@ -990,8 +994,6 @@ class TestAdapterMetadata:
         assert adapter.metadata.capability_tier == "test"
 
     def test_fake_adapter_with_custom_metadata(self) -> None:
-        from meridian_core.model_adapter import ModelHarnessMetadata
-
         custom_metadata = ModelHarnessMetadata(
             provider_name="custom",
             model_name="custom-model",
@@ -1013,6 +1015,9 @@ class TestAdapterMetadata:
         assert len(summary.results) == 1
         assert summary.results[0].adapter_metadata is not None
         assert summary.results[0].adapter_metadata.provider_name == "fake"
+        assert summary.results[0].route_metadata is not None
+        assert summary.results[0].route_metadata.provider_name == "fake"
+        assert summary.results[0].route_metadata.route_risk_tier == 1
 
     def test_execute_with_registry_multiple_lanes_includes_metadata_per_lane(self) -> None:
         plan = _make_plan(2)
@@ -1027,6 +1032,8 @@ class TestAdapterMetadata:
         assert len(summary.results) == 2
         assert summary.results[0].adapter_metadata is not None
         assert summary.results[1].adapter_metadata is not None
+        assert summary.results[0].route_metadata is not None
+        assert summary.results[1].route_metadata is not None
 
     def test_metadata_fields_present_in_result(self) -> None:
         plan = _make_plan(1)
@@ -1048,10 +1055,9 @@ class TestAdapterMetadata:
         summary = execute_relay_dispatch_plan(plan, _constant_model_call("ok"))
         assert len(summary.results) == 1
         assert summary.results[0].adapter_metadata is None
+        assert summary.results[0].route_metadata is None
 
     def test_adapter_metadata_immutable(self) -> None:
-        from meridian_core.model_adapter import ModelHarnessMetadata
-
         metadata = ModelHarnessMetadata(
             provider_name="openai",
             model_name="gpt-4",
@@ -1063,6 +1069,37 @@ class TestAdapterMetadata:
         )
         with pytest.raises((AttributeError, TypeError)):
             metadata.provider_name = "anthropic"  # type: ignore[misc]
+
+    def test_route_metadata_binding_uses_payload_snapshot(self) -> None:
+        plan = _make_plan(1)
+        snapshot = PromptPayloadSnapshot(
+            raw_prompt_chars=5000,
+            estimated_tokens=1600,
+            budget_tokens=2000,
+            prior_estimated_tokens=1500,
+            queue_mode=True,
+        )
+        adapter = FakeModelAdapter("response")
+        registry = AdapterRegistry().register_model(plan.lanes[0].preferred_model, adapter)
+        summary = execute_relay_plan_with_registry(
+            plan,
+            registry,
+            payload_snapshots=(snapshot,),
+        )
+        route_metadata = summary.results[0].route_metadata
+        assert route_metadata is not None
+        assert route_metadata.prompt_payload_status == "watch"
+        assert route_metadata.prompt_payload_estimated_tokens == 1600
+        assert route_metadata.prompt_payload_budget_percent == 80.0
+        assert route_metadata.prompt_payload_growth_tokens == 100
+
+    def test_route_metadata_binding_does_not_enter_model_payload(self) -> None:
+        plan = _make_plan(1)
+        adapter = FakeModelAdapter("response")
+        registry = AdapterRegistry().register_model(plan.lanes[0].preferred_model, adapter)
+        execute_relay_plan_with_registry(plan, registry)
+        assert adapter.received_payloads == [plan.lanes[0].payload]
+        assert "capability_tier" not in adapter.received_payloads[0]
 
 
 class TestRelayDecisionRecord:
@@ -1497,6 +1534,84 @@ class TestRelayDecisionRecord:
             include_decision_record=True,
         )
         assert summary.decision_record.vendor == "fake"  # FakeModelAdapter.metadata.provider_name
+        assert summary.decision_record.route_metadata is not None
+        assert summary.decision_record.route_metadata.provider_name == "fake"
+        assert summary.decision_record.route_metadata.route_risk_tier == 2
+
+    def test_decision_record_route_metadata_carries_capability_and_budget(self) -> None:
+        plan = _make_plan(1)
+        metadata = ModelHarnessMetadata(
+            provider_name="openai",
+            model_name=plan.lanes[0].preferred_model,
+            capability_tier="premium",
+            context_budget=8192,
+            prompt_payload_budget=4096,
+            trust_state="trusted",
+            requires_external_review=False,
+        )
+        snapshot = PromptPayloadSnapshot(
+            raw_prompt_chars=5000,
+            estimated_tokens=1600,
+            budget_tokens=2000,
+        )
+        adapter = FakeModelAdapter("response", metadata=metadata)
+        registry = AdapterRegistry().register_model(plan.lanes[0].preferred_model, adapter)
+        summary = execute_relay_plan_with_registry(
+            plan,
+            registry,
+            payload_snapshots=(snapshot,),
+            include_decision_record=True,
+        )
+        route_metadata = summary.decision_record.route_metadata
+        assert route_metadata is not None
+        assert route_metadata.capability_tier == "premium"
+        assert route_metadata.context_budget == 8192
+        assert route_metadata.prompt_payload_budget == 4096
+        assert route_metadata.prompt_payload_status == "watch"
+        assert summary.decision_record.prompt_payload_status == "watch"
+
+    def test_decision_record_route_metadata_uses_first_lane_even_if_first_lane_errors(self) -> None:
+        plan = _make_plan(2)
+        first_metadata = ModelHarnessMetadata(
+            provider_name="first-provider",
+            model_name=plan.lanes[0].preferred_model,
+            capability_tier="first-tier",
+            context_budget=8192,
+            prompt_payload_budget=4096,
+            trust_state="trusted",
+            requires_external_review=False,
+        )
+        second_metadata = ModelHarnessMetadata(
+            provider_name="second-provider",
+            model_name=plan.lanes[1].preferred_model,
+            capability_tier="second-tier",
+            context_budget=8192,
+            prompt_payload_budget=4096,
+            trust_state="trusted",
+            requires_external_review=False,
+        )
+        class RaisingAdapter:
+            @property
+            def metadata(self) -> ModelHarnessMetadata:
+                return first_metadata
+
+            def __call__(self, payload: str) -> str:
+                raise RuntimeError("first lane failed")
+
+        registry = (
+            AdapterRegistry()
+            .register_model(plan.lanes[0].preferred_model, RaisingAdapter())
+            .register_model(plan.lanes[1].preferred_model, FakeModelAdapter("second", metadata=second_metadata))
+        )
+        summary = execute_relay_plan_with_registry(
+            plan,
+            registry,
+            include_decision_record=True,
+        )
+        assert len(summary.errors) == 1
+        assert summary.decision_record.route_metadata is not None
+        assert summary.decision_record.route_metadata.provider_name == "first-provider"
+        assert summary.decision_record.route_metadata.capability_tier == "first-tier"
 
     def test_decision_record_model_id_from_lane_preferred_model(self) -> None:
         """Decision record model_id extracted from builder lane preferred_model."""
