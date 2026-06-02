@@ -1442,6 +1442,38 @@ class TestSessionPermissionSummaryAggregation:
         assert "permission.locked" in locked_summary.blockers
         assert locked_summary.can_accept_work is False
 
+    def test_permission_summary_normalizes_non_utc_aware_expiry(self, summary_state):
+        """Non-UTC aware timestamps are converted to UTC before expiry comparison."""
+        unlock_expiry = datetime(2026, 6, 2, 7, 0, tzinfo=timezone.utc)
+        observed_at = datetime(
+            2026,
+            6,
+            2,
+            2,
+            0,
+            tzinfo=timezone(timedelta(hours=-6)),
+        )
+        permission_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=unlock_expiry,
+            task_scope="permission-summary",
+            last_permission_change=unlock_expiry,
+        )
+        session = SessionLifecycleState(
+            **{**summary_state.__dict__, "permission_context": permission_context}
+        )
+
+        summary = summarize_session_permission_state(session, timestamp=observed_at)
+
+        assert observed_at.astimezone(timezone.utc) > unlock_expiry
+        assert "permission.unlock_expired" in summary.blockers
+        assert "permission.can_accept_work=False" in summary.evidence
+
     def test_permission_summary_records_review_gate_blockers(self, summary_state):
         """Review-gated sessions expose review blockers without live control."""
         gated_state = SessionLifecycleState(

@@ -843,9 +843,13 @@ def _permission_unlock_expired_at(
 ) -> bool:
     if permission.unlock_expiry is None:
         return False
-    return observed_at.replace(tzinfo=timezone.utc) > permission.unlock_expiry.replace(
-        tzinfo=timezone.utc
-    )
+    return _as_utc(observed_at) > _as_utc(permission.unlock_expiry)
+
+
+def _as_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
 
 
 def _session_can_accept_work_at(
