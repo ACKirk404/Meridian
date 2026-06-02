@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add a Bifrost adapter for Relay/Aegis policy handoff summary dictionaries after Reviews B cleared the static renderer.
 
@@ -22,7 +22,15 @@ Task: add a pure defensive adapter that converts a structured Relay/Aegis policy
 
 Tests: `python -m pytest tests/test_bifrost_cockpit.py -q`.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, proof result, and Next Candidate: Reviews B review before connecting the adapter to any live Relay runtime summary source.
+Completion:
+
+- Build 5 completed the pure defensive Bifrost adapter for structured Relay/Aegis policy handoff summary dictionaries in commit `16b9a651`.
+- Files changed: `bifrost/cockpit.py`, `tests/test_bifrost_cockpit.py`.
+- Proof: `python -m pytest tests/test_bifrost_cockpit.py -q` passed with 231 tests.
+- Concrete evidence: `relay_aegis_policy_handoff_from_summary()` maps Relay/Aegis summary aliases into the existing handoff view-model, normalizes missing optional fields to display-safe placeholders, preserves deterministic ordering for unordered containers, and redacts unsafe raw prompt/secret/process/provider metadata values before rendering. Existing prompt payload visibility, provider balance, dispatch hardening, PromptPacket proof metadata, proof-state preview, stale-session recovery, and escaping behavior remain covered.
+- Ready for Codex Review.
+
+Next Candidate: Reviews B review before connecting the adapter to any live Relay runtime summary source.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
