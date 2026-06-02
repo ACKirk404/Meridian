@@ -3310,6 +3310,8 @@ body {
   let userSessions = [];
   const userSessionTargetKey = 'meridian.user-session.target.v1';
   const userSessionSelect = document.querySelector('.session-target-select');
+  const localBridgeBase = 'http://127.0.0.1:8767/bridge';
+  const bridgeUrl = (path) => `${localBridgeBase}/${String(path || '').replace(/^\/+/, '')}`;
   const pathPattern = /((?:[A-Za-z]:\\|\.{0,2}[\\/])(?:[\w .()@%+=~-]+[\\/])*[\w .()@%+=~-]+\.[A-Za-z0-9]{1,12}|(?:[\w@%+=~-]+[\\/])+(?:[\w .()@%+=~-]+)(?:\.[A-Za-z0-9]{1,12})?|\b[\w@%+=~-]+\.[A-Za-z0-9]{1,12}\b)/g;
   const selectedUserSessionId = () => userSessionSelect?.value || '';
   const selectedUserSession = () => userSessions.find((session) => session.sessionId === selectedUserSessionId()) || null;
@@ -3400,7 +3402,7 @@ body {
   const loadUserSessions = async () => {
     if (!userSessionSelect) return;
     try {
-      const response = await fetch('http://127.0.0.1:8767/bridge/user-sessions', { cache: 'no-store' });
+      const response = await fetch(bridgeUrl('user-sessions'), { cache: 'no-store' });
       const result = await response.json();
       userSessions = Array.isArray(result.sessions) ? result.sessions.filter((session) => session.routable) : [];
     } catch {
@@ -3447,7 +3449,7 @@ body {
   const readinessForBackend = (backend) => modelReadiness.find((item) => item.backend === backend);
   const findRecentBridgeCall = async (requestId) => {
     try {
-      const response = await fetch('http://127.0.0.1:8767/bridge/recent-calls');
+      const response = await fetch(bridgeUrl('recent-calls'));
       if (!response.ok) return null;
       const result = await response.json();
       return (Array.isArray(result.calls) ? result.calls : []).find((call) => call.requestId === requestId) || null;
@@ -3457,7 +3459,7 @@ body {
   };
   const recoverBridgeResult = async (requestId) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8767/bridge/call-result?requestId=${encodeURIComponent(requestId)}`);
+      const response = await fetch(bridgeUrl(`call-result?requestId=${encodeURIComponent(requestId)}`));
       if (!response.ok) return null;
       const result = await response.json();
       return result.result || null;
@@ -3468,7 +3470,7 @@ body {
   const updateModelReadiness = async () => {
     if (!modelSelect) return;
     try {
-      const response = await fetch('http://127.0.0.1:8767/bridge/models');
+      const response = await fetch(bridgeUrl('models'));
       const result = await response.json();
       bridgeOnline = true;
       modelReadiness = Array.isArray(result.models) ? result.models : [];
@@ -3534,7 +3536,7 @@ body {
     try {
       const controller = new AbortController();
       const timeout = window.setTimeout(() => controller.abort(), 180000);
-      const response = await fetch('http://127.0.0.1:8767/bridge/message', {
+      const response = await fetch(bridgeUrl('message'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
@@ -3900,7 +3902,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-relay-logic]');
     if (!logicNode) return;
     try {
-      const response = await fetch('http://127.0.0.1:8767/bridge/relay-logic', { cache: 'no-store' });
+      const response = await fetch(bridgeUrl('relay-logic'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderRelayLogicSnapshot(snapshot);
     } catch (error) {
@@ -3917,7 +3919,7 @@ body {
     const bridgeNode = rightWorkspace?.querySelector('[data-relay-bridge-status]');
     if (!bridgeNode) return;
     try {
-      const response = await fetch('http://127.0.0.1:8767/health', { cache: 'no-store' });
+      const response = await fetch(bridgeUrl('health'), { cache: 'no-store' });
       const result = await response.json();
       const detail = {
         version: result.version,
@@ -4139,7 +4141,7 @@ body {
   const waitForModelBridge = async () => {
     for (let attempt = 0; attempt < 24; attempt += 1) {
       try {
-        const response = await fetch('http://127.0.0.1:8767/bridge/models', { cache: 'no-store' });
+        const response = await fetch(bridgeUrl('models'), { cache: 'no-store' });
         const result = await response.json();
         if (result?.capabilities?.visibleTranscriptContext) return true;
       } catch {
@@ -4151,7 +4153,7 @@ body {
   };
   const restartModelBridge = async () => {
     try {
-      await fetch('http://127.0.0.1:8767/bridge/restart', { method: 'POST', cache: 'no-store' });
+      await fetch(bridgeUrl('restart'), { method: 'POST', cache: 'no-store' });
       await waitForModelBridge();
     } catch {
       // Reset still reloads the UI; offline bridge status remains visible after reload.

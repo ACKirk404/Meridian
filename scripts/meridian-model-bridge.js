@@ -21,6 +21,16 @@ const BRIDGE_CAPABILITIES = {
   relayLogicSnapshot: true,
   userSessionTargets: true,
 };
+const BRIDGE_ROUTES = Object.freeze({
+  health: '/bridge/health',
+  models: '/bridge/models',
+  relayLogic: '/bridge/relay-logic',
+  userSessions: '/bridge/user-sessions',
+  recentCalls: '/bridge/recent-calls',
+  callResult: '/bridge/call-result',
+  restart: '/bridge/restart',
+  message: '/bridge/message',
+});
 const ALLOWED_ORIGINS = new Set((process.env.MERIDIAN_MODEL_ALLOWED_ORIGINS || 'http://127.0.0.1:5500,http://localhost:5500,null')
   .split(',')
   .map((origin) => origin.trim())
@@ -63,8 +73,9 @@ if (process.argv.includes('--self-test')) {
     head: 'abc123',
   });
   const sessionTargetsOk = BRIDGE_CAPABILITIES.userSessionTargets && sampleSession?.sessionId === 'build-5-bifrost' && sampleSession.routable;
+  const routeNamesOk = Object.values(BRIDGE_ROUTES).every((route) => route.startsWith('/bridge/') && !route.startsWith('/api/'));
   const originOk = isAllowedOrigin({ headers: { origin: 'http://127.0.0.1:5500' } }) && !isAllowedOrigin({ headers: { origin: 'https://example.com' } });
-  console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && originOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, originOk }, null, 2));
+  console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && routeNamesOk && originOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, routeNamesOk, originOk }, null, 2));
   process.exit(0);
 }
 
@@ -552,7 +563,7 @@ const server = http.createServer(async (req, res) => {
 
   if (blockDisallowedOrigin(req, res)) return;
 
-  if (req.method === 'GET' && req.url === '/health') {
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.health) {
     sendJson(res, 200, {
       ok: true,
       service: 'meridian-model-bridge',
@@ -562,12 +573,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === 'GET' && req.url === '/bridge/models') {
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.models) {
     sendJson(res, 200, await modelStatus(), req);
     return;
   }
 
-  if (req.method === 'GET' && req.url === '/bridge/relay-logic') {
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.relayLogic) {
     const snapshot = await relayLogicSnapshot();
     sendJson(res, snapshot.ok ? 200 : 500, {
       service: 'meridian-model-bridge',
@@ -578,13 +589,13 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === 'GET' && req.url === '/bridge/user-sessions') {
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.userSessions) {
     const snapshot = await userSessionTargets();
     sendJson(res, snapshot.ok ? 200 : 500, snapshot, req);
     return;
   }
 
-  if (req.method === 'GET' && req.url === '/bridge/recent-calls') {
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.recentCalls) {
     sendJson(res, 200, {
       ok: true,
       service: 'meridian-model-bridge',
@@ -595,7 +606,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === 'GET' && req.url.startsWith('/bridge/call-result')) {
+  if (req.method === 'GET' && req.url.startsWith(BRIDGE_ROUTES.callResult)) {
     const requestUrl = new URL(req.url, `http://${HOST}:${PORT}`);
     const requestId = String(requestUrl.searchParams.get('requestId') || '');
     const result = resultForRequestId(requestId);
@@ -614,13 +625,13 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === 'POST' && req.url === '/bridge/restart') {
+  if (req.method === 'POST' && req.url === BRIDGE_ROUTES.restart) {
     sendJson(res, 202, { ok: true, restarting: true }, req);
     setTimeout(restartBridge, 25);
     return;
   }
 
-  if (req.method === 'POST' && req.url === '/bridge/message') {
+  if (req.method === 'POST' && req.url === BRIDGE_ROUTES.message) {
     try {
       const body = JSON.parse(await readBody(req));
       const backend = String(body.backend || '').toLowerCase();
