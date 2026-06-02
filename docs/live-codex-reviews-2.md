@@ -6,6 +6,18 @@ This file is the standing queue for a second specialized Codex Reviews session.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review the latest current-main Build 4 DeepSeek trust metadata checklist and Build 5 Model Harness capability metadata rendering slices.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: review current-main Ready markers in order: Build 4 DeepSeek candidate-trust metadata checklist commits `a6064da3` and `bae1e641`, then Build 5 Model Harness capability metadata rendering commits `e6744bdb` and `7d4bc196`. For Build 4, verify docs-only scope and required coverage for `deepseek-chat` dispatch identity, candidate trust state, direct-vs-aggregator route proof, prompt-drag telemetry, external review requirements, Relay/Aegis binding, Bifrost expectations, deterministic tests, validation-gate evidence, and exclusions. For Build 5, verify deterministic Bifrost sample/rendering only, exact model id/capability metadata display, provider route kind/trust state, task hints, external-review state, prompt-drag budget/growth fields, evidence refs, escaping, prior cockpit surface preservation, and no live provider/account/session/process/Relay runtime/FileMap/index.html/branch/main/Polaris leakage.
+
+Proof: text/shape inspection plus `git diff --check a6064da3^..bae1e641`; `python -m pytest tests/test_bifrost_cockpit.py -q` plus `git diff --check e6744bdb^..7d4bc196`.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If a finding exists, record the smallest focused repair route and stop. Next Candidate: return to Build 4/5 polling after these current-main reviews.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review the latest current-main Build 4 Model Harness metadata checklist and Build 5 provider balance/cost-pressure rendering slices.
