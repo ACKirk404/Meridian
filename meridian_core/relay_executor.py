@@ -1654,6 +1654,12 @@ def _payload_evidence_ref(payload_evidence: RelayPromptPayloadEvidence | None) -
     return f"relay-payload-evidence:{heartbeat_id}:{lane_id}"
 
 
+def _round_meter_percent(value: float | None) -> float | None:
+    if value is None:
+        return None
+    return round(value, 1)
+
+
 def _build_prompt_payload_meter_evidence(
     plan: RelayDispatchPlan,
     payload_snapshot: PromptPayloadSnapshot | None = None,
@@ -1664,6 +1670,10 @@ def _build_prompt_payload_meter_evidence(
     """Build visible prompt payload meter data without exposing prompt text."""
     packet = plan.packet
     snapshot = payload_snapshot
+    snapshot_missing = snapshot is None
+    estimated_tokens_missing = (
+        payload_evidence is not None and payload_evidence.estimated_prompt_tokens is None
+    )
     if snapshot is None:
         snapshot = PromptPayloadSnapshot(
             raw_prompt_chars=len(packet.serialized_prompt),
@@ -1698,6 +1708,12 @@ def _build_prompt_payload_meter_evidence(
     )
     warning_tags: list[str] = []
     blocker_tags: list[str] = []
+    if snapshot_missing:
+        warning_tags.append("prompt_payload_snapshot_missing")
+    if estimated_tokens_missing:
+        warning_tags.append("prompt_tokens_fallback_from_packet")
+    if snapshot.budget_tokens is None:
+        warning_tags.append("prompt_budget_unknown")
     if snapshot.status.value == "watch":
         warning_tags.append("prompt_payload_watch")
     elif snapshot.status.value == "degraded":
@@ -1732,10 +1748,10 @@ def _build_prompt_payload_meter_evidence(
         display_label=snapshot.display_label,
         estimated_prompt_tokens=snapshot.estimated_tokens,
         prompt_budget_tokens=snapshot.budget_tokens,
-        budget_percent=snapshot.budget_percent,
+        budget_percent=_round_meter_percent(snapshot.budget_percent),
         payload_status=snapshot.status.value,
         growth_delta_tokens=snapshot.growth_tokens,
-        growth_delta_percent=snapshot.growth_percent,
+        growth_delta_percent=_round_meter_percent(snapshot.growth_percent),
         q_mode=snapshot.queue_mode,
         growth_state=_payload_evidence_growth_state(snapshot),
         prompt_drag_tags=prompt_drag_tags,
@@ -2669,6 +2685,7 @@ def _build_decision_record(
     payload_evidence: RelayPromptPayloadEvidence | None = None,
     dispatch_envelope: RelayDispatchEnvelope | None = None,
     dispatch_metadata_envelope: RelayDispatchMetadataEnvelope | None = None,
+    payload_meter_evidence: RelayPromptPayloadMeterEvidence | None = None,
     prompt_packet_policy_evidence: RelayPromptPacketPolicyEvidence | None = None,
     aegis_gate_decision: str | None = None,
     aegis_explanation: str = "",
@@ -2839,6 +2856,21 @@ def _build_decision_record(
             payload_evidence=payload_evidence,
             dispatch_envelope=dispatch_envelope,
         )
+    if payload_meter_evidence is None:
+        payload_meter_evidence = _build_prompt_payload_meter_evidence(
+            plan,
+            payload_snapshot,
+            payload_evidence,
+            lane_id=(
+                payload_evidence.lane_id
+                if payload_evidence is not None and payload_evidence.lane_id
+                else (
+                    f"{first_builder_lane.role.value}:{first_builder_lane.preferred_model}"
+                    if first_builder_lane
+                    else None
+                )
+            ),
+        )
 
     return RelayDecisionRecord(
         heartbeat_id=packet.packet_id,
@@ -2874,6 +2906,7 @@ def _build_decision_record(
         aegis_explanation=aegis_explanation,
         route_metadata=route_metadata,
         payload_evidence=payload_evidence,
+        payload_meter_evidence=payload_meter_evidence,
         dispatch_envelope=dispatch_envelope,
         dispatch_metadata_envelope=dispatch_metadata_envelope,
         packet_hash=packet_proof.packet_hash if packet_proof else None,

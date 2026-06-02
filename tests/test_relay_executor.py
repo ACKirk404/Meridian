@@ -43,6 +43,7 @@ from meridian_core.relay_executor import (
     _build_decision_record,
     _build_dispatch_envelope,
     _build_dispatch_metadata_envelope,
+    _build_prompt_payload_meter_evidence,
     _evaluate_relay_prompt_packet_policy,
     _relay_prompt_packet_policy_disposition,
     execute_relay_dispatch_plan,
@@ -1333,6 +1334,100 @@ class TestRelayPromptPayloadMeterEvidence:
         assert evidence.payload_status == "healthy"
         assert evidence.serialization_only is True
         assert _PROMPT not in " ".join(str(value) for value in evidence.to_dict().values())
+
+    def test_meter_labels_rounding_and_missing_metadata_edges(self) -> None:
+        plan = _make_plan(1)
+        rounded = _build_prompt_payload_meter_evidence(
+            plan,
+            PromptPayloadSnapshot(
+                raw_prompt_chars=999,
+                estimated_tokens=1,
+                budget_tokens=3,
+                prior_estimated_tokens=4,
+                queue_mode=True,
+            ),
+        )
+        fallback = _build_prompt_payload_meter_evidence(
+            plan,
+            payload_snapshot=None,
+            payload_evidence=RelayPromptPayloadEvidence(
+                heartbeat_id=_PACKET_ID,
+                lane_id="builder:edge-model",
+                estimated_prompt_tokens=None,
+                prompt_budget_tokens=None,
+            ),
+        )
+
+        assert rounded.display_label == "(under 1k)"
+        assert rounded.budget_percent == 33.3
+        assert rounded.growth_delta_tokens == -3
+        assert rounded.growth_delta_percent == -75.0
+        assert fallback.estimated_prompt_tokens == plan.packet.prompt_tokens
+        assert fallback.warning_tags == (
+            "prompt_payload_snapshot_missing",
+            "prompt_tokens_fallback_from_packet",
+            "prompt_budget_unknown",
+        )
+        assert fallback.blocker_tags == ()
+
+    def test_meter_q_mode_continuity_and_decision_record_error_fallback(self) -> None:
+        plan = _make_plan(1)
+        degraded = _build_prompt_payload_meter_evidence(
+            plan,
+            PromptPayloadSnapshot(
+                raw_prompt_chars=12400,
+                estimated_tokens=111,
+                budget_tokens=1000,
+                prior_estimated_tokens=100,
+                queue_mode=True,
+            ),
+            RelayPromptPayloadEvidence(
+                heartbeat_id=_PACKET_ID,
+                route_id="tier-1:fast",
+                lane_id="builder:deepseek-chat",
+                selected_provider="deepseek",
+                selected_model="deepseek-chat",
+                capability_tier="candidate",
+                provider_route_kind="direct",
+                trust_state="candidate_reviewed",
+                model_metadata_ref="model-harness:deepseek-chat",
+                external_review_evidence_ref="review:deepseek-candidate",
+                estimated_prompt_tokens=111,
+                prompt_budget_tokens=1000,
+                prompt_drag_tags=("prompt_drag_degraded", "prompt_drag_growth"),
+            ),
+        )
+
+        def failing_model_call(payload: str) -> str:
+            raise RuntimeError("provider unavailable")
+
+        summary = execute_relay_dispatch_plan(
+            plan,
+            failing_model_call,
+            include_decision_record=True,
+        )
+        consumer_view = summary.prompt_payload_meter_consumer_view()
+
+        assert degraded.display_label == "(12.4k)"
+        assert degraded.payload_status == "degraded"
+        assert degraded.warning_tags == ("prompt_drag_growth",)
+        assert degraded.blocker_tags == (
+            "prompt_payload_degraded",
+            "prompt_drag_degraded",
+        )
+        assert degraded.selected_provider == "deepseek"
+        assert degraded.exact_model_id == "deepseek-chat"
+        assert degraded.provider_route_kind == "direct"
+        assert degraded.payload_evidence_ref == (
+            f"relay-payload-evidence:{_PACKET_ID}:builder:deepseek-chat"
+        )
+        assert summary.results == ()
+        assert summary.decision_record.payload_meter_evidence is not None
+        assert consumer_view["meter_evidence"] == (
+            summary.decision_record.payload_meter_evidence.to_dict(),
+        )
+        assert _PROMPT not in str(consumer_view)
+        assert "provider unavailable" not in str(consumer_view)
 
 
 class TestAdapterMetadata:
