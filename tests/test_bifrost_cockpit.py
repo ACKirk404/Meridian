@@ -152,6 +152,124 @@ def test_index_user_session_mode_names_target_and_preserves_storage():
     assert "Select a live User Session target before sending" in doc
 
 
+def test_compass_logic_snapshot_documents_project_context_harness():
+    from meridian_core.compass_logic_snapshot import compass_logic_snapshot
+
+    snapshot = compass_logic_snapshot()
+    titles = [section["title"] for section in snapshot["capabilitySections"]]
+    assert snapshot["source"] == "meridian_core.compass_logic_snapshot.compass_logic_snapshot"
+    assert "Project Definition Logic" in titles
+    assert "Bounds and Scope Logic" in titles
+    assert "Project Difference Logic" in titles
+    assert "Cross-Project Communication Logic" in titles
+    assert "Project Selector Logic" in titles
+    assert "Prime Prompt Context" in titles
+    assert "Portfolio Boundary" in titles
+    assert "User Session Independence" not in titles
+
+
+def test_vulcan_logic_snapshot_documents_session_lifecycle_harness():
+    from meridian_core.vulcan_logic_snapshot import vulcan_logic_snapshot
+
+    snapshot = vulcan_logic_snapshot()
+    titles = [section["title"] for section in snapshot["capabilitySections"]]
+    assert snapshot["source"] == "meridian_core.vulcan_logic_snapshot.vulcan_logic_snapshot"
+    assert "Session Definition Logic" in titles
+    assert "Lifecycle State Logic" in titles
+    assert "Command Plan Logic" in titles
+    assert "User Session Independence" in titles
+    assert "Project-Aware Session Grouping" in titles
+    assert "Stale Target Guard" in titles
+    assert "Cross-Harness Relationship Logic" in titles
+    assert "Portfolio Boundary" not in titles
+
+
+def test_index_projects_selector_is_compass_context_not_user_routing():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "projectOptions = ['Bifrost', 'Meridian', 'Spark']" in doc
+    assert "screen.dataset.projectContext" in doc
+    assert "Compass project context:" in doc
+    assert "projectContext" in doc
+    assert "renderUserSessionSelect();" in doc
+    assert "localStorage.setItem(userSessionTargetKey, projectSelect.value" not in doc
+
+
+def test_index_compass_harness_uses_backend_logic_snapshot():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Compass Runtime Logic" in doc
+    assert "data-compass-logic" in doc
+    assert "bridgeUrl('compass-logic')" in doc
+    assert "renderCompassLogicSnapshot" in doc
+    assert "renderCompassProjectLogic" in doc
+
+
+def test_index_vulcan_harness_uses_backend_logic_snapshot():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Vulcan Runtime Logic" in doc
+    assert "data-vulcan-logic" in doc
+    assert "bridgeUrl('vulcan-logic')" in doc
+    assert "renderVulcanLogicSnapshot" in doc
+    assert "renderVulcanSessionLogic" in doc
+
+
+def test_index_prime_harness_uses_backend_runtime_snapshot():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Prime Runtime Logic" in doc
+    assert "Runtime logic" in doc
+    assert "Prime backend source" in doc
+    assert "Runtime truth map" in doc
+    assert "Typed interaction request" in doc
+    assert "Decision and owner logic" in doc
+    assert "No drift audit logic" in doc
+    assert "Backend context logic" in doc
+    assert "Aegis risk logic" in doc
+    assert "Backend source refs" in doc
+    assert "Proof and invalidation logic" in doc
+    assert "Visible-to-Scott declaration" in doc
+    assert "Execution blockers" in doc
+    assert "demoted gates" in doc
+    assert "visibleToScott" in doc
+    assert "data-prime-logic" in doc
+    assert "bridgeUrl('prime-logic')" in doc
+    assert "renderPrimeDecisionSnapshot" in doc
+    assert "renderPrimeLogic" in doc
+
+
+def test_index_wired_harness_titles_use_runtime_logic_naming():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Prime Runtime Logic" in doc
+    assert "Relay Runtime Logic" in doc
+    assert "Compass Runtime Logic" in doc
+    assert "Vulcan Runtime Logic" in doc
+
+
+def test_bridge_exposes_prime_logic_route_and_capability():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    assert "primeRuntimeSnapshot: true" in doc
+    assert "primeLogic: '/bridge/prime-logic'" in doc
+    assert "meridian_core.prime_runtime" in doc
+    assert "req.url === BRIDGE_ROUTES.primeLogic" in doc
+
+
+def test_ui_checklist_defers_deep_compass_and_vulcan_items_to_backend_tracker():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "### Compass And Vulcan Backend Readiness" in doc
+    assert "| HBD1 | Compass backend checklist |" in doc
+    assert "| HBD2 | Vulcan backend checklist |" in doc
+    assert "| CMP1 | Project definition |" not in doc
+    assert "| VLC1 | Session definition |" not in doc
+
+
+def test_v2_tracker_has_deep_compass_and_vulcan_backend_items():
+    doc = (ROOT / "docs" / "v2-progress-tracker.md").read_text(encoding="utf-8")
+    assert "### Compass Harness" in doc
+    assert "Compass + Project Definition Runtime" in doc
+    assert "Compass + Cross-Project Handoff Runtime" in doc
+    assert "Session Lifecycle + State Evidence Completeness" in doc
+    assert "Session Lifecycle + Command Plan Proof" in doc
+    assert "Session Lifecycle + Close/Archive Write-Through" in doc
+
+
 def test_sample_view_model_has_progress_events():
     vm = sample_cockpit_view_model()
     assert len(vm.progress_events) >= 1

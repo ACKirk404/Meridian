@@ -188,6 +188,27 @@ def make_default_map() -> FileMap:
             notes="Obsidian mirror: G:\\My Drive\\Aesop Academy\\Obsidian\\Meridian_Build\\FileMap.md",
         ),
         FileMapEntry(
+            path="docs/harness-stage-checklist.md",
+            area=FileArea.BUILD_PROCESS,
+            purpose="Cross-harness stage tracker for Contract/Baseline, V2 Backend, Core Implementation, Prime Integration, Runtime Logic UI, Proofs/Review, and Operations status.",
+            related_tests=["tests/test_filemap.py"],
+            notes="Use when Scott asks what stage a harness is in or requests a harness/stage-specific build.",
+        ),
+        FileMapEntry(
+            path="docs/harness-stage-checklist.html",
+            area=FileArea.BUILD_PROCESS,
+            purpose="Visual HTML dashboard for the harness stage checklist matrix; mirrors docs/harness-stage-checklist.md for easier status review.",
+            related_tests=["tests/test_filemap.py"],
+            notes="Update with docs/harness-stage-checklist.md in the same checkpoint.",
+        ),
+        FileMapEntry(
+            path="docs/prime-core-handoff-20260602.md",
+            area=FileArea.BUILD_PROCESS,
+            purpose="Current handoff for the Prime core and harness-stage work: active worktree, commits, Prime runtime internals, bridge/UI wiring, harness matrix, verification, rules, and next build recommendations.",
+            related_tests=["tests/test_filemap.py"],
+            notes="Read first when continuing this thread in a new session.",
+        ),
+        FileMapEntry(
             path="docs/prime-planning-harness-answers.md",
             area=FileArea.PLANNING,
             purpose="First Council-run planning answer brief: answers all Planning Harness questions for V0 Relay model/API dispatch and records the recommended adapter-first path.",
@@ -283,6 +304,13 @@ def make_default_map() -> FileMap:
             purpose="Builds stage/objective/risk-tier view from portfolio and decision state.",
             related_tests=["tests/test_intention.py"],
             notes="Functional seed for Prime's work intention.",
+        ),
+        FileMapEntry(
+            path="meridian_core/compass_logic_snapshot.py",
+            area=FileArea.COMPASS,
+            purpose="Backend snapshot for Compass project-context logic shown in the visible harness panel.",
+            related_tests=["tests/test_bifrost_cockpit.py"],
+            notes="Bifrost consumes this through /bridge/compass-logic; keeps Compass UI documentation backend-sourced.",
         ),
         FileMapEntry(
             path="meridian_core/objectives.py",
@@ -546,11 +574,25 @@ def make_default_map() -> FileMap:
             notes="V2 Prime Autonomy seed. Human-gated actions are not executable until a later approval model records approval.",
         ),
         FileMapEntry(
+            path="meridian_core/prime_runtime.py",
+            area=FileArea.PRIME_AUTONOMY,
+            purpose="Prime runtime decision contract: assembles typed PrimeInteractionRequest plus Compass, Vulcan, Relay, and Aegis risk source refs into one visible PrimeDecision with owner resolution, executability gates, proof packet, no-drift audit, and bridge snapshot.",
+            related_tests=["tests/test_prime_runtime.py", "tests/test_bifrost_cockpit.py"],
+            notes="Bifrost consumes this through /bridge/prime-logic; Aegis aggregate gate summaries feed PrimeAegisRiskInput and request fields stay visible. Keep Prime harness logic backend-sourced.",
+        ),
+        FileMapEntry(
             path="tests/test_prime_autonomy.py",
             area=FileArea.PRIME_AUTONOMY,
             purpose="Regression tests for PrimeNextAction, fallback/strict constructors, immutable evidence/blocker sets, confidence/risk mappings, and human-gate executability.",
             related_tests=[],
             notes="Read before changing PrimeNextAction execution semantics or public constructor behavior.",
+        ),
+        FileMapEntry(
+            path="tests/test_prime_runtime.py",
+            area=FileArea.PRIME_AUTONOMY,
+            purpose="Regression tests for PrimeRuntimeContext, PrimeDecision shape, owner resolver, executability gates, source-missing blockers, and backend snapshot payload.",
+            related_tests=[],
+            notes="Run before changing Prime runtime bridge fields or visible Prime harness rendering.",
         ),
         FileMapEntry(
             path="meridian_core/prompt_packet.py",
@@ -857,6 +899,13 @@ def make_default_map() -> FileMap:
             purpose="Session Lifecycle domain objects: typed enums and frozen dataclasses for session state, command planning, legality checking, and executability gates per V2 contract.",
             related_tests=["tests/test_session_lifecycle.py"],
             notes="Core harness implementation; read the v2-contract and implementation-checklist before modifying.",
+        ),
+        FileMapEntry(
+            path="meridian_core/vulcan_logic_snapshot.py",
+            area=FileArea.BIFROST,
+            purpose="Backend snapshot for Vulcan Session Lifecycle logic shown in the visible harness panel.",
+            related_tests=["tests/test_bifrost_cockpit.py"],
+            notes="Bifrost consumes this through /bridge/vulcan-logic; keeps session target and lifecycle UI documentation Vulcan-owned.",
         ),
         FileMapEntry(
             path="tests/test_session_lifecycle.py",

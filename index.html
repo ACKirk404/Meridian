@@ -1579,6 +1579,55 @@ body {
   box-shadow: 0 0 5px rgba(var(--session-electric), 0.6);
 }
 
+.prime-logic-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.prime-logic-cell {
+  min-width: 0;
+  border: 1px solid rgba(var(--session-electric), 0.24);
+  background: rgba(0, 0, 0, 0.36);
+  padding: 7px;
+}
+
+.prime-logic-label {
+  color: rgba(var(--session-electric-soft), 0.52);
+  font-size: 0.78em;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.prime-logic-value {
+  margin-top: 4px;
+  color: rgba(var(--session-electric-soft), 0.94);
+  overflow-wrap: anywhere;
+}
+
+.prime-logic-proof {
+  display: grid;
+  gap: 7px;
+}
+
+.prime-logic-proof-item {
+  border-left: 2px solid rgba(var(--session-electric), 0.6);
+  padding-left: 8px;
+  display: grid;
+  gap: 4px;
+}
+
+.prime-logic-proof-question {
+  color: rgba(var(--session-electric-soft), 0.94);
+}
+
+.prime-logic-proof-answer,
+.prime-logic-proof-invalidates {
+  color: rgba(var(--session-electric-soft), 0.68);
+  overflow-wrap: anywhere;
+}
+
 .session-output-entry {
   margin: 0 0 12px;
 }
@@ -3297,14 +3346,43 @@ body {
   const modelSelect = document.querySelector('.session-model-select');
   const projectSelect = document.querySelector('.session-project-select');
   const projectSelectKey = 'meridian.session.project';
+  const projectOptions = ['Bifrost', 'Meridian', 'Spark'];
+  const activeProjectContext = () => projectSelect?.value || 'Meridian';
+  const updateProjectContextAuthority = () => {
+    const project = activeProjectContext();
+    window.meridianActiveProject = project;
+    screen.dataset.projectContext = project;
+    if (primeWindow) primeWindow.dataset.projectContext = project;
+    if (projectSelect) {
+      projectSelect.dataset.projectContext = project;
+      projectSelect.title = `Compass project context: ${project}. User Session target is selected separately.`;
+    }
+  };
   if (projectSelect) {
     const storedProject = localStorage.getItem(projectSelectKey);
-    if (storedProject && Array.from(projectSelect.options).some((option) => option.value === storedProject)) {
-      projectSelect.value = storedProject;
-    }
-    projectSelect.addEventListener('change', () => {
-      localStorage.setItem(projectSelectKey, projectSelect.value || '');
+    projectSelect.replaceChildren();
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.disabled = true;
+    placeholder.textContent = 'Projects';
+    projectSelect.append(placeholder);
+    projectOptions.slice().sort((a, b) => a.localeCompare(b)).forEach((project) => {
+      const option = document.createElement('option');
+      option.value = project;
+      option.textContent = project;
+      projectSelect.append(option);
     });
+    projectSelect.value = projectOptions.includes(storedProject) ? storedProject : 'Meridian';
+    localStorage.setItem(projectSelectKey, projectSelect.value);
+    updateProjectContextAuthority();
+    projectSelect.addEventListener('change', () => {
+      localStorage.setItem(projectSelectKey, projectSelect.value || 'Meridian');
+      updateProjectContextAuthority();
+      renderUserSessionSelect();
+      updatePrimeProjectStatus();
+    });
+  } else {
+    updateProjectContextAuthority();
   }
   if (modelSelect) {
     const storedModel = localStorage.getItem('meridian.session.model');
@@ -3393,6 +3471,10 @@ body {
     const input = userInput();
     if (input) setStatus(input, userSessionStatusText());
   };
+  const updatePrimeProjectStatus = () => {
+    const input = primeWindow?.querySelector('.session-prompt-input');
+    if (input) setStatus(input, `Compass project ${activeProjectContext()}`);
+  };
   const renderUserSessionSelect = () => {
     if (!userSessionSelect) return;
     const stored = localStorage.getItem(userSessionTargetKey) || '';
@@ -3407,10 +3489,21 @@ body {
       updateUserSessionStatus();
       return;
     }
+    const activeProject = activeProjectContext();
     const projects = Array.from(new Set(userSessions.map((session) => session.projectName || 'Meridian'))).sort((a, b) => a.localeCompare(b));
+    if (activeProject && !projects.includes(activeProject)) {
+      const group = document.createElement('optgroup');
+      group.label = `${activeProject} (active project)`;
+      const option = document.createElement('option');
+      option.value = '';
+      option.disabled = true;
+      option.textContent = 'No live sessions for active project';
+      group.append(option);
+      userSessionSelect.append(group);
+    }
     projects.forEach((project) => {
       const group = document.createElement('optgroup');
-      group.label = project;
+      group.label = project === activeProject ? `${project} (active project)` : project;
       userSessions
         .filter((session) => (session.projectName || 'Meridian') === project)
         .sort((left, right) => left.sessionName.localeCompare(right.sessionName))
@@ -3548,18 +3641,18 @@ body {
     if (!modelReadiness.length) await updateModelReadiness();
     if (!bridgeOnline) {
       setStatus(input, 'model bridge offline');
-      pushEntry(input, 'error', 'Error: Meridian model bridge is not running on 127.0.0.1:8767.', backend, { requestedBackend: selectedBackend });
+      pushEntry(input, 'error', 'Error: Meridian model bridge is not running on 127.0.0.1:8767.', backend, { requestedBackend: selectedBackend, projectContext: activeProjectContext() });
       return;
     }
     if (!bridgeCapabilities.visibleTranscriptContext) {
       setStatus(input, 'model bridge restart required');
-      pushEntry(input, 'error', 'Error: Restart the Meridian model bridge so follow-up prompts carry visible session context.', backend, { requestedBackend: selectedBackend });
+      pushEntry(input, 'error', 'Error: Restart the Meridian model bridge so follow-up prompts carry visible session context.', backend, { requestedBackend: selectedBackend, projectContext: activeProjectContext() });
       return;
     }
     const selectedReadiness = readinessForBackend(backend);
     if (selectedReadiness && !selectedReadiness.installed) {
       setStatus(input, `${selectedReadiness.cli} setup required`);
-      pushEntry(input, 'setup', `Error: ${selectedReadiness.setupHint || 'Install and sign in to the selected model CLI.'}`, selectedReadiness.label || backend, { requestedBackend: selectedBackend });
+      pushEntry(input, 'setup', `Error: ${selectedReadiness.setupHint || 'Install and sign in to the selected model CLI.'}`, selectedReadiness.label || backend, { requestedBackend: selectedBackend, projectContext: activeProjectContext() });
       return;
     }
     const visibleTranscript = readTranscript(input).slice(-12).map((entry) => ({
@@ -3571,11 +3664,12 @@ body {
     const targetSession = sessionChannel(input) === 'user' ? selectedUserSession() : null;
     if (sessionChannel(input) === 'user' && !targetSession) {
       setStatus(input, 'select live session');
-      pushEntry(input, 'error', 'Error: Select a live User Session target before sending.', backend, { requestedBackend: selectedBackend });
+      pushEntry(input, 'error', 'Error: Select a live User Session target before sending.', backend, { requestedBackend: selectedBackend, projectContext: activeProjectContext() });
       return;
     }
     input.dataset.sessionSending = 'true';
-    pushEntry(input, 'user', prompt, '', { requestedBackend: selectedBackend, sessionTargetId: targetSession?.sessionId || '' });
+    const projectContext = activeProjectContext();
+    pushEntry(input, 'user', prompt, '', { requestedBackend: selectedBackend, sessionTargetId: targetSession?.sessionId || '', projectContext });
     input.value = '';
     localStorage.setItem(draftKey(input), '');
     setStatus(input, `${backend} running`);
@@ -3591,6 +3685,7 @@ body {
           backend,
           requestedBackend: selectedBackend,
           channel: sessionChannel(input),
+          projectContext,
           requestId,
           prompt,
           transcript: visibleTranscript,
@@ -3612,6 +3707,7 @@ body {
         sessionContextEntries: result.sessionContextEntries || 0,
         sessionContextChars: result.sessionContextChars || 0,
         sessionTargetId: result.sessionTarget?.sessionId || targetSession?.sessionId || '',
+        projectContext: result.projectContext || projectContext,
       });
     } catch (error) {
       setStatus(input, backend);
@@ -3627,6 +3723,7 @@ body {
           sessionContextChars: recovered.sessionContextChars || 0,
           recoveredFromBridge: true,
           sessionTargetId: recovered.sessionTarget?.sessionId || targetSession?.sessionId || '',
+          projectContext: recovered.projectContext || projectContext,
         });
         return;
       }
@@ -3688,6 +3785,7 @@ body {
   });
   updateModelReadiness();
   loadUserSessions();
+  updatePrimeProjectStatus();
   window.meridianRefreshUserSessionTarget = () => {
     updateUserSessionTitle();
     updateUserSessionStatus();
@@ -3872,6 +3970,21 @@ body {
   };
   const relaySummary = (value) => `<div class="relay-models-summary">${escapeHtml(value || '')}</div>`;
   const relayText = (value) => String(value || 'none').replaceAll('_', ' ').replaceAll('-', ' ');
+  const relayJoin = (items) => (Array.isArray(items) ? items : []).map(relayText).join(' | ') || 'none';
+  const primeBool = (value) => (value ? 'yes' : 'no');
+  const primeLogicStrip = (items) => `<div class="prime-logic-strip">${items.map(([label, value]) => `
+    <div class="prime-logic-cell">
+      <div class="prime-logic-label">${escapeHtml(label)}</div>
+      <div class="prime-logic-value">${escapeHtml(value)}</div>
+    </div>
+  `).join('')}</div>`;
+  const primeProofList = (proof) => `<div class="prime-logic-proof">${proof.map((item) => `
+    <div class="prime-logic-proof-item">
+      <div class="prime-logic-proof-question">${escapeHtml(item.question || 'proof question unavailable')}</div>
+      <div class="prime-logic-proof-answer">${escapeHtml(item.answer || 'proof answer unavailable')}</div>
+      <div class="prime-logic-proof-invalidates">${escapeHtml(`Invalidates when: ${item.invalidatesWhen || 'unknown'}`)}</div>
+    </div>
+  `).join('')}</div>`;
   const relayUnique = (items) => Array.from(new Set(items.filter(Boolean)));
   const relayTierLabel = (tier) => `Tier ${tier.tier}: ${relayText(tier.mode)}`;
   const relayTierSummary = (tier) => [
@@ -3916,6 +4029,145 @@ body {
       ].join(''),
       index < 3,
     );
+  };
+  const normalizedRows = (rows) => (Array.isArray(rows) ? rows : []).map((row) => (
+    Array.isArray(row) ? row : [row?.key || 'item', row?.value || '']
+  ));
+  const renderCompassCapabilitySection = (section, index) => {
+    const rows = normalizedRows(section?.rows);
+    const bullets = Array.isArray(section?.bullets) ? section.bullets : [];
+    return relaySection(
+      section?.title || `Compass Section ${index + 1}`,
+      [
+        relaySummary(section?.summary || ''),
+        rows.length ? relayGrid(rows) : '',
+        bullets.length ? relayList(bullets) : '',
+      ].join(''),
+      index < 3,
+    );
+  };
+  const renderCompassLogicSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Compass logic source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Compass logic snapshot unavailable'],
+      ]), true);
+    }
+    const capabilitySections = Array.isArray(snapshot.capabilitySections) ? snapshot.capabilitySections : [];
+    return [
+      relaySection('Compass logic source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Compass'],
+      ]), true),
+      relaySection('Compass summary', relaySummary(snapshot.summary || ''), true),
+      ...capabilitySections.map(renderCompassCapabilitySection),
+    ].join('');
+  };
+  const renderVulcanLogicSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Vulcan logic source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Vulcan logic snapshot unavailable'],
+      ]), true);
+    }
+    const capabilitySections = Array.isArray(snapshot.capabilitySections) ? snapshot.capabilitySections : [];
+    return [
+      relaySection('Vulcan logic source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Vulcan / Session Lifecycle'],
+      ]), true),
+      relaySection('Vulcan summary', relaySummary(snapshot.summary || ''), true),
+      ...capabilitySections.map(renderCompassCapabilitySection),
+    ].join('');
+  };
+  const renderPrimeDecisionSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Prime logic source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Prime runtime snapshot unavailable'],
+      ]), true);
+    }
+    const decision = snapshot.decision || {};
+    const request = decision.request || {};
+    const driftAudit = decision.driftAudit || {};
+    const context = decision.context || {};
+    const aegisRisk = context.aegisRisk || {};
+    const proof = Array.isArray(decision.proof) ? decision.proof : [];
+    const refs = Array.isArray(context.sourceRefs) ? context.sourceRefs : [];
+    const blockers = Array.isArray(decision.blockers) ? decision.blockers : [];
+    const visibleFields = Array.isArray(decision.visibleToScott) ? decision.visibleToScott : [];
+    const capabilitySections = Array.isArray(snapshot.capabilitySections) ? snapshot.capabilitySections : [];
+    return [
+      relaySection('Prime backend source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Prime'],
+        ['service', snapshot.service || 'unknown'],
+      ]), true),
+      relaySection('Runtime truth map', [
+        relaySummary(snapshot.summary || 'Prime runtime summary unavailable.'),
+        primeLogicStrip([
+          ['status', relayText(decision.status)],
+          ['owner', decision.ownerHarness || 'unknown'],
+          ['executable', primeBool(decision.executable)],
+        ]),
+      ].join(''), true),
+      relaySection('Typed interaction request', relayGrid([
+        ['request id', request.requestId || 'unknown'],
+        ['intent', relayText(request.intent)],
+        ['action', relayText(request.action)],
+        ['why', request.why || 'unknown'],
+        ['project', request.projectId || 'unknown'],
+        ['risk', relayText(request.risk)],
+        ['requires approval', primeBool(request.requiresApproval)],
+        ['requires clarification', primeBool(request.requiresClarification)],
+        ['visible prompt ref', request.visiblePromptRef || 'none'],
+      ]), true),
+      relaySection('Decision and owner logic', relayGrid([
+        ['decision id', decision.decisionId || 'unknown'],
+        ['status', relayText(decision.status)],
+        ['owner harness', decision.ownerHarness || 'unknown'],
+        ['action', relayText(decision.action)],
+        ['risk', relayText(decision.risk)],
+        ['executable', primeBool(decision.executable)],
+        ['why', decision.why || 'unknown'],
+      ]), true),
+      relaySection('No drift audit logic', relayGrid([
+        ['status', relayText(driftAudit.status)],
+        ['clean', primeBool(driftAudit.clean)],
+        ['checks', relayJoin(driftAudit.checks)],
+        ['failures', relayJoin(driftAudit.failures)],
+      ]), true),
+      relaySection('Backend context logic', relayGrid([
+        ['project', context.projectId || 'unknown'],
+        ['project logic', context.projectSummary || 'unknown'],
+        ['session logic', context.sessionState || 'unknown'],
+        ['relay logic', context.relayRouteSummary || 'unknown'],
+        ['risk logic', context.riskSummary || 'unknown'],
+      ]), true),
+      relaySection('Aegis risk logic', relayGrid([
+        ['source', aegisRisk.source || 'unavailable'],
+        ['aggregate action', relayText(aegisRisk.aggregateAction)],
+        ['highest severity', relayText(aegisRisk.highestSeverity)],
+        ['blocking', primeBool(aegisRisk.blocking)],
+        ['requires approval', primeBool(aegisRisk.requiresApproval)],
+        ['blocked gates', relayJoin(aegisRisk.blockedGates)],
+        ['demoted gates', relayJoin(aegisRisk.demotedGates)],
+        ['evidence required', relayJoin(aegisRisk.evidenceRequired)],
+        ['approvals present', relayJoin(aegisRisk.approvalsPresent)],
+        ['waivers present', relayJoin(aegisRisk.waiversPresent)],
+      ]), true),
+      relaySection('Backend source refs', relayGrid(refs.map((source) => [
+        source.harness || 'unknown',
+        `${source.source || 'unknown'} | ${source.summary || ''}`,
+      ])), true),
+      relaySection('Proof and invalidation logic', proof.length ? primeProofList(proof) : relaySummary('proof packet unavailable'), true),
+      relaySection('Visible-to-Scott declaration', visibleFields.length ? relayList(visibleFields) : relaySummary('visible field declaration unavailable'), true),
+      relaySection('Execution blockers', blockers.length ? relayList(blockers) : relaySummary('none'), false),
+      ...capabilitySections.map(renderCompassCapabilitySection),
+    ].join('');
   };
   const renderRelayPrimeDirectives = (snapshot) => {
     const directives = Array.isArray(snapshot.primeDirectives) ? snapshot.primeDirectives : [];
@@ -3989,6 +4241,39 @@ body {
       logicNode.innerHTML = renderRelayLogicSnapshot(snapshot);
     } catch (error) {
       logicNode.innerHTML = renderRelayLogicSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadCompassLogic = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-compass-logic]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('compass-logic'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderCompassLogicSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderCompassLogicSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadVulcanLogic = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-vulcan-logic]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('vulcan-logic'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderVulcanLogicSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderVulcanLogicSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadPrimeLogic = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-prime-logic]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('prime-logic'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderPrimeDecisionSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderPrimeDecisionSnapshot({ ok: false, error: error.message });
     }
   };
   const relayBridgeRows = (status, detail) => [
@@ -4095,7 +4380,7 @@ body {
       rightWorkspace.insertAdjacentHTML('beforeend', `
         <div class="relay-models-surface" role="region" aria-label="Relay models">
           <div class="relay-models-header">
-            <div class="relay-models-title">Relay Model Logic</div>
+            <div class="relay-models-title">Relay Runtime Logic</div>
             <div class="relay-models-status">Auto disabled</div>
           </div>
           <div class="relay-models-body">
@@ -4119,6 +4404,99 @@ body {
       return false;
     }
   };
+  const renderPrimeLogic = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Prime runtime logic">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Prime Runtime Logic</div>
+            <div class="relay-models-status">Runtime logic</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-prime-logic>${relaySection('Prime logic source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadPrimeLogic();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
+  const renderCompassProjectLogic = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Compass project logic">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Compass Runtime Logic</div>
+            <div class="relay-models-status">Project context</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-compass-logic>${relaySection('Compass logic source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadCompassLogic();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
+  const renderVulcanSessionLogic = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Vulcan session lifecycle logic">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Vulcan Runtime Logic</div>
+            <div class="relay-models-status">Session lifecycle</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-vulcan-logic>${relaySection('Vulcan logic source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadVulcanLogic();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
   const openSpark = () => {
     stage.classList.add('spark-menu-open');
     harnessDock.classList.remove('harness-dock-open');
@@ -4132,6 +4510,9 @@ body {
   };
   const refreshRelayPanel = () => {
     if (rightWorkspace?.querySelector('.relay-models-surface')) renderRelayBridgeStatus();
+    if (rightWorkspace?.querySelector('[data-prime-logic]')) loadPrimeLogic();
+    if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
+    if (rightWorkspace?.querySelector('[data-vulcan-logic]')) loadVulcanLogic();
   };
   window.addEventListener('focus', refreshRelayPanel);
   document.addEventListener('visibilitychange', () => {
@@ -4334,7 +4715,13 @@ body {
     screen.classList.remove('session-theme-green');
     if (userTitle) userTitle.textContent = button.dataset.sessionTitle || button.dataset.harness || 'User';
     clearRightPanelSurface();
-    const rendered = button.dataset.harness === 'Relay' ? renderRelayModels() : renderHarnessSurface(button);
+    const rendered = button.dataset.harness === 'Prime'
+      ? renderPrimeLogic()
+      : button.dataset.harness === 'Relay'
+      ? renderRelayModels()
+      : (button.dataset.harness === 'Compass'
+        ? renderCompassProjectLogic()
+        : (button.dataset.harness === 'Session Lifecycle' ? renderVulcanSessionLogic() : renderHarnessSurface(button)));
     if (!rendered) return;
     screen.classList.add('sessions-visible');
     setRightPanelAuthority('harness', button.dataset.harness || 'Harness', { persist });

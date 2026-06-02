@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from meridian_core.filemap import FileArea, FileMap, FileMapEntry, make_default_map
@@ -11,6 +13,8 @@ _REQUIRED_PATHS = [
     "MISSION.md",
     "context.md",
     "docs/FileMap.md",
+    "docs/harness-stage-checklist.md",
+    "docs/harness-stage-checklist.html",
     "docs/agentic-ai-framework-checklist.md",
     "docs/atlas-retrieval-contract.md",
     "meridian_core/atlas.py",
@@ -28,6 +32,7 @@ _REQUIRED_PATHS = [
     "docs/session-lifecycle-permissions-prime-beacon-contract.md",
     "docs/session-lifecycle-permissions-implementation-checklist.md",
     "meridian_core/session_lifecycle.py",
+    "meridian_core/vulcan_logic_snapshot.py",
     "tests/test_session_lifecycle.py",
     "docs/federation-harness-horizon.md",
     "docs/session-card-queue-activation-contract.md",
@@ -49,6 +54,7 @@ _REQUIRED_PATHS = [
     "meridian_core/beacon.py",
     "tests/test_beacon.py",
     "meridian_core/intention.py",
+    "meridian_core/compass_logic_snapshot.py",
     "meridian_core/objectives.py",
     "meridian_core/risk.py",
     "meridian_core/council.py",
@@ -64,7 +70,9 @@ _REQUIRED_PATHS = [
     "docs/relay-aegis-promptpacket-policy-integration-checklist.md",
     "docs/relay-aegis-demotion-retry-handoff-checklist.md",
     "meridian_core/prime_autonomy.py",
+    "meridian_core/prime_runtime.py",
     "tests/test_prime_autonomy.py",
+    "tests/test_prime_runtime.py",
     "meridian_core/prompt_packet.py",
     "tests/test_prompt_packet.py",
     "meridian_core/relay_packet.py",
@@ -88,6 +96,7 @@ _REQUIRED_PATHS = [
     "tests/test_filemap.py",
     "docs/v0-build-readiness-map.md",
     "docs/prime-orchestration-state-model.md",
+    "docs/prime-core-handoff-20260602.md",
     "docs/prime-restart-resteer-contract.md",
     "docs/bifrost-v0-cockpit-layout-brief.md",
     "docs/bifrost-harness-dashboard-brief.md",
@@ -441,5 +450,24 @@ class TestDefaultMap:
         entry = fm.require("meridian_core/relay.py")
         assert "council_plan" in entry.notes, \
             "relay.py notes should reference the council_plan field"
+
+
+def test_harness_stage_html_dashboard_tracks_core_stages():
+    html = Path("docs/harness-stage-checklist.html").read_text(encoding="utf-8")
+    for expected in [
+        "Harness Stage Checklist",
+        "Contract / Baseline",
+        "V2 Backend",
+        "Core Implementation",
+        "Prime Integration",
+        "Runtime Logic UI",
+        "Proofs / Review",
+        "Operations",
+        "Prime",
+        "Relay / Model",
+        "Compass",
+        "Vulcan / Session Lifecycle",
+    ]:
+        assert expected in html
 
 

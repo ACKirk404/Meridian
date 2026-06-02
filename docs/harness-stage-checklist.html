@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meridian Harness Stage Checklist</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101316;
+      --panel: #171d21;
+      --panel-2: #1d252b;
+      --line: #35414a;
+      --text: #edf6f8;
+      --muted: #9fb0b8;
+      --aqua: #58e6ee;
+      --green: #7ee18b;
+      --yellow: #f4d35e;
+      --orange: #ff9f43;
+      --red: #ff6b6b;
+      --blue: #7db7ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.5 "Segoe UI", system-ui, sans-serif;
+    }
+
+    main {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+    }
+
+    header {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--aqua);
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      color: var(--aqua);
+      font-size: 19px;
+      letter-spacing: 0;
+    }
+
+    .subhead {
+      max-width: 980px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 5px 9px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0 22px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 12px;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--aqua);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 16px;
+      margin: 14px 0;
+      overflow: hidden;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0f1417;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1160px;
+    }
+
+    th, td {
+      padding: 10px 11px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      color: var(--aqua);
+      background: var(--panel-2);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    td:first-child {
+      color: var(--text);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .status {
+      display: inline-block;
+      border-radius: 5px;
+      padding: 3px 7px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .built, .wired, .cleared { color: #07100a; background: var(--green); }
+    .awaiting, .partial, .baseline { color: #191400; background: var(--yellow); }
+    .needs, .not-wired, .none { color: #170b00; background: var(--orange); }
+    .blocked, .not-live { color: #1b0505; background: var(--red); }
+    .planned, .horizon { color: #04101c; background: var(--blue); }
+
+    .priority {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .priority li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #10171a;
+      padding: 10px;
+    }
+
+    .priority b {
+      color: var(--aqua);
+      min-width: 22px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    a { color: var(--aqua); }
+
+    @media (max-width: 820px) {
+      main { width: min(100vw - 20px, 1440px); padding-top: 18px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      section { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Harness Stage Checklist</h1>
+      <div class="subhead">Backend-first stage view for every Meridian harness. A harness is not complete because its button exists; completion requires backend capability, Prime integration, Runtime Logic UI, proofs, and safe operations.</div>
+      <div class="meta">
+        <span class="pill">Source pair: docs/harness-stage-checklist.md</span>
+        <span class="pill">Update rule: keep Markdown and HTML aligned</span>
+        <span class="pill">Runtime title rule: [Harness] Runtime Logic</span>
+      </div>
+    </header>
+
+    <div class="grid" aria-label="Harness summary">
+      <div class="metric"><strong>18</strong><span>tracked harnesses</span></div>
+      <div class="metric"><strong>1</strong><span>Prime UI awaiting review</span></div>
+      <div class="metric"><strong>3</strong><span>review-cleared core harnesses</span></div>
+      <div class="metric"><strong>1</strong><span>Prime runtime awaiting review</span></div>
+      <div class="metric"><strong>0</strong><span>live mutation-ready harnesses</span></div>
+    </div>
+
+    <section>
+      <h2>Stage Definitions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Stage</th><th>Meaning</th><th>Done When</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Contract / Baseline</td><td>The harness has a written contract, checklist, or architecture boundary.</td><td>Scope, owner, non-owner boundaries, and acceptance criteria are documented.</td></tr>
+            <tr><td>V2 Backend</td><td>The backend requirement is represented in the V2 build plan/tracker.</td><td><code>docs/v2-progress-tracker.md</code> has the build item and dependency status.</td></tr>
+            <tr><td>Core Implementation</td><td>The harness has typed runtime/domain code.</td><td>Runtime module exists with unit tests and no UI-only logic.</td></tr>
+            <tr><td>Prime Integration</td><td>Prime can consume the harness state or decision.</td><td>Prime packet/source refs/proof path include the harness without hidden interpretation.</td></tr>
+            <tr><td>Runtime Logic UI</td><td>Clicking the harness shows <code>[Harness] Runtime Logic</code>.</td><td>Right-panel UI renders complete backend-sourced logic through a bridge/snapshot path; a titled shell or partial snapshot is not complete.</td></tr>
+            <tr><td>Proofs / Review</td><td>The harness has proof gates, tests, and review status.</td><td>Tests pass; review state is explicit as cleared, awaiting review, or not started.</td></tr>
+            <tr><td>Operations</td><td>The harness can safely execute or mutate live state.</td><td>Live actions are gated, auditable, and recoverable.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Current Harness Matrix</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Harness</th>
+              <th>Contract / Baseline</th>
+              <th>V2 Backend</th>
+              <th>Core Implementation</th>
+              <th>Prime Integration</th>
+              <th>Runtime Logic UI</th>
+              <th>Proofs / Review</th>
+              <th>Operations</th>
+              <th>Next Build</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Prime</td><td><span class="status built">built</span></td><td><span class="status awaiting">built-awaiting-review</span></td><td><span class="status awaiting">built-awaiting-review</span></td><td><span class="status awaiting">built-awaiting-review</span></td><td><span class="status awaiting">built-awaiting-review</span></td><td><span class="status awaiting">awaiting review</span></td><td><span class="status not-live">not live execution</span></td><td>Review Prime Runtime Logic UI and runtime contract before binding live Compass/Vulcan/Relay inputs.</td></tr>
+            <tr><td>Relay / Model</td><td><span class="status built">built</span></td><td><span class="status needs">needs build</span></td><td><span class="status partial">partial</span></td><td><span class="status partial">partial via Prime source refs</span></td><td><span class="status wired">wired</span></td><td><span class="status partial">partial</span></td><td><span class="status not-live">Auto disabled</span></td><td>Provider metadata, DeepSeek route, prompt payload visibility, dispatch hardening.</td></tr>
+            <tr><td>Compass</td><td><span class="status baseline">baseline</span></td><td><span class="status needs">needs build</span></td><td><span class="status partial">snapshot only</span></td><td><span class="status partial">partial via Prime source refs</span></td><td><span class="status wired">wired</span></td><td><span class="status needs">not reviewed as runtime</span></td><td><span class="status not-live">no writes</span></td><td>Project definition, bounds/scope, difference, cross-project handoff runtime.</td></tr>
+            <tr><td>Vulcan / Session Lifecycle</td><td><span class="status baseline">baseline</span></td><td><span class="status needs">needs build</span></td><td><span class="status partial">partial</span></td><td><span class="status partial">partial via Prime source refs</span></td><td><span class="status wired">wired</span></td><td><span class="status partial">partial</span></td><td><span class="status not-live">no live command execution</span></td><td>Live session state evidence, command-plan proof, permissions, close/archive write-through.</td></tr>
+            <tr><td>Aegis</td><td><span class="status built">built</span></td><td><span class="status built">built</span></td><td><span class="status built">built</span></td><td><span class="status wired">wired into Prime risk input</span></td><td><span class="status partial">partial</span></td><td><span class="status cleared">review-cleared core; Prime binding awaiting review</span></td><td><span class="status partial">proof gates only</span></td><td>Runtime Logic UI for Aegis and live proof packet surfaces.</td></tr>
+            <tr><td>Bifrost</td><td><span class="status built">built</span></td><td><span class="status needs">needs build</span></td><td><span class="status partial">partial</span></td><td><span class="status partial">renders Prime/Relay/Compass/Vulcan snapshots</span></td><td><span class="status built">owns UI shell</span></td><td><span class="status partial">partial</span></td><td><span class="status partial">UI only</span></td><td>V2 cockpit extensions, balance, prompt payload, voice surface.</td></tr>
+            <tr><td>Echo</td><td><span class="status built">built</span></td><td><span class="status built">built</span></td><td><span class="status built">built</span></td><td><span class="status not-wired">not wired into Prime runtime</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status cleared">review-cleared core</span></td><td><span class="status partial">query only</span></td><td>Feed live memory hits into Prime runtime packet.</td></tr>
+            <tr><td>Atlas</td><td><span class="status built">built</span></td><td><span class="status built">built</span></td><td><span class="status built">built</span></td><td><span class="status not-wired">not wired into Prime runtime</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status cleared">review-cleared core</span></td><td><span class="status partial">retrieval only</span></td><td>Feed live retrieval hits into Prime runtime packet.</td></tr>
+            <tr><td>Beacon</td><td><span class="status baseline">baseline/partial</span></td><td><span class="status needs">not queued here</span></td><td><span class="status partial">partial</span></td><td><span class="status not-wired">not wired into Prime runtime</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status partial">partial</span></td><td><span class="status partial">observes only</span></td><td>Define heartbeat/liveness Runtime Logic UI and Prime heartbeat input boundary.</td></tr>
+            <tr><td>Charon / FileMap</td><td><span class="status built">built</span></td><td><span class="status built">built</span></td><td><span class="status built">built</span></td><td><span class="status partial">indirect via docs/context</span></td><td><span class="status partial">partial</span></td><td><span class="status cleared">tests passing</span></td><td><span class="status partial">lookup only</span></td><td>Runtime Logic UI reading FileMap state.</td></tr>
+            <tr><td>Arbiter / Reviews</td><td><span class="status partial">partial</span></td><td><span class="status partial">partial</span></td><td><span class="status partial">partial</span></td><td><span class="status not-wired">not wired into Prime runtime</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status partial">partial</span></td><td><span class="status partial">review queue only</span></td><td>Runtime Logic UI for review state and Prime acceptance gates.</td></tr>
+            <tr><td>Workflow</td><td><span class="status baseline">baseline</span></td><td><span class="status baseline">baseline</span></td><td><span class="status needs">not implemented</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status baseline">contract only</span></td><td><span class="status not-live">no dispatch</span></td><td>Workflow/sub-agent runtime and Prime work-order binding.</td></tr>
+            <tr><td>Federation</td><td><span class="status horizon">horizon</span></td><td><span class="status horizon">horizon</span></td><td><span class="status planned">planning only</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status cleared">review-cleared planning</span></td><td><span class="status not-live">no runtime</span></td><td>Keep out of V2 runtime until Prime core is stable.</td></tr>
+            <tr><td>Security / Guardrails</td><td><span class="status planned">reserved</span></td><td><span class="status needs">not queued</span></td><td><span class="status needs">not implemented</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status none">none</span></td><td><span class="status none">none</span></td><td>Define Security harness scope separate from Aegis proof gates.</td></tr>
+            <tr><td>Ratchet / Tool</td><td><span class="status planned">planned</span></td><td><span class="status needs">not queued</span></td><td><span class="status needs">not implemented</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status none">none</span></td><td><span class="status none">none</span></td><td>Define tool execution contract and permission boundaries.</td></tr>
+            <tr><td>Source / Git</td><td><span class="status planned">planned</span></td><td><span class="status needs">not queued</span></td><td><span class="status needs">not implemented</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status none">none</span></td><td><span class="status none">none</span></td><td>Define branch/worktree mutation gates before any UI action.</td></tr>
+            <tr><td>Vision / Browser</td><td><span class="status planned">planned</span></td><td><span class="status needs">not queued</span></td><td><span class="status needs">not implemented</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status none">none</span></td><td><span class="status none">none</span></td><td>Define browser/vision harness contract and proof surface.</td></tr>
+            <tr><td>Autonomy / Release</td><td><span class="status planned">planned</span></td><td><span class="status needs">not queued</span></td><td><span class="status needs">not implemented</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status not-wired">not wired</span></td><td><span class="status none">none</span></td><td><span class="status none">none</span></td><td>Define release/autonomy gates after Prime/Vulcan/Aegis mature.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Current Priority</h2>
+      <ol class="priority">
+        <li><b>1</b><span>Prime review acceptance.</span></li>
+        <li><b>2</b><span>Compass backend runtime.</span></li>
+        <li><b>3</b><span>Vulcan live session state and command-plan proof.</span></li>
+        <li><b>4</b><span>Relay model/provider metadata and prompt payload visibility.</span></li>
+        <li><b>5</b><span>Echo/Atlas live inputs into Prime runtime.</span></li>
+      </ol>
+      <div class="note">When the Markdown checklist changes, update this HTML page in the same checkpoint.</div>
+    </section>
+  </main>
+</body>
+</html>
