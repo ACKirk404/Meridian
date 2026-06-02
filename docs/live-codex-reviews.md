@@ -22,6 +22,36 @@ Completion: commit only review provenance/finding/pass updates locally in `docs/
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review Build 2 Session Lifecycle command-staging review packet.
+
+Status: passed by Codex Reviews A on 2026-06-02 09:26 -06:00. Candidate `HEAD` is `7b7bba35`, and Build 2 commits `0a0aadd9` and `7b7bba35` are ancestors of the assigned candidate branch.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Review scope: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+- `git diff --check 0a0aadd9^..7b7bba35`
+
+Review result:
+
+- Containment checks for `0a0aadd9` and `7b7bba35` passed on the assigned candidate branch.
+- Scope check shows implementation/test changes limited to `meridian_core/session_lifecycle.py` and `tests/test_session_lifecycle.py`, with Build 2 queue provenance in `docs/live-build-2.md`.
+- `python -m pytest tests/test_session_lifecycle.py -q` passed with 113 tests.
+- `git diff --check 0a0aadd9^..7b7bba35` passed.
+- Verified `SessionCommandStagingReviewPacket` is frozen, deterministic, display-safe, serializable review metadata and `build_command_staging_review_packet()` only packages the non-executable staging record plus optional Prime/Beacon advisory dictionaries.
+- Verified target session id, command kind, recommended action, required operation, ready flag, human-gate rationale, UI-review blocker, permission state, blockers, evidence refs, Prime advisory action, and Beacon evidence shape are preserved.
+- Verified packet output explicitly forces `is_executable_now=False` and `requires_human_ui_review=True`.
+- Verified no restart, resteer, archive execution, process/session/model/provider calls, UI/Bifrost/FileMap edits, branch/worktree movement, main writes, or Polaris dependency was introduced.
+
+Finding: none.
+
+Completion: Build 2 Session Lifecycle command-staging review packet is review-cleared. No repair routed.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review Build 2 Prime/Beacon command-staging advisory consumers.
 
 Status: passed by Codex Reviews A on 2026-06-02 09:14 -06:00. Candidate `HEAD` is `683e364b`, and Build 2 commits `0f63b726` and `683e364b` are ancestors of the assigned candidate branch.
