@@ -120,6 +120,7 @@ class ModelCapabilityItem:
     exact_model_id: str
     route_kind: str
     trust_state: str
+    candidate_trust_state: str = "trusted"
     context_window_tokens: int = 0
     cost_posture: str = "unknown"
     latency_tier: str = "unknown"
@@ -127,6 +128,9 @@ class ModelCapabilityItem:
     supports_streaming: bool = False
     q_mode_flat: bool = False
     external_review_required: bool = False
+    external_review_status: str = "not_required"
+    proof_strength: str = "unknown"
+    blocked_authorities: list[str] = field(default_factory=list)
     allowed_task_hints: list[str] = field(default_factory=list)
     blocked_task_hints: list[str] = field(default_factory=list)
     prompt_budget_status: str = "unknown"
@@ -512,6 +516,7 @@ def sample_cockpit_view_model(
                     exact_model_id="claude-sonnet-4-20250514",
                     route_kind="direct",
                     trust_state="trusted",
+                    candidate_trust_state="trusted",
                     context_window_tokens=200000,
                     cost_posture="premium",
                     latency_tier="fast",
@@ -519,6 +524,9 @@ def sample_cockpit_view_model(
                     supports_streaming=True,
                     q_mode_flat=False,
                     external_review_required=False,
+                    external_review_status="not_required",
+                    proof_strength="strong",
+                    blocked_authorities=[],
                     allowed_task_hints=["build", "review", "explain"],
                     blocked_task_hints=[],
                     prompt_budget_status="within_budget",
@@ -531,6 +539,7 @@ def sample_cockpit_view_model(
                     exact_model_id="gpt-4o",
                     route_kind="direct",
                     trust_state="trusted",
+                    candidate_trust_state="trusted",
                     context_window_tokens=128000,
                     cost_posture="premium",
                     latency_tier="fast",
@@ -538,6 +547,9 @@ def sample_cockpit_view_model(
                     supports_streaming=True,
                     q_mode_flat=False,
                     external_review_required=False,
+                    external_review_status="not_required",
+                    proof_strength="standard",
+                    blocked_authorities=[],
                     allowed_task_hints=["build", "verify", "explain"],
                     blocked_task_hints=["tier4_human_gate"],
                     prompt_budget_status="within_budget",
@@ -550,6 +562,7 @@ def sample_cockpit_view_model(
                     exact_model_id="deepseek-chat",
                     route_kind="direct",
                     trust_state="candidate",
+                    candidate_trust_state="candidate",
                     context_window_tokens=256000,
                     cost_posture="minimal",
                     latency_tier="normal",
@@ -557,6 +570,9 @@ def sample_cockpit_view_model(
                     supports_streaming=True,
                     q_mode_flat=True,
                     external_review_required=True,
+                    external_review_status="pending",
+                    proof_strength="weak",
+                    blocked_authorities=["external_review_required"],
                     allowed_task_hints=["verify", "explain"],
                     blocked_task_hints=["build", "review_clearing"],
                     prompt_budget_status="watch",
@@ -565,10 +581,34 @@ def sample_cockpit_view_model(
                     evidence_refs=["adapter:deepseek", "validation:pending"],
                 ),
                 ModelCapabilityItem(
+                    provider_id="deepseek-reviewed",
+                    exact_model_id="deepseek-chat",
+                    route_kind="direct",
+                    trust_state="trusted",
+                    candidate_trust_state="external_review_cleared",
+                    context_window_tokens=256000,
+                    cost_posture="minimal",
+                    latency_tier="normal",
+                    tokenizer_family="deepseek",
+                    supports_streaming=True,
+                    q_mode_flat=True,
+                    external_review_required=True,
+                    external_review_status="passed",
+                    proof_strength="strong",
+                    blocked_authorities=[],
+                    allowed_task_hints=["verify", "explain"],
+                    blocked_task_hints=[],
+                    prompt_budget_status="within_budget",
+                    prompt_growth_state="flat",
+                    prompt_delta_tokens=0,
+                    evidence_refs=["review:codex-b", "validation:deepseek-direct-passed"],
+                ),
+                ModelCapabilityItem(
                     provider_id="openrouter",
                     exact_model_id="deepseek-chat",
                     route_kind="aggregator",
                     trust_state="degraded",
+                    candidate_trust_state="validation_blocked",
                     context_window_tokens=64000,
                     cost_posture="unknown",
                     latency_tier="unknown",
@@ -576,6 +616,9 @@ def sample_cockpit_view_model(
                     supports_streaming=True,
                     q_mode_flat=False,
                     external_review_required=True,
+                    external_review_status="pending",
+                    proof_strength="weak",
+                    blocked_authorities=["aggregator_without_proof", "payload_snapshot_missing"],
                     allowed_task_hints=["explain"],
                     blocked_task_hints=["payload_snapshot", "tier2_plus"],
                     prompt_budget_status="near_limit",
@@ -1336,6 +1379,10 @@ def _render_model_capabilities(metadata: ModelCapabilityMetadataView) -> str:
     item_markup = []
     for item in metadata.items:
         selected_attr = ' data-selected="true"' if item.exact_model_id == metadata.selected_model_id else ""
+        candidate_trust_state = item.candidate_trust_state or item.trust_state
+        external_review_status = item.external_review_status or (
+            "required" if item.external_review_required else "not_required"
+        )
         allowed = "".join(
             f'<span class="capability-chip capability-allowed">{_e(hint)}</span>'
             for hint in item.allowed_task_hints
@@ -1343,6 +1390,10 @@ def _render_model_capabilities(metadata: ModelCapabilityMetadataView) -> str:
         blocked = "".join(
             f'<span class="capability-chip capability-blocked">{_e(hint)}</span>'
             for hint in item.blocked_task_hints
+        ) or '<span class="capability-chip capability-empty">none</span>'
+        blocked_authorities = "".join(
+            f'<span class="capability-chip capability-authority">{_e(authority)}</span>'
+            for authority in item.blocked_authorities
         ) or '<span class="capability-chip capability-empty">none</span>'
         evidence = "".join(
             f'<span class="capability-chip capability-evidence">{_e(ref)}</span>'
@@ -1355,6 +1406,11 @@ def _render_model_capabilities(metadata: ModelCapabilityMetadataView) -> str:
             f'<span class="capability-model">Exact model: {_e(item.exact_model_id)}</span>'
             f'<span class="capability-route">Route: {_e(item.route_kind)}</span>'
             f'<span class="capability-trust">Trust: {_e(item.trust_state)}</span>'
+            "</div>"
+            '<div class="capability-badges" aria-label="Candidate Trust and External Review Badges">'
+            f'<span class="capability-badge capability-candidate-{_e(candidate_trust_state)}">Candidate trust: {_e(candidate_trust_state)}</span>'
+            f'<span class="capability-badge capability-review-{_e(external_review_status)}">External review status: {_e(external_review_status)}</span>'
+            f'<span class="capability-badge capability-proof-{_e(item.proof_strength)}">Proof: {_e(item.proof_strength)}</span>'
             "</div>"
             '<div class="capability-grid">'
             f'<span>Context window: {item.context_window_tokens}</span>'
@@ -1374,6 +1430,9 @@ def _render_model_capabilities(metadata: ModelCapabilityMetadataView) -> str:
             + "</div>"
             '<div class="capability-list capability-blocked-tasks" aria-label="Blocked Task Hints"><span class="capability-list-title">Blocked</span>'
             + blocked
+            + "</div>"
+            '<div class="capability-list capability-blocked-authorities" aria-label="Blocked Authorities"><span class="capability-list-title">Authorities</span>'
+            + blocked_authorities
             + "</div>"
             '<div class="capability-list capability-evidence-refs" aria-label="Model Capability Evidence Refs"><span class="capability-list-title">Evidence</span>'
             + evidence

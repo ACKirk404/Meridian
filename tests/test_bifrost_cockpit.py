@@ -456,6 +456,43 @@ def test_model_capability_metadata_sample_renders_task_hints_and_review_state():
     assert "Q-mode flat: no" in doc
 
 
+def test_model_capability_metadata_sample_renders_candidate_trust_badges():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    assert 'aria-label="Candidate Trust and External Review Badges"' in doc
+    assert "Candidate trust: trusted" in doc
+    assert "Candidate trust: candidate" in doc
+    assert "Candidate trust: validation_blocked" in doc
+    assert "Candidate trust: external_review_cleared" in doc
+    assert "capability-candidate-trusted" in doc
+    assert "capability-candidate-candidate" in doc
+    assert "capability-candidate-validation_blocked" in doc
+    assert "capability-candidate-external_review_cleared" in doc
+
+
+def test_model_capability_metadata_sample_renders_external_review_badges():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    assert "External review status: not_required" in doc
+    assert "External review status: pending" in doc
+    assert "External review status: passed" in doc
+    assert "capability-review-not_required" in doc
+    assert "capability-review-pending" in doc
+    assert "capability-review-passed" in doc
+    assert "Proof: strong" in doc
+    assert "Proof: standard" in doc
+    assert "Proof: weak" in doc
+
+
+def test_model_capability_metadata_sample_renders_blocked_authorities():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    assert 'class="capability-list capability-blocked-authorities"' in doc
+    assert 'aria-label="Blocked Authorities"' in doc
+    assert "external_review_required" in doc
+    assert "aggregator_without_proof" in doc
+    assert "payload_snapshot_missing" in doc
+    assert "review:codex-b" in doc
+    assert "validation:deepseek-direct-passed" in doc
+
+
 def test_model_capability_metadata_sample_renders_prompt_drag_and_evidence_refs():
     doc = render_cockpit_html(sample_cockpit_view_model())
     assert "Prompt budget: within_budget" in doc
@@ -482,10 +519,14 @@ def test_model_capability_metadata_escapes_structured_fields():
                 exact_model_id="<script>model</script>",
                 route_kind="<bad>",
                 trust_state="<script>trust</script>",
+                candidate_trust_state="<script>candidate</script>",
                 context_window_tokens=1,
                 cost_posture="<script>cost</script>",
                 latency_tier="<bad>",
                 tokenizer_family="<script>tokenizer</script>",
+                external_review_status="<script>review</script>",
+                proof_strength="<bad-proof>",
+                blocked_authorities=["authority:<bad>"],
                 allowed_task_hints=["<script>allowed</script>"],
                 blocked_task_hints=["blocked:<bad>"],
                 prompt_budget_status="<script>budget</script>",
@@ -500,6 +541,10 @@ def test_model_capability_metadata_escapes_structured_fields():
     assert "<img" not in doc
     assert "&lt;script&gt;model&lt;/script&gt;" in doc
     assert "Route: &lt;bad&gt;" in doc
+    assert "Candidate trust: &lt;script&gt;candidate&lt;/script&gt;" in doc
+    assert "External review status: &lt;script&gt;review&lt;/script&gt;" in doc
+    assert "Proof: &lt;bad-proof&gt;" in doc
+    assert "authority:&lt;bad&gt;" in doc
     assert "blocked:&lt;bad&gt;" in doc
     assert "evidence:&lt;bad&gt;" in doc
 

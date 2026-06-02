@@ -1270,6 +1270,47 @@ summary {
   font-size: 10px;
 }
 
+.capability-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.capability-badge {
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 7px;
+  text-transform: uppercase;
+}
+
+.capability-candidate-trusted,
+.capability-candidate-external_review_cleared,
+.capability-review-passed,
+.capability-review-not_required,
+.capability-proof-strong {
+  color: var(--green);
+  background: rgba(101, 240, 170, 0.12);
+  border: 1px solid rgba(101, 240, 170, 0.3);
+}
+
+.capability-candidate-candidate,
+.capability-review-pending,
+.capability-proof-standard {
+  color: var(--amber);
+  background: rgba(255, 198, 94, 0.12);
+  border: 1px solid rgba(255, 198, 94, 0.3);
+}
+
+.capability-candidate-validation_blocked,
+.capability-review-failed,
+.capability-review-expired,
+.capability-proof-weak {
+  color: var(--red);
+  background: rgba(255, 111, 123, 0.12);
+  border: 1px solid rgba(255, 111, 123, 0.3);
+}
+
 .capability-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
@@ -1314,7 +1355,8 @@ summary {
   border: 1px solid rgba(101, 240, 170, 0.28);
 }
 
-.capability-blocked {
+.capability-blocked,
+.capability-authority {
   color: var(--red);
   background: rgba(255, 111, 123, 0.12);
   border: 1px solid rgba(255, 111, 123, 0.28);
