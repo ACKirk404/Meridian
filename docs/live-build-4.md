@@ -26,7 +26,7 @@ Completion: completed 2026-06-02.
 
 Ready for Codex Review:
 
-- Commit: `pending local commit hash`
+- Commit: `1828ae03`
 - Files changed: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`
 - Tests run: `python -m pytest tests/test_aegis.py -q` (237 passed)
 - Verification performed: added `PromptPacketProofPolicyResult.to_display_dict()` and `serialize_prompt_packet_policy_result()` with stable display-safe keys, deterministic tuple ordering for evidence IDs, blockers, warnings, missing fields, and reason tags, demotion target preservation, and redaction for raw prompt, credentials, provider, and process-id sentinel strings; `git diff --check` passed.
