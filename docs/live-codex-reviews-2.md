@@ -8,6 +8,32 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review current-main Build 4 provider-result validation Aegis advisory.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: review Build 4 provider-result validation Aegis advisory commits `0e4529c8` and `1bcf729a`. Verify pure Aegis-side primitive/provider-neutral helper, no Relay imports/types, deterministic fail-closed advisory metadata, safe serialization/redaction, no live provider calls, credentials/account probing, raw responses/prompts, Relay runtime edits, FileMap/UI/session/process/main/Polaris leakage.
+
+Proof: `python -m pytest tests/test_aegis.py -q` plus `git diff --check 0e4529c8^..1bcf729a`.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If a finding exists, record it and stop for coordinator repair routing.
+
+Review result - 2026-06-02 08:53 -06:00:
+
+- Build 4 provider-result validation Aegis advisory passed. Commits `0e4529c8` and `1bcf729a` changed only `meridian_core/aegis.py`, `tests/test_aegis.py`, and `docs/live-build-4.md`.
+- The Aegis slice adds frozen primitive/provider-neutral `ProviderResultValidationInput`, `ProviderResultValidationPolicyResult`, `ProviderResultValidationDecision`, a pure `evaluate_provider_result_validation_advisory()` helper, and display-safe serialization for future Relay/Bifrost consumers without importing Relay types.
+- The evaluator is deterministic and fail-closed for unknown statuses, blocker tags, missing evidence refs, unsafe evidence/tag strings, and pending external review. Serialization redacts unsafe raw response, raw prompt, credential/account, provider body, and transport payload patterns.
+- Tests cover allow/warn/block outcomes, telemetry warnings, external-review fail-closed behavior, missing evidence, unsafe-string redaction, stable advisory keys, `to_advisory_dict()`, and deterministic output. Scope check found no live provider calls, credentials/account probing, raw response/prompt storage, Relay runtime edits, FileMap/UI/session/process changes, branch/main movement, shared-main write, Polaris dependency, or push.
+
+Proof:
+
+- `python -m pytest tests/test_aegis.py -q` passed: 237 tests.
+- `git diff --check 0e4529c8^..1bcf729a` passed.
+
+Completion: Build 4 provider-result validation Aegis advisory is review-cleared. Reviews B returns to current-main Ready-marker polling.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 3 FileMap registration for the provider-result validation evidence checklist.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
