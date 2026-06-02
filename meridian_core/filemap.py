@@ -490,6 +490,13 @@ def make_default_map() -> FileMap:
             notes="Read before implementing PromptPacket proof metadata, packet hash evidence, budget/source-lineage gates, Aegis evidence bindings, or Bifrost-visible packet proof fields.",
         ),
         FileMapEntry(
+            path="docs/relay-aegis-promptpacket-policy-integration-checklist.md",
+            area=FileArea.RELAY_DISPATCH,
+            purpose="Build-ready checklist for wiring Aegis PromptPacket proof policy evaluation into Relay dispatch: metadata translation, fail-closed preconditions, adapter-call gating, decision records, and Bifrost handoff.",
+            related_tests=["tests/test_aegis.py", "tests/test_relay_executor.py", "tests/test_bifrost_cockpit.py"],
+            notes="Read before integrating evaluate_prompt_packet_proof_policy() into Relay dispatch or mapping Aegis PromptPacket outcomes into Relay/Bifrost proof records.",
+        ),
+        FileMapEntry(
             path="meridian_core/prime_autonomy.py",
             area=FileArea.PRIME_AUTONOMY,
             purpose="Prime next-action domain model: immutable PrimeNextAction with action type, confidence, risk tier, source, targets, blockers, human gate, rationale, and evidence refs.",
