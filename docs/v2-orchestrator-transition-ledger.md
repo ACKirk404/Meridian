@@ -495,6 +495,7 @@ Coordinator Build 1 movement rejection - 2026-06-02:
 - Shared-main proof failed after movement: `python -m pytest tests/test_relay_executor.py -q` reported 5 failures because the Build 1 slice was built before the stricter Build 4 Aegis edge behavior now on current main.
 - Recovery: reverted the unverified Build 1 movement with `40b51b93` and `bd070858` before push; `python -m pytest tests/test_relay_executor.py -q` then passed 172/172.
 - Next action: route Build 1 to repair/rebase-by-reimplementation on a fresh current-main branch. Do not move the old Build 1 commits until the repaired current-main proof passes.
+- Queue maintenance: added a Build 1 repair note to the top Active Now block naming the rejected commits and the stricter current-main Aegis edge cases that must pass before movement.
 
 ## Full Takeover Criteria
 

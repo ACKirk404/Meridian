@@ -18,6 +18,8 @@ Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executo
 
 Required sources: `docs/relay-aegis-promptpacket-policy-integration-checklist.md`, `meridian_core/aegis.py`, `tests/test_aegis.py`, and Reviews B clearance evidence in `docs/live-codex-reviews-2.md`.
 
+Current-main repair note: prior local Build 1 commits `d5c4c4c8` and `bfb0ae50` were rejected by shared-main proof after Build 4 Aegis edge coverage landed. Do not reuse those commits mechanically. Reimplement/repair against current `origin/main` so `tests/test_relay_executor.py` passes with the stricter Aegis handling for unknown proof requirements, dual-lane proof requirements, unavailable packet hashes, and clean human-gate proof.
+
 Task: add a narrow deterministic Relay call site/helper that builds `PromptPacketProofMetadata` from already sealed PromptPacket and dispatch-envelope proof fields, calls `evaluate_prompt_packet_proof_policy()` before provider adapter transport, and records display-safe Aegis PromptPacket policy decision evidence in Relay decision/audit data. Cover at least allow, warn/degraded, block/fail-closed, missing proof metadata, and no raw prompt/credential/provider-response leakage. Preserve `PromptPacket.model_payload()` as the only model-bound prompt text. Do not mutate Aegis rules, edit Bifrost/UI/FileMap/model-account-process code, move branches, push main, or touch Polaris.
 
 Tests: `python -m pytest tests/test_relay_executor.py -q`.
