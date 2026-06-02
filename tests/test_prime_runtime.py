@@ -9,6 +9,7 @@ from meridian_core.prime_runtime import (
     make_prime_decision,
     resolve_prime_decision,
     resolve_prime_owner,
+    prime_runtime_snapshot,
 )
 from meridian_core.relay_logic_snapshot import relay_logic_snapshot
 from meridian_core.vulcan_logic_snapshot import vulcan_logic_snapshot
@@ -174,3 +175,18 @@ def test_resolve_prime_decision_blocks_when_backend_source_missing():
     assert decision.status == PrimeDecisionStatus.BLOCKED
     assert decision.is_executable() is False
     assert "Relay source unavailable" in decision.blockers
+
+
+def test_prime_runtime_snapshot_is_backend_visible_contract():
+    snapshot = prime_runtime_snapshot()
+    titles = [section["title"] for section in snapshot["capabilitySections"]]
+
+    assert snapshot["ok"] is True
+    assert snapshot["service"] == "meridian-prime-runtime"
+    assert snapshot["source"] == "meridian_core.prime_runtime.resolve_prime_decision"
+    assert snapshot["decision"]["ownerHarness"] == "Prime"
+    assert snapshot["decision"]["context"]["sourceRefs"][0]["harness"] == "Compass"
+    assert "Prime Job" in titles
+    assert "Logic Hierarchy" in titles
+    assert "Executability Logic" in titles
+    assert "Proof Packet" in titles

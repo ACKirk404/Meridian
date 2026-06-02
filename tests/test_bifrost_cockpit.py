@@ -203,6 +203,23 @@ def test_index_vulcan_harness_uses_backend_logic_snapshot():
     assert "renderVulcanSessionLogic" in doc
 
 
+def test_index_prime_harness_uses_backend_runtime_snapshot():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Prime Runtime Logic" in doc
+    assert "data-prime-logic" in doc
+    assert "bridgeUrl('prime-logic')" in doc
+    assert "renderPrimeDecisionSnapshot" in doc
+    assert "renderPrimeLogic" in doc
+
+
+def test_bridge_exposes_prime_logic_route_and_capability():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    assert "primeRuntimeSnapshot: true" in doc
+    assert "primeLogic: '/bridge/prime-logic'" in doc
+    assert "meridian_core.prime_runtime" in doc
+    assert "req.url === BRIDGE_ROUTES.primeLogic" in doc
+
+
 def test_ui_checklist_defers_deep_compass_and_vulcan_items_to_backend_tracker():
     doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
     assert "### Compass And Vulcan Backend Readiness" in doc

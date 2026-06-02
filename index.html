@@ -4018,6 +4018,53 @@ body {
       ...capabilitySections.map(renderCompassCapabilitySection),
     ].join('');
   };
+  const renderPrimeDecisionSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Prime logic source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Prime runtime snapshot unavailable'],
+      ]), true);
+    }
+    const decision = snapshot.decision || {};
+    const context = decision.context || {};
+    const proof = Array.isArray(decision.proof) ? decision.proof : [];
+    const refs = Array.isArray(context.sourceRefs) ? context.sourceRefs : [];
+    const capabilitySections = Array.isArray(snapshot.capabilitySections) ? snapshot.capabilitySections : [];
+    return [
+      relaySection('Prime logic source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Prime'],
+      ]), true),
+      relaySection('Prime summary', relaySummary(snapshot.summary || ''), true),
+      relaySection('Runtime decision', relayGrid([
+        ['decision id', decision.decisionId || 'unknown'],
+        ['status', relayText(decision.status)],
+        ['owner harness', decision.ownerHarness || 'unknown'],
+        ['action', relayText(decision.action)],
+        ['risk', relayText(decision.risk)],
+        ['executable', decision.executable ? 'yes' : 'no'],
+        ['why', decision.why || 'unknown'],
+      ]), true),
+      relaySection('Backend context', relayGrid([
+        ['project', context.projectId || 'unknown'],
+        ['project logic', context.projectSummary || 'unknown'],
+        ['session logic', context.sessionState || 'unknown'],
+        ['relay logic', context.relayRouteSummary || 'unknown'],
+        ['risk logic', context.riskSummary || 'unknown'],
+      ]), true),
+      relaySection('Source refs', relayGrid(refs.map((source) => [
+        source.harness || 'unknown',
+        `${source.source || 'unknown'} | ${source.summary || ''}`,
+      ])), true),
+      relaySection('Proof logic', relayGrid(proof.map((item) => [
+        item.question || 'proof',
+        `${item.answer || 'unknown'} Invalidates when: ${item.invalidatesWhen || 'unknown'}`,
+      ])), true),
+      relaySection('Blockers', decision.blockers?.length ? relayList(decision.blockers) : relaySummary('none'), false),
+      ...capabilitySections.map(renderCompassCapabilitySection),
+    ].join('');
+  };
   const renderRelayPrimeDirectives = (snapshot) => {
     const directives = Array.isArray(snapshot.primeDirectives) ? snapshot.primeDirectives : [];
     const proofs = Array.isArray(snapshot.primeDirectiveProofs) ? snapshot.primeDirectiveProofs : [];
@@ -4112,6 +4159,17 @@ body {
       logicNode.innerHTML = renderVulcanLogicSnapshot(snapshot);
     } catch (error) {
       logicNode.innerHTML = renderVulcanLogicSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadPrimeLogic = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-prime-logic]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('prime-logic'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderPrimeDecisionSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderPrimeDecisionSnapshot({ ok: false, error: error.message });
     }
   };
   const relayBridgeRows = (status, detail) => [
@@ -4242,6 +4300,37 @@ body {
       return false;
     }
   };
+  const renderPrimeLogic = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Prime runtime logic">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Prime Runtime Logic</div>
+            <div class="relay-models-status">Backend decision</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-prime-logic>${relaySection('Prime logic source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadPrimeLogic();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
   const renderCompassProjectLogic = () => {
     if (!rightWindow || !rightWorkspace) return false;
     try {
@@ -4317,6 +4406,7 @@ body {
   };
   const refreshRelayPanel = () => {
     if (rightWorkspace?.querySelector('.relay-models-surface')) renderRelayBridgeStatus();
+    if (rightWorkspace?.querySelector('[data-prime-logic]')) loadPrimeLogic();
     if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
     if (rightWorkspace?.querySelector('[data-vulcan-logic]')) loadVulcanLogic();
   };
@@ -4521,7 +4611,9 @@ body {
     screen.classList.remove('session-theme-green');
     if (userTitle) userTitle.textContent = button.dataset.sessionTitle || button.dataset.harness || 'User';
     clearRightPanelSurface();
-    const rendered = button.dataset.harness === 'Relay'
+    const rendered = button.dataset.harness === 'Prime'
+      ? renderPrimeLogic()
+      : button.dataset.harness === 'Relay'
       ? renderRelayModels()
       : (button.dataset.harness === 'Compass'
         ? renderCompassProjectLogic()

@@ -10,6 +10,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Mapping
 
+SNAPSHOT_VERSION = "prime-runtime-v1"
+SNAPSHOT_SOURCE = "meridian_core.prime_runtime.resolve_prime_decision"
+
 
 class PrimeDecisionStatus(Enum):
     """Executable state for Prime's next runtime decision."""
@@ -365,3 +368,82 @@ def resolve_prime_decision(
         status=gate.status,
         blockers=gate.blockers,
     )
+
+
+def prime_runtime_snapshot() -> dict[str, Any]:
+    """Return the canonical Prime runtime packet for bridge/UI rendering."""
+
+    from meridian_core.compass_logic_snapshot import compass_logic_snapshot
+    from meridian_core.relay_logic_snapshot import relay_logic_snapshot
+    from meridian_core.vulcan_logic_snapshot import vulcan_logic_snapshot
+
+    context = assemble_prime_runtime_context(
+        compass_snapshot=compass_logic_snapshot(),
+        vulcan_snapshot=vulcan_logic_snapshot(),
+        relay_snapshot=relay_logic_snapshot(),
+    )
+    decision = resolve_prime_decision(
+        context=context,
+        intent=PrimeIntentKind.ORCHESTRATION,
+        action="inspect_backend_context",
+        why="Prime verifies Compass, Vulcan, Relay, and Aegis source refs before any UI-rendered orchestration.",
+    )
+    return {
+        "ok": True,
+        "service": "meridian-prime-runtime",
+        "version": SNAPSHOT_VERSION,
+        "source": SNAPSHOT_SOURCE,
+        "harness": "Prime",
+        "summary": "Prime owns orchestration only after backend project, session, route, and proof context are assembled visibly.",
+        "decision": decision.to_dict(),
+        "capabilitySections": [
+            {
+                "title": "Prime Job",
+                "summary": "Prime decides the next orchestration action without owning project bounds, session lifecycle, model routing, or proof gates.",
+                "rows": [
+                    {"key": "owns", "value": "orchestration, intent resolution, owner selection, executable status, visible explanation"},
+                    {"key": "does not own", "value": "project bounds, session lifecycle, model/vendor access, proof acceptance"},
+                    {"key": "no drift guard", "value": "visible Prime harness renders this backend decision packet and source refs"},
+                ],
+            },
+            {
+                "title": "Logic Hierarchy",
+                "summary": "Prime consumes harness truth in a fixed order before choosing an action.",
+                "rows": [
+                    {"key": "1 Compass", "value": "project bounds and scope"},
+                    {"key": "2 Vulcan", "value": "session lifecycle and runtime target state"},
+                    {"key": "3 Relay", "value": "model route, vendor access, route proof, fallback blockers"},
+                    {"key": "4 Aegis", "value": "proof/risk gate; placeholder until live gate is wired"},
+                    {"key": "5 Prime", "value": "select owner, explain why, block if source proof is missing"},
+                ],
+            },
+            {
+                "title": "Executability Logic",
+                "summary": "Prime surfaces whether the next action is executable, blocked, needs approval, or needs clarification.",
+                "rows": [
+                    {"key": "executable", "value": "all required owner sources are available and no gate blocks action"},
+                    {"key": "blocked", "value": "required backend source or route proof is missing"},
+                    {"key": "needs approval", "value": "human or Aegis gate required before execution"},
+                    {"key": "needs clarification", "value": "intent/scope is ambiguous enough to require Scott-facing question"},
+                ],
+            },
+            {
+                "title": "Proof Packet",
+                "summary": "Prime exposes the proof questions that must be visible for every orchestration decision.",
+                "rows": [
+                    {"key": item.question, "value": item.answer}
+                    for item in decision.proof
+                ],
+            },
+        ],
+    }
+
+
+def main() -> None:
+    import json
+
+    print(json.dumps(prime_runtime_snapshot(), indent=2, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()

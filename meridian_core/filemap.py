@@ -504,11 +504,25 @@ def make_default_map() -> FileMap:
             notes="V2 Prime Autonomy seed. Human-gated actions are not executable until a later approval model records approval.",
         ),
         FileMapEntry(
+            path="meridian_core/prime_runtime.py",
+            area=FileArea.PRIME_AUTONOMY,
+            purpose="Prime runtime decision contract: assembles Compass, Vulcan, Relay, and Aegis source refs into one visible PrimeDecision with owner resolution, executability gates, proof packet, and bridge snapshot.",
+            related_tests=["tests/test_prime_runtime.py", "tests/test_bifrost_cockpit.py"],
+            notes="Bifrost consumes this through /bridge/prime-logic; keep visible Prime harness logic backend-sourced.",
+        ),
+        FileMapEntry(
             path="tests/test_prime_autonomy.py",
             area=FileArea.PRIME_AUTONOMY,
             purpose="Regression tests for PrimeNextAction, fallback/strict constructors, immutable evidence/blocker sets, confidence/risk mappings, and human-gate executability.",
             related_tests=[],
             notes="Read before changing PrimeNextAction execution semantics or public constructor behavior.",
+        ),
+        FileMapEntry(
+            path="tests/test_prime_runtime.py",
+            area=FileArea.PRIME_AUTONOMY,
+            purpose="Regression tests for PrimeRuntimeContext, PrimeDecision shape, owner resolver, executability gates, source-missing blockers, and backend snapshot payload.",
+            related_tests=[],
+            notes="Run before changing Prime runtime bridge fields or visible Prime harness rendering.",
         ),
         FileMapEntry(
             path="meridian_core/prompt_packet.py",

@@ -19,6 +19,7 @@ const BRIDGE_CAPABILITIES = {
   samePortRestart: true,
   requestResultRecovery: true,
   relayLogicSnapshot: true,
+  primeRuntimeSnapshot: true,
   compassLogicSnapshot: true,
   vulcanLogicSnapshot: true,
   userSessionTargets: true,
@@ -27,6 +28,7 @@ const BRIDGE_ROUTES = Object.freeze({
   health: '/bridge/health',
   models: '/bridge/models',
   relayLogic: '/bridge/relay-logic',
+  primeLogic: '/bridge/prime-logic',
   compassLogic: '/bridge/compass-logic',
   vulcanLogic: '/bridge/vulcan-logic',
   userSessions: '/bridge/user-sessions',
@@ -77,7 +79,7 @@ if (process.argv.includes('--self-test')) {
   rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
   const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot;
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot;
   const sampleSession = sessionTargetFromWorktree({
     path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
     branch: 'refs/heads/worktree-build-5-bifrost',
@@ -479,6 +481,39 @@ function compassLogicSnapshot() {
   });
 }
 
+function primeLogicSnapshot() {
+  return new Promise((resolve) => {
+    const pythonBin = process.env.MERIDIAN_PYTHON_BIN || 'python';
+    const child = spawn(pythonBin, ['-m', 'meridian_core.prime_runtime'], {
+      cwd: DEFAULT_CWD,
+      shell: process.platform === 'win32',
+      windowsHide: true,
+      env: {
+        ...process.env,
+        PYTHONIOENCODING: 'utf-8',
+      },
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString(); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+    child.on('error', (error) => {
+      resolve({ ok: false, error: error.message });
+    });
+    child.on('close', (code) => {
+      if (code !== 0) {
+        resolve({ ok: false, error: stderr.trim() || `Prime logic snapshot exited with code ${code}` });
+        return;
+      }
+      try {
+        resolve(JSON.parse(stdout));
+      } catch (error) {
+        resolve({ ok: false, error: `Prime logic snapshot returned invalid JSON: ${error.message}` });
+      }
+    });
+  });
+}
+
 function vulcanLogicSnapshot() {
   return new Promise((resolve) => {
     const child = spawn('python', ['-m', 'meridian_core.vulcan_logic_snapshot'], {
@@ -680,6 +715,17 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && req.url === BRIDGE_ROUTES.relayLogic) {
     const snapshot = await relayLogicSnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.primeLogic) {
+    const snapshot = await primeLogicSnapshot();
     sendJson(res, snapshot.ok ? 200 : 500, {
       service: 'meridian-model-bridge',
       version: BRIDGE_VERSION,
