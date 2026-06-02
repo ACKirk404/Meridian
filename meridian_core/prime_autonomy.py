@@ -15,6 +15,7 @@ from meridian_core.session_lifecycle import (
     PrimeAutonomyInput as SessionPrimeAutonomyInput,
     ReviewCadenceState,
     SessionCommandPlan,
+    SessionPermissionSummary,
     SessionStatus,
 )
 
@@ -314,12 +315,18 @@ def select_next_action_from_session_lifecycle_advisory(
     sessions_by_id = {
         session.session_id: session for session in advisory_input.current_sessions
     }
+    summaries_by_id = {
+        summary.session_id: summary for summary in advisory_input.permission_summaries
+    }
 
     if advisory_input.approvals_pending:
         blockers = [
             f"{session_id}: {reason}"
             for session_id, reason in advisory_input.approvals_pending
         ]
+        evidence = list(blockers)
+        for session_id, _reason in advisory_input.approvals_pending:
+            evidence.extend(_permission_summary_evidence(summaries_by_id.get(session_id)))
         return make_prime_next_action(
             action_type=PrimeActionType.PAUSE_AND_WAIT,
             confidence=PrimeActionConfidence.HIGH,
@@ -327,7 +334,7 @@ def select_next_action_from_session_lifecycle_advisory(
             source=PrimeActionSource.SESSION_STATE,
             target_harness="Session Lifecycle",
             rationale="Session recovery advisory is waiting on approval.",
-            evidence=blockers,
+            evidence=evidence,
             human_gate_required=True,
             blockers=blockers,
         )
@@ -341,6 +348,10 @@ def select_next_action_from_session_lifecycle_advisory(
                 f"{session.session_id}: status={session.status.value}",
                 f"{session.session_id}: review={session.review_cadence_state.value}",
             ]
+            summary = summaries_by_id.get(session.session_id)
+            evidence.extend(_permission_summary_evidence(summary))
+            blockers = ["review gate requires human approval"]
+            blockers.extend(_permission_summary_review_blockers(summary))
             return make_prime_next_action(
                 action_type=PrimeActionType.PAUSE_AND_WAIT,
                 confidence=PrimeActionConfidence.HIGH,
@@ -351,11 +362,12 @@ def select_next_action_from_session_lifecycle_advisory(
                 rationale="Review gate blocks session recovery advice from execution.",
                 evidence=evidence,
                 human_gate_required=True,
-                blockers=["review gate requires human approval"],
+                blockers=blockers,
             )
 
-    for finding in advisory_input.restart_resteer_findings:
+    for finding in _advisory_findings(advisory_input):
         session = sessions_by_id.get(finding.session_id)
+        summary = summaries_by_id.get(finding.session_id)
         operation = (
             OperationScope.RESTART
             if finding.finding_type == FindingType.RESTART
@@ -366,9 +378,20 @@ def select_next_action_from_session_lifecycle_advisory(
             f"{finding.session_id}: stale_seconds={finding.evidence_stale_seconds}",
             f"{finding.session_id}: recommendation={finding.recommended_action}",
         ]
+        evidence.extend(_permission_summary_evidence(summary))
 
-        if session is not None and not session.can_execute_operation(operation):
-            blocker = f"{finding.session_id}: permission boundary blocks {operation.value}"
+        permission_blockers = _permission_summary_permission_blockers(summary)
+        if (
+            permission_blockers
+            or (
+                session is not None
+                and not session.can_execute_operation(operation)
+            )
+        ):
+            blockers = [
+                f"{finding.session_id}: permission boundary blocks {operation.value}"
+            ]
+            blockers.extend(permission_blockers)
             return make_prime_next_action(
                 action_type=PrimeActionType.PAUSE_AND_WAIT,
                 confidence=PrimeActionConfidence.HIGH,
@@ -379,7 +402,7 @@ def select_next_action_from_session_lifecycle_advisory(
                 rationale="Permission boundary blocks session recovery advice.",
                 evidence=evidence,
                 human_gate_required=True,
-                blockers=[blocker],
+                blockers=blockers,
             )
 
         return make_prime_next_action(
@@ -396,6 +419,9 @@ def select_next_action_from_session_lifecycle_advisory(
         )
 
     session_ids = [session.session_id for session in advisory_input.current_sessions]
+    evidence = list(session_ids)
+    for summary in advisory_input.permission_summaries:
+        evidence.extend(_permission_summary_evidence(summary))
     return make_prime_next_action(
         action_type=PrimeActionType.POLL_SESSION,
         confidence=PrimeActionConfidence.MEDIUM,
@@ -403,8 +429,56 @@ def select_next_action_from_session_lifecycle_advisory(
         source=PrimeActionSource.SESSION_STATE,
         target_harness="Session Lifecycle",
         rationale="No restart/resteer findings; continue watching session state.",
-        evidence=session_ids,
+        evidence=evidence,
     )
+
+
+def _advisory_findings(
+    advisory_input: SessionPrimeAutonomyInput,
+) -> tuple[Any, ...]:
+    findings = list(advisory_input.restart_resteer_findings)
+    seen = {(finding.session_id, finding.finding_type) for finding in findings}
+    for summary in advisory_input.permission_summaries:
+        for finding in summary.restart_resteer_findings:
+            key = (finding.session_id, finding.finding_type)
+            if key not in seen:
+                findings.append(finding)
+                seen.add(key)
+    return tuple(findings)
+
+
+def _permission_summary_evidence(
+    summary: Optional[SessionPermissionSummary],
+) -> list[str]:
+    if summary is None:
+        return []
+    return [f"{summary.session_id}: {item}" for item in summary.evidence]
+
+
+def _permission_summary_permission_blockers(
+    summary: Optional[SessionPermissionSummary],
+) -> list[str]:
+    if summary is None:
+        return []
+    permission_prefixes = (
+        "permission.locked",
+        "permission.unlock_expired",
+        "permission.out_of_scope",
+        "permission.escalation_gate",
+    )
+    return [
+        f"{summary.session_id}: {blocker}"
+        for blocker in summary.blockers
+        if blocker.startswith(permission_prefixes)
+    ]
+
+
+def _permission_summary_review_blockers(
+    summary: Optional[SessionPermissionSummary],
+) -> list[str]:
+    if summary is None:
+        return []
+    return [f"{summary.session_id}: {blocker}" for blocker in summary.review_gate_blockers]
 
 
 def _audit_section(audit_evidence: dict[str, Any], section: str) -> dict[str, Any]:

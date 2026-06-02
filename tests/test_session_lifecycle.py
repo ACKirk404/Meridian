@@ -1388,6 +1388,10 @@ class TestSessionPermissionSummaryAggregation:
         assert "permission.approved_operations=restart,resteer" in summary.evidence
         assert "approval.pending=Aegis review pending" in summary.evidence
         assert any(item.startswith("finding.restart=") for item in summary.evidence)
+        assert any(
+            item.startswith("finding.restart.recommendation=")
+            for item in summary.evidence
+        )
         assert summary.timestamp == observed_at
 
     def test_permission_summary_records_locked_expired_and_out_of_scope_blockers(

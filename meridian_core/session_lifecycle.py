@@ -944,8 +944,13 @@ def summarize_session_permission_state(
     ]
     evidence.extend(f"approval.pending={reason}" for reason in approval_reasons)
     evidence.extend(review_gate_blockers)
+    evidence.extend(f"blocker={blocker}" for blocker in blockers)
     evidence.extend(
         f"finding.{finding.finding_type.value}=stale_seconds:{finding.evidence_stale_seconds}"
+        for finding in findings
+    )
+    evidence.extend(
+        f"finding.{finding.finding_type.value}.recommendation={finding.recommended_action}"
         for finding in findings
     )
 

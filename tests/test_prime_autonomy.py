@@ -653,7 +653,7 @@ class TestSessionLifecycleAdvisorySelection:
         assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
         assert action.human_gate_required is True
         assert action.is_blocked()
-        assert "review gate" in next(iter(action.blockers))
+        assert any("review gate" in item for item in action.blockers)
 
     def test_permission_boundary_blocks_recovery_advisory(self, advisory_session):
         """Expired or out-of-scope permissions block restart/resteer advice."""
@@ -683,11 +683,58 @@ class TestSessionLifecycleAdvisorySelection:
         assert action.human_gate_required is True
         assert action.is_executable() is False
         assert any("permission boundary" in item for item in action.blockers)
+        assert any("permission.unlock_expired" in item for item in action.evidence)
+
+    def test_permission_summary_finding_becomes_recovery_advisory(self, advisory_session):
+        """Summary-generated stale findings can drive advisory recovery decisions."""
+        action = select_next_action_from_session_lifecycle_advisory(
+            self._advisory_input(advisory_session)
+        )
+
+        assert action.action_type == PrimeActionType.ADVISE_SESSION_RECOVERY
+        assert action.target_lane == advisory_session.session_id
+        assert action.human_gate_required is True
+        assert any("finding.restart" in item for item in action.evidence)
+        assert any("permission.approved_operations=restart,resteer" in item for item in action.evidence)
+
+    def test_permission_summary_blockers_pause_summary_recovery(self, advisory_session):
+        """Summary permission blockers pause recovery even without top-level findings."""
+        expired_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=datetime.now(timezone.utc) - timedelta(minutes=1),
+            task_scope="task-1",
+            last_permission_change=datetime.now(timezone.utc),
+        )
+        blocked_session = SessionLifecycleState(
+            **{**advisory_session.__dict__, "permission_context": expired_context}
+        )
+
+        action = select_next_action_from_session_lifecycle_advisory(
+            self._advisory_input(blocked_session)
+        )
+
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.human_gate_required is True
+        assert any("permission.unlock_expired" in item for item in action.blockers)
+        assert any("finding.restart" in item for item in action.evidence)
 
     def test_no_recovery_findings_continues_watch_poll(self, advisory_session):
         """No findings keeps Prime on a safe Session Lifecycle watch path."""
+        fresh_session = SessionLifecycleState(
+            **{
+                **advisory_session.__dict__,
+                "status": SessionStatus.POLLING,
+                "health_state": HealthState.HEALTHY,
+                "last_prompt_sent_at": datetime.now(timezone.utc),
+            }
+        )
         action = select_next_action_from_session_lifecycle_advisory(
-            self._advisory_input(advisory_session)
+            self._advisory_input(fresh_session)
         )
 
         assert action.action_type == PrimeActionType.POLL_SESSION

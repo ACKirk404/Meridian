@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from .models import Heartbeat, HeartbeatStatus
-from .session_lifecycle import SessionCommandPlan
+from .session_lifecycle import SessionCommandPlan, SessionPermissionSummary
 
 
 @dataclass(frozen=True)
@@ -84,6 +84,33 @@ def command_plan_advisory_evidence(
         blockers=blockers,
         human_gate_required=_audit_bool(review_gate.get("human_approval_required"))
         or bool(blockers),
+        generated_at=_as_utc(now or datetime.now(timezone.utc)),
+    )
+
+
+def permission_summary_advisory_evidence(
+    summary: SessionPermissionSummary,
+    *,
+    now: datetime | None = None,
+) -> BeaconAdvisoryEvidence:
+    """Convert a Session permission summary into Beacon advisory evidence only."""
+    advisory_type = (
+        summary.restart_resteer_findings[0].finding_type.value
+        if summary.restart_resteer_findings
+        else "permission_summary"
+    )
+    evidence = list(summary.evidence)
+    evidence.extend(
+        f"recovery.rationale={finding.recommended_action}"
+        for finding in summary.restart_resteer_findings
+    )
+
+    return BeaconAdvisoryEvidence(
+        harness_id=summary.session_id,
+        advisory_type=advisory_type,
+        evidence=tuple(evidence),
+        blockers=tuple(summary.blockers),
+        human_gate_required=bool(summary.blockers or summary.restart_resteer_findings),
         generated_at=_as_utc(now or datetime.now(timezone.utc)),
     )
 
