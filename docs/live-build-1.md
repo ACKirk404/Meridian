@@ -10,6 +10,27 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: add a narrow deterministic Relay/Aegis consumer binding for the reviewed `RelayProviderResultValidationEvidence`.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Task: expose provider-result validation blockers, warnings, statuses, and evidence refs as a provider-neutral Aegis policy input advisory/consumer view for downstream review and future retries. Because provider-result evidence is produced after adapter return, keep this display/advisory only: do not change pre-transport dispatch, adapter payload boundaries, model calls, Aegis execution timing, live provider calls, credentials/account probing, UI/Bifrost/FileMap/session/process code, branch/main movement, pushes, or Polaris.
+
+Tests: `python -m pytest tests/test_relay_executor.py -q` plus `git diff --check`.
+
+Completion:
+- Status: Ready for Codex Review.
+- Completed: 2026-06-02 08:50 -06:00.
+- Commit: `e2e42b99` (`feat: Add Relay Aegis result validation advisory`).
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+- Tests run: `python -m pytest tests/test_relay_executor.py -q` (208 passed); `git diff --check` (passed; Git reported line-ending normalization warnings only).
+- Concrete evidence: Relay now exposes immutable `RelayAegisProviderResultValidationAdvisory` and `RelayExecutionSummary.aegis_provider_result_validation_advisory()` to project post-adapter provider-result validation evidence into display-safe Aegis policy-input-shaped advisory data. The advisory carries result evidence ids, exact model ids, route kinds, trust states, proof refs, external-review statuses, result/response-hash statuses, deduped blocker/warning tags, retry/demotion/human-gate advisory flags, and explicit `post_adapter_return` / `display_advisory_only` / `aegis_execution_timing_unchanged` markers. Tests prove deterministic serialization, no raw prompt/provider output/credential/Polaris leakage, adapter payload boundaries remain approved payload text only, and existing proof gates still block before adapter/result evidence creation.
+- Next Candidate: after review, wire this advisory into a reviewed Aegis policy-input review lane for retry/fallback planning, or connect reviewed provider transport runtime once Build 4's transport pass-through path is cleared.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: implement a narrow provider-result validation evidence runtime surface using reviewed provider transport metadata envelope/pass-through work and the reviewed provider-result validation checklist.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
