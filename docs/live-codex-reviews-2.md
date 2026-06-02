@@ -8,6 +8,34 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review current-main Build 4 provider-result validation evidence checklist and Build 3 post-9198bcbe FileMap no-op audit.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: review Build 4 provider-result validation evidence checklist commits `d897cf99` and `bcb83eee`, then Build 3 post-9198bcbe FileMap no-op audit commit `ac87fa2c`. Verify Build 4 docs-only scope, provider-return/adapter-result evidence fields, fail-closed Relay/Aegis/Bifrost guidance, deterministic tests, and exclusions. Verify Build 3 concrete no-op evidence, no missing existing artifacts from Relay dispatch consumer and stale-session recovery paths, and no unrelated FileMap churn.
+
+Proof: text/shape inspection plus `git diff --check d897cf99^..bcb83eee`; `python -m pytest tests/test_filemap.py -q` plus `git diff --check ac87fa2c^..ac87fa2c`.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If a finding exists, record it and stop for coordinator repair routing.
+
+Review result - 2026-06-02 08:36 -06:00:
+
+- Build 4 provider-result validation evidence checklist passed. Commits `d897cf99` and `bcb83eee` changed only `docs/provider-result-validation-evidence-checklist.md` and `docs/live-build-4.md`.
+- The checklist is docs-only and covers provider-return/adapter-result evidence summaries, exact model and route continuity, prompt-drag/budget continuity, external review and trust gates, fail-closed behavior, Relay/Aegis binding, Bifrost display expectations, deterministic tests, and explicit exclusions for raw responses, raw model output, credentials, account probing, live calls, process/session control, FileMap edits, main writes, pushes, and Polaris.
+- Build 3 post-9198bcbe FileMap no-op audit passed. Commit `ac87fa2c` changed only `docs/live-build-3.md`.
+- The no-op audit records inspection through `9198bcbe`, including Relay dispatch metadata envelope/consumer work and stale-session recovery sample rendering, with all live-build queues, review provenance files, runtime FileMap entries, `docs/FileMap.md`, `_REQUIRED_PATHS`, and 48 changed/referenced paths checked. It reports zero FileMap gaps and no registration changes needed.
+
+Proof:
+
+- Text/shape inspection passed for the Build 4 checklist and Ready marker.
+- `git diff --check d897cf99^..bcb83eee` passed.
+- `python -m pytest tests/test_filemap.py -q` passed: 46 tests.
+- `git diff --check ac87fa2c^..ac87fa2c` passed.
+
+Completion: Build 4 provider-result validation evidence checklist and Build 3 post-9198bcbe FileMap no-op audit are review-cleared. Reviews B returns to current-main Ready-marker polling.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 5 stale-session recovery sample rendering.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
