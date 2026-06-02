@@ -1544,3 +1544,5 @@ Completion:
 - Push to `origin/main`.
 - Update Obsidian.
 - Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+2026-06-01 18:23 UTC - Build 5 completed stale-target guard sample rendering task; commit 31a92c8c; files changed: bifrost/cockpit.py, bifrost/static/cockpit.css, tests/test_bifrost_cockpit.py; tests: 178 passed (test_bifrost_cockpit.py); push status: pushed to origin/main at c11b77a1 (required git pull merge after push rejection); Obsidian update: pending. Task implementation: added stale-target-guard detection logic in _render_user_session_mode() to show guard when selected_session_id is not in available open_sessions; implemented routing-target-state (normal) vs stale-target-guard (stale) rendering with conditional CSS classes; fixed test_normal_routing_target_when_session_available to check for actual HTML element instead of CSS class string. No new Active Task assigned. Next Candidate = Proof State Preview Surface (awaiting orchestrator promotion). Cadence 0/3. Origin/main up to date at c11b77a1. Awaiting orchestrator assignment.
