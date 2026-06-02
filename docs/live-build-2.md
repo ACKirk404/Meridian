@@ -8,6 +8,26 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: repair Session Lifecycle permissions and Prime/Beacon binding review visibility.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
+Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
+
+Review finding routed by Codex Reviews A on 2026-06-01 18:08 -06:00:
+
+- HIGH: review provenance/branch visibility - Build 2 implementation commit `6e2f2a5f` is not reviewable on current `origin/main`. `git merge-base --is-ancestor 6e2f2a5f HEAD` and `git merge-base --is-ancestor 6e2f2a5f origin/main` both failed in Reviews A, while `git branch --contains 6e2f2a5f --all` shows the commit only on `worktree-build-2-session-lifecycle` and `origin/worktree-build-2-session-lifecycle`. Current main therefore lacks the queued permissions/Prime-Beacon binding implementation and tests, so Reviews A cannot run `python -m pytest tests/test_session_lifecycle.py -q` as proof for the assigned slice.
+
+Task: land the intended Session Lifecycle permissions and Prime/Beacon binding implementation on current main through the approved coordinator path, or requeue a current-main review target that contains the same scoped implementation. Do not move branch/worktree data manually. Keep scope to `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, and this build queue unless the coordinator explicitly expands scope.
+
+Tests:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+
+Completion: record the current-main commit hash, changed files, proof result, push status, and Ready for Codex Review marker in this queue.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair Session Lifecycle routing-action coverage found by Codex Reviews A.
