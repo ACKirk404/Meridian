@@ -449,6 +449,13 @@ Coordinator post-movement routing - 2026-06-02:
 - Kept Build 1 explicitly review-gated: the next natural Relay/Aegis runtime integration should wait for Reviews B to clear the new Build 4 checklist. Build 4 and Build 5 are also review-gated on Reviews B after their Ready markers landed.
 - Build 2 remains actively working on permission-aware Prime/Beacon advisory evidence. Reviews B has an executable review task for Build 4 then Build 5 current-main Ready markers.
 
+Coordinator Build 2 permission-evidence movement - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified Build 2 worktree clean before movement.
+- Approved and completed path-limited movement of Build 2 permission-aware Prime/Beacon advisory evidence commits `b7acab1d` and `aa2c9e75` onto shared main as `225a5108` and `fe8ed0ec`, limited to `meridian_core/session_lifecycle.py`, `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_session_lifecycle.py`, `tests/test_prime_autonomy.py`, `tests/test_beacon.py`, and `docs/live-build-2.md`.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py tests/test_beacon.py -q` passed 168/168; `git diff --check 225a5108^..HEAD` passed.
+- Next coordinator action: push this movement and route Reviews A to review Build 2 permission-aware advisory evidence. Build 2 becomes review-gated until Reviews A passes, routes a finding, or records a blocker.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
