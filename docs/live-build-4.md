@@ -24,7 +24,7 @@ Completion: completed 2026-06-02.
 
 Ready for Codex Review:
 
-- Commit: `pending local commit hash`
+- Commit: `083bd053`
 - Files changed: `docs/relay-aegis-promptpacket-policy-integration-checklist.md`, `docs/live-build-4.md`
 - Tests: not required (docs-only)
 - Verification performed: text/shape inspection confirmed the checklist exists and covers Relay construction of `PromptPacketProofMetadata`, Aegis evaluator call site, allow/warn/demote/block/human-gate outcome mapping, decision-record behavior, raw-prompt and credential exclusions, Bifrost-visible proof summaries, fail-closed missing metadata handling, deterministic tests, and FileMap routing; staged diff passes `git diff --cached --check`.
