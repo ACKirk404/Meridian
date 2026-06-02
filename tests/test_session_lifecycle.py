@@ -18,12 +18,15 @@ from meridian_core.session_lifecycle import (
     PermissionContext,
     RestartResteerFinding,
     PrimeAutonomyInput,
+    SessionPermissionSummary,
     SessionLifecycleState,
     SessionCommandPlan,
     gather_prime_autonomy_input,
     generate_restart_finding,
     generate_resteer_finding,
     plan_command_from_session_action,
+    summarize_session_permission_state,
+    summarize_session_permission_states,
 )
 
 
@@ -1317,6 +1320,200 @@ class TestBeaconPrimeAdvisoryBinding:
             "docs/live-build-2.md",
         )
         assert advisory_input.restart_resteer_findings == (finding,)
+
+
+class TestSessionPermissionSummaryAggregation:
+    """Tests for pure Prime/Beacon-safe permission summary aggregation."""
+
+    @pytest.fixture
+    def summary_state(self):
+        """Create a session with valid task-scoped recovery permission."""
+        now = datetime(2026, 6, 2, 8, 0, tzinfo=timezone.utc)
+        permission_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART, OperationScope.RESTEER]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=now + timedelta(hours=1),
+            task_scope="permission-summary",
+            last_permission_change=now,
+        )
+        return SessionLifecycleState(
+            session_id="session-summary",
+            session_name="Build 2 Summary",
+            project_name="Meridian",
+            project_path="/path/to/meridian",
+            harness_role=HarnessRole.BUILD,
+            assigned_queue_file="docs/live-build-2.md",
+            model_provider="anthropic",
+            model_name="claude-opus-4-7",
+            status=SessionStatus.BLOCKED,
+            worktree_path="/worktree/build-2",
+            branch_name="codex/rolling-build-2-permission-summary",
+            current_task_id="permission-summary",
+            last_queue_read_at=now,
+            last_queue_write_at=now,
+            last_prompt_sent_at=now - timedelta(minutes=45),
+            last_prompt_payload_size=12000,
+            review_cadence_state=ReviewCadenceState.NONE,
+            proof_state=ProofState.PERMISSION_VALIDATED,
+            health_state=HealthState.STALE,
+            blocker_summary="approval needed before recovery",
+            permission_context=permission_context,
+        )
+
+    def test_permission_summary_records_approved_operations_and_findings(self, summary_state):
+        """Summaries include approved operations plus restart/resteer evidence."""
+        observed_at = datetime(2026, 6, 2, 9, 0, tzinfo=timezone.utc)
+        summary = summarize_session_permission_state(
+            summary_state,
+            approvals_pending=[(summary_state.session_id, "Aegis review pending")],
+            timestamp=observed_at,
+        )
+
+        assert isinstance(summary, SessionPermissionSummary)
+        assert summary.permission_state == PermissionState.UNLOCKED_TEMPORARY
+        assert summary.approved_operations == (
+            OperationScope.RESTART,
+            OperationScope.RESTEER,
+        )
+        assert summary.approvals_pending == ("Aegis review pending",)
+        assert "approval.pending:Aegis review pending" in summary.blockers
+        assert [finding.finding_type for finding in summary.restart_resteer_findings] == [
+            FindingType.RESTART,
+            FindingType.RESTEER,
+        ]
+        assert "permission.approved_operations=restart,resteer" in summary.evidence
+        assert "approval.pending=Aegis review pending" in summary.evidence
+        assert any(item.startswith("finding.restart=") for item in summary.evidence)
+        assert summary.timestamp == observed_at
+
+    def test_permission_summary_records_locked_expired_and_out_of_scope_blockers(
+        self, summary_state
+    ):
+        """Locked, expired, and out-of-scope permissions become display-safe blockers."""
+        now = datetime(2026, 6, 2, 8, 0, tzinfo=timezone.utc)
+        expired_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART]),
+            escalation_gate=True,
+            escalation_reason="Aegis approval pending",
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=now - timedelta(minutes=1),
+            task_scope="different-task",
+            last_permission_change=now,
+        )
+        expired_state = SessionLifecycleState(
+            **{
+                **summary_state.__dict__,
+                "current_task_id": "permission-summary",
+                "permission_context": expired_context,
+            }
+        )
+        locked_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset(),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.LOCKED_BY_DEFAULT,
+            approved_by_secondary=None,
+            unlock_expiry=None,
+            task_scope=None,
+            last_permission_change=now,
+        )
+        locked_state = SessionLifecycleState(
+            **{**summary_state.__dict__, "permission_context": locked_context}
+        )
+
+        expired_summary = summarize_session_permission_state(
+            expired_state,
+            timestamp=now,
+        )
+        locked_summary = summarize_session_permission_state(locked_state, timestamp=now)
+
+        assert "permission.unlock_expired" in expired_summary.blockers
+        assert "permission.out_of_scope" in expired_summary.blockers
+        assert "permission.escalation_gate:Aegis approval pending" in (
+            expired_summary.blockers
+        )
+        assert "permission.locked" in locked_summary.blockers
+        assert locked_summary.can_accept_work is False
+
+    def test_permission_summary_records_review_gate_blockers(self, summary_state):
+        """Review-gated sessions expose review blockers without live control."""
+        gated_state = SessionLifecycleState(
+            **{
+                **summary_state.__dict__,
+                "status": SessionStatus.REVIEW_GATED,
+                "review_cadence_state": ReviewCadenceState.REVIEW_GATED,
+            }
+        )
+
+        summary = summarize_session_permission_state(gated_state)
+
+        assert summary.review_gate_blockers == (
+            "review_gate.status=review_gated",
+            "review_gate.cadence=review_gated",
+        )
+        assert "review_gate.status=review_gated" in summary.blockers
+        assert "review_gate.cadence=review_gated" in summary.evidence
+
+    def test_permission_summary_serializes_display_safe_fields(self, summary_state):
+        """Serialized summaries use values, strings, lists, and ISO timestamps."""
+        observed_at = datetime(2026, 6, 2, 9, 0, tzinfo=timezone.utc)
+        summary = summarize_session_permission_state(
+            summary_state,
+            timestamp=observed_at,
+        )
+
+        serialized = summary.to_dict()
+
+        assert serialized["permission_state"] == "unlocked_temporary"
+        assert serialized["approved_operations"] == ["restart", "resteer"]
+        assert serialized["restart_resteer_findings"][0]["finding_type"] == "restart"
+        assert serialized["timestamp"] == observed_at.isoformat()
+
+    def test_permission_summary_aggregation_preserves_session_order(self, summary_state):
+        """Aggregate helper emits immutable summaries in input session order."""
+        second_state = SessionLifecycleState(
+            **{**summary_state.__dict__, "session_id": "session-summary-2"}
+        )
+
+        summaries = summarize_session_permission_states([summary_state, second_state])
+
+        assert tuple(summary.session_id for summary in summaries) == (
+            "session-summary",
+            "session-summary-2",
+        )
+
+    def test_gather_prime_autonomy_input_includes_permission_summaries(
+        self, summary_state
+    ):
+        """Prime advisory input includes permission summaries from mutable sources."""
+        queues = {"build": ["docs/live-build-2.md"]}
+        approvals = [(summary_state.session_id, "review gate pending")]
+        advisory_input = gather_prime_autonomy_input(
+            sessions=[summary_state],
+            queues_by_harness=queues,
+            approvals_pending=approvals,
+            timestamp=datetime(2026, 6, 2, 9, 0, tzinfo=timezone.utc),
+        )
+        queues["build"].append("docs/live-build-3.md")
+        approvals.append((summary_state.session_id, "mutated later"))
+
+        assert len(advisory_input.permission_summaries) == 1
+        summary = advisory_input.permission_summaries[0]
+        assert summary.session_id == summary_state.session_id
+        assert summary.approvals_pending == ("review gate pending",)
+        assert dict(advisory_input.queues_by_harness)["build"] == (
+            "docs/live-build-2.md",
+        )
+        assert advisory_input.to_dict()["permission_summaries"][0]["session_id"] == (
+            summary_state.session_id
+        )
 
 
 class TestPrimeAutonomyInput:

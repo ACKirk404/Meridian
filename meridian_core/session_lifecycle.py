@@ -240,6 +240,43 @@ class RestartResteerFinding:
 
 
 @dataclass(frozen=True)
+class SessionPermissionSummary:
+    """Display-safe permission/advisory summary for Prime and Beacon."""
+
+    session_id: str
+    session_name: str
+    permission_state: PermissionState
+    approved_operations: tuple[OperationScope, ...]
+    blockers: tuple[str, ...]
+    approvals_pending: tuple[str, ...]
+    review_gate_blockers: tuple[str, ...]
+    restart_resteer_findings: tuple[RestartResteerFinding, ...]
+    evidence: tuple[str, ...]
+    can_accept_work: bool
+    timestamp: datetime
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to JSON-safe advisory metadata."""
+        return {
+            "session_id": self.session_id,
+            "session_name": self.session_name,
+            "permission_state": self.permission_state.value,
+            "approved_operations": [
+                operation.value for operation in self.approved_operations
+            ],
+            "blockers": list(self.blockers),
+            "approvals_pending": list(self.approvals_pending),
+            "review_gate_blockers": list(self.review_gate_blockers),
+            "restart_resteer_findings": [
+                finding.to_dict() for finding in self.restart_resteer_findings
+            ],
+            "evidence": list(self.evidence),
+            "can_accept_work": self.can_accept_work,
+            "timestamp": self.timestamp.isoformat(),
+        }
+
+
+@dataclass(frozen=True)
 class PrimeAutonomyInput:
     """What Prime receives when selecting next action."""
 
@@ -249,6 +286,7 @@ class PrimeAutonomyInput:
     restart_resteer_findings: tuple[RestartResteerFinding, ...]
     recent_completions: tuple[str, ...]
     timestamp: datetime
+    permission_summaries: tuple[SessionPermissionSummary, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to JSON-safe dict."""
@@ -259,6 +297,9 @@ class PrimeAutonomyInput:
             "restart_resteer_findings": [f.to_dict() for f in self.restart_resteer_findings],
             "recent_completions": list(self.recent_completions),
             "timestamp": self.timestamp.isoformat(),
+            "permission_summaries": [
+                summary.to_dict() for summary in self.permission_summaries
+            ],
         }
 
 
@@ -758,6 +799,189 @@ def generate_resteer_finding(
     )
 
 
+def _approval_reasons_for_session(
+    session_id: str,
+    approvals_pending: tuple[tuple[str, str], ...] | list[tuple[str, str]],
+) -> tuple[str, ...]:
+    return tuple(reason for pending_session_id, reason in approvals_pending if pending_session_id == session_id)
+
+
+def _findings_for_session(
+    session: SessionLifecycleState,
+    restart_resteer_findings: tuple[RestartResteerFinding, ...]
+    | list[RestartResteerFinding],
+    stale_threshold_seconds: int,
+    timestamp: datetime,
+) -> tuple[RestartResteerFinding, ...]:
+    findings = [
+        finding
+        for finding in restart_resteer_findings
+        if finding.session_id == session.session_id
+    ]
+    existing_types = {finding.finding_type for finding in findings}
+
+    if FindingType.RESTART not in existing_types:
+        restart_finding = generate_restart_finding(
+            session,
+            threshold_seconds=stale_threshold_seconds,
+            timestamp=timestamp,
+        )
+        if restart_finding is not None:
+            findings.append(restart_finding)
+
+    if FindingType.RESTEER not in existing_types:
+        resteer_finding = generate_resteer_finding(session, timestamp=timestamp)
+        if resteer_finding is not None:
+            findings.append(resteer_finding)
+
+    return tuple(findings)
+
+
+def _permission_unlock_expired_at(
+    permission: PermissionContext,
+    observed_at: datetime,
+) -> bool:
+    if permission.unlock_expiry is None:
+        return False
+    return observed_at.replace(tzinfo=timezone.utc) > permission.unlock_expiry.replace(
+        tzinfo=timezone.utc
+    )
+
+
+def _session_can_accept_work_at(
+    session: SessionLifecycleState,
+    observed_at: datetime,
+) -> bool:
+    if session.status in (
+        SessionStatus.BLOCKED,
+        SessionStatus.STALE,
+        SessionStatus.ARCHIVED,
+        SessionStatus.CAPACITY_LIMITED,
+    ):
+        return False
+    if not session.is_healthy():
+        return False
+    if session.permission_context.is_permission_locked():
+        return False
+    if _permission_unlock_expired_at(session.permission_context, observed_at):
+        return False
+    if not session.permission_context.is_unlock_task_scoped(session.current_task_id):
+        return False
+    return True
+
+
+def summarize_session_permission_state(
+    session: SessionLifecycleState,
+    approvals_pending: tuple[tuple[str, str], ...] | list[tuple[str, str]] = (),
+    restart_resteer_findings: tuple[RestartResteerFinding, ...]
+    | list[RestartResteerFinding] = (),
+    stale_threshold_seconds: int = 1800,
+    timestamp: Optional[datetime] = None,
+) -> SessionPermissionSummary:
+    """Summarize one session's permission state for Prime/Beacon advice.
+
+    The summary is display-safe and serializable. It does not execute or stage
+    session control, branch movement, or worktree movement.
+    """
+    observed_at = timestamp or datetime.now(timezone.utc)
+    permission = session.permission_context
+    approved_operations = tuple(
+        sorted(permission.approval_scope, key=lambda operation: operation.value)
+    )
+    can_accept_work = _session_can_accept_work_at(session, observed_at)
+    blockers: list[str] = []
+    if permission.is_permission_locked():
+        blockers.append("permission.locked")
+    if _permission_unlock_expired_at(permission, observed_at):
+        blockers.append("permission.unlock_expired")
+    if not permission.is_unlock_task_scoped(session.current_task_id):
+        blockers.append("permission.out_of_scope")
+    if permission.escalation_gate:
+        blockers.append(
+            "permission.escalation_gate"
+            if permission.escalation_reason is None
+            else f"permission.escalation_gate:{permission.escalation_reason}"
+        )
+
+    approval_reasons = _approval_reasons_for_session(session.session_id, approvals_pending)
+    blockers.extend(f"approval.pending:{reason}" for reason in approval_reasons)
+
+    review_gate_blockers: list[str] = []
+    if session.status == SessionStatus.REVIEW_GATED:
+        review_gate_blockers.append("review_gate.status=review_gated")
+    if session.review_cadence_state in (
+        ReviewCadenceState.PENDING,
+        ReviewCadenceState.REVIEW_GATED,
+        ReviewCadenceState.FAILED,
+    ):
+        review_gate_blockers.append(
+            f"review_gate.cadence={session.review_cadence_state.value}"
+        )
+    blockers.extend(review_gate_blockers)
+
+    findings = _findings_for_session(
+        session,
+        restart_resteer_findings,
+        stale_threshold_seconds,
+        observed_at,
+    )
+
+    evidence = [
+        f"session.id={session.session_id}",
+        f"session.status={session.status.value}",
+        f"session.health={session.health_state.value}",
+        f"permission.state={permission.branch_permission_state.value}",
+        "permission.approved_operations="
+        + (",".join(operation.value for operation in approved_operations) or "none"),
+        f"permission.task_scope={permission.task_scope or 'none'}",
+        "permission.unlock_expiry="
+        + (permission.unlock_expiry.isoformat() if permission.unlock_expiry else "none"),
+        f"permission.can_accept_work={can_accept_work}",
+    ]
+    evidence.extend(f"approval.pending={reason}" for reason in approval_reasons)
+    evidence.extend(review_gate_blockers)
+    evidence.extend(
+        f"finding.{finding.finding_type.value}=stale_seconds:{finding.evidence_stale_seconds}"
+        for finding in findings
+    )
+
+    return SessionPermissionSummary(
+        session_id=session.session_id,
+        session_name=session.session_name,
+        permission_state=permission.branch_permission_state,
+        approved_operations=approved_operations,
+        blockers=tuple(blockers),
+        approvals_pending=approval_reasons,
+        review_gate_blockers=tuple(review_gate_blockers),
+        restart_resteer_findings=findings,
+        evidence=tuple(evidence),
+        can_accept_work=can_accept_work,
+        timestamp=observed_at,
+    )
+
+
+def summarize_session_permission_states(
+    sessions: tuple[SessionLifecycleState, ...] | list[SessionLifecycleState],
+    approvals_pending: tuple[tuple[str, str], ...] | list[tuple[str, str]] = (),
+    restart_resteer_findings: tuple[RestartResteerFinding, ...]
+    | list[RestartResteerFinding] = (),
+    stale_threshold_seconds: int = 1800,
+    timestamp: Optional[datetime] = None,
+) -> tuple[SessionPermissionSummary, ...]:
+    """Aggregate permission summaries in session order for advisory consumers."""
+    observed_at = timestamp or datetime.now(timezone.utc)
+    return tuple(
+        summarize_session_permission_state(
+            session,
+            approvals_pending=approvals_pending,
+            restart_resteer_findings=restart_resteer_findings,
+            stale_threshold_seconds=stale_threshold_seconds,
+            timestamp=observed_at,
+        )
+        for session in sessions
+    )
+
+
 def gather_prime_autonomy_input(
     sessions: tuple[SessionLifecycleState, ...] | list[SessionLifecycleState],
     queues_by_harness: dict[str, tuple[str, ...] | list[str]],
@@ -768,17 +992,27 @@ def gather_prime_autonomy_input(
     timestamp: Optional[datetime] = None,
 ) -> PrimeAutonomyInput:
     """Collect immutable Prime advisory input from Session Lifecycle snapshots."""
+    observed_at = timestamp or datetime.now(timezone.utc)
+    immutable_sessions = tuple(sessions)
+    immutable_approvals = tuple(approvals_pending)
+    immutable_findings = tuple(restart_resteer_findings)
     immutable_queues = frozenset(
         (harness, tuple(queue_files))
         for harness, queue_files in queues_by_harness.items()
     )
     return PrimeAutonomyInput(
-        current_sessions=tuple(sessions),
+        current_sessions=immutable_sessions,
         queues_by_harness=immutable_queues,
-        approvals_pending=tuple(approvals_pending),
-        restart_resteer_findings=tuple(restart_resteer_findings),
+        approvals_pending=immutable_approvals,
+        restart_resteer_findings=immutable_findings,
         recent_completions=tuple(recent_completions),
-        timestamp=timestamp or datetime.now(timezone.utc),
+        timestamp=observed_at,
+        permission_summaries=summarize_session_permission_states(
+            immutable_sessions,
+            approvals_pending=immutable_approvals,
+            restart_resteer_findings=immutable_findings,
+            timestamp=observed_at,
+        ),
     )
 
 
