@@ -15,9 +15,48 @@ def compass_logic_snapshot() -> dict:
                 "title": "Compass Job",
                 "summary": "Keep Prime oriented to the selected project, mission bearing, and portfolio boundary.",
                 "rows": [
-                    {"key": "owns", "value": "active project context, mission bearing, project-scoped surface focus"},
+                    {"key": "owns", "value": "project definition, project bounds, project scope, mission bearing, project-scoped surface focus"},
                     {"key": "does not own", "value": "model routing, User Session target routing, archive/delete actions"},
                     {"key": "drift guard", "value": "visible project context must match prompt metadata before Prime sends"},
+                ],
+            },
+            {
+                "title": "Project Definition Logic",
+                "summary": "A project is a bounded body of work with its own outcome, context, artifacts, and proof trail.",
+                "rows": [
+                    {"key": "project", "value": "organized body of work with concrete outcome, local path/repo when applicable, initiatives, objectives, tasks, and next moves"},
+                    {"key": "not a session", "value": "sessions are Vulcan runtime containers that may work on a project but do not define it"},
+                    {"key": "not a repo", "value": "a repo/path can host one or more project efforts; filesystem location is evidence, not identity"},
+                    {"key": "not a venture", "value": "a venture is a higher-level value/business/audience container that may contain projects"},
+                ],
+            },
+            {
+                "title": "Bounds and Scope Logic",
+                "summary": "Compass decides what belongs inside a project and what must stay outside or be linked explicitly.",
+                "rows": [
+                    {"key": "inside bounds", "value": "mission, objectives, backlog, relevant memory, active artifacts, proof, open blockers, current risk posture"},
+                    {"key": "outside bounds", "value": "other-project raw transcripts, unrelated repo state, vendor/account state, session lifecycle commands"},
+                    {"key": "scope proof", "value": "project-scoped surfaces must name project id/title and evidence refs before acting"},
+                    {"key": "ambiguity behavior", "value": "unclear scope becomes a visible Compass question, not hidden context mixing"},
+                ],
+            },
+            {
+                "title": "Project Difference Logic",
+                "summary": "Compass distinguishes projects by purpose, artifacts, boundaries, active decisions, and proof expectations.",
+                "rows": [
+                    {"key": "identity", "value": "project id/title plus mission/bearing, not display label alone"},
+                    {"key": "differentiators", "value": "objective set, acceptance criteria, memory pins, file/artifact roots, active blockers, proof requirements"},
+                    {"key": "collision guard", "value": "same repo or same venture does not imply same project"},
+                ],
+            },
+            {
+                "title": "Cross-Project Communication Logic",
+                "summary": "Projects may exchange summaries, decisions, and evidence, but not raw context by default.",
+                "rows": [
+                    {"key": "allowed", "value": "typed handoff summary, explicit evidence links, reusable decision, durable memory entry, dependency notice"},
+                    {"key": "blocked by default", "value": "raw worker chat, hidden prompt replay, unrelated backlog import, automatic session retarget"},
+                    {"key": "protocol", "value": "Compass marks source project, target project, reason, payload type, proof/evidence refs, and approval need"},
+                    {"key": "review handoff", "value": "Aegis/Crosscheck may require proof before a project-to-project dependency becomes accepted context"},
                 ],
             },
             {

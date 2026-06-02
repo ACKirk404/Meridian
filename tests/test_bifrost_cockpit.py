@@ -149,6 +149,10 @@ def test_compass_logic_snapshot_documents_project_context_harness():
     snapshot = compass_logic_snapshot()
     titles = [section["title"] for section in snapshot["capabilitySections"]]
     assert snapshot["source"] == "meridian_core.compass_logic_snapshot.compass_logic_snapshot"
+    assert "Project Definition Logic" in titles
+    assert "Bounds and Scope Logic" in titles
+    assert "Project Difference Logic" in titles
+    assert "Cross-Project Communication Logic" in titles
     assert "Project Selector Logic" in titles
     assert "Prime Prompt Context" in titles
     assert "Portfolio Boundary" in titles
@@ -161,9 +165,13 @@ def test_vulcan_logic_snapshot_documents_session_lifecycle_harness():
     snapshot = vulcan_logic_snapshot()
     titles = [section["title"] for section in snapshot["capabilitySections"]]
     assert snapshot["source"] == "meridian_core.vulcan_logic_snapshot.vulcan_logic_snapshot"
+    assert "Session Definition Logic" in titles
+    assert "Lifecycle State Logic" in titles
+    assert "Command Plan Logic" in titles
     assert "User Session Independence" in titles
     assert "Project-Aware Session Grouping" in titles
     assert "Stale Target Guard" in titles
+    assert "Cross-Harness Relationship Logic" in titles
     assert "Portfolio Boundary" not in titles
 
 
@@ -193,6 +201,18 @@ def test_index_vulcan_harness_uses_backend_logic_snapshot():
     assert "bridgeUrl('vulcan-logic')" in doc
     assert "renderVulcanLogicSnapshot" in doc
     assert "renderVulcanSessionLogic" in doc
+
+
+def test_ui_checklist_has_deep_compass_and_vulcan_items():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "### Compass Harness Subitems" in doc
+    assert "| CMP1 | Project definition |" in doc
+    assert "| CMP8 | Cross-project communication |" in doc
+    assert "| CMP12 | Compass/Vulcan boundary |" in doc
+    assert "### Vulcan / Session Lifecycle Harness Subitems" in doc
+    assert "| VLC1 | Session definition |" in doc
+    assert "| VLC5 | Command plan vocabulary |" in doc
+    assert "| VLC12 | Aegis relationship |" in doc
 
 
 def test_sample_view_model_has_progress_events():
