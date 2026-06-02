@@ -8,6 +8,31 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review current-main Build 5 stale-session recovery sample rendering.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: review Build 5 stale-session recovery sample rendering commits `09c3d2aa` and `ae41f152`. Verify deterministic display-only restart, resteer, archive, poll/watch, and human-gated samples, no live control execution, display-safe evidence refs, stale-target guard preservation, no `index.html`, and no branch/worktree/main/Polaris leakage.
+
+Proof: `python -m pytest tests/test_bifrost_cockpit.py -q` plus `git diff --check 09c3d2aa^..ae41f152`.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If a finding exists, record it and stop for coordinator repair routing.
+
+Review result - 2026-06-02 07:58 -06:00:
+
+- Build 5 stale-session recovery sample rendering passed. Commits `09c3d2aa` and `ae41f152` changed only `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, and `docs/live-build-5.md`.
+- The Bifrost slice is deterministic display-only rendering: stale-target guard now shows inert restart, resteer, archive, poll/watch, and human-gated blocked samples with recovery state, summary text, and display-safe evidence refs.
+- Focused tests cover the new recovery actions for closed, blocked, and missing targets while preserving stale-target guard behavior and preventing prompt routing to stale sessions. Scope check found no live control execution, no `index.html` edit, no branch/worktree/main movement, no shared-main write, no Polaris dependency, and no push.
+
+Proof:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q` passed: 254 tests.
+- `git diff --check 09c3d2aa^..ae41f152` passed.
+
+Completion: Build 5 stale-session recovery sample rendering is review-cleared. Reviews B returns to current-main Ready-marker polling.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 4 provider transport metadata envelope pass-through.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
