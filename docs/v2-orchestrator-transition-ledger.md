@@ -341,6 +341,14 @@ Coordinator Build 2/4 movement - 2026-06-02:
 - Approved and completed path-limited movement of Build 4 PromptPacket proof metadata checklist commits `234b7551` and `fd6c72da` onto shared main as `b3cc9dff` and `b9ad9dd3`, limited to `docs/relay-promptpacket-proof-metadata-implementation-checklist.md` and `docs/live-build-4.md`.
 - Proof rerun on shared main after movement: `python -m pytest tests/test_session_lifecycle.py -q` passed 82/82; `git diff --check 7bd603a2^..b9ad9dd3` passed; checklist text/shape inspection found PromptPacket packet id/hash, allowed-source, proof, Aegis evidence, payload budget, raw-prompt exclusion, Bifrost, FileMap, block, and test coverage terms.
 
+Coordinator Build 1/3/5 movement - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified Build 1, Build 3, and Build 5 worktrees clean before movement.
+- Approved and completed path-limited movement of Build 1 Relay dispatch envelope helper commit `ba0e6c02` onto shared main as `eead7f27`, limited to `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, and `docs/live-build-1.md`.
+- Approved and completed path-limited movement of Build 3 FileMap dispatch audit commits `98bf9dff` and `66e96288` onto shared main as `a9de0f5f` and `f33b3764`, limited to `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, and `docs/live-build-3.md`.
+- Approved and completed path-limited movement of Build 5 dispatch hardening state sample commits `409358c2` and `aa2fbd47` onto shared main as `ec139883` and `5bb4da7a`, limited to `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, and `docs/live-build-5.md`.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` passed 204/204; `python -m pytest tests/test_filemap.py -q` passed 46/46; `python -m pytest tests/test_bifrost_cockpit.py -q` passed 200/200; `git diff --check HEAD~5..HEAD` passed.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
