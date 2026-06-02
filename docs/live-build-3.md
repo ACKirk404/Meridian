@@ -60,6 +60,40 @@ Ready for Codex Review.
 
 ## Completed / Ready For Codex Review
 
+Goal: keep FileMap current for current `origin/main` plus the repaired frontend runtime branch queue after reviewed backend passes.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-3-filemap`.
+
+Branch: `codex/build-3-filemap-repaired-frontend-audit-20260602-1152`.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: FileMap audit for current main plus repaired frontend runtime branch queue. Inspect queued frontend branches by remote path list only; do not move/copy branch files or pre-register branch-only artifacts.
+
+Completion:
+
+- First command proof: `git fetch origin main`, `git status --short --branch`, and `git status --porcelain` were run in the assigned worktree; the worktree was clean before edits. A fresh Build 3 branch was created from latest visible `origin/main` and no shared-main writes, branch moves, merge, rebase, reset, cherry-pick, stash-pop, push-main, or Polaris access were performed.
+- Audited visible `origin/main` at `5c98e34c` after Reviews B passed prior Source/Git + Federation FileMap audit `5d35ac4d`; current-main changed-path scope from `5d35ac4d..origin/main` was 22 paths: `docs/FileMap.md`, `docs/agentic-ai-framework-checklist.md`, `docs/live-build-1.md`, `docs/live-build-2.md`, `docs/live-build-3.md`, `docs/live-build-4.md`, `docs/live-build-5.md`, `docs/live-codex-reviews-2.md`, `docs/live-codex-reviews.md`, `docs/main-write-coordination-ledger.md`, `docs/v2-orchestrator-transition-ledger.md`, `docs/v3-parking-lot.md`, `meridian_core/compass.py`, `meridian_core/filemap.py`, `meridian_core/relay_executor.py`, `meridian_core/session_lifecycle.py`, `tests/test_bifrost_cockpit.py`, `tests/test_bifrost_preview.py`, `tests/test_compass.py`, `tests/test_filemap.py`, `tests/test_relay_executor.py`, and `tests/test_session_lifecycle.py`.
+- Inspected current FileMap surfaces, all five live-build queues, both live review provenance files, and `_REQUIRED_PATHS`; focused audit covered 24 existing FileMap-relevant current-main paths and found zero gaps after registration.
+- Registered missing existing mainline artifacts in runtime FileMap, `docs/FileMap.md`, and `_REQUIRED_PATHS`: `meridian_core/compass.py`, `tests/test_compass.py`, and `docs/main-write-coordination-ledger.md`.
+- Repaired docs-mirror-only coverage for existing registered docs: `docs/agentic-ai-framework-checklist.md` and `docs/federation-harness-horizon.md`.
+- Repaired frontend branch queue inspected by remote refs and path lists only:
+  - Workflow `origin/codex/frontend-workflow-runtime-logic-20260602` at `a7e55df154c5a6ea14b24a871e3cc12e8276e87c`; branch-only excluded paths: `meridian_core/workflow_logic_snapshot.py`, `tests/test_workflow_logic_snapshot.py`.
+  - Source/Git `origin/codex/frontend-source-git-runtime-logic-scopefix-20260602` at `dd2045c668427aeddeed0a13ec6a59b06a42ba25`; branch-only excluded paths: `meridian_core/source_git_logic_snapshot.py`, `tests/test_source_git_logic_snapshot.py`.
+  - Federation `origin/codex/frontend-federation-runtime-logic-20260602` at `21335c2968c4aa4a3a58908dcdc80df84a212f47`; branch-only excluded paths: `meridian_core/federation_logic_snapshot.py`, `tests/test_federation_logic_snapshot.py`.
+  - Beacon `origin/codex/frontend-beacon-runtime-logic-repair-20260602` at `5b4f30db251fd17530f0a6b1eb534fd8341c3cd7`; branch-only excluded paths: `meridian_core/beacon_logic_snapshot.py`, `tests/test_beacon_logic_snapshot.py`.
+  - Prime visibility `origin/codex/frontend-prime-directive-visibility-20260602` at `1fa3338f574a8b86fde7217bff0e4ff9f84de716`; branch-only excluded paths: none.
+- Shared current-main paths observed across repaired branches were already covered or repaired where missing: `docs/FileMap.md`, live build queues 1-4, `index.html`, `meridian_core/filemap.py`, `meridian_core/relay_executor.py`, `scripts/meridian-model-bridge.js`, `tests/test_bifrost_cockpit.py`, `tests/test_filemap.py`, and `tests/test_relay_executor.py`.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests: `python -m pytest tests/test_filemap.py -q` - 47 passed.
+- Diff proof: `git diff --check` - passed with line-ending normalization warnings only.
+- Commit: this queue-marker commit.
+- Next Candidate: bind review findings or register repaired runtime-logic snapshot files only after they land on main.
+
+Ready for Codex Review.
+
+## Completed / Ready For Codex Review
+
 Goal: keep FileMap current after the repaired Bifrost voice runtime/status surface landed on current `origin/main`.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-3-filemap`.
