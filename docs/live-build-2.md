@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add command-plan audit evidence serialization edge coverage for Prime advisory output.
 
@@ -20,7 +20,14 @@ Task: extend the reviewed Prime audit-evidence advisory binding with focused edg
 
 Tests: `python -m pytest tests/test_prime_autonomy.py -q`.
 
-Completion: mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind any review findings from this Prime audit-evidence edge slice before unrelated Session Lifecycle work.
+Completion:
+
+- Build 2 completed the Prime audit-evidence edge slice in local worktree commit `d65ddcab`.
+- Files changed: `meridian_core/prime_autonomy.py`, `tests/test_prime_autonomy.py`.
+- Evidence: malformed serialized audit evidence now falls back to non-executable advisory state; string booleans are parsed deterministically; permission-boundary and review/human-gate blockers remain display-safe evidence; evidence strings keep stable key formatting in `PrimeNextAction.evidence`.
+- Proof: `python -m pytest tests/test_prime_autonomy.py -q` passed with 70 tests.
+- Ready for Codex Review.
+- Next Candidate: bind any review findings from this Prime audit-evidence edge slice before unrelated Session Lifecycle work.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
