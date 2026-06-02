@@ -761,6 +761,35 @@ _SAFE_PROMPT_PACKET_REASON_TEXT = (
     "human approval required before dispatch",
 )
 
+_SAFE_PROMPT_PACKET_HANDOFF_TAGS = frozenset(
+    {
+        "aegis_clean_proof_trail",
+        "aegis_demotion_requires_fresh_policy_evaluation",
+        "aegis_demotion_target_unauthorized",
+        "aegis_human_gate_required",
+        "aegis_prompt_packet_policy_allow",
+        "aegis_prompt_packet_policy_blocked",
+        "aegis_prompt_packet_policy_warn",
+        "human_gate_approval",
+        "human_gate_approval_missing",
+        "independent_dual_model_lanes",
+        "independent_review_when_meaningful",
+        "missing_metadata_fail_closed",
+        "packet_hash_missing",
+        "packet_hash_required_unavailable",
+        "packet_hash_unavailable",
+        "packet_proof_metadata_missing",
+        "prompt_payload_snapshot",
+        "unknown_prompt_packet_policy_decision",
+        "unknown_proof_requirement",
+    }
+)
+
+_SAFE_PROMPT_PACKET_EVIDENCE_PREFIXES = (
+    "aegis-proof-",
+    "packet-proof-",
+)
+
 
 def _display_safe_handoff_tags(
     tags: tuple[str, ...],
@@ -772,12 +801,9 @@ def _display_safe_handoff_tags(
     for tag in tags:
         if tag in _SAFE_PROMPT_PACKET_REASON_TEXT:
             safe_tags.append(tag)
-        elif tag and all(
-            character.islower()
-            or character.isdigit()
-            or character in {"_", "-", ":", "."}
-            for character in tag
-        ):
+        elif tag in _SAFE_PROMPT_PACKET_HANDOFF_TAGS:
+            safe_tags.append(tag)
+        elif tag.startswith(_SAFE_PROMPT_PACKET_EVIDENCE_PREFIXES):
             safe_tags.append(tag)
         else:
             safe_tags.append(fallback)

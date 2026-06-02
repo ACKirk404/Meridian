@@ -3610,6 +3610,66 @@ class TestRelayAegisPromptPacketHandoffSummary:
         ):
             assert sentinel not in rendered
 
+    def test_handoff_redacts_lowercase_structured_looking_sensitive_tags(self) -> None:
+        evidence = RelayPromptPacketPolicyEvidence(
+            decision="block",
+            severity="error",
+            reason="raw_prompt_secret",
+            evidence_ids=("credential:sk-test-secret",),
+            blockers=("branch_move_request",),
+            warnings=("raw_prompt_secret",),
+            packet_id=_PACKET_ID,
+            packet_hash="packet-hash-safe",
+            prompt_budget_ref="budget:safe",
+            packet_proof_metadata_ref="prompt-packet-proof:safe",
+        )
+        summary = RelayExecutionSummary(
+            results=(),
+            errors=(),
+            prompt_packet_policy_evidence=evidence,
+        )
+
+        handoff = summary.aegis_prompt_packet_policy_handoff().to_dict()
+        rendered = " ".join(str(value) for value in handoff.values())
+
+        assert handoff["aegis_evidence_ids"] == ("redacted_evidence_id",)
+        assert handoff["blockers"] == ("redacted_policy_blocker",)
+        assert handoff["warnings"] == ("redacted_policy_warning",)
+        assert handoff["reason_tags"] == ("redacted_policy_reason",)
+        for sentinel in (
+            "credential:sk-test-secret",
+            "raw_prompt_secret",
+            "branch_move_request",
+        ):
+            assert sentinel not in rendered
+
+    def test_handoff_preserves_known_structured_tags_and_fixed_phrases(self) -> None:
+        evidence = RelayPromptPacketPolicyEvidence(
+            decision="allow",
+            severity="info",
+            reason="PromptPacket proof metadata satisfies Aegis policy",
+            evidence_ids=("packet-proof-safe", "aegis-proof-safe"),
+            warnings=("packet_hash_unavailable",),
+            packet_id=_PACKET_ID,
+            packet_hash="packet-hash-safe",
+            prompt_budget_ref="budget:safe",
+            packet_proof_metadata_ref="prompt-packet-proof:safe",
+        )
+        summary = RelayExecutionSummary(
+            results=(),
+            errors=(),
+            prompt_packet_policy_evidence=evidence,
+        )
+
+        handoff = summary.aegis_prompt_packet_policy_handoff()
+
+        assert handoff.aegis_evidence_ids == (
+            "packet-proof-safe",
+            "aegis-proof-safe",
+        )
+        assert handoff.warnings == ("packet_hash_unavailable",)
+        assert handoff.reason_tags == ("packet_hash_unavailable",)
+
     def test_handoff_carries_human_gate_and_fail_closed_state(self) -> None:
         plan = _make_plan(4)
         evidence = _evaluate_relay_prompt_packet_policy(
