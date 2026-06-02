@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Bifrost Relay/Aegis policy handoff summary rendering for the rolling runtime integration.
 
@@ -22,7 +22,15 @@ Task: add deterministic static rendering/tests for the display-safe Relay handof
 
 Tests: `python -m pytest tests/test_bifrost_cockpit.py -q`.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind review findings or connect the view-model to Relay runtime summaries after review.
+Completion:
+
+- Build 5 completed Bifrost Relay/Aegis policy handoff summary rendering in commit `c8b2ea53`.
+- Files changed: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`.
+- Proof: `python -m pytest tests/test_bifrost_cockpit.py -q` passed with 227 tests.
+- Concrete evidence: deterministic static rendering now shows Relay/Aegis handoff decision, severity, packet id/hash refs, proof requirement, evidence ids, blockers, warnings, demotion target, human-gate state, missing-metadata fail-closed state, and display-safe redaction for raw prompt/secret/provider metadata sentinels. Existing prompt payload visibility, provider balance, dispatch hardening, PromptPacket proof metadata, proof-state preview, stale-session recovery, and escaping behavior are covered by tests.
+- Ready for Codex Review.
+
+Next Candidate: bind review findings or connect the view-model to Relay runtime summaries after review.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
