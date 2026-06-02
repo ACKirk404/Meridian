@@ -1106,6 +1106,13 @@ class ProviderResultValidationDecision(Enum):
     BLOCK = "block"
 
 
+class PromptPayloadMeterDecision(Enum):
+    """Aegis advisory outcome for visible prompt payload meter metadata."""
+    ALLOW = "allow"
+    WARN = "warn"
+    BLOCK = "block"
+
+
 @dataclass(frozen=True)
 class PromptPacketProofMetadata:
     """Display-safe PromptPacket proof metadata evaluated by Aegis."""
@@ -1174,6 +1181,41 @@ class ProviderResultValidationPolicyResult:
     def to_advisory_dict(self) -> dict[str, object]:
         """Return display-safe advisory metadata for future Relay/Bifrost use."""
         return serialize_provider_result_validation_policy_result(self)
+
+
+@dataclass(frozen=True)
+class PromptPayloadMeterInput:
+    """Display-safe prompt payload meter summary evaluated by Aegis."""
+    label_bucket: str
+    budget_percent: float | None
+    growth_delta_tokens: int | None
+    payload_status: str
+    q_mode_prompt_drag_state: str
+    route_continuity_refs: tuple[str, ...]
+    blocker_tags: tuple[str, ...]
+    warning_tags: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class PromptPayloadMeterPolicyResult:
+    """Deterministic Aegis advisory for visible prompt payload meter metadata."""
+    decision: PromptPayloadMeterDecision
+    severity: str
+    reason: str
+    label_bucket: str
+    budget_percent: float | None
+    growth_delta_tokens: int | None
+    payload_status: str
+    q_mode_prompt_drag_state: str
+    route_continuity_refs: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+    blockers: tuple[str, ...] = ()
+    warnings: tuple[str, ...] = ()
+
+    def to_advisory_dict(self) -> dict[str, object]:
+        """Return display-safe advisory metadata for future Relay/Bifrost use."""
+        return serialize_prompt_payload_meter_policy_result(self)
 
 
 _PROMPT_PACKET_HASH_STATUSES = {
@@ -1258,6 +1300,45 @@ _PROVIDER_RESULT_UNSAFE_DISPLAY_PATTERNS = _PROMPT_PACKET_UNSAFE_DISPLAY_PATTERN
     "billing",
     "quota",
 )
+_PROMPT_PAYLOAD_METER_LABEL_BUCKETS = {
+    "0",
+    "under-1k",
+    "n.nk",
+    "unknown",
+    "over_budget",
+}
+_PROMPT_PAYLOAD_METER_STATUSES = {
+    "ok",
+    "watch",
+    "over_budget",
+    "unknown",
+    "blocked",
+    "missing",
+    "unavailable",
+}
+_PROMPT_PAYLOAD_METER_BLOCKING_STATUSES = {
+    "over_budget",
+    "unknown",
+    "blocked",
+    "missing",
+    "unavailable",
+}
+_PROMPT_PAYLOAD_Q_MODE_STATES = {
+    "not_applicable",
+    "flat",
+    "bounded",
+    "growing_expected",
+    "growing_unexpected",
+    "degraded",
+    "blocked",
+    "unknown",
+}
+_PROMPT_PAYLOAD_Q_MODE_BLOCKING_STATES = {
+    "growing_unexpected",
+    "degraded",
+    "blocked",
+    "unknown",
+}
 
 
 def _prompt_packet_severity(decision: PromptPacketProofDecision) -> str:
@@ -1276,6 +1357,14 @@ def _provider_result_severity(decision: ProviderResultValidationDecision) -> str
     if decision is ProviderResultValidationDecision.BLOCK:
         return "error"
     if decision is ProviderResultValidationDecision.WARN:
+        return "warning"
+    return "info"
+
+
+def _prompt_payload_meter_severity(decision: PromptPayloadMeterDecision) -> str:
+    if decision is PromptPayloadMeterDecision.BLOCK:
+        return "error"
+    if decision is PromptPayloadMeterDecision.WARN:
         return "warning"
     return "info"
 
@@ -1334,6 +1423,14 @@ def _display_safe_provider_result_tuple(values: tuple[str, ...]) -> tuple[str, .
     return tuple(_display_safe_provider_result_value(value) for value in values)
 
 
+def _display_safe_prompt_payload_meter_value(value: object) -> str:
+    return _display_safe_provider_result_value(value)
+
+
+def _display_safe_prompt_payload_meter_tuple(values: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(_display_safe_prompt_payload_meter_value(value) for value in values)
+
+
 def _prompt_packet_missing_field_from_tag(tag: str) -> str | None:
     if tag.startswith("missing_"):
         return tag.removeprefix("missing_")
@@ -1389,6 +1486,23 @@ def _provider_result_reason_tags(
     return ("provider_result_block",)
 
 
+def _prompt_payload_meter_reason_tags(
+    result: PromptPayloadMeterPolicyResult,
+) -> tuple[str, ...]:
+    tags: list[str] = []
+    for tag in result.blockers:
+        _append_unique(tags, _display_safe_prompt_payload_meter_value(tag))
+    for tag in result.warnings:
+        _append_unique(tags, _display_safe_prompt_payload_meter_value(tag))
+    if tags:
+        return tuple(tags)
+    if result.decision is PromptPayloadMeterDecision.ALLOW:
+        return ("prompt_payload_meter_allowed",)
+    if result.decision is PromptPayloadMeterDecision.WARN:
+        return ("prompt_payload_meter_warn",)
+    return ("prompt_payload_meter_block",)
+
+
 def serialize_prompt_packet_policy_result(
     result: PromptPacketProofPolicyResult,
 ) -> dict[str, object]:
@@ -1441,6 +1555,51 @@ def serialize_provider_result_validation_policy_result(
     }
 
 
+def serialize_prompt_payload_meter_policy_result(
+    result: PromptPayloadMeterPolicyResult,
+) -> dict[str, object]:
+    """
+    Serialize visible prompt payload meter advisory metadata.
+
+    The result is primitive, deterministic, and display-safe. It contains only
+    summarized meter labels/statuses, budget/growth numbers, route continuity
+    refs, evidence refs, and advisory tags; it never includes raw prompts,
+    provider responses, credentials, account data, process/session control, or
+    Relay/Bifrost runtime objects.
+    """
+    return {
+        "decision": result.decision.value,
+        "severity": _display_safe_prompt_payload_meter_value(result.severity),
+        "reason": _display_safe_prompt_payload_meter_value(result.reason),
+        "label_bucket": _display_safe_prompt_payload_meter_value(result.label_bucket),
+        "budget_percent": result.budget_percent,
+        "growth_delta_tokens": result.growth_delta_tokens,
+        "payload_status": _display_safe_prompt_payload_meter_value(result.payload_status),
+        "q_mode_prompt_drag_state": _display_safe_prompt_payload_meter_value(
+            result.q_mode_prompt_drag_state
+        ),
+        "route_continuity_refs": _display_safe_prompt_payload_meter_tuple(
+            result.route_continuity_refs
+        ),
+        "evidence_refs": _display_safe_prompt_payload_meter_tuple(result.evidence_refs),
+        "blockers": _display_safe_prompt_payload_meter_tuple(result.blockers),
+        "warnings": _display_safe_prompt_payload_meter_tuple(result.warnings),
+        "reason_tags": _prompt_payload_meter_reason_tags(result),
+        "relay_advisory": result.decision.value,
+        "bifrost_advisory": _prompt_payload_meter_bifrost_advisory(result),
+    }
+
+
+def _prompt_payload_meter_bifrost_advisory(
+    result: PromptPayloadMeterPolicyResult,
+) -> str:
+    if result.decision is PromptPayloadMeterDecision.BLOCK:
+        return "display_blocked"
+    if result.decision is PromptPayloadMeterDecision.WARN:
+        return "display_warning"
+    return "display_allowed"
+
+
 def _provider_result_bifrost_advisory(
     result: ProviderResultValidationPolicyResult,
 ) -> str:
@@ -1487,6 +1646,157 @@ def _provider_result_policy_result(
         evidence_refs=metadata.evidence_refs,
         blockers=tuple(blockers),
         warnings=tuple(warnings),
+    )
+
+
+def _prompt_payload_meter_policy_result(
+    decision: PromptPayloadMeterDecision,
+    reason: str,
+    metadata: PromptPayloadMeterInput,
+    blockers: list[str],
+    warnings: list[str],
+) -> PromptPayloadMeterPolicyResult:
+    return PromptPayloadMeterPolicyResult(
+        decision=decision,
+        severity=_prompt_payload_meter_severity(decision),
+        reason=reason,
+        label_bucket=metadata.label_bucket,
+        budget_percent=metadata.budget_percent,
+        growth_delta_tokens=metadata.growth_delta_tokens,
+        payload_status=metadata.payload_status,
+        q_mode_prompt_drag_state=metadata.q_mode_prompt_drag_state,
+        route_continuity_refs=metadata.route_continuity_refs,
+        evidence_refs=metadata.evidence_refs,
+        blockers=tuple(blockers),
+        warnings=tuple(warnings),
+    )
+
+
+def _append_safe_ref_blockers(
+    values: tuple[str, ...],
+    missing_tag: str,
+    invalid_tag: str,
+    unsafe_tag: str,
+    blockers: list[str],
+) -> None:
+    if not values:
+        _append_unique(blockers, missing_tag)
+    for value in values:
+        if not isinstance(value, str) or not value.strip():
+            _append_unique(blockers, invalid_tag)
+        elif not _is_provider_result_display_safe(value):
+            _append_unique(blockers, unsafe_tag)
+
+
+def evaluate_prompt_payload_meter_advisory(
+    metadata: PromptPayloadMeterInput,
+) -> PromptPayloadMeterPolicyResult:
+    """
+    Evaluate summarized prompt payload meter metadata before display/promotion.
+
+    Pure Aegis helper: accepts primitive, already-summarized inputs only. It
+    does not import Relay/Bifrost types, call providers, inspect accounts,
+    read raw prompts/responses, touch FileMap, or control processes/sessions.
+    """
+    blockers: list[str] = []
+    warnings: list[str] = []
+
+    if not isinstance(metadata.label_bucket, str) or not metadata.label_bucket.strip():
+        _append_unique(blockers, "missing_prompt_payload_label_bucket")
+    elif metadata.label_bucket not in _PROMPT_PAYLOAD_METER_LABEL_BUCKETS:
+        _append_unique(blockers, "unknown_prompt_payload_label_bucket")
+    elif metadata.label_bucket in {"unknown", "over_budget"}:
+        _append_unique(blockers, f"prompt_payload_label_{metadata.label_bucket}")
+
+    if not isinstance(metadata.payload_status, str) or not metadata.payload_status.strip():
+        _append_unique(blockers, "missing_prompt_payload_status")
+    elif metadata.payload_status not in _PROMPT_PAYLOAD_METER_STATUSES:
+        _append_unique(blockers, "unknown_prompt_payload_status")
+    elif metadata.payload_status in _PROMPT_PAYLOAD_METER_BLOCKING_STATUSES:
+        _append_unique(blockers, f"prompt_payload_{metadata.payload_status}")
+
+    if (
+        not isinstance(metadata.q_mode_prompt_drag_state, str)
+        or not metadata.q_mode_prompt_drag_state.strip()
+    ):
+        _append_unique(blockers, "missing_q_mode_prompt_drag_state")
+    elif metadata.q_mode_prompt_drag_state not in _PROMPT_PAYLOAD_Q_MODE_STATES:
+        _append_unique(blockers, "unknown_q_mode_prompt_drag_state")
+    elif metadata.q_mode_prompt_drag_state in _PROMPT_PAYLOAD_Q_MODE_BLOCKING_STATES:
+        _append_unique(blockers, f"q_mode_prompt_drag_{metadata.q_mode_prompt_drag_state}")
+
+    if metadata.budget_percent is None:
+        _append_unique(blockers, "missing_prompt_payload_budget_percent")
+    elif metadata.budget_percent < 0:
+        _append_unique(blockers, "invalid_prompt_payload_budget_percent")
+    elif metadata.budget_percent > 100:
+        _append_unique(blockers, "prompt_payload_budget_over_limit")
+    elif metadata.budget_percent >= 90:
+        _append_unique(warnings, "prompt_payload_budget_watch")
+
+    if metadata.growth_delta_tokens is None:
+        _append_unique(blockers, "missing_prompt_payload_growth_delta")
+    elif metadata.growth_delta_tokens < 0:
+        _append_unique(blockers, "invalid_prompt_payload_growth_delta")
+    elif (
+        metadata.growth_delta_tokens > 0
+        and metadata.q_mode_prompt_drag_state not in {"not_applicable", "growing_expected"}
+    ):
+        _append_unique(blockers, "prompt_payload_growth_unexplained")
+
+    _append_safe_ref_blockers(
+        metadata.route_continuity_refs,
+        "missing_route_continuity_refs",
+        "invalid_route_continuity_ref",
+        "unsafe_route_continuity_ref",
+        blockers,
+    )
+    _append_safe_ref_blockers(
+        metadata.evidence_refs,
+        "missing_prompt_payload_meter_evidence_refs",
+        "invalid_prompt_payload_meter_evidence_ref",
+        "unsafe_prompt_payload_meter_evidence_ref",
+        blockers,
+    )
+
+    for tag in metadata.blocker_tags:
+        if not isinstance(tag, str) or not tag.strip():
+            _append_unique(blockers, "invalid_prompt_payload_meter_blocker_tag")
+        elif not _is_provider_result_display_safe(tag):
+            _append_unique(blockers, "unsafe_prompt_payload_meter_blocker_tag")
+        else:
+            _append_unique(blockers, tag)
+
+    for tag in metadata.warning_tags:
+        if not isinstance(tag, str) or not tag.strip():
+            _append_unique(warnings, "invalid_prompt_payload_meter_warning_tag")
+        elif not _is_provider_result_display_safe(tag):
+            _append_unique(warnings, "unsafe_prompt_payload_meter_warning_tag")
+        else:
+            _append_unique(warnings, tag)
+
+    if blockers:
+        return _prompt_payload_meter_policy_result(
+            PromptPayloadMeterDecision.BLOCK,
+            "; ".join(blockers),
+            metadata,
+            blockers,
+            warnings,
+        )
+    if warnings:
+        return _prompt_payload_meter_policy_result(
+            PromptPayloadMeterDecision.WARN,
+            "; ".join(warnings),
+            metadata,
+            blockers,
+            warnings,
+        )
+    return _prompt_payload_meter_policy_result(
+        PromptPayloadMeterDecision.ALLOW,
+        "prompt payload meter metadata satisfies Aegis advisory policy",
+        metadata,
+        blockers,
+        warnings,
     )
 
 

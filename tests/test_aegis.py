@@ -15,6 +15,9 @@ from meridian_core.aegis import (
     GateResult,
     GateSummary,
     ProofTrail,
+    PromptPayloadMeterDecision,
+    PromptPayloadMeterInput,
+    PromptPayloadMeterPolicyResult,
     ProviderResultValidationDecision,
     ProviderResultValidationInput,
     ProviderResultValidationPolicyResult,
@@ -23,6 +26,7 @@ from meridian_core.aegis import (
     PromptPacketProofPolicyResult,
     WaiverRecord,
     evidence_from_cross_check,
+    evaluate_prompt_payload_meter_advisory,
     evaluate_provider_result_validation_advisory,
     evaluate_prompt_packet_proof_policy,
     format_aggregate_summary_for_display,
@@ -36,6 +40,7 @@ from meridian_core.aegis import (
     gate_unknown_proof_requirement,
     gate_unknown_route_class,
     gate_unsafe_fallback,
+    serialize_prompt_payload_meter_policy_result,
     serialize_provider_result_validation_policy_result,
     serialize_prompt_packet_policy_result,
     summarize_aggregate_route_gates,
@@ -116,6 +121,30 @@ def _provider_result_metadata(**overrides) -> ProviderResultValidationInput:
     }
     base.update(overrides)
     return ProviderResultValidationInput(**base)
+
+
+def _prompt_payload_meter_metadata(**overrides) -> PromptPayloadMeterInput:
+    base = {
+        "label_bucket": "under-1k",
+        "budget_percent": 24.5,
+        "growth_delta_tokens": 0,
+        "payload_status": "ok",
+        "q_mode_prompt_drag_state": "flat",
+        "route_continuity_refs": (
+            "provider:deepseek",
+            "model:deepseek-chat",
+            "route:direct",
+        ),
+        "blocker_tags": (),
+        "warning_tags": (),
+        "evidence_refs": (
+            "payload:snapshot-001",
+            "budget:prompt-meter-ok",
+            "proof:route-continuity",
+        ),
+    }
+    base.update(overrides)
+    return PromptPayloadMeterInput(**base)
 
 
 # ---------------------------------------------------------------------------
@@ -1485,6 +1514,200 @@ class TestAggregateGateSummary:
         assert aggregate.gate_details[0].gate_id == "gate_a"
         assert aggregate.gate_details[1].gate_id == "gate_b"
         assert len(aggregate.gate_details) == 2
+
+
+# ---------------------------------------------------------------------------
+# Prompt Payload Meter Advisory
+# ---------------------------------------------------------------------------
+
+
+class TestPromptPayloadMeterAdvisory:
+    def test_valid_prompt_payload_meter_metadata_allows(self):
+        result = evaluate_prompt_payload_meter_advisory(_prompt_payload_meter_metadata())
+        assert result.decision is PromptPayloadMeterDecision.ALLOW
+        assert result.severity == "info"
+        assert result.blockers == ()
+        assert result.warnings == ()
+        assert result.route_continuity_refs == (
+            "provider:deepseek",
+            "model:deepseek-chat",
+            "route:direct",
+        )
+
+    def test_budget_watch_warns_without_blocking(self):
+        result = evaluate_prompt_payload_meter_advisory(
+            _prompt_payload_meter_metadata(budget_percent=94.25)
+        )
+        assert result.decision is PromptPayloadMeterDecision.WARN
+        assert result.warnings == ("prompt_payload_budget_watch",)
+        assert result.blockers == ()
+
+    def test_over_budget_label_blocks_fail_closed(self):
+        result = evaluate_prompt_payload_meter_advisory(
+            _prompt_payload_meter_metadata(
+                label_bucket="over_budget",
+                budget_percent=121.0,
+                payload_status="over_budget",
+            )
+        )
+        assert result.decision is PromptPayloadMeterDecision.BLOCK
+        assert "prompt_payload_label_over_budget" in result.blockers
+        assert "prompt_payload_budget_over_limit" in result.blockers
+        assert "prompt_payload_over_budget" in result.blockers
+
+    def test_unknown_payload_status_blocks_fail_closed(self):
+        result = evaluate_prompt_payload_meter_advisory(
+            _prompt_payload_meter_metadata(payload_status="mystery")
+        )
+        assert result.decision is PromptPayloadMeterDecision.BLOCK
+        assert "unknown_prompt_payload_status" in result.blockers
+
+    def test_q_mode_degraded_blocks_fail_closed(self):
+        result = evaluate_prompt_payload_meter_advisory(
+            _prompt_payload_meter_metadata(q_mode_prompt_drag_state="degraded")
+        )
+        assert result.decision is PromptPayloadMeterDecision.BLOCK
+        assert "q_mode_prompt_drag_degraded" in result.blockers
+
+    def test_positive_growth_without_expected_state_blocks(self):
+        result = evaluate_prompt_payload_meter_advisory(
+            _prompt_payload_meter_metadata(
+                growth_delta_tokens=200,
+                q_mode_prompt_drag_state="flat",
+            )
+        )
+        assert result.decision is PromptPayloadMeterDecision.BLOCK
+        assert "prompt_payload_growth_unexplained" in result.blockers
+
+    def test_expected_positive_growth_allows_when_other_fields_valid(self):
+        result = evaluate_prompt_payload_meter_advisory(
+            _prompt_payload_meter_metadata(
+                growth_delta_tokens=200,
+                q_mode_prompt_drag_state="growing_expected",
+            )
+        )
+        assert result.decision is PromptPayloadMeterDecision.ALLOW
+
+    def test_missing_route_continuity_refs_block(self):
+        result = evaluate_prompt_payload_meter_advisory(
+            _prompt_payload_meter_metadata(route_continuity_refs=())
+        )
+        assert result.decision is PromptPayloadMeterDecision.BLOCK
+        assert "missing_route_continuity_refs" in result.blockers
+
+    def test_missing_evidence_refs_block(self):
+        result = evaluate_prompt_payload_meter_advisory(
+            _prompt_payload_meter_metadata(evidence_refs=())
+        )
+        assert result.decision is PromptPayloadMeterDecision.BLOCK
+        assert "missing_prompt_payload_meter_evidence_refs" in result.blockers
+
+    def test_blocker_tags_block_and_warning_tags_warn(self):
+        result = evaluate_prompt_payload_meter_advisory(
+            _prompt_payload_meter_metadata(
+                blocker_tags=("route_model_mismatch",),
+                warning_tags=("prompt_payload_meter_watch",),
+            )
+        )
+        assert result.decision is PromptPayloadMeterDecision.BLOCK
+        assert result.blockers == ("route_model_mismatch",)
+        assert result.warnings == ("prompt_payload_meter_watch",)
+
+    def test_prompt_payload_meter_advisory_has_stable_keys(self):
+        result = evaluate_prompt_payload_meter_advisory(_prompt_payload_meter_metadata())
+        display = serialize_prompt_payload_meter_policy_result(result)
+        assert tuple(display.keys()) == (
+            "decision",
+            "severity",
+            "reason",
+            "label_bucket",
+            "budget_percent",
+            "growth_delta_tokens",
+            "payload_status",
+            "q_mode_prompt_drag_state",
+            "route_continuity_refs",
+            "evidence_refs",
+            "blockers",
+            "warnings",
+            "reason_tags",
+            "relay_advisory",
+            "bifrost_advisory",
+        )
+
+    def test_prompt_payload_meter_to_advisory_dict_matches_helper(self):
+        result = evaluate_prompt_payload_meter_advisory(_prompt_payload_meter_metadata())
+        assert result.to_advisory_dict() == serialize_prompt_payload_meter_policy_result(
+            result
+        )
+
+    def test_prompt_payload_meter_advisory_serializes_allow_state(self):
+        result = evaluate_prompt_payload_meter_advisory(_prompt_payload_meter_metadata())
+        display = result.to_advisory_dict()
+        assert display["decision"] == "allow"
+        assert display["severity"] == "info"
+        assert display["label_bucket"] == "under-1k"
+        assert display["budget_percent"] == 24.5
+        assert display["growth_delta_tokens"] == 0
+        assert display["payload_status"] == "ok"
+        assert display["q_mode_prompt_drag_state"] == "flat"
+        assert display["reason_tags"] == ("prompt_payload_meter_allowed",)
+        assert display["relay_advisory"] == "allow"
+        assert display["bifrost_advisory"] == "display_allowed"
+
+    def test_prompt_payload_meter_advisory_redacts_unsafe_strings(self):
+        result = PromptPayloadMeterPolicyResult(
+            decision=PromptPayloadMeterDecision.BLOCK,
+            severity="error",
+            reason="raw_prompt: do not show this",
+            label_bucket="under-1k",
+            budget_percent=50.0,
+            growth_delta_tokens=0,
+            payload_status="blocked",
+            q_mode_prompt_drag_state="blocked",
+            route_continuity_refs=("provider:deepseek", "provider_response:raw"),
+            evidence_refs=("payload:safe", "account_id=abc"),
+            blockers=("raw_provider_response", "missing_route_continuity_refs"),
+            warnings=("process_id=123",),
+        )
+        display = result.to_advisory_dict()
+        assert display["reason"] == "[redacted]"
+        assert display["route_continuity_refs"] == ("provider:deepseek", "[redacted]")
+        assert display["evidence_refs"] == ("payload:safe", "[redacted]")
+        assert display["blockers"] == ("[redacted]", "missing_route_continuity_refs")
+        assert display["warnings"] == ("[redacted]",)
+        assert display["reason_tags"] == ("[redacted]", "missing_route_continuity_refs")
+
+    def test_prompt_payload_meter_policy_is_deterministic(self):
+        metadata = _prompt_payload_meter_metadata(
+            label_bucket="over_budget",
+            budget_percent=140.0,
+            payload_status="over_budget",
+            q_mode_prompt_drag_state="degraded",
+            blocker_tags=("route_model_mismatch",),
+            warning_tags=("prompt_payload_meter_watch",),
+        )
+        first = evaluate_prompt_payload_meter_advisory(metadata)
+        second = evaluate_prompt_payload_meter_advisory(metadata)
+        assert first == second
+        assert first.to_advisory_dict() == second.to_advisory_dict()
+
+    def test_unsafe_meter_inputs_fail_closed_without_exposing_raw_strings(self):
+        result = evaluate_prompt_payload_meter_advisory(
+            _prompt_payload_meter_metadata(
+                route_continuity_refs=("provider_response:raw",),
+                evidence_refs=("raw_prompt:leak",),
+                blocker_tags=("account_id=abc",),
+                warning_tags=("process_id=123",),
+            )
+        )
+        display = result.to_advisory_dict()
+        assert result.decision is PromptPayloadMeterDecision.BLOCK
+        assert "unsafe_route_continuity_ref" in result.blockers
+        assert "unsafe_prompt_payload_meter_evidence_ref" in result.blockers
+        assert "unsafe_prompt_payload_meter_blocker_tag" in result.blockers
+        assert "unsafe_prompt_payload_meter_warning_tag" in result.warnings
+        assert display["route_continuity_refs"] == ("[redacted]",)
+        assert display["evidence_refs"] == ("[redacted]",)
 
 
 # ---------------------------------------------------------------------------

@@ -10,6 +10,28 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: implement a pure Aegis-side helper/test surface for visible prompt payload meter advisory input.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
+
+Task: based on `docs/relay-bifrost-prompt-payload-meter-checklist.md`, keep it primitive/provider-neutral: accept already-summarized label bucket, budget percent, growth delta, payload status, Q-mode prompt-drag state, provider/model/route continuity refs, blocker/warning tags, and evidence refs; return deterministic fail-closed advisory metadata that Relay/Bifrost can consume. Exclude Relay imports/types, Bifrost edits, FileMap edits, live provider calls, credentials/account probing, raw prompts/provider responses, process/session control, main, and Polaris.
+
+Tests: `python -m pytest tests/test_aegis.py -q`.
+
+Completion: completed 2026-06-02.
+
+Ready for Codex Review:
+
+- Commit: `pending local commit hash`
+- Files changed: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`
+- Tests run: `python -m pytest tests/test_aegis.py -q` (266 passed)
+- Verification performed: added provider-neutral `PromptPayloadMeterInput`, deterministic `evaluate_prompt_payload_meter_advisory()`, and display-safe advisory serialization; tests cover allow/warn/block outcomes, budget watch/over-limit behavior, missing/unsafe route and evidence refs, Q-mode prompt-drag degradation, unexplained growth, blocker/warning tags, stable advisory keys, redaction, and repeat determinism; `git diff --check` passed.
+- Next Candidate: implement reviewed Relay/Bifrost prompt payload meter runtime and cockpit surface.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: create a docs-only implementation checklist for the frontend-critical Relay/Bifrost visible prompt payload meter.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
