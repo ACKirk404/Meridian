@@ -434,6 +434,15 @@ Coordinator fresh routing after partial Aegis clearance - 2026-06-02:
 - During Build 5 branch alignment, a Git config-lock collision left staged checkout residue even though the worktree was clean before the command. The fresh branch `codex/aligned-build-5-aegis-policy-edge-20260602-0001` already pointed at `origin/main`, so the coordinator forced checkout to that branch and restored Build 5 to clean current-main alignment without preserving any worker implementation dirt.
 - Sent route prompts to Build 2, Build 4, Build 5, Reviews A, and Reviews B thread IDs. Build 1 and Build 3 were not prompted for new implementation because they remain review-gated on Reviews A.
 
+Coordinator Build 4/5 and Reviews A movement - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified Build 4, Build 5, and Reviews A worktrees clean before movement. Build 2 was dirty/in-progress on permission-evidence work and was not moved.
+- Approved and completed path-limited movement of Build 4 Relay/Aegis PromptPacket policy integration checklist commits `083bd053` and `cbf83a3b` onto shared main as `07f52228` and `0d275750`, limited to `docs/relay-aegis-promptpacket-policy-integration-checklist.md` and `docs/live-build-4.md`.
+- Approved and completed path-limited movement of Build 5 Aegis policy rendering edge coverage commits `ebc1aa7a` and `a5b6c6b5` onto shared main as `d76f61f7` and `ab071f2e`, limited to `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, and `docs/live-build-5.md`.
+- Approved and completed path-limited movement of Reviews A Aegis-wave pass provenance commit `7e8f90bc` onto shared main as `f397f589`, limited to `docs/live-codex-reviews.md`. Reviews A passed Build 1 Relay decision-record packet proof binding and Build 3 Aegis PromptPacket FileMap audit with no findings.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_bifrost_cockpit.py -q` passed 220/220; `git diff --check 07f52228^..HEAD` passed; Build 4 checklist text/shape scan found the required Relay/Aegis metadata, evaluator, outcome mapping, raw-prompt/credential exclusion, Bifrost handoff, fail-closed, deterministic-test, and FileMap-routing terms.
+- Next coordinator action: push this movement, route Reviews B to review the newly landed Build 4/5 Ready markers, and promote fresh executable tasks for Build 1 and Build 3 now that Reviews A cleared their Aegis-wave slices.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
