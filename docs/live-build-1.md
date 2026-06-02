@@ -4,7 +4,7 @@
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: bind Relay prompt payload evidence into dispatch decision records after Reviews A cleared the route metadata binding.
 
@@ -23,6 +23,18 @@ Tests:
 - `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`
 
 Completion: mark Ready for Codex Review with commit hash, files changed, tests run, and a concrete Next Candidate: bind any review findings from the Relay payload evidence slice before further Relay/Model work.
+
+Completion:
+
+- Build 1 completed Relay prompt payload evidence binding on 2026-06-01 21:59 -06:00.
+- Commit: `8b63340c` (feat: Bind Relay prompt payload evidence).
+- Files changed: `meridian_core/relay_executor.py`, `meridian_core/model_adapter.py`, `tests/test_relay_executor.py`, `tests/test_model_adapter.py`.
+- Tests: `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` (199 passed).
+- Implementation: Added immutable Relay prompt payload evidence records carrying prompt source, route/model context, token estimate, budget/status/growth fields, snapshot/telemetry support flags, prompt snapshot hash when supported, and explicit missing-telemetry tags. Evidence is attached before the model-call boundary to per-lane results and dispatch decision records without storing raw prompt text, credentials, provider responses, transcripts, or UI state.
+- Scope exclusions verified: no live model calls, network access, credentials, raw provider responses, UI/Bifrost rendering, FileMap edits, branch movement, Polaris dependency, merge, rebase, reset, cherry-pick, stash-pop, or cross-worktree movement.
+- Next Candidate: bind any review findings from the Relay payload evidence slice before further Relay/Model work.
+
+Ready for Codex Review.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
