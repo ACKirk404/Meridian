@@ -4,6 +4,26 @@
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: add provider-neutral Relay route capability/tier/budget metadata binding after the DeepSeek metadata preset slice cleared Reviews A with no findings.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Required first command for this task: verify you are in your assigned unique worktree and not in `C:\Users\scott\Code\Meridian`; you are not allowed to write to main, move data between worktrees or branches, cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage without coordinator approval.
+
+Allowed files only: `meridian_core/model_adapter.py`, `meridian_core/relay_executor.py`, `tests/test_model_adapter.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Required sources: `docs/model-harness-v2-contract.md`, `docs/relay-heartbeat-model-routing-implementation-checklist.md`, `docs/relay-completeness-audit.md`, `docs/v2-progress-tracker.md`, and Reviews A pass evidence in `docs/live-codex-reviews.md`.
+
+Task: add a narrow provider-neutral metadata binding so Relay dispatch evidence can carry model capability, route tier, and budget/prompt-drag metadata without vendor-specific runtime branching. Preserve the existing DeepSeek candidate presets and exact `deepseek-chat` dispatch identity. Keep this pure/local: no network access, live model calls, credentials, UI/Bifrost rendering, FileMap edits, branch movement, or Polaris dependency.
+
+Tests:
+
+- `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`
+
+Completion: mark Ready for Codex Review with commit hash, files changed, tests run, and a concrete Next Candidate: bind any review findings from the route metadata binding slice before further Relay/Model work.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add DeepSeek candidate metadata presets to the provider-neutral Model Harness.

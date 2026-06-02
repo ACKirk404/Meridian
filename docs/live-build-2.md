@@ -8,6 +8,26 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: bind Session Lifecycle restart/resteer recovery decisions into Prime/Beacon advisory state after Reviews A cleared the restart/resteer recovery tests with no findings.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
+Required first command for this task: verify you are in your assigned unique worktree and not in `C:\Users\scott\Code\Meridian`; you are not allowed to write to main, move data between worktrees or branches, cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage without coordinator approval.
+
+Allowed files only: `meridian_core/session_lifecycle.py`, `meridian_core/prime_autonomy.py`, `tests/test_session_lifecycle.py`, `tests/test_prime_autonomy.py`, `docs/live-build-2.md`.
+
+Required sources: `docs/session-lifecycle-v2-contract.md`, `docs/session-lifecycle-permissions-implementation-checklist.md`, `docs/session-lifecycle-permissions-prime-beacon-contract.md`, `docs/v2-progress-tracker.md`, and Reviews A pass evidence in `docs/live-codex-reviews.md`.
+
+Task: add a pure advisory binding that lets Prime/Beacon consume Session Lifecycle restart/resteer recovery decisions without live session control. The binding should preserve branch/worktree permission rules, stale heartbeat safety, review-gate human approval, and permission-boundary blocking. Do not spawn sessions, inspect live processes, move branches, call models, edit UI/Bifrost/FileMap/Polaris, or add autonomous branch movement.
+
+Tests:
+
+- `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py -q`
+
+Completion: mark Ready for Codex Review with commit hash, files changed, tests run, and a concrete Next Candidate: bind any review findings from this advisory binding slice before unrelated Session Lifecycle work.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Session Lifecycle restart/resteer recovery tests after permissions binding cleared review.
