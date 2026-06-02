@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add provider-neutral Relay dispatch metadata envelope helpers for reviewed Model Harness capability metadata.
 
@@ -23,6 +23,15 @@ Task: add a narrow pure helper that turns already-bound Relay model capability m
 Tests: `python -m pytest tests/test_relay_executor.py -q` plus `git diff --check`.
 
 Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, changed files, proof, and Next Candidate: bind review findings or connect reviewed validation envelope to provider transport.
+
+Completion:
+- Status: Ready for Codex Review.
+- Completed: 2026-06-02 00:23 -06:00.
+- Commit: `a7739d84` (`feat: Add Relay dispatch metadata envelope`).
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+- Tests run: `python -m pytest tests/test_relay_executor.py -q` (196 passed); `git diff --check` (passed; Git reported line-ending normalization warnings only).
+- Concrete evidence: Relay now exposes immutable provider-neutral `RelayDispatchMetadataEnvelope` records plus `RelayExecutionSummary.dispatch_metadata_envelopes()` for future transport binding. The envelope serializes exact model id, selected provider, provider route kind, trust state, capability tier, context window, prompt budget/status/growth, prompt-drag tags, external-review status/evidence refs, payload/dispatch refs, and validation/fail-closed advisory tags. Registry execution attaches the metadata envelope after payload evidence/dispatch envelope creation while adapters still receive only `lane.payload`; no live provider calls, credentials/account probing, raw prompt text, raw provider responses, Bifrost/UI/FileMap edits, branch movement, main writes, pushes, or Polaris work were added.
+- Next Candidate: bind review findings or connect reviewed validation envelope to provider transport.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
