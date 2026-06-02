@@ -3819,6 +3819,17 @@ body {
     await restartModelBridge();
     hardReloadUi();
   };
+  const activateHarnessButton = (button) => {
+    if (!button) return;
+    screen.classList.remove('session-theme-aqua');
+    screen.classList.remove('session-theme-green');
+    if (userTitle) userTitle.textContent = button.dataset.sessionTitle || button.dataset.harness || 'User';
+    clearRelayModels();
+    if (button.dataset.harness === 'Relay') renderRelayModels();
+    screen.classList.add('sessions-visible');
+    harnessDisabledUntil = Date.now() + 2000;
+    harnessDock.classList.remove('harness-dock-open');
+  };
   buttons.forEach((button) => {
     button.addEventListener('click', async () => {
       const actionLabel = button.getAttribute('aria-label') || '';
@@ -3870,17 +3881,16 @@ body {
     if (!harnessPanelActive) screen.classList.toggle('sessions-visible');
     openSpark();
   });
-  harnessButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      screen.classList.remove('session-theme-aqua');
-      screen.classList.remove('session-theme-green');
-      if (userTitle) userTitle.textContent = button.dataset.sessionTitle || button.dataset.harness || 'User';
-      clearRelayModels();
-      if (button.dataset.harness === 'Relay') renderRelayModels();
-      screen.classList.add('sessions-visible');
-      harnessDisabledUntil = Date.now() + 2000;
-      harnessDock.classList.remove('harness-dock-open');
+  harnessDock.addEventListener('click', (event) => {
+    if (event.target.closest?.('.harness-dock-button')) return;
+    const hitButton = harnessButtons.find((button) => {
+      const rect = button.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0 && isInside(event, rect, 0, 0);
     });
+    activateHarnessButton(hitButton);
+  });
+  harnessButtons.forEach((button) => {
+    button.addEventListener('click', () => activateHarnessButton(button));
   });
   menu.addEventListener('pointerenter', openSpark);
   document.addEventListener('pointermove', chooseVisibleSystem);

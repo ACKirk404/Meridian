@@ -433,7 +433,7 @@ Harness buttons switch the right panel into Harness mode. They are not merely la
 |---|---|---|---|---|
 | HN1 | Prime | Opens/focuses Prime core session surface. | partial | Click updates session title/focus without fake status text. |
 | HN2 | Bifrost | Opens/focuses UI/Bifrost surface. | partial | Click updates session title/focus without fake status text. |
-| HN3 | Relay | Opens/focuses model-routing surface. | partial | Click updates session title/focus; does not enable Auto routing yet. |
+| HN3 | Relay | Opens/focuses model-routing surface. | wired | Click opens Relay Model Logic with bridge/access/model/dispatch/blocker logic; Auto remains disabled. |
 | HN4 | Beacon | Opens/focuses heartbeat/liveness surface. | partial | Click updates session title/focus without fake heartbeat details. |
 | HN5 | Security | Reserved TBD harness identity; replaces generic TBD. | planned | Button label/icon should become Security before wiring actions. |
 | HN6 | Aegis | Opens/focuses proof/cross-check surface. | partial | Click updates session title/focus without fake proof status. |
