@@ -69,7 +69,7 @@ foreach ($dir in @(
 
 ## Open Checkpoint 1 - Replacement Coordinator Intake
 
-Status: intake recorded; awaiting current orchestrator review.
+Status: intake recorded and reviewed by current orchestrator.
 
 Current orchestrator note before replacement intake:
 
@@ -127,7 +127,7 @@ Current orchestrator review:
 
 ## Open Checkpoint 3 - Supervised Routing Trial
 
-Status: open.
+Status: open; replacement coordinator is approved to perform one supervised routing cycle.
 
 Replacement coordinator should perform one supervised routing cycle:
 
