@@ -22,6 +22,33 @@ Completion: commit only review provenance/finding/pass updates locally in `docs/
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review Build 1 Relay visible prompt payload meter edge-consumer hardening.
+
+Status: passed by Codex Reviews A on 2026-06-02 09:30 -06:00. Candidate `HEAD` is `bca290d8`, and Build 1 commits `fd2d3206` and `bca290d8` are ancestors of the assigned candidate branch.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Review scope: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_relay_executor.py -q`
+- `git diff --check fd2d3206^..bca290d8`
+
+Review result:
+
+- Containment checks for `fd2d3206` and `bca290d8` passed on the assigned candidate branch.
+- Scope check shows implementation/test changes limited to `meridian_core/relay_executor.py` and `tests/test_relay_executor.py`, with Build 1 queue provenance in `docs/live-build-1.md`.
+- `python -m pytest tests/test_relay_executor.py -q` passed with 213 tests.
+- `git diff --check fd2d3206^..bca290d8` passed.
+- Verified deterministic display-safe handling for unknown/missing token counts, zero/under-1k/one-decimal-k labels, over-budget status, budget percent rounding, growth delta sign/rounding, Q-mode prompt-drag warning/degraded/blocker tags, provider/model/route continuity refs, and decision-record fallback.
+- Verified adapter/model request payload semantics remain unchanged: the runtime still forwards only `lane.payload` to model/adapter calls and attaches prompt-meter metadata only to downstream summary/decision evidence.
+- No raw prompt text, provider response text, live provider calls, UI/Bifrost/FileMap/session/process/main/Polaris leakage, or branch/worktree movement found.
+
+Completion: Build 1 Relay visible prompt payload meter edge-consumer hardening is review-cleared. Reviews A returns to Build 1/2 Ready-marker polling.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review Build 2 Session Lifecycle command-staging review packet.
 
 Status: passed by Codex Reviews A on 2026-06-02 09:26 -06:00. Candidate `HEAD` is `7b7bba35`, and Build 2 commits `0a0aadd9` and `7b7bba35` are ancestors of the assigned candidate branch.
