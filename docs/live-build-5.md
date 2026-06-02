@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: add deterministic Bifrost validation-envelope sample rendering for Model Harness runtime metadata.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-5-bifrost`.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Required sources: `docs/model-harness-runtime-validation-checklist.md`, `docs/model-harness-v2-contract.md`, `docs/bifrost-balance-payload-surface-contract.md`, Reviews B clearance evidence in `docs/live-codex-reviews-2.md`, and current Model Harness capability metadata badge rendering.
+
+Task: add a static deterministic Bifrost sample for runtime validation-envelope metadata beside the existing Model Harness capability metadata section. Show validation state, fail-closed reason, exact dispatch/model id, route proof refs, external-review state, prompt-drag budget/growth fields, display-safe evidence refs, and candidate trust badges. Preserve provider balance/cost-pressure rendering, prompt payload visibility, dispatch hardening, PromptPacket proof metadata, Relay/Aegis handoff, proof-state preview, stale-session recovery actions, escaping, and cockpit layout. Do not call providers, inspect accounts, read credentials, spawn sessions, inspect live processes, edit `index.html`, touch Relay runtime, edit FileMap, move branches, main, or Polaris.
+
+Tests: `python -m pytest tests/test_bifrost_cockpit.py -q` plus `git diff --check`.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, changed files, tests run, concrete rendering evidence, and Next Candidate: bind reviewed runtime validation envelopes when available.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add deterministic Bifrost candidate-trust and external-review badge rendering for Model Harness capability metadata.

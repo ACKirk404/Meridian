@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: add provider-neutral Relay dispatch metadata envelope helpers for reviewed Model Harness capability metadata.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Required sources: Reviews A clearance evidence in `docs/live-codex-reviews.md`, `docs/model-harness-v2-contract.md`, `docs/model-harness-metadata-implementation-checklist.md`, `docs/model-harness-runtime-validation-checklist.md`, current `RelayModelRouteMetadata` and `RelayExecutionSummary.model_capability_metadata_summary()` behavior.
+
+Task: add a narrow pure helper that turns already-bound Relay model capability metadata into a provider-neutral dispatch metadata envelope suitable for future HTTP/provider transports. Include exact model id, provider route kind, trust state, context window, prompt budget/status/growth, external-review status, evidence refs, and validation/fail-closed advisory fields. Keep it serialization-only: do not call providers, add credentials/account probing, mutate transport execution, expose raw prompts/provider responses, edit Bifrost/UI/FileMap/session/process code, move branches/worktrees, write main, push main, or touch Polaris.
+
+Tests: `python -m pytest tests/test_relay_executor.py -q` plus `git diff --check`.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, changed files, proof, and Next Candidate: bind review findings or connect reviewed validation envelope to provider transport.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add DeepSeek candidate provider metadata presets to the provider-neutral Model Harness without enabling live provider transport.

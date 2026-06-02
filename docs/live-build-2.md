@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: bind the reviewed Session Lifecycle runtime-state export into Prime/Beacon advisory input without executing recovery.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
+Allowed files only: `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_prime_autonomy.py`, `tests/test_beacon.py`, `docs/live-build-2.md`.
+
+Required sources: `docs/session-lifecycle-v2-contract.md`, `docs/workflow-subagent-harness-contract.md`, `docs/session-lifecycle-permissions-prime-beacon-contract.md`, Reviews A clearance evidence in `docs/live-codex-reviews.md`, and current `SessionRuntimeStateExport` behavior.
+
+Task: add pure advisory adapters so Prime and Beacon can consume `SessionRuntimeStateExport` objects as display-safe recovery evidence and recommendation inputs. Preserve permission/review blockers, stale workflow status, command-plan intent, and human-gate rationale. Keep this advisory and serializable only: no session spawning, process inspection, model calls, UI/Bifrost/FileMap edits, autonomous recovery execution, branch/worktree movement, main writes, pushes to main, or Polaris.
+
+Tests: `python -m pytest tests/test_prime_autonomy.py tests/test_beacon.py -q` plus `git diff --check`.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, changed files, proof, and Next Candidate: bind review findings or route the next live-control permission gate.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add a pure Session Lifecycle runtime-state export for workflow recovery advisory decisions.

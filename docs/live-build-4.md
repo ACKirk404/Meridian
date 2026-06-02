@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: create a docs-only provider transport metadata pass-through checklist for Relay/Model Harness validation.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Allowed files only: `docs/provider-transport-metadata-pass-through-checklist.md`, `docs/live-build-4.md`.
+
+Required sources: `docs/model-harness-v2-contract.md`, `docs/model-harness-runtime-validation-checklist.md`, `docs/model-harness-metadata-implementation-checklist.md`, `meridian_core/model_adapter.py`, `meridian_core/relay_executor.py`, Reviews A evidence in `docs/live-codex-reviews.md`, and Reviews B evidence in `docs/live-codex-reviews-2.md`.
+
+Task: write a concise build-ready checklist for future provider transport metadata pass-through. Cover dispatch metadata envelope shape, exact model id, provider route kind, trust state, direct-vs-aggregator proof refs, prompt-drag budget/growth fields, external-review state, validation fail-closed behavior, provider request exclusion of raw prompts beyond `PromptPacket.model_payload()`, deterministic tests, Bifrost display expectations, and explicit exclusions for live provider calls, credentials/account probing, raw provider responses, process/session control, FileMap edits, branch/worktree movement, shared-main writes, pushes to main, and Polaris. Keep this docs-only; do not edit runtime code or tests.
+
+Tests: docs-only; run text/shape inspection plus `git diff --check`.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, verification performed, and Next Candidate: implement reviewed provider transport metadata pass-through.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: create a docs-only Model Harness runtime validation checklist that turns the reviewed metadata/checklist work into a build-ready runtime gate.

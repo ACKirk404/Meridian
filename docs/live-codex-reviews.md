@@ -10,6 +10,18 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Active Now
 
+Goal: review current-main Build 1 DeepSeek candidate metadata presets, then Build 2 runtime-state export.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Task: review current-main Ready markers in order: Build 1 DeepSeek candidate metadata preset commits `bfada8b1` and `1fcad364`, then Build 2 runtime-state export commits `93bf40dd` and `d0179bb0`. For Build 1, verify metadata-only scope, no live transport, exact `deepseek-chat` dispatch id, variant labels as metadata only, route proof refs, candidate trust/external-review states, prompt-drag defaults, evidence refs, and no Relay/Bifrost/FileMap/branch/main/Polaris leakage. For Build 2, verify pure serializable runtime-state export, permission/workflow/command summary fields, advisory-only behavior, no recovery execution, and no process/model/UI/Bifrost/FileMap/branch/main/Polaris leakage.
+
+Proof: for Build 1, `python -m pytest tests/test_model_adapter.py -q` plus `git diff --check bfada8b1^..1fcad364`. For Build 2, `python -m pytest tests/test_session_lifecycle.py -q` plus `git diff --check 93bf40dd^..d0179bb0`.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews.md`. If a finding exists, record the smallest focused repair route and stop. Next Candidate: return to Build 1/2 polling after these current-main reviews.
+
+## Coordinator Override - Active Now
+
 Goal: review current-main Build 1 Model Harness metadata binding, then Build 2 workflow advisory binding.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.

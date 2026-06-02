@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Active Task
+
+Goal: keep FileMap current after the latest Build 1/2/4/5 movement and review/routing updates on shared main.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-3-filemap`.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Required sources: current `origin/main`, `docs/live-build-1.md`, `docs/live-build-2.md`, `docs/live-build-3.md`, `docs/live-build-4.md`, `docs/live-build-5.md`, `docs/live-codex-reviews.md`, `docs/live-codex-reviews-2.md`, runtime FileMap entries, `docs/FileMap.md`, and `_REQUIRED_PATHS`.
+
+Task: audit FileMap coverage after current-main commits `ffa4e348`, `8cb2754b`, `4cca5759`, `bfada8b1`, `1fcad364`, `93bf40dd`, `d0179bb0`, `57984e4f`, `fa088d9c`, and this routing checkpoint. At minimum inspect `docs/model-harness-runtime-validation-checklist.md`, `meridian_core/model_adapter.py`, `meridian_core/session_lifecycle.py`, `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_model_adapter.py`, `tests/test_session_lifecycle.py`, `tests/test_bifrost_cockpit.py`, `docs/live-build-1.md`, `docs/live-build-2.md`, `docs/live-build-4.md`, `docs/live-build-5.md`, `docs/live-codex-reviews.md`, and `docs/live-codex-reviews-2.md`. Register missing existing artifacts only in runtime FileMap, `docs/FileMap.md`, and `_REQUIRED_PATHS`. If no missing existing artifacts are found, record concrete no-op evidence with inspected commits and paths; do not commit read-check-only progress.
+
+Tests: `python -m pytest tests/test_filemap.py -q` plus `git diff --check`.
+
+Completion: commit locally only in the assigned worktree if coverage changes or concrete no-op evidence is recorded, mark Ready for Codex Review with commit hash or no-op evidence, files changed, tests run, and Next Candidate: bind review findings before unrelated FileMap cleanup.
+
 ## Completed / Ready For Codex Review
 
 Goal: keep FileMap current after the latest Build 1/2 movement, Build 3 FileMap registration, Reviews B clearance, and routing updates on shared main.

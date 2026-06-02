@@ -8,6 +8,18 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Active Now
 
+Goal: review current-main Build 4 runtime validation checklist, then Build 5 candidate-trust badge rendering.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: review current-main Ready markers in order: Build 4 Model Harness runtime validation checklist commits `ffa4e348` and `8cb2754b`, then Build 5 candidate-trust/external-review badge rendering commits `57984e4f` and `fa088d9c`. For Build 4, verify docs-only scope and required coverage of exact dispatch/model id, route proof, candidate trust, capability labels versus transport ids, prompt-drag/budget fields, external review, fail-closed missing metadata, Relay/Aegis/Bifrost binding, deterministic tests, validation evidence, and exclusions. For Build 5, verify deterministic sample/rendering only, badge coverage for trusted/candidate/validation-blocked/review-required/review-cleared states, display-safe evidence refs, escaping, prior cockpit preservation, and no live provider/account/session/process/Relay runtime/FileMap/index.html/branch/main/Polaris leakage.
+
+Proof: for Build 4, text/shape inspection plus `git diff --check ffa4e348^..8cb2754b`. For Build 5, `python -m pytest tests/test_bifrost_cockpit.py -q` plus `git diff --check 57984e4f^..fa088d9c`.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If a finding exists, record the smallest focused repair route and stop. Next Candidate: return to Build 4/5 polling after these current-main reviews.
+
+## Coordinator Override - Active Now
+
 Goal: keep Reviews B polling Build 4 and Build 5 without blocking on read-check-only updates.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
