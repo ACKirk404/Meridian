@@ -20,6 +20,55 @@ Proof: `python -m pytest tests/test_relay_executor.py -q` plus `git diff --check
 
 Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews.md`. If a finding exists, record the smallest focused repair route and stop. Next Candidate: return to Build 1/2 polling and route reviewed follow-up build work.
 
+## Coordinator Override - Completed / Passed
+
+Goal: review current-main Build 1 Relay policy disposition runtime, then Build 2 workflow work-order recovery summary.
+
+Status: passed by Codex Reviews A on 2026-06-01 23:54 -06:00. Current `HEAD` and `origin/main` are `4f745973`, and Build 1 commits `52b593f9` and `5e0aa795`, plus Build 2 commits `b8b2f49a` and `4b820044`, are ancestors of current main.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Build 1 review scope: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Build 1 proof commands:
+
+- `python -m pytest tests/test_relay_executor.py -q`
+- `git diff --check 52b593f9^..5e0aa795`
+
+Build 1 review result:
+
+- Containment checks for `52b593f9` and `5e0aa795` passed.
+- Scope check shows implementation/test changes limited to `meridian_core/relay_executor.py` and `tests/test_relay_executor.py`, with queue provenance in `docs/live-build-1.md`.
+- `python -m pytest tests/test_relay_executor.py -q` passed with 190 tests.
+- `git diff --check 52b593f9^..5e0aa795` passed.
+- Verified `RelayPromptPacketPolicyDisposition` is deterministic advisory data derived from already evaluated PromptPacket policy evidence before provider transport.
+- Verified allow/warn dispositions permit dispatch, while demote, human-gate, block, unknown-decision, and missing-metadata outcomes fail closed before `model_call` / adapter transport.
+- Verified demotion disposition records target tier, authorization state, no-silent-fallback tags, and fresh PromptPacket/Aegis rerun requirements rather than silently falling back.
+- Verified `PromptPacket.model_payload()` / lane payload remains the only model-bound prompt text and scoped scans found no raw prompt, credential, provider-response, UI/Bifrost/FileMap, branch/main, model-account/process, or Polaris leakage introduced by the slice.
+
+Build 1 finding: none.
+
+Build 2 review scope: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Build 2 proof commands:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+- `git diff --check b8b2f49a^..4b820044`
+
+Build 2 review result:
+
+- Containment checks for `b8b2f49a` and `4b820044` passed.
+- Scope check shows implementation/test changes limited to `meridian_core/session_lifecycle.py` and `tests/test_session_lifecycle.py`, with queue provenance in `docs/live-build-2.md`.
+- `python -m pytest tests/test_session_lifecycle.py -q` passed with 97 tests.
+- `git diff --check b8b2f49a^..4b820044` passed.
+- Verified `WorkflowWorkOrderRecoverySummary` and `summarize_workflow_work_order_recovery()` provide deterministic, serializable workflow work-order recovery advice with work order id, target session id, heartbeat age/status, result/error kind, retry/resteer recommendation, permission blockers, review-gate blockers, recovery action, and rationale.
+- Verified recovery actions are advisory only: stale/missing/timeout maps to staged `start_new`, successful results map to `archive`, resteer requests map to `transfer`, and permission/review-gate blockers force `request_human_gate`.
+- Verified the helper does not spawn sessions, inspect processes, call models, edit UI/Bifrost/FileMap, move branches/worktrees, write main, introduce autonomous movement, or touch Polaris.
+
+Build 2 finding: none.
+
+Completion: Build 1 Relay policy disposition runtime and Build 2 workflow work-order recovery summary are review-cleared. No repair routed.
+
 ## Coordinator Override - Active Now
 
 Goal: keep Build 1/2 review hot under the rolling two-stage pipeline.
