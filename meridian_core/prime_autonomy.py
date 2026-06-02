@@ -448,6 +448,18 @@ def _prime_evidence_from_command_audit(audit_evidence: dict[str, Any]) -> list[s
         f"review.status={review_gate.get('cadence_gate_status', 'unknown')}",
         f"recovery.note={recovery.get('rollback_or_recovery_note', 'unknown')}",
     ]
+    if permission.get("permission_state") is not None:
+        evidence.append(f"permission.state={permission.get('permission_state')}")
+    if permission.get("task_scope") is not None:
+        evidence.append(f"permission.task_scope={permission.get('task_scope')}")
+    if permission.get("operation") is not None:
+        evidence.append(f"permission.operation={permission.get('operation')}")
+        evidence.append(
+            f"permission.operation_allowed="
+            f"{_audit_bool(permission.get('operation_allowed'))}"
+        )
+    if permission.get("evidence") is not None:
+        evidence.append(f"permission.evidence={permission.get('evidence')}")
     evidence.extend(f"blocker={blocker}" for blocker in blockers)
     return evidence
 

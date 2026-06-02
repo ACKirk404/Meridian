@@ -483,6 +483,15 @@ class SessionCommandPlan:
     # Recovery
     rollback_or_recovery_note: Optional[str]
 
+    # Permission advisory evidence
+    permission_state: Optional[PermissionState] = None
+    permission_task_scope: Optional[str] = None
+    permission_unlock_expiry: Optional[datetime] = None
+    permission_approved_operations: tuple[OperationScope, ...] = ()
+    permission_operation: Optional[OperationScope] = None
+    permission_operation_allowed: bool = False
+    permission_evidence: Optional[str] = None
+
     def is_executable(self) -> bool:
         """True if command can execute immediately.
 
@@ -503,6 +512,12 @@ class SessionCommandPlan:
             CommandIntent.RECOVER_FROM_LIMIT,
         }
         return self.command_intent in high_risk_intents
+
+    def permission_blocker(self) -> Optional[str]:
+        """Return the display-safe permission blocker for this command, if any."""
+        if self.permission_operation is None or self.permission_operation_allowed:
+            return None
+        return f"permission_required_for_{self.permission_operation.value}"
 
     def is_legal(self, current_state: SessionLifecycleState) -> bool:
         """True if this command is legal given current session state."""
@@ -579,6 +594,9 @@ class SessionCommandPlan:
             blockers.append("proof_missing")
         if self.approval_context:
             blockers.append(self.approval_context)
+        permission_blocker = self.permission_blocker()
+        if permission_blocker:
+            blockers.append(permission_blocker)
 
         return {
             "plan": {
@@ -596,6 +614,23 @@ class SessionCommandPlan:
                 "aegis_gate_result": self.aegis_gate_result,
                 "branch_affected": self.branch_affected,
                 "worktree_path_affected": self.worktree_path_affected,
+                "permission_state": (
+                    self.permission_state.value if self.permission_state else None
+                ),
+                "task_scope": self.permission_task_scope,
+                "unlock_expiry": (
+                    self.permission_unlock_expiry.isoformat()
+                    if self.permission_unlock_expiry
+                    else None
+                ),
+                "approved_operations": [
+                    operation.value for operation in self.permission_approved_operations
+                ],
+                "operation": (
+                    self.permission_operation.value if self.permission_operation else None
+                ),
+                "operation_allowed": self.permission_operation_allowed,
+                "evidence": self.permission_evidence,
             },
             "review_gate": {
                 "cadence_gate_required": self.cadence_gate_required,
@@ -635,6 +670,23 @@ class SessionCommandPlan:
             "human_approval_required": self.human_approval_required,
             "approval_context": self.approval_context,
             "rollback_or_recovery_note": self.rollback_or_recovery_note,
+            "permission_state": (
+                self.permission_state.value if self.permission_state else None
+            ),
+            "permission_task_scope": self.permission_task_scope,
+            "permission_unlock_expiry": (
+                self.permission_unlock_expiry.isoformat()
+                if self.permission_unlock_expiry
+                else None
+            ),
+            "permission_approved_operations": [
+                operation.value for operation in self.permission_approved_operations
+            ],
+            "permission_operation": (
+                self.permission_operation.value if self.permission_operation else None
+            ),
+            "permission_operation_allowed": self.permission_operation_allowed,
+            "permission_evidence": self.permission_evidence,
             "audit_evidence": self.audit_evidence(),
         }
 
@@ -730,6 +782,19 @@ def gather_prime_autonomy_input(
     )
 
 
+def _operation_for_command_intent(command_intent: CommandIntent) -> Optional[OperationScope]:
+    """Map command intent to the permission operation it would need."""
+    operation_by_intent = {
+        CommandIntent.SPAWN: OperationScope.WORKTREE_CREATE,
+        CommandIntent.TRANSFER: OperationScope.BRANCH_MOVE,
+        CommandIntent.ARCHIVE: OperationScope.ARCHIVE,
+        CommandIntent.RESTART: OperationScope.RESTART,
+        CommandIntent.RESTEER: OperationScope.RESTEER,
+        CommandIntent.RECOVER_FROM_LIMIT: OperationScope.RECOVER_FROM_LIMIT,
+    }
+    return operation_by_intent.get(command_intent)
+
+
 def plan_command_from_session_action(
     session: Optional[SessionLifecycleState],
     action: SessionAction,
@@ -805,6 +870,17 @@ def plan_command_from_session_action(
     if human_approval_required:
         is_executable_now = False
 
+    permission_operation = _operation_for_command_intent(command_intent)
+    permission_operation_allowed = (
+        session.can_execute_operation(permission_operation)
+        if permission_operation is not None
+        else False
+    )
+    permission_evidence = (
+        f"{session.permission_context.branch_permission_state.value}:"
+        f"{session.current_task_id or 'no_task'}"
+    )
+
     return SessionCommandPlan(
         session_id=session.session_id,
         session_name=session.session_name,
@@ -826,4 +902,16 @@ def plan_command_from_session_action(
         human_approval_required=human_approval_required,
         approval_context=approval_context,
         rollback_or_recovery_note=rollback_or_recovery_note,
+        permission_state=session.permission_context.branch_permission_state,
+        permission_task_scope=session.permission_context.task_scope,
+        permission_unlock_expiry=session.permission_context.unlock_expiry,
+        permission_approved_operations=tuple(
+            sorted(
+                session.permission_context.approval_scope,
+                key=lambda operation: operation.value,
+            )
+        ),
+        permission_operation=permission_operation,
+        permission_operation_allowed=permission_operation_allowed,
+        permission_evidence=permission_evidence,
     )

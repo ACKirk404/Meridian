@@ -8,8 +8,21 @@ from pathlib import Path
 
 import pytest
 
-from meridian_core.beacon import LivenessTarget, check_harness_liveness
+from meridian_core.beacon import (
+    LivenessTarget,
+    check_harness_liveness,
+    command_plan_advisory_evidence,
+)
 from meridian_core.models import HeartbeatStatus
+from meridian_core.session_lifecycle import (
+    CommandIntent,
+    OperationScope,
+    PermissionState,
+    ProofState,
+    ReviewCadenceState,
+    SessionCommandPlan,
+    SessionStatus,
+)
 
 
 def _touch(path: Path, modified_at: datetime) -> None:
@@ -110,3 +123,82 @@ class TestCheckHarnessLiveness:
 
         with pytest.raises(ValueError):
             check_harness_liveness([target])
+
+
+class TestCommandPlanAdvisoryEvidence:
+    def test_command_plan_permission_evidence_is_display_safe(self) -> None:
+        now = datetime(2026, 6, 2, 8, 0, tzinfo=timezone.utc)
+        plan = SessionCommandPlan(
+            session_id="build-2",
+            session_name="Build 2",
+            command_intent=CommandIntent.RESTART,
+            reason="stale_heartbeat",
+            expected_state_transition=(SessionStatus.STALE, SessionStatus.RUNNING),
+            current_state_evidence="SessionLifecycleState:build-2:stale",
+            queue_file_evidence="docs/live-build-2.md",
+            worktree_evidence="/worktree/build-2",
+            review_gate_evidence=None,
+            proof_requirement=ProofState.PERMISSION_VALIDATED,
+            queue_file_affected="docs/live-build-2.md",
+            worktree_path_affected="/worktree/build-2",
+            branch_affected="codex/aligned-build-2-permission-evidence",
+            aegis_gate_result=None,
+            cadence_gate_required=False,
+            cadence_gate_status=ReviewCadenceState.NONE,
+            is_executable_now=False,
+            human_approval_required=True,
+            approval_context="stale recovery requires human approval",
+            rollback_or_recovery_note="Advisory only; no live restart is executed.",
+            permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            permission_task_scope="permission-evidence-slice",
+            permission_approved_operations=(OperationScope.RESTART,),
+            permission_operation=OperationScope.RESTART,
+            permission_operation_allowed=True,
+            permission_evidence="unlocked_temporary:permission-evidence-slice",
+        )
+
+        evidence = command_plan_advisory_evidence(plan, now=now)
+
+        assert evidence.harness_id == "build-2"
+        assert evidence.advisory_type == "restart"
+        assert evidence.human_gate_required is True
+        assert "permission.operation=restart" in evidence.evidence
+        assert "permission.operation_allowed=True" in evidence.evidence
+        assert "stale recovery requires human approval" in evidence.blockers
+
+    def test_command_plan_movement_blocker_is_beacon_evidence(self) -> None:
+        plan = SessionCommandPlan(
+            session_id="build-2",
+            session_name="Build 2",
+            command_intent=CommandIntent.SPAWN,
+            reason="reasoning_shift",
+            expected_state_transition=(SessionStatus.STARTING, SessionStatus.POLLING),
+            current_state_evidence="SessionLifecycleState:build-2:running",
+            queue_file_evidence="docs/live-build-2.md",
+            worktree_evidence="/worktree/build-2",
+            review_gate_evidence=None,
+            proof_requirement=ProofState.COMMAND_STAGED,
+            queue_file_affected="docs/live-build-2.md",
+            worktree_path_affected="/worktree/build-2",
+            branch_affected="codex/aligned-build-2-permission-evidence",
+            aegis_gate_result=None,
+            cadence_gate_required=False,
+            cadence_gate_status=ReviewCadenceState.NONE,
+            is_executable_now=False,
+            human_approval_required=True,
+            approval_context="new session requires human approval",
+            rollback_or_recovery_note="Advisory only; no worktree is created.",
+            permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            permission_task_scope="permission-evidence-slice",
+            permission_approved_operations=(OperationScope.RESTART,),
+            permission_operation=OperationScope.WORKTREE_CREATE,
+            permission_operation_allowed=False,
+            permission_evidence="unlocked_temporary:permission-evidence-slice",
+        )
+
+        evidence = command_plan_advisory_evidence(plan)
+
+        assert "permission.operation=worktree_create" in evidence.evidence
+        assert "permission.operation_allowed=False" in evidence.evidence
+        assert "permission_required_for_worktree_create" in evidence.blockers
+        assert evidence.to_dict()["blockers"] == list(evidence.blockers)

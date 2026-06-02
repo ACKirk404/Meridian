@@ -800,6 +800,62 @@ class TestCommandPlanAuditAdvisorySelection:
         assert "blocker=permission boundary blocks restart" in action.evidence
         assert action.target_harness == "Session Lifecycle"
 
+    def test_permission_operation_evidence_surfaces_to_prime(self, poll_plan):
+        """Permission operation metadata becomes Prime advisory evidence."""
+        restart_plan = SessionCommandPlan(
+            **{
+                **poll_plan.__dict__,
+                "command_intent": CommandIntent.RESTART,
+                "reason": "stale_heartbeat",
+                "proof_requirement": ProofState.PERMISSION_VALIDATED,
+                "is_executable_now": False,
+                "human_approval_required": True,
+                "permission_state": PermissionState.UNLOCKED_TEMPORARY,
+                "permission_task_scope": "permission-evidence-slice",
+                "permission_approved_operations": (OperationScope.RESTART,),
+                "permission_operation": OperationScope.RESTART,
+                "permission_operation_allowed": True,
+                "permission_evidence": "unlocked_temporary:permission-evidence-slice",
+            }
+        )
+
+        action = select_next_action_from_command_plan_audit(command_plan=restart_plan)
+
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert "permission.state=unlocked_temporary" in action.evidence
+        assert "permission.task_scope=permission-evidence-slice" in action.evidence
+        assert "permission.operation=restart" in action.evidence
+        assert "permission.operation_allowed=True" in action.evidence
+        assert (
+            "permission.evidence=unlocked_temporary:permission-evidence-slice"
+            in action.evidence
+        )
+
+    def test_permission_operation_blocker_surfaces_to_prime(self, poll_plan):
+        """Missing movement permission remains a Prime blocker."""
+        movement_plan = SessionCommandPlan(
+            **{
+                **poll_plan.__dict__,
+                "command_intent": CommandIntent.SPAWN,
+                "reason": "reasoning_shift",
+                "permission_state": PermissionState.UNLOCKED_TEMPORARY,
+                "permission_task_scope": "permission-evidence-slice",
+                "permission_approved_operations": (OperationScope.RESTART,),
+                "permission_operation": OperationScope.WORKTREE_CREATE,
+                "permission_operation_allowed": False,
+                "permission_evidence": "unlocked_temporary:permission-evidence-slice",
+            }
+        )
+
+        action = select_next_action_from_command_plan_audit(
+            audit_evidence=movement_plan.audit_evidence()
+        )
+
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert "permission_required_for_worktree_create" in action.blockers
+        assert "blocker=permission_required_for_worktree_create" in action.evidence
+        assert "permission.operation_allowed=False" in action.evidence
+
     def test_malformed_serialized_audit_pauses_safely(self):
         """Malformed serialized audit evidence cannot become executable."""
         action = select_next_action_from_command_plan_audit(

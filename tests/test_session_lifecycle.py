@@ -379,12 +379,14 @@ class TestSessionCommandPlan:
         )
 
         audit = permission_command.audit_evidence()
-        assert audit["permission"] == {
-            "proof_requirement": "permission_validated",
-            "aegis_gate_result": "pending",
-            "branch_affected": "codex/aligned-build-2-command-audit",
-            "worktree_path_affected": "/worktree/build-2",
-        }
+        assert audit["permission"]["proof_requirement"] == "permission_validated"
+        assert audit["permission"]["aegis_gate_result"] == "pending"
+        assert audit["permission"]["branch_affected"] == (
+            "codex/aligned-build-2-command-audit"
+        )
+        assert audit["permission"]["worktree_path_affected"] == "/worktree/build-2"
+        assert audit["permission"]["operation"] is None
+        assert audit["permission"]["operation_allowed"] is False
 
     def test_audit_evidence_records_review_gate_and_recovery(self, poll_command):
         """Test review-gate and recovery metadata survive serialization."""
@@ -737,6 +739,53 @@ class TestSessionCommandPlanEdgeCoverage:
         assert plan.human_approval_required
         assert not blocked_state.can_execute_operation(OperationScope.RESTART)
         assert not plan.is_executable()
+
+    def test_command_plan_audit_records_permission_operation_evidence(self, running_state):
+        """Recovery permission state is serialized for advisory consumers."""
+        plan = plan_command_from_session_action(
+            running_state,
+            SessionAction.START_NEW,
+            SessionActionReason.STALE_HEARTBEAT,
+        )
+
+        assert plan is not None
+        audit = plan.audit_evidence()
+
+        assert audit["permission"]["permission_state"] == "unlocked_temporary"
+        assert audit["permission"]["task_scope"] == running_state.current_task_id
+        assert audit["permission"]["operation"] == "restart"
+        assert audit["permission"]["operation_allowed"] is True
+        assert "restart" in audit["permission"]["approved_operations"]
+
+    def test_command_plan_audit_blocks_branch_movement_without_permission(self, running_state):
+        """Branch movement stays blocked unless permission explicitly allows it."""
+        plan = plan_command_from_session_action(
+            running_state,
+            SessionAction.TRANSFER,
+            SessionActionReason.DUAL_LANE_NEEDED,
+        )
+
+        assert plan is not None
+        audit = plan.audit_evidence()
+
+        assert audit["permission"]["operation"] == "branch_move"
+        assert audit["permission"]["operation_allowed"] is False
+        assert "permission_required_for_branch_move" in audit["blockers"]
+
+    def test_command_plan_audit_blocks_worktree_movement_without_permission(self, running_state):
+        """Worktree movement stays blocked unless permission explicitly allows it."""
+        plan = plan_command_from_session_action(
+            running_state,
+            SessionAction.START_NEW,
+            SessionActionReason.REASONING_SHIFT,
+        )
+
+        assert plan is not None
+        audit = plan.audit_evidence()
+
+        assert audit["permission"]["operation"] == "worktree_create"
+        assert audit["permission"]["operation_allowed"] is False
+        assert "permission_required_for_worktree_create" in audit["blockers"]
 
 
 class TestRestartResteerRecoveryDecisions:
