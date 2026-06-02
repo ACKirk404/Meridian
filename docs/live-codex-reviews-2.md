@@ -10,7 +10,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Codex Reviews B cleared the current-main Build 4 premium-cost approval blocker in commit `f15e7ceb`. Continue with the Active Now item below; do not rerun the cleared Build 4 repair unless a new current-main regression appears.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Passed
 
 Goal: review Build 5 Sessions dropdown repair for open-session filtering and routing target state.
 
@@ -2773,6 +2773,33 @@ Next Candidate:
 ## Write / Completion Log
 
 - 2026-06-01 18:12 -06:00 - files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because no newly promoted executable Reviews B Active Task is present. Commit hash: pending at write time; see final handoff. Push status: pending at write time; see final handoff. Obsidian update status: not updated; queue provenance only.
+
+## Read Checks
+
+- 2026-06-01 18:14 -06:00 - pulled latest `origin/main` (`Already up to date`) and read `docs/live-codex-reviews-2.md`. Active Reviews B task is promoted: review Build 5 Sessions dropdown repair for open-session filtering and routing target state. Executed the active review against current `origin/main` state.
+
+## Completed / Passed
+
+Goal: review Build 5 Sessions dropdown repair for open-session filtering and routing target state.
+
+Review result:
+
+- Passed. Sessions dropdown filters to open selectable statuses (`live`, `hidden`, `waiting`) and excludes closed/non-open `blocked`/`done` statuses.
+- Passed. Hidden and waiting labels render correctly, project/session sorting remains intact, the selected session updates the User panel title, and `.routing-target-state` exposes `data-target-session-id` plus the "Next prompt target" label.
+- Scope check: no session spawning, live process inspection, model calls, `index.html` edits, Polaris dependency, branch movement, or Build 4 Relay routing changes were made by this review.
+
+Proof:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q` passed: 172 tests.
+- Inspected allowed Build 5 review files.
+
+Next Candidate:
+
+- Review Build 5 stale-target guard sample rendering after it is marked Ready for Codex Review.
+
+## Write / Completion Log
+
+- 2026-06-01 18:14 -06:00 - files changed: `docs/live-codex-reviews-2.md` provenance/disposition only. Tests run: `python -m pytest tests/test_bifrost_cockpit.py -q` (172 passed). Commit hash: pending at write time; see final handoff. Push status: pending at write time; see final handoff. Obsidian update status: not updated; queue provenance only.
 
 ## Write / Completion Log
 
