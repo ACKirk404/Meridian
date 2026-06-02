@@ -24,7 +24,7 @@ Completion: completed 2026-06-02.
 
 Ready for Codex Review:
 
-- Commit: `pending local commit hash`
+- Commit: `665a4659`
 - Files changed: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`
 - Tests run: `python -m pytest tests/test_aegis.py -q` (266 passed)
 - Verification performed: added provider-neutral `PromptPayloadMeterInput`, deterministic `evaluate_prompt_payload_meter_advisory()`, and display-safe advisory serialization; tests cover allow/warn/block outcomes, budget watch/over-limit behavior, missing/unsafe route and evidence refs, Q-mode prompt-drag degradation, unexplained growth, blocker/warning tags, stable advisory keys, redaction, and repeat determinism; `git diff --check` passed.
