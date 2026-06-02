@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement the first Relay demotion/retry/fail-closed handoff runtime slice after Reviews A cleared the handoff summary and Reviews B cleared the demotion/retry checklist.
 
@@ -23,6 +23,15 @@ Task: add a narrow deterministic Relay runtime helper/path for Aegis PromptPacke
 Tests: `python -m pytest tests/test_relay_executor.py -q`.
 
 Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind review findings or connect reviewed handoff summaries to Bifrost after review.
+
+Completion:
+- Status: Ready for Codex Review.
+- Completed: 2026-06-01 23:48 -06:00.
+- Commit: `07b23199` (`feat: Add Relay policy disposition runtime`).
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+- Tests run: `python -m pytest tests/test_relay_executor.py -q` (190 passed); `git diff --check` (passed; Git reported line-ending normalization warnings only).
+- Concrete evidence: Relay now derives a deterministic `RelayPromptPacketPolicyDisposition` from evaluated PromptPacket policy evidence before provider transport, records allowed/warn disposition data on summaries and decision records, and blocks demotion, human-gate, block, unknown-decision, and missing-metadata fail-closed outcomes unless a fresh safe route/evaluation path exists. Demotion disposition records target tier, authorization state, no-silent-fallback tags, and fresh PromptPacket/Aegis rerun requirements. Tests prove demote, human-gate, blocked, and missing metadata outcomes do not call provider adapters, and that retry/fallback advisory fields remain display-safe.
+- Next Candidate: bind review findings or connect reviewed handoff summaries to Bifrost after review.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
