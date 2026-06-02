@@ -8,6 +8,20 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: create a Relay/Aegis PromptPacket policy integration checklist after Reviews B cleared the Aegis policy evaluator.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Allowed files only: `docs/relay-aegis-promptpacket-policy-integration-checklist.md`, `docs/live-build-4.md`.
+
+Task: write a build-ready docs-only checklist for wiring `evaluate_prompt_packet_proof_policy()` into Relay dispatch without mutating the Aegis evaluator. Cover how Relay should build `PromptPacketProofMetadata` from dispatch-envelope proof fields, map allow/warn/demote/block/human-gate outcomes to dispatch/decision-record behavior, preserve raw-prompt and credential exclusions, carry Bifrost-visible proof summaries, fail closed on missing packet proof metadata, and test the integration deterministically. Do not edit runtime code, tests, FileMap, Bifrost UI, model/account/process code, branches, or Polaris.
+
+Tests: docs-only; run text/shape inspection plus `git diff --check` before marking complete.
+
+Completion: mark Ready for Codex Review with commit hash, files changed, inspection evidence, and Next Candidate: bind any review findings from this integration checklist before Relay runtime integration.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement a pure Aegis PromptPacket proof policy evaluator after Reviews B cleared the policy checklist.

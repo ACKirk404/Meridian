@@ -423,7 +423,13 @@ Coordinator Aegis-wave review clearance - 2026-06-02:
 - Approved and completed path-limited movement of Reviews A provenance commit `47d39557` onto shared main as `9aa79f0b`, limited to `docs/live-codex-reviews.md`. Reviews A passed Build 2 Prime audit-evidence edge coverage with no findings.
 - Approved and completed path-limited movement of Reviews B provenance commit `4f853747` onto shared main as `2f06dff8`, limited to `docs/live-codex-reviews-2.md`. Reviews B passed Build 4 Aegis PromptPacket proof policy evaluator and Build 5 Bifrost Aegis policy decision rendering with no findings.
 - Reported proof: Build 2 `python -m pytest tests/test_prime_autonomy.py -q` passed 70/70 plus `git diff --check d13947a2^..be83f294`; Build 4 `python -m pytest tests/test_aegis.py -q` passed 215/215 plus `git diff --check 62473606^..7993022d`; Build 5 `python -m pytest tests/test_bifrost_cockpit.py -q` passed 217/217 plus `git diff --check 8d56cef5^..9d8aa279`.
-- Honest lane status after this clearance: Builds 1, 3, 4, and 5 are review-cleared for the Aegis wave; Build 2 audit-edge is review-cleared. Reviews A still needs fresh clean routing for the Build 1/3 review lane because its prior assignment was interrupted by the Build 2 provenance recovery.
+- Honest lane status after this clearance: Build 2 audit-edge is review-cleared; Builds 4 and 5 are review-cleared for the Aegis wave. Builds 1 and 3 are still review-gated because Reviews A's Build 1/3 assignment was interrupted by the Build 2 provenance recovery and still needs a fresh clean review run.
+
+Coordinator fresh routing after partial Aegis clearance - 2026-06-02:
+
+- Routing gate: shared main was clean/aligned on `main` before queue edits. Fresh executable tasks were promoted only for review-cleared build lanes: Build 2 permission-aware Prime/Beacon advisory evidence, Build 4 Relay/Aegis PromptPacket policy integration checklist, and Build 5 Bifrost Aegis policy rendering edge coverage.
+- Reviews B was returned to executable polling/review for the next Build 4/5 Ready markers. Reviews A remains assigned to the interrupted Build 1/3 Aegis-wave review and must be realigned cleanly before resuming.
+- Honest lane status: Build 2, Build 4, Build 5, and Reviews B have fresh executable queue work. Build 1 and Build 3 are review-gated on Reviews A; they should not receive unrelated implementation work until Build 1/3 review evidence lands or a focused finding/blocker is routed.
 
 ## Full Takeover Criteria
 

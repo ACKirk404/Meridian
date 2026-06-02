@@ -6,6 +6,16 @@ This file is the standing queue for a second specialized Codex Reviews session.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: poll/review the next current-main Ready markers from Build 4 and Build 5 after the Aegis-wave clearance.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: watch for the next current-main Ready marker from Build 4 or Build 5. If Build 4's Relay/Aegis PromptPacket policy integration checklist is ready, review it first. If Build 5's Aegis policy rendering edge coverage is ready, review it next. Stop and route a focused finding if any slice fails; otherwise record pass provenance. Do not commit read-check-only polling.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If no Ready marker exists yet, stay in polling state and do not commit.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review the current-main Build 4 and Build 5 Aegis policy slices.
