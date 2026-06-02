@@ -26,7 +26,7 @@ Completion: completed 2026-06-02.
 
 Ready for Codex Review:
 
-- Commit: `pending local commit hash`
+- Commit: `2ba14a77`
 - Files changed: `docs/deepseek-candidate-trust-metadata-implementation-checklist.md`, `docs/live-build-4.md`
 - Tests: not required (docs-only)
 - Verification performed: text/shape inspection confirmed the checklist exists and covers exact dispatch id versus variant labels, candidate trust state before validation, direct-vs-aggregator route proof, prompt-drag telemetry fields, allowed/blocked task types, external-review requirements, Relay/Aegis policy binding, Bifrost display expectations, deterministic tests, validation-gate evidence, and exclusions for live provider calls, credentials/account probing, raw prompts, raw provider responses, process/session control, FileMap edits, branch/worktree movement, shared-main writes, pushes to main, and Polaris; staged diff passes `git diff --cached --check`.
