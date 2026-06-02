@@ -10,6 +10,23 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: add deterministic stale-session recovery action sample rendering for stale workflow/session states.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-5-bifrost`.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Task: render deterministic sample recovery actions for stale workflow/session states: restart, resteer, archive, poll/watch, and human-gated blocked action, preserving display-safe evidence refs and no live control execution.
+
+Ready for Codex Review:
+- Commit: `f0678e11` (`Add stale session recovery samples`).
+- Files changed: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`.
+- Tests run: `python -m pytest tests/test_bifrost_cockpit.py -q` (254 passed); `git diff --check` (passed; Git emitted only line-ending normalization warnings).
+- Concrete rendering evidence: stale target guard now renders inert recovery samples with `data-recovery-action="restart-session"`, `resteer-session`, `archive-session`, `poll-watch-session`, and `human-gated-blocked`; each action includes a recovery state, summary text, and display-safe evidence refs (`evidence:session-restart-request`, `evidence:prime-resteer-required`, `evidence:archive-context-preserved`, `evidence:lifecycle-watch-only`, `evidence:human-gate-required`). Live selected sessions still render normal routing state and no recovery actions.
+- Next Candidate: bind reviewed runtime stale-session recovery actions when available.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: add deterministic Bifrost validation-envelope sample rendering for Model Harness runtime metadata.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-5-bifrost`.
