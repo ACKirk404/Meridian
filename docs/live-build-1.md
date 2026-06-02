@@ -54,6 +54,13 @@ Ready for Codex Review.
 - Next Candidate Task: still awaiting Prime/Codex promotion
 - Build 1 idle and polling for next task assignment
 
+**Build 1 Read Check** — 2026-06-12 18:10 UTC (Continued Poll)
+- Status: Queue poll complete; no "Coordinator Override - Active Now" task
+- Latest origin/main: commit `240e0355` (Build 2 progress update)
+- Deterministic test collection repair task: Ready for Codex Review (awaiting review gate clearance)
+- Next Candidate Task: awaiting Prime/Codex promotion
+- Build 1 idle and polling for next task assignment
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair review visibility for Relay proof payload negative-path tests.
