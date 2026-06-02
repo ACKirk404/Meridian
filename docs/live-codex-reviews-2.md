@@ -8,6 +8,31 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review current-main Build 5 Bifrost validation-envelope rendering.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: review Build 5 Bifrost validation-envelope rendering commits `af6b41a8` and `434a407c`. Verify deterministic sample/rendering only, exact dispatch/model IDs, fail-closed envelope display, proof refs, prompt-drag metrics, escaping, prior cockpit surface preservation, no `index.html`, no live provider/model calls, and no branch/worktree/main/Polaris leakage.
+
+Proof: `python -m pytest tests/test_bifrost_cockpit.py -q` plus `git diff --check af6b41a8^..434a407c`.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If a finding exists, record it and stop for coordinator repair routing.
+
+Review result - 2026-06-02 00:25 -06:00:
+
+- Build 5 Bifrost validation-envelope rendering passed. Commits `af6b41a8` and `434a407c` changed only `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, and `docs/live-build-5.md`.
+- The Bifrost slice is deterministic sample/rendering only and displays validation envelopes for allowed and fail-closed cases, exact model id, dispatch id, provider, route kind, fail-closed reason, candidate trust, external review status, proof strength, route proof refs, prompt budget/growth/percent/delta metrics, blockers, warnings, and display-safe evidence refs.
+- Focused tests cover required fields, fail-closed proof/badge display, prompt-drag/evidence fields, escaping, and preservation of prior cockpit surfaces. Scope check found no `index.html` edit, live provider/model calls, Relay runtime wiring, FileMap edit, branch/worktree/main movement, shared-main write, Polaris dependency, or push.
+
+Proof:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q` passed: 254 tests.
+- `git diff --check af6b41a8^..434a407c` passed.
+
+Completion: Build 5 Bifrost validation-envelope rendering is review-cleared. Reviews B returns to current-main Ready-marker polling.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 4 runtime validation checklist, then Build 5 candidate-trust badge rendering.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
