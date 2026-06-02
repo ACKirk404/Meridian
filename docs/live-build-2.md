@@ -10,6 +10,25 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: add Session Lifecycle command-preview proof fields for V2 tracker item `Session Lifecycle + Command Plan Proof`.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
+Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
+
+Task: add deterministic, display-safe command preview proof metadata on top of non-executable command-plan staging/review packets. Include expected transition, queue/worktree/branch context, Aegis gate result/status, executability, rollback/recovery note, target, reason, evidence refs, permission state, UI-review blocker, and `is_executable_now=False` for UI-review staging.
+
+Completion:
+
+- Build 2 completed the command-preview proof field slice in local worktree commit `fa5f2f82`.
+- Files changed: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`.
+- Evidence: added frozen `SessionCommandPreviewProof` plus `build_command_preview_proof()` to derive display-safe proof fields from a `SessionCommandStagingReviewPacket` and `SessionLifecycleState`. The preview records target session id, command kind/recommended action, required operation, reason, expected transition, queue file, worktree, branch, Aegis pending status/result, proof requirement, ready flag, non-executability, human UI review requirement, rollback/recovery note, permission state, blockers, and evidence refs without executing recovery or touching process/session/model/UI/FileMap/branch/main/Polaris surfaces.
+- Proof: `python -m pytest tests/test_session_lifecycle.py -q` passed with 116 tests; `git diff --check` passed.
+- Ready for Codex Review.
+- Next Candidate: bind review findings or connect the reviewed command-preview proof fields to Prime/Beacon advisory serialization when routed.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: add a deterministic, display-safe Session Lifecycle command-staging review packet for downstream Bifrost/UI review consumers.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
