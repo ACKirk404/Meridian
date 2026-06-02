@@ -511,6 +511,13 @@ def make_default_map() -> FileMap:
             notes="PromptPacketValidationError raised on invalid construction. source_lineage stored as immutable MappingProxyType.",
         ),
         FileMapEntry(
+            path="tests/test_prompt_packet.py",
+            area=FileArea.PROMPT_PACKET,
+            purpose="Test suite for meridian_core/prompt_packet.py: covers PromptPacket validation, token budget enforcement, source compliance, serialization integrity, and model_payload boundaries.",
+            related_tests=[],
+            notes="Run before changing meridian_core/prompt_packet.py or PromptPacket proof metadata behavior.",
+        ),
+        FileMapEntry(
             path="docs/prompt-packet-implementation-checklist.md",
             area=FileArea.PROMPT_PACKET,
             purpose="Prompt packet implementation checklist: verification items for prompt packet construction, source compliance, serialization, and budget behavior.",
@@ -550,6 +557,13 @@ def make_default_map() -> FileMap:
             purpose="Aegis-to-Relay summary handoff contract: stable gate-result, aggregate-summary, waiver/approval, and model/vendor evidence shapes for Relay and Bifrost consumption.",
             related_tests=["tests/test_aegis.py", "tests/test_relay_executor.py"],
             notes="Read before changing Aegis gate summaries, Relay proof-context consumption, or Bifrost gate display fields.",
+        ),
+        FileMapEntry(
+            path="docs/aegis-promptpacket-proof-policy-checklist.md",
+            area=FileArea.AEGIS,
+            purpose="Build-ready checklist for deterministic Aegis evaluation of PromptPacket proof metadata before Relay dispatch: packet id/hash, source-lineage compliance, budget gates, evidence ids, snapshot/hash gaps, and allow/warn/demote/block/human-gate outcomes.",
+            related_tests=["tests/test_aegis.py", "tests/test_relay_executor.py", "tests/test_bifrost_cockpit.py"],
+            notes="Read before implementing Aegis PromptPacket proof policy evaluation or wiring packet proof outcomes into Relay/Bifrost handoff fields.",
         ),
         FileMapEntry(
             path="meridian_core/review_console.py",
