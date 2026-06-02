@@ -430,6 +430,9 @@ Coordinator fresh routing after partial Aegis clearance - 2026-06-02:
 - Routing gate: shared main was clean/aligned on `main` before queue edits. Fresh executable tasks were promoted only for review-cleared build lanes: Build 2 permission-aware Prime/Beacon advisory evidence, Build 4 Relay/Aegis PromptPacket policy integration checklist, and Build 5 Bifrost Aegis policy rendering edge coverage.
 - Reviews B was returned to executable polling/review for the next Build 4/5 Ready markers. Reviews A remains assigned to the interrupted Build 1/3 Aegis-wave review and must be realigned cleanly before resuming.
 - Honest lane status: Build 2, Build 4, Build 5, and Reviews B have fresh executable queue work. Build 1 and Build 3 are review-gated on Reviews A; they should not receive unrelated implementation work until Build 1/3 review evidence lands or a focused finding/blocker is routed.
+- Pushed coordinator route commit `2ee547d8` to `origin/main`, then verified shared main clean/aligned before worktree routing. Preserved stale local branches and switched Build 2, Build 4, Build 5, Reviews A, and Reviews B to fresh current-main branches for this wave.
+- During Build 5 branch alignment, a Git config-lock collision left staged checkout residue even though the worktree was clean before the command. The fresh branch `codex/aligned-build-5-aegis-policy-edge-20260602-0001` already pointed at `origin/main`, so the coordinator forced checkout to that branch and restored Build 5 to clean current-main alignment without preserving any worker implementation dirt.
+- Sent route prompts to Build 2, Build 4, Build 5, Reviews A, and Reviews B thread IDs. Build 1 and Build 3 were not prompted for new implementation because they remain review-gated on Reviews A.
 
 ## Full Takeover Criteria
 
