@@ -39,6 +39,12 @@ const recentCalls = [];
 const recentResults = [];
 let restartInProgress = false;
 
+function beginRestartRequest() {
+  if (restartInProgress) return false;
+  restartInProgress = true;
+  return true;
+}
+
 if (process.argv.includes('--self-test')) {
   const samples = [
     classifySetupError('codex', 'codex is not recognized as an internal or external command'),
@@ -88,7 +94,8 @@ if (process.argv.includes('--self-test')) {
   const versionOk = BRIDGE_VERSION === 'local-bridge-routes-v2';
   const routeNamesOk = Object.values(BRIDGE_ROUTES).every((route) => route.startsWith('/bridge/') && !route.startsWith('/api/'));
   const originOk = isAllowedOrigin({ headers: { origin: 'http://127.0.0.1:5500' } }) && !isAllowedOrigin({ headers: { origin: 'https://example.com' } });
-  console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && versionOk && routeNamesOk && originOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, versionOk, routeNamesOk, originOk }, null, 2));
+  const restartGuardOk = beginRestartRequest() && !beginRestartRequest();
+  console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && versionOk && routeNamesOk && originOk && restartGuardOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, versionOk, routeNamesOk, originOk, restartGuardOk }, null, 2));
   process.exit(0);
 }
 
@@ -336,8 +343,6 @@ function spawnModelProcess(command, cwd) {
 }
 
 function restartBridge() {
-  if (restartInProgress) return;
-  restartInProgress = true;
   server.close(() => {
     const child = spawn(process.execPath, [__filename], {
       cwd: DEFAULT_CWD,
@@ -649,7 +654,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'POST' && req.url === BRIDGE_ROUTES.restart) {
-    if (restartInProgress) {
+    if (!beginRestartRequest()) {
       sendJson(res, 202, { ok: true, restarting: true, alreadyRestarting: true }, req);
       return;
     }
