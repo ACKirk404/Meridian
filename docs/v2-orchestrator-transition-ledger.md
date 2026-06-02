@@ -264,6 +264,13 @@ Coordinator batch movement under token pressure - 2026-06-02:
 - Proof rerun on shared main after movement: `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` passed 193/193; `python -m pytest tests/test_filemap.py -q` passed 46/46; `python -m pytest tests/test_bifrost_cockpit.py -q` passed 187/187; `git diff --check HEAD~9..HEAD` passed.
 - Session honesty check: all five build lanes now have completed work on main or already-moved local originals, but they need fresh executable tasks to avoid idle state. Reviews A has completed Build 2 advisory review provenance on main. Reviews B is not currently working in a useful state; it is stale/idle and must be re-aligned and routed to review the newly landed Build 1, Build 3, Build 4, and Build 5 slices.
 
+Coordinator review routing after batch movement - 2026-06-02:
+
+- Routing gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified Reviews A and Reviews B worktrees were clean before routing. Preserved their stale divergent branches and switched Reviews A to fresh branch `codex/aligned-reviews-a-batch-20260601-2205`, Reviews B to fresh branch `codex/aligned-reviews-b-batch-20260601-2205`, both based on current `origin/main`.
+- Routed Reviews A thread `019e865b-53a5-7d83-ba56-453f06bd4977` to review Build 1 current-main commits `814bce76`/`d00f305c` first, then Build 3 commits `0b50287e`/`3fbd6c62` if Build 1 passes. Required proof: Relay metadata pytest/diff-check for Build 1; FileMap pytest/diff-check for Build 3.
+- Routed Reviews B thread `019e864a-0536-7250-8057-19bf8a8a85b3` to review Build 4 current-main commits `3f8a4ca1`/`14913655` first, then Build 5 commits `f4880b76`/`eeab3768` if Build 4 passes. Required proof: docs text/shape plus diff-check for Build 4; Bifrost cockpit pytest/diff-check for Build 5.
+- Honest seven-lane status: Reviews A and Reviews B are actively routed. Build 1, Build 3, Build 4, and Build 5 are review-gated after completed work on main. Build 2 is review-cleared for the advisory slice. Fresh build implementation tasks should be promoted only after the current review pass/finding results are recorded, unless the user explicitly accepts parallel implementation past pending review gates.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
