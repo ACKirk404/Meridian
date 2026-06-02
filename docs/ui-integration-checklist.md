@@ -477,7 +477,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 
 | ID | Feature | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
-| BR1 | Meridian model bridge | Receives UI prompts and routes to selected local CLI backend. | wired | `/health` returns ok plus bridge version/capabilities. |
+| BR1 | Meridian model bridge | Receives UI prompts and routes to selected local CLI backend. | wired | `/bridge/health` returns ok plus bridge version/capabilities. |
 | BR2 | Codex backend | Sends selected prompts to Codex CLI. | wired | Select Codex; prompt returns Codex CLI response or readable setup error. |
 | BR3 | Max backend | Sends selected prompts to Claude CLI when available. | wired | Select Max; prompt returns Claude response or readable setup error. |
 | BR4 | CLI setup detection | Detects missing CLI/auth and gives install/login guidance. | wired | `/bridge/models` and failed calls return setup guidance. |
@@ -514,11 +514,11 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | MB7 | Model/context label appears below or near the response area when known. | Manual: send a follow-up request and confirm displayed model/source plus visible context count. |
 | MB8 | Visible session continuity | Follow-up prompts carry the visible panel transcript as bounded context, with no hidden backend memory. | Response metadata and `/bridge/recent-calls` record nonzero `sessionContextEntries` after a follow-up prompt. |
 | MB9 | Bridge capability guard | UI blocks prompt sends when the running bridge does not advertise visible transcript context support. | Old bridge shows restart-required status instead of silently sending stateless follow-ups. |
-| MB10 | Bridge restart endpoint | Local bridge exposes a same-port restart endpoint for Reset recovery. | `POST /bridge/restart` returns accepted, then `/health` and `/bridge/models` come back with visible-context capability. |
-| MB11 | Bridge capability parity | `/health` and `/bridge/models` advertise the same bridge version and capability flags, and the UI readiness line shows the active bridge generation. | Both endpoints report `visibleTranscriptContext`, `recentCallContextDiagnostics`, and `samePortRestart`; session status includes the bridge version. |
+| MB10 | Bridge restart endpoint | Local bridge exposes a same-port restart endpoint for Reset recovery. | `POST /bridge/restart` returns accepted, then `/bridge/health` and `/bridge/models` come back with visible-context capability. |
+| MB11 | Bridge capability parity | `/bridge/health` and `/bridge/models` advertise the same bridge version and capability flags, and the UI readiness line shows the active bridge generation. | Both endpoints report `visibleTranscriptContext`, `recentCallContextDiagnostics`, and `samePortRestart`; session status includes the bridge version. |
 | MB12 | Local-origin bridge access | Browser access to bridge endpoints is limited to the Meridian local UI origins. | Disallowed origins get `403`; command-line checks without an Origin header still work. |
 | MB13 | Bridge readiness self-heal | UI rechecks bridge readiness when the page regains focus or visibility. | Restart bridge externally, return to the page, and status refreshes without manual reload. |
-| MB14 | Relay bridge visibility | Relay panel shows and refreshes live bridge access status from `/health`, not static copy. | Open Relay; Bridge route shows online/offline, version, visible-context state, and reset recovery state; focus/visibility refresh updates it. |
+| MB14 | Relay bridge visibility | Relay panel shows and refreshes live bridge access status from `/bridge/health`, not static copy. | Open Relay; Bridge route shows online/offline, version, visible-context state, and reset recovery state; focus/visibility refresh updates it. |
 | MB15 | Lost response recovery | If the browser loses a completed model response, the UI retrieves the short-lived local result by request id and renders it in the visible transcript. | `/bridge/call-result` returns output for a completed request id; `/bridge/recent-calls` remains metadata-only. |
 | MB16 | Relay logic snapshot | Relay panel renders model-routing logic from the backend/domain snapshot, not a duplicated static UI list. | `/bridge/relay-logic` returns `source=meridian_core.relay.route_from_tier`; Relay panel shows source, route precedence, tier logic, Tier 3 proof/blockers, and no Heartbeat text. |
 | MB17 | Relay dispatch visibility | Relay panel renders dispatch lane/order/payload policy from the backend dispatch plan snapshot. | `/bridge/relay-logic` includes `dispatch.source=meridian_core.relay_dispatch.build_relay_dispatch_plan`; panel shows dispatch logic without prompt payload text. |
@@ -559,7 +559,7 @@ $tmp = Join-Path $env:TEMP 'meridian-inline-check.js'
 node --check $tmp
 node --check scripts\meridian-model-bridge.js
 node scripts\meridian-model-bridge.js --self-test
-Invoke-RestMethod http://127.0.0.1:8767/health -TimeoutSec 3
+Invoke-RestMethod http://127.0.0.1:8767/bridge/health -TimeoutSec 3
 Invoke-RestMethod http://127.0.0.1:8767/bridge/models -TimeoutSec 5
 ```
 
