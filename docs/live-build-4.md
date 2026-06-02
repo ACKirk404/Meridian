@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: create a docs-only DeepSeek candidate-trust and Model Harness metadata implementation checklist that can feed the next Model Harness runtime slice without waiting on live provider access.
 
@@ -22,7 +22,15 @@ Task: write a concise build-ready checklist for DeepSeek candidate-trust metadat
 
 Tests: docs-only; run text/shape inspection plus `git diff --check`.
 
-Completion: commit locally only, mark Ready for Codex Review with commit hash, files changed, verification performed, and Next Candidate: review this checklist or implement reviewed Model Harness metadata runtime when review-cleared.
+Completion: completed 2026-06-02.
+
+Ready for Codex Review:
+
+- Commit: `pending local commit hash`
+- Files changed: `docs/deepseek-candidate-trust-metadata-implementation-checklist.md`, `docs/live-build-4.md`
+- Tests: not required (docs-only)
+- Verification performed: text/shape inspection confirmed the checklist exists and covers exact dispatch id versus variant labels, candidate trust state before validation, direct-vs-aggregator route proof, prompt-drag telemetry fields, allowed/blocked task types, external-review requirements, Relay/Aegis policy binding, Bifrost display expectations, deterministic tests, validation-gate evidence, and exclusions for live provider calls, credentials/account probing, raw prompts, raw provider responses, process/session control, FileMap edits, branch/worktree movement, shared-main writes, pushes to main, and Polaris; staged diff passes `git diff --cached --check`.
+- Next Candidate: review this checklist or implement reviewed Model Harness metadata runtime when review-cleared.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
