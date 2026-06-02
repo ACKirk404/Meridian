@@ -8,6 +8,34 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Completed / Passed
 
+Goal: re-review repaired frontend Bifrost voice runtime/status surface.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: re-review repaired branch `codex/reviews-b-frontend-bifrost-voice-repair-20260602-1031` at `e5e969e5` (`Fix Bifrost voice controls as display-only`) from `origin/codex/frontend-bifrost-runtime-surface-20260602`. Verify prior finding is fixed: the voice strip must not expose `data-action="voice"`, `Start voice input`, `data-action="read-aloud"`, `data-action="mute"`, or `data-action="unmute"` execution hooks. Verify controls are inert/display-only markers if present, read-aloud remains display/read-only, personal-name wording remains `user`, and no live model/provider/session/process calls, queue mutation, Relay/Aegis/FileMap/backend/main/Polaris leakage, raw prompt/provider response text, or branch/worktree movement exists.
+
+Proof: `python -m pytest tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q`; `rg -n "Scott|scott|requires_scott" bifrost/cockpit.py bifrost/static/cockpit.css bifrost/preview.html tests/test_bifrost_cockpit.py`; `rg -n 'data-action="voice"|Start voice input|data-action="read-aloud"|data-action="mute"|data-action="unmute"' bifrost/cockpit.py tests/test_bifrost_cockpit.py`; `git diff --check c9c09285^..e5e969e5`.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If still failing, record the smallest concrete finding and stop for coordinator repair routing.
+
+Review result - 2026-06-02 10:33 -06:00:
+
+- Repaired frontend Bifrost voice runtime/status surface passed. The reviewed frontend range `c9c09285^..e5e969e5` changes only approved files: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `bifrost/preview.html`, and `tests/test_bifrost_cockpit.py`.
+- Original finding is fixed: the voice-strip `data-action="voice"` / `Start voice input` execution control was replaced with inert `data-voice-control="input-status"` markup and `aria-disabled="true"`. Read-aloud, mute, and unmute strip controls are also display-only `data-voice-control` status markers, with no `data-action` hooks in the voice strip.
+- Tests now assert the voice strip contains no `data-action="voice"`, `data-action="read-aloud"`, `data-action="mute"`, or `data-action="unmute"` hooks, while retaining voice boot/status metadata, input/output mode, permission state, last intent ref, idle fallback, muted/blocked attributes, responsive CSS, and deterministic preview HTML.
+- Name scan stayed clean and scope stayed within the approved Bifrost frontend files. No live model/provider/session/process calls, queue mutation, Relay/Aegis/FileMap/backend/main/Polaris leakage, raw prompt/provider response text, branch/worktree movement, shared-main write, or push was found.
+
+Proof:
+
+- `python -m pytest tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q` passed: 310 tests.
+- `rg -n "Scott|scott|requires_scott" bifrost/cockpit.py bifrost/static/cockpit.css bifrost/preview.html tests/test_bifrost_cockpit.py` returned no matches.
+- `rg -n 'data-action="voice"|Start voice input|data-action="read-aloud"|data-action="mute"|data-action="unmute"' bifrost/cockpit.py tests/test_bifrost_cockpit.py` returned no matches.
+- `git diff --check c9c09285^..e5e969e5` passed.
+
+Completion: repaired frontend Bifrost voice runtime/status surface is review-cleared. Reviews B returns to current-main Ready-marker polling.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 3 command-packet FileMap no-op audit.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
