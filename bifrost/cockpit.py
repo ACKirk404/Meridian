@@ -2240,17 +2240,63 @@ def _render_user_session_mode(mode: UserSessionModeView) -> str:
     routing_target_html = ""
     if selected_session_id:
         if selected_session_is_stale:
+            recovery_actions = (
+                (
+                    "restart-session",
+                    "restart",
+                    "Restart session",
+                    "Ask coordinator to restart the stale workflow from its last safe checkpoint.",
+                    "evidence:session-restart-request",
+                ),
+                (
+                    "resteer-session",
+                    "resteer",
+                    "Resteer session",
+                    "Route recovery through Prime with the stale target and blocker summary visible.",
+                    "evidence:prime-resteer-required",
+                ),
+                (
+                    "archive-session",
+                    "archive",
+                    "Archive stale session",
+                    "Preserve the stale context as archive-only without closing or deleting live work.",
+                    "evidence:archive-context-preserved",
+                ),
+                (
+                    "poll-watch-session",
+                    "poll_watch",
+                    "Poll/watch",
+                    "Keep watching for lifecycle recovery before any prompt routing resumes.",
+                    "evidence:lifecycle-watch-only",
+                ),
+                (
+                    "human-gated-blocked",
+                    "human_gate_blocked",
+                    "Human gate blocked",
+                    "Block automated recovery until Scott or a review lane clears the gate.",
+                    "evidence:human-gate-required",
+                ),
+            )
+            recovery_action_markup = "".join(
+                '<button type="button" class="recovery-action"'
+                f' data-recovery-action="{_e(action_id)}"'
+                f' data-recovery-state="{_e(state)}"'
+                f' data-evidence-ref="{_e(evidence_ref)}">'
+                f'<span class="recovery-action-label">{_e(label)}</span>'
+                f'<span class="recovery-action-summary">{_e(summary)}</span>'
+                f'<span class="recovery-action-evidence">{_e(evidence_ref)}</span>'
+                "</button>"
+                for action_id, state, label, summary, evidence_ref in recovery_actions
+            )
             # Show stale-target guard warning
             routing_target_html = (
                 f'<div class="stale-target-guard" data-stale-session-id="{_e(selected_session_id)}">'
                 f'<span class="stale-warning">⚠ Target unavailable: {_e(selected_session_name)}</span>'
                 f'<span class="stale-message">Session is closed, blocked, or no longer routable. Prompts will not be sent.</span>'
                 '<div class="stale-recovery-actions" aria-label="Stale session recovery actions">'
-                '<button type="button" class="recovery-action" data-recovery-action="reselect-session">Reselect session</button>'
-                '<button type="button" class="recovery-action" data-recovery-action="ask-prime-recover">Ask Prime to reopen/recover</button>'
-                '<button type="button" class="recovery-action" data-recovery-action="return-to-sessions">Return to Sessions dropdown</button>'
-                "</div>"
-                "</div>"
+                + recovery_action_markup
+                + "</div>"
+                + "</div>"
             )
         else:
             # Show normal routing target state

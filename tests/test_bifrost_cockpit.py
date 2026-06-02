@@ -412,7 +412,7 @@ def test_provider_balance_preserves_other_bifrost_surfaces_and_stale_recovery():
     assert 'aria-label="Relay Aegis Policy Handoff Summary"' in doc
     assert 'class="proof-preview-list"' in doc
     assert 'class="stale-target-guard"' in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: Closed Provider Session" not in doc
 
 
@@ -568,7 +568,7 @@ def test_model_capability_metadata_preserves_existing_surfaces_and_stale_recover
     assert 'aria-label="Relay Aegis Policy Handoff Summary"' in doc
     assert 'class="proof-preview-list"' in doc
     assert 'class="stale-target-guard"' in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: Closed Capability Session" not in doc
 
 
@@ -793,7 +793,7 @@ def test_prompt_payload_visibility_preserves_stale_recovery_and_proof_preview():
     assert 'aria-label="Prompt Payload Visibility"' in doc
     assert 'class="proof-preview-list"' in doc
     assert 'class="stale-target-guard"' in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: Closed Payload Session" not in doc
 
 
@@ -893,7 +893,7 @@ def test_dispatch_hardening_preserves_payload_proof_and_stale_recovery():
     assert 'aria-label="Prompt Payload Visibility"' in doc
     assert 'class="proof-preview-list"' in doc
     assert 'class="stale-target-guard"' in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: Closed Dispatch Session" not in doc
 
 
@@ -986,7 +986,7 @@ def test_prompt_packet_proof_preserves_prior_bifrost_surfaces():
     assert 'aria-label="Prompt Payload Visibility"' in doc
     assert 'class="proof-preview-list"' in doc
     assert 'class="stale-target-guard"' in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: Closed Packet Session" not in doc
 
 
@@ -1143,7 +1143,7 @@ def test_aegis_prompt_packet_policy_preserves_prior_bifrost_surfaces():
     assert 'aria-label="Prompt Payload Visibility"' in doc
     assert 'class="proof-preview-list"' in doc
     assert 'class="stale-target-guard"' in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: Closed Aegis Session" not in doc
 
 
@@ -1347,7 +1347,7 @@ def test_sample_view_model_handoff_summary_redacts_and_preserves_prior_surfaces(
     assert 'aria-label="PromptPacket Proof Metadata"' in doc
     assert 'class="proof-preview-list"' in doc
     assert 'class="stale-target-guard"' in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: Closed Summary Session" not in doc
 
 
@@ -1471,7 +1471,7 @@ def test_relay_aegis_policy_handoff_preserves_prior_bifrost_surfaces():
     assert "Provider Balance" in doc
     assert 'class="proof-preview-list"' in doc
     assert 'class="stale-target-guard"' in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: Closed Handoff Session" not in doc
 
 
@@ -2399,7 +2399,7 @@ def test_proof_state_preview_does_not_replace_stale_recovery_guard():
     doc = render_cockpit_html(vm)
     assert 'class="proof-preview-list"' in doc
     assert 'class="stale-target-guard"' in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: Closed Proof Session" not in doc
 
 
@@ -3278,12 +3278,26 @@ def test_stale_session_recovery_actions_render_for_closed_target():
     doc = render_cockpit_html(vm)
 
     assert 'class="stale-recovery-actions"' in doc
-    assert 'data-recovery-action="reselect-session"' in doc
-    assert "Reselect session" in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
-    assert "Ask Prime to reopen/recover" in doc
-    assert 'data-recovery-action="return-to-sessions"' in doc
-    assert "Return to Sessions dropdown" in doc
+    assert 'data-recovery-action="restart-session"' in doc
+    assert 'data-recovery-action="resteer-session"' in doc
+    assert 'data-recovery-action="archive-session"' in doc
+    assert 'data-recovery-action="poll-watch-session"' in doc
+    assert 'data-recovery-action="human-gated-blocked"' in doc
+    assert 'data-recovery-state="restart"' in doc
+    assert 'data-recovery-state="resteer"' in doc
+    assert 'data-recovery-state="archive"' in doc
+    assert 'data-recovery-state="poll_watch"' in doc
+    assert 'data-recovery-state="human_gate_blocked"' in doc
+    assert "Restart session" in doc
+    assert "Resteer session" in doc
+    assert "Archive stale session" in doc
+    assert "Poll/watch" in doc
+    assert "Human gate blocked" in doc
+    assert "evidence:session-restart-request" in doc
+    assert "evidence:prime-resteer-required" in doc
+    assert "evidence:archive-context-preserved" in doc
+    assert "evidence:lifecycle-watch-only" in doc
+    assert "evidence:human-gate-required" in doc
 
 
 def test_stale_session_recovery_actions_render_for_blocked_target():
@@ -3300,7 +3314,7 @@ def test_stale_session_recovery_actions_render_for_blocked_target():
     doc = render_cockpit_html(vm)
 
     assert "stale-target-guard" in doc
-    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: Blocked" not in doc
 
 
@@ -3318,7 +3332,7 @@ def test_stale_session_recovery_actions_render_for_missing_target():
 
     assert 'data-stale-session-id="missing-session-id"' in doc
     assert "Target unavailable: missing-session-id" in doc
-    assert 'data-recovery-action="reselect-session"' in doc
+    assert 'data-recovery-action="restart-session"' in doc
     assert "Next prompt target: missing-session-id" not in doc
 
 
