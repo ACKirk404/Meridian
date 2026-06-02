@@ -28,7 +28,7 @@ Completion: completed 2026-06-01.
 
 Ready for Codex Review:
 
-- Commit: pending local commit hash
+- Commit: `8f7b7149`
 - Files changed: `docs/relay-heartbeat-model-routing-implementation-checklist.md`, `docs/live-build-4.md`
 - Tests: not required (docs-only)
 - Verification performed: text/shape inspection confirmed the checklist exists, has the required section coverage, preserves `deepseek-chat` as the exact DeepSeek dispatch id, treats `deepseek-v4-pro`/`deepseek-v4-flash` as metadata labels only, changes only allowed files, and passes `git diff --check`.
