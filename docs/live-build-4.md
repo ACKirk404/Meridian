@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: create a build-ready Relay/Aegis demotion, retry, and Bifrost handoff checklist after Reviews A/B cleared the policy runtime, Aegis serialization, and Bifrost adapter slices.
 
@@ -22,7 +22,15 @@ Task: write a concise implementation checklist for the next Relay/Aegis/Bifrost 
 
 Tests: docs-only; run text/shape inspection plus `git diff --check` before marking complete.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, verification run, and Next Candidate: review this checklist before runtime demotion/retry wiring.
+Completion: completed 2026-06-02.
+
+Ready for Codex Review:
+
+- Commit: `pending local commit hash`
+- Files changed: `docs/relay-aegis-demotion-retry-handoff-checklist.md`, `docs/live-build-4.md`
+- Tests: not required (docs-only)
+- Verification performed: text/shape inspection confirmed the checklist exists and covers demotion target handling, retry/fallback boundaries, fail-closed missing metadata, human-gate decisions, display-safe handoff summary shape, Bifrost adapter expectations, deterministic tests, and exclusions for raw prompts, credentials, provider responses, process/session control, branch/worktree movement, FileMap edits, main writes, and Polaris; staged diff passes `git diff --cached --check`.
+- Next Candidate: review this checklist before runtime demotion/retry wiring.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
