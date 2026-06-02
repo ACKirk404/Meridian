@@ -871,6 +871,7 @@ YYYY-MM-DD HH:MM TZ - Build 4 checked queue; status: idle/running/blocked
 2026-06-12 07:35 UTC - Build 4 checked queue; status: idle; origin/main already up to date; no executable Coordinator Override - Active Now section; Next Candidate Task (convert deepened logic into implementation checklist) awaits coordinator promotion
 2026-06-12 07:37 UTC - Build 4 checked queue; status: idle; origin/main synced; no executable Coordinator Override - Active Now section; Next Candidate Task awaits coordinator promotion
 2026-06-12 07:40 UTC - Build 4 found Active Task (repair account-first wrong-scope fallback contradiction); executed repair to docs/relay-heartbeat-model-routing-logic.md (separate wrong-scope rejection handling from other rejections, prevent API/aggregator bypass); commit 381080fa pushed as fe0b0138; moved task to Completed/Ready for Codex Review; awaiting Codex sweep
+2026-06-12 07:42 UTC - Build 4 checked queue; status: idle; no executable Coordinator Override - Active Now section; prior task (repair wrong-scope fallback, 381080fa) marked Ready for Codex Review; Next Candidate Task (convert deepened logic into implementation checklist) awaits coordinator promotion; origin/main synced
 ```
 
 ## Write/Completion Log
