@@ -46,6 +46,32 @@ def test_tier3_exposes_dispatch_plan_without_prompt_text():
     assert not any(lane["payloadIncludesPacketMetadata"] for lane in dispatch["lanes"])
 
 
+def test_tier3_exposes_audit_depth_for_no_silent_fallback():
+    tier3 = relay_logic_snapshot()["tiers"][3]
+    audit_depth = tier3["auditDepth"]
+
+    assert audit_depth["routeClass"] == "account_session"
+    assert audit_depth["sessionAction"] == "start_new"
+    assert audit_depth["trustState"] == "candidate"
+    assert audit_depth["contextHealth"] == "clean"
+    assert audit_depth["alternativesRejectedCount"] >= 2
+    assert audit_depth["fallbackBlockerCount"] >= 5
+    assert audit_depth["proofRequiredCount"] >= 3
+    assert audit_depth["telemetryRequiredCount"] >= 7
+    assert audit_depth["silentFallbackBlocked"] is True
+    assert audit_depth["primaryFallbackBlocker"] == "unknown_trust_route"
+
+
+def test_tier4_audit_depth_blocks_autonomous_fallback():
+    tier4 = relay_logic_snapshot()["tiers"][4]
+    audit_depth = tier4["auditDepth"]
+
+    assert audit_depth["trustState"] == "blocked"
+    assert audit_depth["silentFallbackBlocked"] is True
+    assert audit_depth["primaryFallbackBlocker"] == "human_gate_required"
+    assert audit_depth["primaryProofRequirement"] == "human_gate_approval"
+
+
 def test_tier4_exposes_human_gate_block():
     tier4 = relay_logic_snapshot()["tiers"][4]
 
