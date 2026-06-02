@@ -28,7 +28,7 @@ Completion: completed 2026-06-01.
 
 Ready for Codex Review:
 
-- Commit: pending local commit hash
+- Commit: `a39bba00`
 - Files changed: `docs/relay-dispatch-hardening-implementation-checklist.md`, `docs/live-build-4.md`
 - Tests: not required (docs-only)
 - Verification performed: text/shape inspection confirmed the checklist exists and covers transport envelope boundaries, exact model id handling, payload evidence propagation, Aegis proof policy hooks, blocked/error states, credential/raw prompt exclusions, Bifrost handoff, deterministic tests, and FileMap routing requirements; staged diff passes `git diff --cached --check`.
