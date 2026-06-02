@@ -96,6 +96,20 @@ No active write lease.
 Start new entries below this line.
 
 ```text
+Time: 2026-06-02 11:14 -06:00
+Writer: Meridian coordinator
+Intent: record completion for the reviewed backend/FileMap movement lease ACKed by the front-end developer at 2026-06-02 11:01 -06:00, plus the docs-only completion lease ACKed at 2026-06-02 11:13 -06:00.
+Action completed: recorded completion for approved backend/FileMap provenance movement and proof.
+Commit(s): 6c55536a, d54aa33a
+Pushed to origin/main: yes
+Files changed: docs/FileMap.md, docs/live-build-3.md, docs/live-codex-reviews.md, meridian_core/filemap.py, tests/test_filemap.py, docs/live-codex-reviews-2.md, docs/main-write-coordination-ledger.md
+Proof run: python -m pytest tests/test_relay_executor.py tests/test_session_lifecycle.py tests/test_filemap.py -q -> 384 passed; git status/rev-list final check clean/aligned before this docs-only completion write.
+Final shared main status: clean/aligned with origin/main before completion write.
+Notes/blockers: Build 1/2 implementation-equivalent content was already present on current main under current-main commits, so no duplicate implementation patch was forced. Earlier approved Build 3 FileMap content landed as 6c55536a; d54aa33a completed missing Build 1 and Build 3 review provenance. This entry is docs-only completion bookkeeping under the fresh frontend ACK expiring 2026-06-02 11:18 -06:00.
+Status: Complete
+```
+
+```text
 Time: 2026-06-02 09:55 -06:00
 Writer: Meridian coordinator
 Intent: update main-write coordination docs with standing acknowledgements and explicit pre-write ledger requirements.
