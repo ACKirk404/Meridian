@@ -15,6 +15,7 @@ from meridian_core.prime_autonomy import (
     select_next_action_from_project_state,
     select_next_action_from_command_plan_audit,
     select_next_action_from_session_lifecycle_advisory,
+    select_next_action_from_runtime_state_export,
     select_next_action_from_workflow_recovery_summary,
 )
 from meridian_core.session_lifecycle import (
@@ -26,9 +27,11 @@ from meridian_core.session_lifecycle import (
     PermissionState,
     ProofState,
     ReviewCadenceState,
+    SessionAction,
     SessionCommandPlan,
     SessionLifecycleState,
     SessionStatus,
+    export_session_runtime_state_for_workflow_recovery,
     gather_prime_autonomy_input,
     generate_restart_finding,
     generate_resteer_finding,
@@ -825,6 +828,105 @@ class TestSessionLifecycleAdvisorySelection:
         assert action.action_type == PrimeActionType.POLL_SESSION
         assert action.risk_tier == PrimeActionRiskTier.SAFE
         assert "workflow.recovery_action=reuse" in action.evidence
+
+    def test_none_runtime_state_export_pauses_safely(self):
+        """Missing runtime-state exports fall back to safe pause."""
+        action = select_next_action_from_runtime_state_export(None)
+
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.confidence == PrimeActionConfidence.FALLBACK
+        assert action.target_harness == "Session Lifecycle"
+
+    def test_runtime_state_export_blockers_pause_prime_advisory(
+        self,
+        advisory_session,
+    ):
+        """Runtime exports preserve permission/review blockers for Prime."""
+        observed_at = datetime.now(timezone.utc)
+        gated_session = SessionLifecycleState(
+            **{
+                **advisory_session.__dict__,
+                "status": SessionStatus.REVIEW_GATED,
+                "review_cadence_state": ReviewCadenceState.REVIEW_GATED,
+            }
+        )
+        workflow_summary = summarize_workflow_work_order_recovery(
+            gated_session,
+            work_order_id="wo-runtime-gated",
+            heartbeat_emitted_at=observed_at - timedelta(minutes=10),
+            timestamp=observed_at,
+        )
+        runtime_export = export_session_runtime_state_for_workflow_recovery(
+            gated_session,
+            workflow_recovery_summary=workflow_summary,
+            timestamp=observed_at,
+        )
+
+        action = select_next_action_from_runtime_state_export(runtime_export)
+
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.source == PrimeActionSource.SESSION_STATE
+        assert action.human_gate_required is True
+        assert "review_gate.status=review_gated" in action.blockers
+        assert "runtime.recovery_action=request_human_gate" in action.evidence
+        assert "runtime.command_kind=none" in action.evidence
+
+    def test_runtime_state_export_recovery_remains_advisory(self, advisory_session):
+        """Runtime exports can advise recovery but never become executable."""
+        observed_at = datetime.now(timezone.utc)
+        workflow_summary = summarize_workflow_work_order_recovery(
+            advisory_session,
+            work_order_id="wo-runtime-prime",
+            heartbeat_emitted_at=observed_at - timedelta(minutes=10),
+            heartbeat_stale_after_seconds=300,
+            timestamp=observed_at,
+        )
+        runtime_export = export_session_runtime_state_for_workflow_recovery(
+            advisory_session,
+            workflow_recovery_summary=workflow_summary,
+            timestamp=observed_at,
+        )
+
+        action = select_next_action_from_runtime_state_export(runtime_export)
+
+        assert runtime_export.recommended_recovery_action == SessionAction.START_NEW
+        assert action.action_type == PrimeActionType.ADVISE_SESSION_RECOVERY
+        assert action.target_lane == advisory_session.session_id
+        assert action.human_gate_required is True
+        assert action.is_executable() is False
+        assert "advisory only; runtime-state recovery command plan required" in (
+            action.blockers
+        )
+
+    def test_runtime_state_export_reuse_continues_polling(self, advisory_session):
+        """Runtime exports with reuse advice keep Prime on the safe watch path."""
+        observed_at = datetime.now(timezone.utc)
+        fresh_session = SessionLifecycleState(
+            **{
+                **advisory_session.__dict__,
+                "status": SessionStatus.RUNNING,
+                "health_state": HealthState.HEALTHY,
+                "last_prompt_sent_at": observed_at,
+            }
+        )
+        workflow_summary = summarize_workflow_work_order_recovery(
+            fresh_session,
+            work_order_id="wo-runtime-fresh",
+            heartbeat_emitted_at=observed_at - timedelta(seconds=10),
+            timestamp=observed_at,
+        )
+        runtime_export = export_session_runtime_state_for_workflow_recovery(
+            fresh_session,
+            workflow_recovery_summary=workflow_summary,
+            timestamp=observed_at,
+        )
+
+        action = select_next_action_from_runtime_state_export(runtime_export)
+
+        assert action.action_type == PrimeActionType.POLL_SESSION
+        assert action.risk_tier == PrimeActionRiskTier.SAFE
+        assert action.is_executable() is True
+        assert "runtime.recovery_action=reuse" in action.evidence
 
 
 class TestCommandPlanAuditAdvisorySelection:

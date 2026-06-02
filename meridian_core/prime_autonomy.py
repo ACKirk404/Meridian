@@ -17,6 +17,7 @@ from meridian_core.session_lifecycle import (
     SessionAction,
     SessionCommandPlan,
     SessionPermissionSummary,
+    SessionRuntimeStateExport,
     SessionStatus,
     WorkflowWorkOrderRecoverySummary,
 )
@@ -505,6 +506,101 @@ def select_next_action_from_workflow_recovery_summary(
         evidence=evidence,
         human_gate_required=True,
         blockers=["advisory only; workflow recovery command plan required"],
+    )
+
+
+def select_next_action_from_runtime_state_export(
+    runtime_export: Optional[SessionRuntimeStateExport] = None,
+) -> PrimeNextAction:
+    """Convert a Session runtime-state export into safe Prime recovery advice."""
+    if runtime_export is None:
+        return make_prime_next_action(
+            action_type=PrimeActionType.PAUSE_AND_WAIT,
+            confidence=PrimeActionConfidence.FALLBACK,
+            risk_tier=PrimeActionRiskTier.SAFE,
+            source=PrimeActionSource.ERROR_RECOVERY,
+            target_harness="Session Lifecycle",
+            rationale="No Session Lifecycle runtime-state export available.",
+        )
+
+    evidence = list(runtime_export.evidence_refs)
+    evidence.extend(
+        [
+            f"runtime.state_id={runtime_export.state_id}",
+            "runtime.command_kind="
+            + (
+                runtime_export.active_command_kind.value
+                if runtime_export.active_command_kind
+                else "none"
+            ),
+            "runtime.recovery_action="
+            + (
+                runtime_export.recommended_recovery_action.value
+                if runtime_export.recommended_recovery_action
+                else "none"
+            ),
+            "runtime.heartbeat_status="
+            + (
+                runtime_export.heartbeat_status.value
+                if runtime_export.heartbeat_status
+                else "none"
+            ),
+        ]
+    )
+    blockers = list(runtime_export.human_gate_blockers)
+    target_lane = runtime_export.target_session_id or runtime_export.session_id
+    recovery_action = runtime_export.recommended_recovery_action
+    human_gate_required = (
+        recovery_action == SessionAction.REQUEST_HUMAN_GATE or bool(blockers)
+    )
+
+    if human_gate_required:
+        return make_prime_next_action(
+            action_type=PrimeActionType.PAUSE_AND_WAIT,
+            confidence=PrimeActionConfidence.HIGH,
+            risk_tier=PrimeActionRiskTier.HIGH,
+            source=PrimeActionSource.SESSION_STATE,
+            target_harness="Session Lifecycle",
+            target_lane=target_lane,
+            rationale=(
+                "Runtime-state recovery export is blocked by human, permission, "
+                "or review gates."
+            ),
+            evidence=evidence,
+            human_gate_required=True,
+            blockers=blockers or ["runtime-state recovery requires human gate"],
+        )
+
+    if recovery_action in (None, SessionAction.REUSE):
+        return make_prime_next_action(
+            action_type=PrimeActionType.POLL_SESSION,
+            confidence=PrimeActionConfidence.MEDIUM,
+            risk_tier=PrimeActionRiskTier.SAFE,
+            source=PrimeActionSource.SESSION_STATE,
+            target_harness="Session Lifecycle",
+            target_lane=target_lane,
+            rationale="Runtime-state export has no recovery blockers; continue watching.",
+            evidence=evidence,
+        )
+
+    return make_prime_next_action(
+        action_type=PrimeActionType.ADVISE_SESSION_RECOVERY,
+        confidence=PrimeActionConfidence.HIGH,
+        risk_tier=(
+            PrimeActionRiskTier.MEDIUM
+            if recovery_action == SessionAction.ARCHIVE
+            else PrimeActionRiskTier.HIGH
+        ),
+        source=PrimeActionSource.SESSION_STATE,
+        target_harness="Session Lifecycle",
+        target_lane=target_lane,
+        rationale=(
+            "Runtime-state export advises "
+            f"{recovery_action.value} for Session Lifecycle recovery."
+        ),
+        evidence=evidence,
+        human_gate_required=True,
+        blockers=["advisory only; runtime-state recovery command plan required"],
     )
 
 

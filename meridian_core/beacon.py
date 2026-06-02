@@ -17,6 +17,7 @@ from .session_lifecycle import (
     SessionAction,
     SessionCommandPlan,
     SessionPermissionSummary,
+    SessionRuntimeStateExport,
     WorkflowWorkOrderRecoverySummary,
 )
 
@@ -138,6 +139,52 @@ def workflow_recovery_advisory_evidence(
         human_gate_required=(
             summary.recovery_action == SessionAction.REQUEST_HUMAN_GATE
             or bool(blockers)
+        ),
+        generated_at=_as_utc(now or datetime.now(timezone.utc)),
+    )
+
+
+def runtime_state_advisory_evidence(
+    runtime_export: SessionRuntimeStateExport,
+    *,
+    now: datetime | None = None,
+) -> BeaconAdvisoryEvidence:
+    """Convert a runtime-state export into Beacon advisory evidence only."""
+    recovery_action = runtime_export.recommended_recovery_action
+    advisory_type = (
+        f"runtime_{recovery_action.value}"
+        if recovery_action is not None
+        else "runtime_state_export"
+    )
+    evidence = list(runtime_export.evidence_refs)
+    evidence.extend(
+        [
+            f"runtime.state_id={runtime_export.state_id}",
+            "runtime.command_kind="
+            + (
+                runtime_export.active_command_kind.value
+                if runtime_export.active_command_kind
+                else "none"
+            ),
+            "runtime.recovery_action="
+            + (recovery_action.value if recovery_action else "none"),
+            "runtime.heartbeat_status="
+            + (
+                runtime_export.heartbeat_status.value
+                if runtime_export.heartbeat_status
+                else "none"
+            ),
+        ]
+    )
+    blockers = tuple(runtime_export.human_gate_blockers)
+
+    return BeaconAdvisoryEvidence(
+        harness_id=runtime_export.target_session_id or runtime_export.session_id,
+        advisory_type=advisory_type,
+        evidence=tuple(evidence),
+        blockers=blockers,
+        human_gate_required=(
+            recovery_action == SessionAction.REQUEST_HUMAN_GATE or bool(blockers)
         ),
         generated_at=_as_utc(now or datetime.now(timezone.utc)),
     )
