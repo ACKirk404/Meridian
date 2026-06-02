@@ -408,6 +408,63 @@ class RelayProviderResultValidationEvidence:
 
 
 @dataclass(frozen=True)
+class RelayAegisProviderResultValidationAdvisory:
+    """Advisory post-result validation facts for future Aegis policy input."""
+
+    advisory_id: str | None = None
+    heartbeat_id: str | None = None
+    advisory_kind: str = "provider_result_validation"
+    timing: str = "post_adapter_return"
+    execution_mode: str = "display_advisory_only"
+    result_evidence_ids: tuple[str, ...] = ()
+    exact_model_ids: tuple[str, ...] = ()
+    provider_route_kinds: tuple[str, ...] = ()
+    trust_states: tuple[str, ...] = ()
+    proof_refs: tuple[str, ...] = ()
+    external_review_statuses: tuple[str, ...] = ()
+    result_validation_statuses: tuple[str, ...] = ()
+    response_hash_statuses: tuple[str, ...] = ()
+    blocker_tags: tuple[str, ...] = ()
+    warning_tags: tuple[str, ...] = ()
+    retry_requires_fresh_validation: bool = False
+    demotion_required: bool = False
+    human_gate_required: bool = False
+    fail_closed_advisory: bool = False
+    usable_for_future_retry: bool = False
+    adapter_boundary_unchanged: bool = True
+    aegis_execution_timing_unchanged: bool = True
+    serialization_only: bool = True
+
+    def to_dict(self) -> dict[str, object]:
+        """Return deterministic advisory data without invoking Aegis."""
+        return {
+            "advisory_id": self.advisory_id,
+            "heartbeat_id": self.heartbeat_id,
+            "advisory_kind": self.advisory_kind,
+            "timing": self.timing,
+            "execution_mode": self.execution_mode,
+            "result_evidence_ids": self.result_evidence_ids,
+            "exact_model_ids": self.exact_model_ids,
+            "provider_route_kinds": self.provider_route_kinds,
+            "trust_states": self.trust_states,
+            "proof_refs": self.proof_refs,
+            "external_review_statuses": self.external_review_statuses,
+            "result_validation_statuses": self.result_validation_statuses,
+            "response_hash_statuses": self.response_hash_statuses,
+            "blocker_tags": self.blocker_tags,
+            "warning_tags": self.warning_tags,
+            "retry_requires_fresh_validation": self.retry_requires_fresh_validation,
+            "demotion_required": self.demotion_required,
+            "human_gate_required": self.human_gate_required,
+            "fail_closed_advisory": self.fail_closed_advisory,
+            "usable_for_future_retry": self.usable_for_future_retry,
+            "adapter_boundary_unchanged": self.adapter_boundary_unchanged,
+            "aegis_execution_timing_unchanged": self.aegis_execution_timing_unchanged,
+            "serialization_only": self.serialization_only,
+        }
+
+
+@dataclass(frozen=True)
 class RelayPromptPacketPolicyEvidence:
     """Display-safe Relay record of Aegis PromptPacket policy evaluation."""
 
@@ -1079,6 +1136,93 @@ class RelayExecutionSummary:
             "blocker_tags": blocker_tags,
             "warning_tags": warning_tags,
         }
+
+    def aegis_provider_result_validation_advisory(
+        self,
+    ) -> RelayAegisProviderResultValidationAdvisory:
+        """Project post-result validation evidence into Aegis advisory input."""
+        evidence = self.provider_result_validation_evidence()
+        decision_evidence = (
+            self.decision_record.provider_result_validation_evidence
+            if self.decision_record is not None
+            else None
+        )
+        if not evidence and decision_evidence is not None:
+            evidence = (decision_evidence,)
+        heartbeat_id = None
+        if decision_evidence is not None:
+            heartbeat_id = decision_evidence.heartbeat_id
+        elif evidence:
+            heartbeat_id = evidence[0].heartbeat_id
+        elif self.decision_record is not None:
+            heartbeat_id = self.decision_record.heartbeat_id
+
+        proof_refs = []
+        for item in evidence:
+            proof_refs.extend(
+                ref
+                for ref in (
+                    item.model_metadata_ref,
+                    item.validation_evidence_ref,
+                    item.external_review_evidence_ref,
+                    item.dispatch_metadata_envelope_ref,
+                    item.payload_evidence_ref,
+                    item.packet_hash,
+                    item.prompt_budget_ref,
+                )
+                if ref is not None
+            )
+        blocker_tags = tuple(
+            dict.fromkeys(tag for item in evidence for tag in item.blocker_tags)
+        )
+        warning_tags = tuple(
+            dict.fromkeys(tag for item in evidence for tag in item.warning_tags)
+        )
+        fail_closed = bool(blocker_tags) or any(
+            item.result_validation_status == "blocked" for item in evidence
+        )
+        advisory_id = (
+            f"relay-aegis-provider-result:{heartbeat_id}"
+            if heartbeat_id is not None
+            else None
+        )
+        return RelayAegisProviderResultValidationAdvisory(
+            advisory_id=advisory_id,
+            heartbeat_id=heartbeat_id,
+            result_evidence_ids=tuple(
+                item.result_evidence_id for item in evidence
+            ),
+            exact_model_ids=tuple(
+                dict.fromkeys(
+                    item.exact_model_id
+                    for item in evidence
+                    if item.exact_model_id is not None
+                )
+            ),
+            provider_route_kinds=tuple(
+                dict.fromkeys(item.provider_route_kind for item in evidence)
+            ),
+            trust_states=tuple(dict.fromkeys(item.trust_state for item in evidence)),
+            proof_refs=tuple(dict.fromkeys(proof_refs)),
+            external_review_statuses=tuple(
+                dict.fromkeys(item.external_review_status for item in evidence)
+            ),
+            result_validation_statuses=tuple(
+                dict.fromkeys(item.result_validation_status for item in evidence)
+            ),
+            response_hash_statuses=tuple(
+                dict.fromkeys(item.response_hash_status for item in evidence)
+            ),
+            blocker_tags=blocker_tags,
+            warning_tags=warning_tags,
+            retry_requires_fresh_validation=any(
+                item.retry_requires_fresh_validation for item in evidence
+            ),
+            demotion_required=any(item.demotion_required for item in evidence),
+            human_gate_required=any(item.human_gate_required for item in evidence),
+            fail_closed_advisory=fail_closed,
+            usable_for_future_retry=bool(evidence) and not fail_closed,
+        )
 
 
 class RelayProofGateError(RuntimeError):
