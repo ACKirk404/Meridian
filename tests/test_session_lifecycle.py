@@ -25,6 +25,7 @@ from meridian_core.session_lifecycle import (
     SessionRuntimeStateExport,
     SessionLiveControlPermissionGate,
     SessionRecoveryReadinessSummary,
+    SessionLiveControlCommandPlanStagingRecord,
     SessionLifecycleState,
     SessionCommandPlan,
     evaluate_live_control_permission_gate,
@@ -33,6 +34,7 @@ from meridian_core.session_lifecycle import (
     generate_restart_finding,
     generate_resteer_finding,
     plan_command_from_session_action,
+    stage_live_control_command_plan_from_readiness,
     summarize_recovery_readiness,
     summarize_session_permission_state,
     summarize_session_permission_states,
@@ -2293,6 +2295,167 @@ class TestSessionRecoveryReadinessSummary:
         assert "readiness.recommended_action_mismatch" in summary.blockers
         assert "runtime.fixture=restart" in summary.evidence_refs
         assert "gate.fixture=archive" in summary.evidence_refs
+
+
+class TestSessionLiveControlCommandPlanStagingRecord:
+    """Tests for non-executable live-control command-plan staging."""
+
+    @pytest.fixture
+    def staging_state(self):
+        """Create a stale session with scoped restart permission."""
+        now = datetime(2026, 6, 2, 12, 0, tzinfo=timezone.utc)
+        permission_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=now + timedelta(hours=1),
+            task_scope="command-plan-staging",
+            last_permission_change=now,
+        )
+        return SessionLifecycleState(
+            session_id="session-staging",
+            session_name="Build 2 Staging",
+            project_name="Meridian",
+            project_path="/path/to/meridian",
+            harness_role=HarnessRole.BUILD,
+            assigned_queue_file="docs/live-build-2.md",
+            model_provider="anthropic",
+            model_name="claude-opus-4-7",
+            status=SessionStatus.STALE,
+            worktree_path="/worktree/build-2",
+            branch_name="codex/rolling-build-2-live-control-command-plan-staging",
+            current_task_id="command-plan-staging",
+            last_queue_read_at=now,
+            last_queue_write_at=now,
+            last_prompt_sent_at=now - timedelta(minutes=45),
+            last_prompt_payload_size=12000,
+            review_cadence_state=ReviewCadenceState.NONE,
+            proof_state=ProofState.PERMISSION_VALIDATED,
+            health_state=HealthState.STALE,
+            blocker_summary=None,
+            permission_context=permission_context,
+        )
+
+    def _ready_summary(self, staging_state, observed_at):
+        workflow_summary = summarize_workflow_work_order_recovery(
+            staging_state,
+            work_order_id="wo-staging-ready",
+            heartbeat_emitted_at=observed_at - timedelta(minutes=10),
+            heartbeat_stale_after_seconds=300,
+            timestamp=observed_at,
+        )
+        runtime_export = export_session_runtime_state_for_workflow_recovery(
+            staging_state,
+            workflow_recovery_summary=workflow_summary,
+            timestamp=observed_at,
+        )
+        gate = evaluate_live_control_permission_gate(
+            staging_state,
+            runtime_export,
+            timestamp=observed_at,
+        )
+        return summarize_recovery_readiness(
+            runtime_export,
+            gate,
+            timestamp=observed_at,
+        )
+
+    def test_stages_ready_readiness_as_non_executable_ui_review(
+        self,
+        staging_state,
+    ):
+        """Readiness-cleared recovery still stages as non-executable UI review."""
+        observed_at = datetime(2026, 6, 2, 12, 10, tzinfo=timezone.utc)
+        readiness = self._ready_summary(staging_state, observed_at)
+
+        staging = stage_live_control_command_plan_from_readiness(
+            readiness,
+            timestamp=observed_at,
+        )
+        serialized = staging.to_dict()
+
+        assert isinstance(staging, SessionLiveControlCommandPlanStagingRecord)
+        assert staging.target_session_id == staging_state.session_id
+        assert staging.command_kind == CommandIntent.RESTART
+        assert staging.recommended_action == SessionAction.START_NEW
+        assert staging.required_operation == OperationScope.RESTART
+        assert staging.permission_state == PermissionState.UNLOCKED_TEMPORARY
+        assert staging.ready_for_execution is True
+        assert staging.is_executable_now is False
+        assert staging.ui_review_required is True
+        assert staging.human_gate_required is True
+        assert "command_plan.ui_review_required" in staging.blockers
+        assert "staging.is_executable_now=False" in staging.evidence_refs
+        assert serialized["is_executable_now"] is False
+
+    def test_staging_preserves_blocked_readiness_rationale(self, staging_state):
+        """Blocked readiness summaries carry blockers into staging records."""
+        observed_at = datetime(2026, 6, 2, 12, 10, tzinfo=timezone.utc)
+        expired_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=observed_at - timedelta(seconds=1),
+            task_scope="command-plan-staging",
+            last_permission_change=observed_at,
+        )
+        blocked_state = SessionLifecycleState(
+            **{**staging_state.__dict__, "permission_context": expired_context}
+        )
+        readiness = self._ready_summary(blocked_state, observed_at)
+
+        staging = stage_live_control_command_plan_from_readiness(
+            readiness,
+            timestamp=observed_at,
+        )
+
+        assert staging.ready_for_execution is False
+        assert staging.human_gate_rationale == readiness.human_gate_rationale
+        assert "permission.unlock_expired" in staging.blockers
+        assert "command_plan.ui_review_required" in staging.blockers
+        assert "staging.blocker=permission.unlock_expired" in staging.evidence_refs
+
+    def test_staging_flags_non_stageable_command_kind(self, staging_state):
+        """Unsupported command kinds remain display-safe non-executable records."""
+        observed_at = datetime(2026, 6, 2, 12, 10, tzinfo=timezone.utc)
+        readiness = SessionRecoveryReadinessSummary(
+            summary_id=f"{staging_state.session_id}:watch:{observed_at.isoformat()}",
+            state_id=f"{staging_state.session_id}:running:{observed_at.isoformat()}",
+            gate_id=f"{staging_state.session_id}:watch:{observed_at.isoformat()}",
+            target_session_id=staging_state.session_id,
+            command_kind=CommandIntent.WATCH,
+            recommended_action=SessionAction.REUSE,
+            required_operation=None,
+            readiness_status="watch",
+            ready_for_execution=False,
+            human_gate_required=False,
+            human_gate_rationale=(
+                "Recovery readiness advisory is clear for future command staging."
+            ),
+            heartbeat_status=WorkflowHeartbeatStatus.FRESH,
+            result_kind=WorkflowResultKind.PENDING,
+            permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            blockers=(),
+            evidence_refs=("readiness.status=watch",),
+            timestamp=observed_at,
+        )
+
+        staging = stage_live_control_command_plan_from_readiness(
+            readiness,
+            timestamp=observed_at,
+        )
+
+        assert staging.command_kind == CommandIntent.WATCH
+        assert staging.is_executable_now is False
+        assert "command_plan.command_kind_not_stageable" in staging.blockers
+        assert "command_plan.required_operation_missing" in staging.blockers
+        assert "staging.command_kind=watch" in staging.evidence_refs
 
 
 class TestPrimeAutonomyInput:

@@ -479,6 +479,51 @@ class SessionRecoveryReadinessSummary:
 
 
 @dataclass(frozen=True)
+class SessionLiveControlCommandPlanStagingRecord:
+    """Non-executable staging record for future live-control UI review."""
+
+    staging_id: str
+    readiness_summary_id: str
+    target_session_id: str
+    command_kind: Optional[CommandIntent]
+    recommended_action: Optional[SessionAction]
+    required_operation: Optional[OperationScope]
+    permission_state: PermissionState
+    ready_for_execution: bool
+    is_executable_now: bool
+    ui_review_required: bool
+    human_gate_required: bool
+    human_gate_rationale: str
+    blockers: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+    timestamp: datetime
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize command-plan staging advice to JSON-safe metadata."""
+        return {
+            "staging_id": self.staging_id,
+            "readiness_summary_id": self.readiness_summary_id,
+            "target_session_id": self.target_session_id,
+            "command_kind": self.command_kind.value if self.command_kind else None,
+            "recommended_action": (
+                self.recommended_action.value if self.recommended_action else None
+            ),
+            "required_operation": (
+                self.required_operation.value if self.required_operation else None
+            ),
+            "permission_state": self.permission_state.value,
+            "ready_for_execution": self.ready_for_execution,
+            "is_executable_now": self.is_executable_now,
+            "ui_review_required": self.ui_review_required,
+            "human_gate_required": self.human_gate_required,
+            "human_gate_rationale": self.human_gate_rationale,
+            "blockers": list(self.blockers),
+            "evidence_refs": list(self.evidence_refs),
+            "timestamp": self.timestamp.isoformat(),
+        }
+
+
+@dataclass(frozen=True)
 class PrimeAutonomyInput:
     """What Prime receives when selecting next action."""
 
@@ -1586,6 +1631,90 @@ def summarize_recovery_readiness(
         heartbeat_status=runtime_export.heartbeat_status,
         result_kind=runtime_export.result_kind,
         permission_state=runtime_export.permission_state,
+        blockers=deduped_blockers,
+        evidence_refs=tuple(dict.fromkeys(evidence_refs)),
+        timestamp=observed_at,
+    )
+
+
+def stage_live_control_command_plan_from_readiness(
+    readiness_summary: SessionRecoveryReadinessSummary,
+    timestamp: Optional[datetime] = None,
+) -> SessionLiveControlCommandPlanStagingRecord:
+    """Stage non-executable live-control command-plan metadata for UI review.
+
+    This only prepares display-safe advisory data. It does not execute restart,
+    resteer, archive, session/process/model work, or branch/worktree/main writes.
+    """
+    observed_at = _as_utc(timestamp or readiness_summary.timestamp)
+    blockers = list(readiness_summary.blockers)
+    blockers.append("command_plan.ui_review_required")
+    if readiness_summary.command_kind not in (
+        CommandIntent.RESTART,
+        CommandIntent.RESTEER,
+        CommandIntent.ARCHIVE,
+    ):
+        blockers.append("command_plan.command_kind_not_stageable")
+    if readiness_summary.required_operation is None:
+        blockers.append("command_plan.required_operation_missing")
+
+    deduped_blockers = tuple(dict.fromkeys(blockers))
+    human_gate_required = True
+    rationale = (
+        readiness_summary.human_gate_rationale
+        if readiness_summary.human_gate_required
+        else "UI review required before future live-control command execution."
+    )
+
+    evidence_refs = list(readiness_summary.evidence_refs)
+    evidence_refs.extend(
+        [
+            f"staging.readiness_summary_id={readiness_summary.summary_id}",
+            f"staging.target_session_id={readiness_summary.target_session_id}",
+            "staging.command_kind="
+            + (
+                readiness_summary.command_kind.value
+                if readiness_summary.command_kind
+                else "none"
+            ),
+            "staging.recommended_action="
+            + (
+                readiness_summary.recommended_action.value
+                if readiness_summary.recommended_action
+                else "none"
+            ),
+            "staging.required_operation="
+            + (
+                readiness_summary.required_operation.value
+                if readiness_summary.required_operation
+                else "none"
+            ),
+            f"staging.ready_for_execution={readiness_summary.ready_for_execution}",
+            "staging.is_executable_now=False",
+            "staging.ui_review_required=True",
+            "staging.human_gate_required=True",
+            f"permission.state={readiness_summary.permission_state.value}",
+        ]
+    )
+    evidence_refs.extend(f"staging.blocker={blocker}" for blocker in deduped_blockers)
+
+    return SessionLiveControlCommandPlanStagingRecord(
+        staging_id=(
+            f"{readiness_summary.target_session_id}:"
+            f"{readiness_summary.command_kind.value if readiness_summary.command_kind else 'none'}:"
+            f"{observed_at.isoformat()}"
+        ),
+        readiness_summary_id=readiness_summary.summary_id,
+        target_session_id=readiness_summary.target_session_id,
+        command_kind=readiness_summary.command_kind,
+        recommended_action=readiness_summary.recommended_action,
+        required_operation=readiness_summary.required_operation,
+        permission_state=readiness_summary.permission_state,
+        ready_for_execution=readiness_summary.ready_for_execution,
+        is_executable_now=False,
+        ui_review_required=True,
+        human_gate_required=human_gate_required,
+        human_gate_rationale=rationale,
         blockers=deduped_blockers,
         evidence_refs=tuple(dict.fromkeys(evidence_refs)),
         timestamp=observed_at,
