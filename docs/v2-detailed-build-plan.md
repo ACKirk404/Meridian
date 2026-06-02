@@ -34,6 +34,41 @@ First wave deliverable:
 
 > Prime can open a project, retrieve its mission/memory/file context, choose the next queued objective, explain the plan in the cockpit, and route the first session-lifecycle action with proof hooks.
 
+## Track 0: Compass Project Boundary Harness
+
+**Objective:** Give Prime a backend definition of project identity, bounds, scope, difference, and cross-project communication before deeper UI controls are wired.
+
+**Why it matters:** Polaris showed that parallel work becomes unsafe when project, repo, session, initiative, and venture boundaries blur. Compass prevents drift by making project context explicit before Prime retrieves memory, routes work, or accepts another project's evidence.
+
+**First vertical slice:**
+
+- Define what a project is: bounded body of work with outcome, context, artifacts, objectives, tasks, and proof trail.
+- Distinguish project from repository/path, venture, initiative, and live session.
+- Define inside/outside project bounds and ambiguity handling.
+- Define project difference: mission/bearing, objectives, artifacts, memory pins, blockers, proof expectations.
+- Define cross-project handoff packet: source project, target project, reason, payload type, evidence refs, approval need, and blocked raw-context bleed.
+
+**Likely files/modules/docs:**
+
+- `meridian_core/models.py`
+- `meridian_core/intention.py`
+- future `meridian_core/compass.py`
+- future `tests/test_compass.py`
+- `docs/v2-progress-tracker.md`
+
+**Proof/test expectation:**
+
+- Tests for project/repo/venture/session distinction.
+- Tests for ambiguous scope returning a visible Compass question instead of selecting hidden context.
+- Tests for cross-project handoff metadata and raw transcript/prompt replay blocking.
+- Tests that same repo or same venture does not collapse two projects into one.
+
+**Out-of-scope guardrails:**
+
+- No shared mutable project state in V2.
+- No raw cross-project transcript injection.
+- No User Session retargeting from Compass project changes.
+
 ## Track 1: Prime Autonomy
 
 **Objective:** Make Prime choose next work from project/backlog state instead of waiting for Scott to manually direct every worker.
@@ -209,6 +244,10 @@ First wave deliverable:
 - Define `SessionLifecycleState` and `SessionCommandPlan`.
 - Define a workflow/sub-agent dispatch contract for bounded harness work.
 - Model spawn, watch, steer, stop, transfer, archive, stale, and recover as typed actions.
+- Define a session as runtime work state, not a project, repo, initiative, or durable memory record.
+- Require state evidence: queue, worktree, branch, model, read/write/prompt timestamps, proof state, blocker summary, and project assignment.
+- Require command-plan proof: target, reason, expected transition, evidence refs, queue, worktree/branch, Aegis gate result, executability, and rollback/recovery note.
+- Keep close, archive, stop-before-close, and write-through as explicit backend actions before UI execution.
 - Keep execution mocked/deterministic first.
 
 **Likely files/modules/docs:**
@@ -224,6 +263,9 @@ First wave deliverable:
 - Tests for workflow dispatch request/result summaries once runtime begins.
 - Tests that branch/worktree movement requires Scott or Prime permission.
 - Tests for stale recovery recommendation.
+- Tests that raw worker chat is not required for Bifrost state display.
+- Tests that project assignment does not define project scope; Compass owns project definition.
+- Tests that close/archive/write-through failure leaves the session visibly recoverable.
 
 **Out-of-scope guardrails:**
 

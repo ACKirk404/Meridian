@@ -203,16 +203,23 @@ def test_index_vulcan_harness_uses_backend_logic_snapshot():
     assert "renderVulcanSessionLogic" in doc
 
 
-def test_ui_checklist_has_deep_compass_and_vulcan_items():
+def test_ui_checklist_defers_deep_compass_and_vulcan_items_to_backend_tracker():
     doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
-    assert "### Compass Harness Subitems" in doc
-    assert "| CMP1 | Project definition |" in doc
-    assert "| CMP8 | Cross-project communication |" in doc
-    assert "| CMP12 | Compass/Vulcan boundary |" in doc
-    assert "### Vulcan / Session Lifecycle Harness Subitems" in doc
-    assert "| VLC1 | Session definition |" in doc
-    assert "| VLC5 | Command plan vocabulary |" in doc
-    assert "| VLC12 | Aegis relationship |" in doc
+    assert "### Compass And Vulcan Backend Readiness" in doc
+    assert "| HBD1 | Compass backend checklist |" in doc
+    assert "| HBD2 | Vulcan backend checklist |" in doc
+    assert "| CMP1 | Project definition |" not in doc
+    assert "| VLC1 | Session definition |" not in doc
+
+
+def test_v2_tracker_has_deep_compass_and_vulcan_backend_items():
+    doc = (ROOT / "docs" / "v2-progress-tracker.md").read_text(encoding="utf-8")
+    assert "### Compass Harness" in doc
+    assert "Compass + Project Definition Runtime" in doc
+    assert "Compass + Cross-Project Handoff Runtime" in doc
+    assert "Session Lifecycle + State Evidence Completeness" in doc
+    assert "Session Lifecycle + Command Plan Proof" in doc
+    assert "Session Lifecycle + Close/Archive Write-Through" in doc
 
 
 def test_sample_view_model_has_progress_events():

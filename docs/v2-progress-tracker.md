@@ -15,10 +15,11 @@
 | Atlas Harness | 2 | 0 | 1 | 0 | 3 | 100% |
 | Relay/Model Harness | 2 | 0 | 2 | 6 | 10 | 20% clear + 20% baseline |
 | Aegis Harness | 2 | 0 | 0 | 0 | 2 | 100% |
-| Session Lifecycle Harness | 1 | 0 | 1 | 2 | 4 | 50% |
+| Compass Harness | 0 | 0 | 1 | 4 | 5 | 20% baseline |
+| Session Lifecycle Harness | 1 | 0 | 1 | 5 | 7 | 29% |
 | Bifrost Harness | 1 | 0 | 2 | 6 | 9 | 33% |
 | Federation Harness | 1 | 0 | 0 | 0 | 1 | 100% |
-| **Total V2** | **13** | **0** | **8** | **14** | **35** | **37% Clear + 0% Awaiting + 23% Baseline** |
+| **Total V2** | **13** | **0** | **9** | **21** | **43** | **30% Clear + 0% Awaiting + 21% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
@@ -78,6 +79,10 @@
 
 - [x] **Session Lifecycle + Workflow Contract:** `docs/workflow-subagent-harness-contract.md` - workflow/sub-agent dispatch contract for bounded harness work defined; Prime work order and heartbeat interface specified; runtime implementation awaiting.
 
+### Compass Harness
+
+- [x] **Compass + Project Boundary Contract:** backend checklist baseline for project definition, bounds, scope, difference, cross-project communication, and Compass/Vulcan ownership split recorded in this tracker. Runtime implementation awaiting.
+
 ### Relay/Model Harness
 
 - [x] **Model Harness + DeepSeek Validation Gate:** `docs/deepseek-provider-validation-gate.md` - DeepSeek is a primary provider candidate, but not trusted for autonomous coding/review-clearing until direct API routing, prompt payload metering, bounded Q-mode behavior, and coding benchmark proof are recorded.
@@ -115,6 +120,16 @@
 
 - [ ] **Session Lifecycle + Implementation:** `SessionLifecycleState` and `SessionCommandPlan` domain objects - module: `meridian_core/session_lifecycle.py`; tests: `tests/test_session_lifecycle.py`; models spawn/watch/steer/stop/transfer/archive/stale/recover actions; builds on contract baseline `docs/session-lifecycle-v2-contract.md`.
 - [ ] **Session Lifecycle + Permissions:** wire the restart/resteer evaluator into Prime/Beacon runtime state; branch/worktree movement still requires Scott or Prime permission object before live execution.
+- [ ] **Session Lifecycle + State Evidence Completeness:** live state payload must expose queue, worktree, branch, model, read/write/prompt timestamps, proof state, blocker summary, and project assignment without raw worker chat.
+- [ ] **Session Lifecycle + Command Plan Proof:** every command preview must include target, reason, expected transition, evidence refs, queue, worktree/branch, Aegis gate result, executability, and rollback/recovery note before execution.
+- [ ] **Session Lifecycle + Close/Archive Write-Through:** close, archive, stop-before-close, and write-through are explicit Vulcan actions with failure visibility; no UI one-click close may bypass this backend proof.
+
+### Compass Harness
+
+- [ ] **Compass + Project Definition Runtime:** domain object/API must define project as a bounded body of work with outcome, context, artifacts, objectives, tasks, proof trail, and relationship to repo/venture/session.
+- [ ] **Compass + Bounds And Scope Runtime:** backend must decide what is inside/outside project context, surface ambiguous scope as a Compass question, and require project identity/evidence refs before project-scoped actions.
+- [ ] **Compass + Project Difference Runtime:** backend must distinguish projects by mission/bearing, objectives, artifacts, memory pins, blockers, and proof expectations; same repo or venture must not imply same project.
+- [ ] **Compass + Cross-Project Handoff Runtime:** backend must model source project, target project, reason, payload type, evidence refs, approval need, and blocked raw context bleed for cross-project communication.
 
 ### Bifrost Harness
 

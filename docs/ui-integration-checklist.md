@@ -453,43 +453,14 @@ Harness buttons switch the right panel into Harness mode. They are not merely la
 | HN17 | Vision / Browser | Opens/focuses browser/vision surface. | planned | Until wired, no fake browser state. |
 | HN18 | Autonomy / Release | Opens/focuses release/autonomy surface. | planned | Until wired, no public release action. |
 
-### Compass Harness Subitems
+### Compass And Vulcan Backend Readiness
 
-Compass owns project identity, project bounds, project scope, mission bearing, and project-to-project context exchange. Compass does not own live session operations; Vulcan owns those.
+Compass and Vulcan definitions are backend/V2 build requirements, not UI checklist items. Track project definition, project bounds, cross-project handoff logic, session lifecycle state, command plan proof, and harness relationships in `docs/v2-progress-tracker.md` before wiring deeper UI controls here.
 
-| ID | Compass Item | Intended Behavior | Current Status | Verification |
+| ID | Backend Dependency | UI Readiness Rule | Current Status | Verification |
 |---|---|---|---|---|
-| CMP1 | Project definition | Defines a project as a bounded body of work with concrete outcome, context, artifacts, objectives, tasks, and proof trail. | wired | Compass snapshot includes `Project Definition Logic` and distinguishes project from session/repo/venture. |
-| CMP2 | Project bounds | States what belongs inside and outside the selected project context. | wired | Compass snapshot includes `Bounds and Scope Logic` with inside/outside bounds and ambiguity behavior. |
-| CMP3 | Project scope proof | Requires project-scoped surfaces to name project identity and evidence before acting. | planned | Future project-scoped surface actions carry project id/title and evidence refs. |
-| CMP4 | Project difference | Explains how projects differ by mission, objectives, artifacts, blockers, memory pins, and proof expectations. | wired | Compass snapshot includes `Project Difference Logic`. |
-| CMP5 | Project vs repository | Keeps repo/path separate from project identity. | wired | Compass snapshot says filesystem/git location is evidence, not identity. |
-| CMP6 | Project vs venture | Keeps venture/business/audience container separate from project identity. | wired | Compass snapshot distinguishes venture from project in `Project Definition Logic` and `Portfolio Boundary`. |
-| CMP7 | Project vs session | Keeps live execution sessions separate from project identity. | wired | Compass snapshot defers session target behavior to Vulcan. |
-| CMP8 | Cross-project communication | Allows explicit project-to-project summaries, decisions, evidence, and dependency notices. | wired | Compass snapshot includes `Cross-Project Communication Logic`. |
-| CMP9 | Cross-project context guard | Blocks raw transcript bleed, hidden prompt replay, unrelated backlog import, and automatic session retarget by default. | wired | Compass snapshot lists blocked cross-project payloads. |
-| CMP10 | Cross-project handoff metadata | Requires source project, target project, reason, payload type, evidence refs, and approval need for handoffs. | planned | Future handoff action stores these fields before another project accepts context. |
-| CMP11 | Ambiguous project handling | Ambiguous project scope becomes a visible Compass question. | wired | Compass snapshot records ambiguity behavior; UI action implementation remains future. |
-| CMP12 | Compass/Vulcan boundary | Compass defines project context; Vulcan confirms live sessions assigned to that context. | wired | Compass and Vulcan snapshots both name the boundary. |
-
-### Vulcan / Session Lifecycle Harness Subitems
-
-Vulcan owns live session identity, lifecycle state, target availability, command plans, and session recovery. Vulcan does not define project scope or choose model routes.
-
-| ID | Vulcan Item | Intended Behavior | Current Status | Verification |
-|---|---|---|---|---|
-| VLC1 | Session definition | Defines a session as a runtime work container with id, role, model, worktree, branch, queue, proof state, and blocker state. | wired | Vulcan snapshot includes `Session Definition Logic`. |
-| VLC2 | Session vs project | Keeps session assignment separate from project definition. | wired | Vulcan snapshot states a session may be assigned to a project but does not define scope. |
-| VLC3 | Lifecycle state vocabulary | Names session states before any command is proposed. | wired | Vulcan snapshot includes starting/polling/running/waiting/blocked/review_gated/capacity_limited/stale/stopped/archived. |
-| VLC4 | State evidence | Requires queue, worktree, branch, model, read/write/prompt timestamps, proof state, and blocker summary. | planned | Future live Vulcan state payload exposes these fields without raw worker chat. |
-| VLC5 | Command plan vocabulary | Represents spawn/watch/poll/steer/stop/transfer/archive/restart/resteer/recover/human-gate as typed intents. | wired | Vulcan snapshot includes `Command Plan Logic`. |
-| VLC6 | Command plan proof | Requires target, reason, expected transition, evidence refs, queue, worktree/branch, gate result, and executability before action. | planned | Future command preview cannot execute without these fields. |
-| VLC7 | Human gate boundary | Keeps branch movement, destructive actions, account-risking actions, and permission crossings non-executable until approved. | wired | Vulcan snapshot names the human gate rule. |
-| VLC8 | Stale target guard | Shows closed/unavailable session targets as blockers, not silent reroutes. | wired | User Session selector/status shows selected unavailable and send is blocked. |
-| VLC9 | Close/write-through boundary | Close, archive, and write-through remain explicit session lifecycle actions. | planned | `CLS-*` rows remain planned except transient overlay close. |
-| VLC10 | Beacon relationship | Beacon observes heartbeat/liveness; Vulcan records lifecycle state and recovery options. | wired | Vulcan snapshot includes cross-harness relationship logic. |
-| VLC11 | Relay relationship | Relay chooses model/vendor/session route; Vulcan confirms target existence/state. | wired | Vulcan snapshot includes Relay relationship logic. |
-| VLC12 | Aegis relationship | Aegis gates risky session command plans before execution. | wired | Vulcan snapshot includes Aegis relationship logic. |
+| HBD1 | Compass backend checklist | Compass UI may render backend-sourced project logic, but must not invent project definitions or cross-project handoff controls before V2 backend rows are built. | wired | Compass panel reads `/bridge/compass-logic`; deeper backend rows live in `docs/v2-progress-tracker.md`. |
+| HBD2 | Vulcan backend checklist | Vulcan UI may render backend-sourced session lifecycle logic, but must not execute session command plans before V2 backend rows are built. | wired | Vulcan panel reads `/bridge/vulcan-logic`; deeper backend rows live in `docs/v2-progress-tracker.md`. |
 
 ### Harness Mode Subitems
 
