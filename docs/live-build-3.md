@@ -10,6 +10,31 @@ Only the first `Active Task` block in this file is executable. Lower archived/st
 
 ## Completed / Ready For Codex Review
 
+Goal: keep FileMap current after latest provider-result validation movement and coordinator/readiness provenance on main.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-3-filemap`.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: concrete FileMap audit after latest provider-result validation movement, including provider-result runtime/advisory/Bifrost paths and current `origin/main` live-queue/review provenance.
+
+Completion:
+
+- Build 3 audited visible current `origin/main` while the assigned branch reported clean but `behind 3`; no sync, merge, rebase, reset, cherry-pick, or branch movement was performed.
+- Inspected changed paths from `0e7ef832..origin/main` (21 changed paths), all five live-build queue files, both live review provenance files, runtime FileMap entries, `docs/FileMap.md`, and `_REQUIRED_PATHS`.
+- Inspected called-out provider-result/runtime paths: `meridian_core/relay_executor.py`, `meridian_core/aegis.py`, `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, related tests, and `docs/provider-result-validation-evidence-checklist.md`.
+- No missing existing artifacts were found. No runtime FileMap, `docs/FileMap.md`, or `_REQUIRED_PATHS` registration changes were needed.
+- Audit evidence: focused coverage check across 45 inspected changed/referenced existing paths found zero gaps.
+- Files changed: `docs/live-build-3.md`.
+- Tests: `python -m pytest tests/test_filemap.py -q` - 47 passed.
+- Diff proof: `git diff --check` - passed.
+- Commit: this queue-marker commit.
+- Next Candidate: bind runtime validation or review findings before unrelated FileMap cleanup.
+
+Ready for Codex Review.
+
+## Completed / Ready For Codex Review
+
 Goal: keep FileMap current after Build 1 provider-result validation evidence runtime and Reviews B provenance through `aa926f07`.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-3-filemap`.
