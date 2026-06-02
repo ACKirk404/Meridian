@@ -8,15 +8,16 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Active Now
 
-Goal: review the current-main Build 4 Aegis PromptPacket proof policy evaluator slice.
+Goal: review the current-main Build 4 and Build 5 Aegis policy slices.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
 
-Task: review the landed current-main Build 4 slice:
+Task: review the landed current-main slices in this order, stopping and routing a focused finding if any slice fails:
 
 - Build 4 Aegis PromptPacket proof policy evaluator, commits `62473606` and `7993022d`.
+- Build 5 Bifrost Aegis policy decision rendering, commits `8d56cef5` and `9d8aa279`.
 
-Use current `origin/main` at or after `33d2a48c`. Verify containment, path scope, and the proof commands recorded in the Build 4 queue. Do not commit read-check-only progress.
+Use current `origin/main` at or after `bc03bc4b`. Verify containment, path scope, and the proof commands recorded in each build queue. Do not commit read-check-only progress.
 
 Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If a finding exists, record the smallest focused repair route and stop.
 
