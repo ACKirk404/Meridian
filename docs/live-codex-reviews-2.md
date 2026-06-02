@@ -8,6 +8,33 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review current-main Build 5 Bifrost command-staging review surface.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: review Build 5 Bifrost/frontend display-only command-staging review surface commits `e9729b5c` and `2180f171`. Verify deterministic sample rendering shows staged restart/resteer/archive intent, target session id, recommended action, required operation, ready flag, human-gate rationale, UI-review blocker, permission state, blockers, evidence refs, and Prime/Beacon advisory continuity. Verify no execution controls, no restart/resteer/archive calls, no live/session/process/model/provider calls, no raw prompt/provider response text, no Relay runtime/FileMap/main/Polaris leakage, and existing Bifrost surfaces remain preserved.
+
+Proof: `python -m pytest tests/test_bifrost_cockpit.py -q` plus `git diff --check e9729b5c^..2180f171`.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If a finding exists, record it and stop for coordinator repair routing.
+
+Review result - 2026-06-02 09:27 -06:00:
+
+- Build 5 command-staging review surface passed. Commits `e9729b5c` and `2180f171` changed only `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, and `docs/live-build-5.md`.
+- The Bifrost slice is deterministic display-only sample rendering inside Session Lifecycle: it adds `CommandStagingReviewView` and `CommandStagingReviewItem` with staged restart, resteer, and archive intents for `build-5-bifrost`.
+- The rendered surface shows staging id, target session id, staged command kind, recommended action, required operation, ready flag, permission state, human-gate rationale, UI-review blockers, evidence refs, and Prime/Beacon advisory refs.
+- The renderer emits inert markup only with escaped structured fields. Tests cover summary rendering, review gates/advisories, escaping, and preservation of adjacent display-only surfaces including visible prompt meter, recovery-readiness advisory, prompt payload visibility, Relay/Aegis handoff, and stale-session recovery actions.
+- Scope check found no execution controls, no restart/resteer/archive calls, no live/session/process/model/provider calls, no raw prompt/provider response text, no Relay runtime, Aegis edits, FileMap, branch/main movement, shared-main write, Polaris dependency, or push.
+
+Proof:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q` passed: 277 tests.
+- `git diff --check e9729b5c^..2180f171` passed.
+
+Completion: Build 5 command-staging review surface is review-cleared. Reviews B returns to current-main Ready-marker polling.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 4 pure Aegis prompt payload meter advisory helper.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
