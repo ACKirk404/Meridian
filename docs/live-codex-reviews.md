@@ -20,6 +20,37 @@ Completion: commit only review provenance/finding/pass updates locally in `docs/
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review current-main Build 3 post-Build-4/5 FileMap audit, then poll Build 1/2 Ready markers.
+
+Status: passed by Codex Reviews A on 2026-06-01 23:09 -06:00. Current `HEAD` and `origin/main` are `2fe41d69`, and Build 3 commits `c8c7cc22` and `007a1217` are ancestors of current main.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Build 3 review scope: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_filemap.py -q`
+- `git diff --check c8c7cc22^..007a1217`
+
+Review result:
+
+- Containment checks for `c8c7cc22` and `007a1217` passed.
+- Scope check shows FileMap changes limited to `meridian_core/filemap.py`, `docs/FileMap.md`, and `tests/test_filemap.py`, with queue provenance in `docs/live-build-3.md`.
+- `python -m pytest tests/test_filemap.py -q` passed with 46 tests.
+- `git diff --check c8c7cc22^..007a1217` passed.
+- Verified `docs/relay-aegis-promptpacket-policy-integration-checklist.md` is registered in runtime FileMap, mirrored in `docs/FileMap.md`, and covered by `_REQUIRED_PATHS`.
+- Verified existing coverage for `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-4.md`, `docs/live-build-5.md`, `docs/live-codex-reviews.md`, and `docs/v2-orchestrator-transition-ledger.md` across the runtime FileMap, docs mirror, and required-path tests.
+- Verified the live-build marker records concrete audit evidence, changed files, tests, commit, and next-candidate routing rather than read-check-only progress.
+
+Build 3 finding: none.
+
+Build 1/2 poll result: no Ready marker reviewed after Build 3 pass. `docs/live-build-1.md` shows an Active Now Relay/Aegis PromptPacket policy runtime integration task; `docs/live-build-2.md` shows an Active Now Session Lifecycle permission summary aggregation task. No Build 1/2 read-check-only commit was made.
+
+Completion: Build 3 post-Build-4/5 FileMap audit is review-cleared. No repair routed.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 2 permission-aware Prime/Beacon advisory evidence.
 
 Status: passed by Codex Reviews A on 2026-06-01 23:01 -06:00. Current `HEAD` and `origin/main` are `a8913ca3`, and Build 2 commits `225a5108` and `fe8ed0ec` are ancestors of current main.
