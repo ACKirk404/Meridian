@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: keep FileMap current under the rolling two-stage pipeline.
 
@@ -23,6 +23,21 @@ Task: audit FileMap coverage after this routing checkpoint and the next coordina
 Tests: `python -m pytest tests/test_filemap.py -q`.
 
 Completion: commit locally only in the assigned worktree if coverage changes or concrete no-op evidence is recorded, mark Ready for Codex Review with commit hash or no-op evidence, files changed, tests run, and Next Candidate: bind review findings before unrelated FileMap cleanup.
+
+Completion:
+
+- Build 3 audited current `origin/main` at `72714d9c` after coordinator movement/routing commits `3540b2cd`, `e4ae4297`, and `72714d9c`.
+- Inspected required minimum paths: `docs/live-build-2.md`, `docs/live-build-4.md`, `docs/live-build-5.md`, `docs/live-codex-reviews.md`, `docs/live-codex-reviews-2.md`, and `docs/v2-orchestrator-transition-ledger.md`.
+- Inspected changed paths from the named commits plus existing artifacts referenced by current top Build 2/4/5 and Reviews A/B queue blocks.
+- Registered missing/partial existing artifacts: `tests/test_beacon.py` and `tests/test_filemap.py` in runtime FileMap, `docs/FileMap.md`, and `_REQUIRED_PATHS`.
+- Audit evidence: focused coverage check across 28 inspected changed/referenced paths found no remaining runtime FileMap, `docs/FileMap.md`, or `_REQUIRED_PATHS` gaps after registration.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`.
+- Tests: `python -m pytest tests/test_filemap.py -q` - 46 passed.
+- Commit: `7da1ebbf`.
+- Queue marker: this completion update.
+- Next Candidate: bind review findings before unrelated FileMap cleanup.
+
+Ready for Codex Review.
 
 ## Completed / Ready For Codex Review
 
