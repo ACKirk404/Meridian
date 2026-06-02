@@ -10,6 +10,25 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: implement the Relay/runtime side of the V2 visible prompt payload meter from `docs/v2-progress-tracker.md`.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Task: expose deterministic, display-safe prompt payload meter evidence through Relay execution summaries and decision records using the reviewed `PromptPayloadSnapshot` helper. Include `(under 1k)` / `(12.4k)` style labels, budget percent, growth deltas, payload status, model/provider/route continuity, Q-mode prompt-drag warning/blocker tags, and evidence refs. No raw prompt text, provider responses, live provider calls, adapter payload semantic changes, UI/Bifrost/FileMap/session/process/main/Polaris edits.
+
+Completion:
+- Status: Ready for Codex Review.
+- Completed: 2026-06-02 09:05 -06:00.
+- Commit: `aa060004` (`feat: Add Relay prompt payload meter evidence`).
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+- Tests run: `python -m pytest tests/test_relay_executor.py -q` (211 passed); `git diff --check` (passed; Git reported line-ending normalization warnings only).
+- Concrete evidence: Relay now exposes immutable `RelayPromptPayloadMeterEvidence` plus `RelayExecutionSummary.prompt_payload_meter_evidence()` and `RelayExecutionSummary.prompt_payload_meter_consumer_view()`. Runtime meter evidence carries display label, estimated tokens, budget percent, status, Q-mode flag, growth delta, model/provider/route continuity, prompt-drag tags, payload snapshot hash, model metadata ref, external-review ref, and payload evidence ref. Tests prove label buckets, degraded Q-mode blockers, decision-record binding, stable display-safe serialization, no raw prompt/provider-response/credential leakage, and unchanged adapter payload boundaries.
+- Next Candidate: after review, connect this reviewed Relay meter evidence to the Bifrost prompt payload visibility surface, or bind prompt-drag blocker tags into a reviewed Aegis retry/fallback planning lane.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: add a narrow deterministic Relay/Aegis consumer binding for the reviewed `RelayProviderResultValidationEvidence`.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
