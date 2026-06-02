@@ -228,6 +228,13 @@ Coordinator build-slice movement - 2026-06-02:
 - Proof rerun on shared main after movement: `python -m pytest tests/test_model_adapter.py -q` passed 32/32; `python -m pytest tests/test_session_lifecycle.py -q` passed 65/65; `python -m pytest tests/test_bifrost_cockpit.py -q` passed 182/182. Build 4 docs checklist shape check confirmed required account-first, wrong-scope, `deepseek-chat`, dual-model, session lifecycle, Bifrost, and proof terms are present.
 - Result: Build 1, Build 2, Build 4, and Build 5 are Ready for Codex Review on main. Build 3 remains actively working on the FileMap maintenance audit. Next coordinator action: re-steer Reviews A to Build 1 then Build 2 current-main review and Reviews B to Build 4 then Build 5 current-main review.
 
+Coordinator review and Build 4 repair routing - 2026-06-02:
+
+- Reviews A passed Build 1 DeepSeek metadata presets and Build 2 restart/resteer recovery tests on current main; coordinator moved Reviews A provenance commit `2d9d795e` to main as `4d85e8b7`.
+- Reviews B routed a focused Build 4 finding: `git diff --check a4652ce4^..e15a38a1` failed on `docs/relay-heartbeat-model-routing-implementation-checklist.md` with a blank line at EOF. Coordinator moved Reviews B provenance commit `6418e445` to main as `324ae1eb`; Build 5 review was correctly not reached while Build 4 had an active finding.
+- Build 4 repaired the whitespace-only finding locally in commit `2d2c0fb4`; coordinator moved it to main as `6546595c`. Repair scope stayed limited to `docs/relay-heartbeat-model-routing-implementation-checklist.md` and `docs/live-build-4.md`.
+- Proof after repair movement: `git diff --check a4652ce4^..HEAD` passed on shared main. Next coordinator action: re-steer Reviews B to re-review repaired Build 4 and then continue to Build 5 if Build 4 passes.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
