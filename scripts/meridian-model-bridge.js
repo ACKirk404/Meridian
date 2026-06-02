@@ -12,7 +12,7 @@ const RECENT_RESULT_TTL_MS = Number(process.env.MERIDIAN_MODEL_RESULT_TTL_MS || 
 const RECENT_RESULT_TEXT_LIMIT = Number(process.env.MERIDIAN_MODEL_RESULT_TEXT_LIMIT || 80000);
 const SESSION_TRANSCRIPT_LIMIT = Number(process.env.MERIDIAN_SESSION_TRANSCRIPT_LIMIT || 12);
 const SESSION_TRANSCRIPT_CHAR_LIMIT = Number(process.env.MERIDIAN_SESSION_TRANSCRIPT_CHAR_LIMIT || 12000);
-const BRIDGE_VERSION = 'visible-transcript-v1';
+const BRIDGE_VERSION = 'local-bridge-routes-v2';
 const BRIDGE_CAPABILITIES = {
   visibleTranscriptContext: true,
   recentCallContextDiagnostics: true,
@@ -84,9 +84,10 @@ if (process.argv.includes('--self-test')) {
     sampleSession.status === 'live' &&
     waitingSession?.status === 'waiting'
   );
+  const versionOk = BRIDGE_VERSION === 'local-bridge-routes-v2';
   const routeNamesOk = Object.values(BRIDGE_ROUTES).every((route) => route.startsWith('/bridge/') && !route.startsWith('/api/'));
   const originOk = isAllowedOrigin({ headers: { origin: 'http://127.0.0.1:5500' } }) && !isAllowedOrigin({ headers: { origin: 'https://example.com' } });
-  console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && routeNamesOk && originOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, routeNamesOk, originOk }, null, 2));
+  console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && versionOk && routeNamesOk && originOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, versionOk, routeNamesOk, originOk }, null, 2));
   process.exit(0);
 }
 

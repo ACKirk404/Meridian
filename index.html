@@ -3312,6 +3312,7 @@ body {
   const userSessionSelect = document.querySelector('.session-target-select');
   const localBridgeBase = 'http://127.0.0.1:8767/bridge';
   const bridgeUrl = (path) => `${localBridgeBase}/${String(path || '').replace(/^\/+/, '')}`;
+  const expectedBridgeVersion = 'local-bridge-routes-v2';
   const pathPattern = /((?:[A-Za-z]:\\|\.{0,2}[\\/])(?:[\w .()@%+=~-]+[\\/])*[\w .()@%+=~-]+\.[A-Za-z0-9]{1,12}|(?:[\w@%+=~-]+[\\/])+(?:[\w .()@%+=~-]+)(?:\.[A-Za-z0-9]{1,12})?|\b[\w@%+=~-]+\.[A-Za-z0-9]{1,12}\b)/g;
   const selectedUserSessionId = () => userSessionSelect?.value || '';
   const selectedUserSession = () => userSessions.find((session) => session.sessionId === selectedUserSessionId()) || null;
@@ -3472,6 +3473,12 @@ body {
     try {
       const response = await fetch(bridgeUrl('models'));
       const result = await response.json();
+      if (result.version !== expectedBridgeVersion) {
+        bridgeOnline = false;
+        bridgeCapabilities = result.capabilities || {};
+        document.querySelectorAll('.session-prompt-input').forEach((input) => setStatus(input, 'model bridge restart required'));
+        return;
+      }
       bridgeOnline = true;
       modelReadiness = Array.isArray(result.models) ? result.models : [];
       bridgeCapabilities = result.capabilities || {};
@@ -4143,7 +4150,7 @@ body {
       try {
         const response = await fetch(bridgeUrl('models'), { cache: 'no-store' });
         const result = await response.json();
-        if (result?.capabilities?.visibleTranscriptContext) return true;
+        if (result?.version === expectedBridgeVersion && result?.capabilities?.visibleTranscriptContext) return true;
       } catch {
         // Bridge may be between old and new process during reset.
       }

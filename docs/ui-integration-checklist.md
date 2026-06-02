@@ -182,7 +182,7 @@ Reset is a UI/session-window recovery control. It clears visible prompt/transcri
 | RST11 | Reset failure visibility | Shows readable error if reset storage clearing fails. | planned | Failure does not silently pretend reset succeeded. |
 | RST12 | No extra Reset UI button | Reset remains the spark-ring control; no duplicate bottom button. | wired | Visual check shows no duplicate Reset UI button. |
 | RST13 | Reset is not Clear Memory | Does not claim to clear model memory, long-term knowledge, or archived context. | planned | UI language avoids "clear memory" unless that feature exists. |
-| RST14 | Restart model bridge | Reset asks the local Meridian bridge to restart before reloading the UI, so stale bridge code does not survive reset. | wired | Click Reset; `/bridge/models` returns `visibleTranscriptContext: true` after reload. |
+| RST14 | Restart model bridge | Reset asks the local Meridian bridge to restart before reloading the UI, so stale bridge code does not survive reset. | wired | Click Reset; `/bridge/models` returns `version=local-bridge-routes-v2` and `visibleTranscriptContext: true` after reload. |
 
 ### Reload Surface Subitems
 
@@ -515,7 +515,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | MB8 | Visible session continuity | Follow-up prompts carry the visible panel transcript as bounded context, with no hidden backend memory. | Response metadata and `/bridge/recent-calls` record nonzero `sessionContextEntries` after a follow-up prompt. |
 | MB9 | Bridge capability guard | UI blocks prompt sends when the running bridge does not advertise visible transcript context support. | Old bridge shows restart-required status instead of silently sending stateless follow-ups. |
 | MB10 | Bridge restart endpoint | Local bridge exposes a same-port restart endpoint for Reset recovery. | `POST /bridge/restart` returns accepted, then `/bridge/health` and `/bridge/models` come back with visible-context capability. |
-| MB11 | Bridge capability parity | `/bridge/health` and `/bridge/models` advertise the same bridge version and capability flags, and the UI readiness line shows the active bridge generation. | Both endpoints report `visibleTranscriptContext`, `recentCallContextDiagnostics`, and `samePortRestart`; session status includes the bridge version. |
+| MB11 | Bridge capability parity | `/bridge/health` and `/bridge/models` advertise the same bridge version and capability flags, and the UI readiness line shows the active bridge generation. | Both endpoints report `version=local-bridge-routes-v2`, `visibleTranscriptContext`, `recentCallContextDiagnostics`, and `samePortRestart`; stale generations show restart-required. |
 | MB12 | Local-origin bridge access | Browser access to bridge endpoints is limited to the Meridian local UI origins. | Disallowed origins get `403`; command-line checks without an Origin header still work. |
 | MB13 | Bridge readiness self-heal | UI rechecks bridge readiness when the page regains focus or visibility. | Restart bridge externally, return to the page, and status refreshes without manual reload. |
 | MB14 | Relay bridge visibility | Relay panel shows and refreshes live bridge access status from `/bridge/health`, not static copy. | Open Relay; Bridge route shows online/offline, version, visible-context state, and reset recovery state; focus/visibility refresh updates it. |
