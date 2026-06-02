@@ -20,6 +20,54 @@ Proof: for Build 1, `python -m pytest tests/test_model_adapter.py tests/test_rel
 
 Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews.md`. If a finding exists, record the smallest focused repair route and stop. Next Candidate: return to Build 1/2 polling after these current-main reviews.
 
+## Coordinator Override - Completed / Passed
+
+Goal: review current-main Build 1 Model Harness metadata binding, then Build 2 workflow advisory binding.
+
+Status: passed by Codex Reviews A on 2026-06-02 00:10 -06:00. Current `HEAD` and `origin/main` are `0c5931d0`, and Build 1 commits `fe51ffd6` and `0ea4ddb4`, plus Build 2 commits `ad9a4969` and `e18c0d7b`, are ancestors of current main.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Build 1 review scope: `meridian_core/model_adapter.py`, `meridian_core/relay_executor.py`, `tests/test_model_adapter.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Build 1 proof commands:
+
+- `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`
+- `git diff --check fe51ffd6^..0ea4ddb4`
+
+Build 1 review result:
+
+- Containment checks for `fe51ffd6` and `0ea4ddb4` passed.
+- Scope check shows implementation/test changes limited to `meridian_core/model_adapter.py`, `meridian_core/relay_executor.py`, `tests/test_model_adapter.py`, and `tests/test_relay_executor.py`, with queue provenance in `docs/live-build-1.md`.
+- `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` passed with 230 tests.
+- `git diff --check fe51ffd6^..0ea4ddb4` passed.
+- Verified Model Harness route metadata carries provider route kind, external-review status, model metadata refs, external-review evidence refs, capability tier, trust state, context window, prompt payload budget/status, and prompt-drag fields as provider-neutral structured data.
+- Verified Relay payload evidence and `RelayExecutionSummary.model_capability_metadata_summary()` expose display-safe exact model id, provider route kind, capability tier, trust state, context window, prompt payload budget/status, growth/degraded tags, external-review requirement/status, metadata refs, and payload evidence refs.
+- Verified no raw prompt text, raw provider responses, credentials/account probing, live provider calls, UI/Bifrost/FileMap edits, process/session control, branch/worktree movement, main writes, or Polaris dependency was introduced.
+
+Build 1 finding: none.
+
+Build 2 review scope: `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_prime_autonomy.py`, `tests/test_beacon.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Build 2 proof commands:
+
+- `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py tests/test_beacon.py -q`
+- `git diff --check ad9a4969^..e18c0d7b`
+
+Build 2 review result:
+
+- Containment checks for `ad9a4969` and `e18c0d7b` passed.
+- Scope check shows implementation/test changes limited to `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_prime_autonomy.py`, and `tests/test_beacon.py`, with queue provenance in `docs/live-build-2.md`.
+- `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py tests/test_beacon.py -q` passed with 188 tests.
+- `git diff --check ad9a4969^..e18c0d7b` passed.
+- Verified Prime converts `WorkflowWorkOrderRecoverySummary` into advisory-only `PrimeNextAction` outcomes for stale restart advice, fresh polling/watch, archive advice, resteer advice, and human-gate blockers without executing recovery.
+- Verified Beacon serializes workflow recovery summaries through `workflow_recovery_advisory_evidence()` with display-safe evidence and blockers.
+- Verified no session spawning, process inspection, model calls, UI/Bifrost/FileMap edits, branch/worktree movement, autonomous movement, main writes, or Polaris dependency was introduced.
+
+Build 2 finding: none.
+
+Completion: Build 1 Model Harness metadata binding and Build 2 workflow advisory binding are review-cleared. No repair routed.
+
 ## Coordinator Override - Active Now
 
 Goal: keep Build 1/2 review hot under the rolling two-stage pipeline.
