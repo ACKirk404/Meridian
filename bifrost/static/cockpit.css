@@ -1358,6 +1358,31 @@ summary {
   font-weight: 500;
 }
 
+.stale-target-guard {
+  padding: 10px 10px;
+  background-color: rgba(200, 80, 60, 0.2);
+  border-left: 4px solid #d9534f;
+  border-radius: 2px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stale-warning {
+  color: #ff9999;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stale-message {
+  color: #cc9999;
+  font-size: 11px;
+  font-style: italic;
+}
+
 /* ── Configuration Mode ────────────────────────────────────────────────────── */
 
 .right-panel-settings {

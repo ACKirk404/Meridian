@@ -1839,3 +1839,124 @@ def test_sessions_dropdown_with_mixed_statuses_filters_correctly():
     # Closed sessions should not render
     assert "Blocked D" not in html
     assert "Done E" not in html
+
+
+# ── Stale-target guard (post-Sessions dropdown repair) ──────────────────────
+
+def test_stale_target_guard_shows_when_selected_session_closed():
+    """Stale-target guard shows when selected session is no longer available."""
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.user_session_mode = UserSessionModeView(
+        sessions=[
+            SessionItem("s1", "Open Session", "P1", "live"),
+            SessionItem("s2", "Closed Session", "P1", "done"),  # This one is closed
+        ],
+        selected_session_id="s2",  # Selected a closed session
+    )
+    vm.right_panel_active_mode = "user_session"
+    doc = render_cockpit_html(vm)
+
+    # Stale-target guard should be present
+    assert "stale-target-guard" in doc
+    assert "Target unavailable:" in doc or "stale-warning" in doc
+    # Guard should indicate it's not routable
+    assert "not routable" in doc or "not be sent" in doc
+
+
+def test_stale_target_guard_for_blocked_session():
+    """Stale-target guard shows when selected session is blocked."""
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.user_session_mode = UserSessionModeView(
+        sessions=[
+            SessionItem("s1", "Open", "P", "live"),
+            SessionItem("s2", "Blocked", "P", "blocked"),
+        ],
+        selected_session_id="s2",
+    )
+    vm.right_panel_active_mode = "user_session"
+    doc = render_cockpit_html(vm)
+
+    # Guard should show for blocked session
+    assert "stale-target-guard" in doc
+    assert "Blocked" in doc
+
+
+def test_stale_target_guard_includes_session_id_metadata():
+    """Stale-target guard includes data-stale-session-id attribute."""
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.user_session_mode = UserSessionModeView(
+        sessions=[
+            SessionItem("s1", "Open", "P", "live"),
+            SessionItem("s-stale-123", "Stale", "P", "done"),
+        ],
+        selected_session_id="s-stale-123",
+    )
+    vm.right_panel_active_mode = "user_session"
+    doc = render_cockpit_html(vm)
+
+    # Should have data attribute identifying the stale session
+    assert 'data-stale-session-id="s-stale-123"' in doc
+
+
+def test_normal_routing_target_when_session_available():
+    """Normal routing target (not guard) shows when session is available."""
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.user_session_mode = UserSessionModeView(
+        sessions=[
+            SessionItem("s1", "Available", "P", "live"),
+        ],
+        selected_session_id="s1",
+    )
+    vm.right_panel_active_mode = "user_session"
+    doc = render_cockpit_html(vm)
+
+    # Normal routing target should show, not the guard
+    assert "routing-target-state" in doc
+    assert "Next prompt target:" in doc
+    assert '<div class="stale-target-guard"' not in doc
+
+
+def test_stale_target_guard_prevents_prompt_routing_implication():
+    """Stale-target guard message clarifies prompts will not be sent."""
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.user_session_mode = UserSessionModeView(
+        sessions=[
+            SessionItem("s1", "Live", "P", "live"),
+            SessionItem("s2", "Closed", "P", "done"),
+        ],
+        selected_session_id="s2",
+    )
+    vm.right_panel_active_mode = "user_session"
+    doc = render_cockpit_html(vm)
+
+    # Guard message must clarify prompts won't be sent
+    assert "will not be sent" in doc or "not routable" in doc
+    # Should NOT show "Next prompt target:" for stale sessions
+    if "stale-target-guard" in doc:
+        # Extract the stale guard section
+        assert "Next prompt target: Closed" not in doc
+
+
+def test_stale_target_guard_for_multiple_closed_sessions():
+    """Stale-target guard works when selecting from mix of open and closed."""
+    vm = CockpitViewModel(project="Test", bearing="test")
+    vm.user_session_mode = UserSessionModeView(
+        sessions=[
+            SessionItem("s1", "Live A", "P", "live"),
+            SessionItem("s2", "Live B", "P", "live"),
+            SessionItem("s3", "Blocked C", "P", "blocked"),
+            SessionItem("s4", "Done D", "P", "done"),
+        ],
+        selected_session_id="s4",  # Select a done session
+    )
+    vm.right_panel_active_mode = "user_session"
+    doc = render_cockpit_html(vm)
+
+    # Dropdown should only show open sessions
+    assert "Live A" in doc
+    assert "Live B" in doc
+    # Closed sessions not in dropdown
+    assert '<option' not in doc or "Blocked C" not in doc or "Done D" not in doc
+    # But guard shows for the selected closed session
+    assert "stale-target-guard" in doc
+    assert "Done D" in doc  # Name shown in guard, not dropdown

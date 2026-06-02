@@ -1113,11 +1113,24 @@ def _render_user_session_mode(mode: UserSessionModeView) -> str:
     # Find currently selected session for title display and routing target
     selected_session_name = ""
     selected_session_id = ""
+    selected_session_is_stale = False
+
+    # Check if selected session is in the open sessions (available)
     for session in open_sessions:
         if session.session_id == mode.selected_session_id:
             selected_session_name = session.session_name
             selected_session_id = session.session_id
             break
+
+    # If selected_session_id doesn't match any open session, it's stale
+    if mode.selected_session_id and not selected_session_id:
+        selected_session_id = mode.selected_session_id
+        selected_session_is_stale = True
+        # Try to find the session in all sessions to get its name
+        for session in mode.sessions:
+            if session.session_id == mode.selected_session_id:
+                selected_session_name = session.session_name
+                break
 
     # Build optgroups for each project
     optgroups = []
@@ -1144,14 +1157,24 @@ def _render_user_session_mode(mode: UserSessionModeView) -> str:
             + "</optgroup>"
         )
 
-    # Build routing target state indicator
+    # Build routing target state indicator or stale-target guard
     routing_target_html = ""
     if selected_session_id:
-        routing_target_html = (
-            f'<div class="routing-target-state" data-target-session-id="{_e(selected_session_id)}">'
-            f'<span class="routing-label">Next prompt target: {_e(selected_session_name)}</span>'
-            "</div>"
-        )
+        if selected_session_is_stale:
+            # Show stale-target guard warning
+            routing_target_html = (
+                f'<div class="stale-target-guard" data-stale-session-id="{_e(selected_session_id)}">'
+                f'<span class="stale-warning">⚠ Target unavailable: {_e(selected_session_name)}</span>'
+                f'<span class="stale-message">Session is closed, blocked, or no longer routable. Prompts will not be sent.</span>'
+                "</div>"
+            )
+        else:
+            # Show normal routing target state
+            routing_target_html = (
+                f'<div class="routing-target-state" data-target-session-id="{_e(selected_session_id)}">'
+                f'<span class="routing-label">Next prompt target: {_e(selected_session_name)}</span>'
+                "</div>"
+            )
 
     return (
         '<div class="right-panel-user-session" aria-label="User Session Mode">'
