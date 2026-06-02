@@ -8,6 +8,16 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: repair remaining account-first wrong-scope fallback contradiction from Codex Reviews B.
+
+Allowed files only: `docs/relay-heartbeat-model-routing-logic.md`, `docs/live-build-4.md`.
+
+Task: update `docs/relay-heartbeat-model-routing-logic.md` directly so the account-first decision tree no longer allows wrong project, wrong role, or wrong tools to fall through through the generic "rejected at any step" API/aggregator fallback. Keep the existing Step 2 rule that wrong scope must start a project-specific or role-matched controllable session, and make the generic rejection handling explicitly exclude wrong scope/tool mismatches unless a later table row allows the route. Wrong project/role/tools must start a corrected session or block; they must not silently bypass into direct API or aggregator.
+
+Completion: when repaired, record commit hash, files changed, tests/proof, and Ready for Codex Review status here.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair remaining Relay routing logic consistency findings from Codex Reviews B.

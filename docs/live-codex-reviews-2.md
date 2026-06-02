@@ -10,7 +10,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Codex Reviews B cleared the current-main Build 4 premium-cost approval blocker in commit `f15e7ceb`. Continue with the Active Now item below; do not rerun the cleared Build 4 repair unless a new current-main regression appears.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Finding Routed
 
 Goal: review Build 4 Relay routing logic consistency repair.
 
@@ -25,6 +25,26 @@ Proof command:
 - Docs/architecture review; no pytest required unless runtime claims require proof.
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
+
+Review result:
+
+- Finding 1: `docs/relay-heartbeat-model-routing-logic.md` lines 166-170 still says if an account/session is rejected "at any step," Relay may proceed to direct API or aggregator if tier/trust/fallback policy allow. That generic branch includes the Step 2 wrong-project/wrong-role/wrong-tools rejection at lines 154-156, so wrong scope is still allowed to bypass into API/aggregator despite the Step 2 repair. Why it matters: the active task requires wrong project/role/tools to start a project-specific or role-matched controllable session or block, not fall through to direct API/aggregator. Recommended owning lane: Build 4.
+- Passed: `docs/relay-heartbeat-model-routing-logic.md` line 180 distinguishes Tier 3+ account-session missing/expired fallback as start/re-auth session or direct API only when proof/audit is explicit, and the table separately blocks missing credentials/API keys.
+- Passed: `docs/relay-heartbeat-model-routing-logic.md` lines 116 and 120 treat `deepseek-chat` as the exact DeepSeek direct API dispatch ID and describe `v4-pro`/`v4-flash` as metadata/variant labels rather than dispatch keys.
+- Scope check: no runtime code, model calls, account probing, process control, UI work, branch movement, or Polaris dependency was added by this review.
+
+Proof:
+
+- Docs/architecture review only; no pytest required.
+- Inspected `docs/relay-heartbeat-model-routing-logic.md`, `docs/model-harness-v2-contract.md`, `docs/deepseek-direct-provider-implementation-handoff.md`, and `docs/live-build-4.md`.
+
+Repair routing:
+
+- Routed focused repair to Build 4 in `docs/live-build-4.md`.
+
+Next Candidate:
+
+- Re-review Build 4 Relay routing logic consistency repair after Build 4 marks the focused follow-up Ready for Codex Review.
 
 ## Coordinator Override - Completed / Passed
 
@@ -2848,6 +2868,10 @@ Next Candidate:
 ## Write / Completion Log
 
 - 2026-06-01 18:25 -06:00 - files changed: `docs/live-codex-reviews-2.md` provenance only. Tests run: not run because no newly promoted executable Reviews B Active Task is present. Commit hash: pending at write time; see final handoff. Push status: pending at write time; see final handoff. Obsidian update status: not updated; queue provenance only.
+
+## Write / Completion Log
+
+- 2026-06-01 18:27 -06:00 - files changed: `docs/live-codex-reviews-2.md` provenance/disposition and `docs/live-build-4.md` repair routing only. Tests run: not run; docs/architecture review only. Commit hash: pending at write time; see final handoff. Push status: pending at write time; see final handoff. Obsidian update status: not updated; queue provenance/routing only.
 
 ## Write / Completion Log
 
