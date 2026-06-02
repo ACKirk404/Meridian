@@ -314,6 +314,13 @@ Coordinator containment recovery for reset-confirmation UI dirt - 2026-06-02:
 - After pushing Build 5 movement, shared main was found dirty with uncommitted UI changes in `index.html` and `docs/ui-integration-checklist.md`. No worker movement or review routing was approved while main was dirty.
 - Preserved the dirty UI work on quarantine branch `codex/quarantine-main-dirty-reset-confirm-20260601-2223` at `3a8a3368` (`quarantine: Preserve reset confirmation UI changes`), then restored shared main clean/aligned to `origin/main` at `199ef1ee`.
 
+Coordinator Reviews A Build 2/3 clearance - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified Reviews A worktree clean before movement.
+- Approved and completed path-limited movement of Reviews A provenance commit `397e4461` onto shared main as `c78d3e49`, limited to `docs/live-codex-reviews.md`.
+- Review results: Build 2 Session Lifecycle command-plan edge coverage passed with no findings; Build 3 FileMap prompt payload visibility coverage passed with no findings. Reported proof: `python -m pytest tests/test_session_lifecycle.py -q` passed 76/76; `git diff --check ee00bc4a^..42783048` passed; `python -m pytest tests/test_filemap.py -q` passed 46/46; `git diff --check 4ee53306^..e1e35d9c` passed.
+- Next coordinator action: route Reviews A to review Build 1 Relay prompt payload evidence after this provenance movement is pushed.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
