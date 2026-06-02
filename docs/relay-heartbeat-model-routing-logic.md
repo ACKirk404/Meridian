@@ -164,6 +164,12 @@ Before using a paid API or aggregator route, Relay evaluates the account/session
 - No → Direct API if proof/audit is required; aggregator if fallback is acceptable
 
 **If account/session is rejected at any step:**
+
+*Special case — wrong project, wrong role, or wrong tools (Step 2 rejection):*
+- Do NOT proceed to direct API or aggregator; these are scope/control violations that require correction
+- Start project-specific or role-matched session, or block if no corrected session is available
+
+*All other rejections (Steps 1, 3, 4):*
 1. Relay explicitly records the rejection reason (not silent fallback)
 2. Relay proceeds to direct API if tier/trust allows
 3. Relay proceeds to aggregator only if tier and fallback policy allow
