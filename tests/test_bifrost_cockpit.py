@@ -155,6 +155,7 @@ def test_index_harness_title_toggles_model_icons():
     assert "Orchestrator Harness" in doc
     assert "Switch to model harness icons" in doc
     assert "harness-model-mode" in doc
+    assert ".harness-dock-wrap.harness-model-mode .harness-dock-top" in doc
     assert 'class="harness-dock harness-dock-bottom harness-model-dock"' in doc
     assert 'aria-label="Model harness"' in doc
     for label in ("Claude", "GPT", "Gemini", "DeepSeek", "Local", "Router", "Verifier", "Cost", "Fallback"):
