@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: bind Session Lifecycle restart/resteer recovery decisions into Prime/Beacon advisory state after Reviews A cleared the restart/resteer recovery tests with no findings.
 
@@ -26,7 +26,14 @@ Tests:
 
 - `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py -q`
 
-Completion: mark Ready for Codex Review with commit hash, files changed, tests run, and a concrete Next Candidate: bind any review findings from this advisory binding slice before unrelated Session Lifecycle work.
+Completion:
+
+- Build 2 completed the Prime/Beacon advisory binding slice in local worktree commit `a2cefdce`.
+- Files changed: `meridian_core/session_lifecycle.py`, `meridian_core/prime_autonomy.py`, `tests/test_session_lifecycle.py`, `tests/test_prime_autonomy.py`.
+- Binding added: pure Beacon restart/resteer finding helpers, immutable Prime autonomy input gathering, and a Prime advisory selector that consumes Session Lifecycle recovery findings while preserving human gates, review gates, and permission-boundary blocking.
+- Proof: `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py -q` passed with 130 tests.
+- Ready for Codex Review.
+- Next Candidate: bind any review findings from this advisory binding slice before unrelated Session Lifecycle work.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
