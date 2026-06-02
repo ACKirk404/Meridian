@@ -10,6 +10,25 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: connect the reviewed `SessionRecoveryReadinessSummary` to Prime/Beacon advisory consumers.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
+Allowed files only: `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_prime_autonomy.py`, `tests/test_beacon.py`, `docs/live-build-2.md`.
+
+Task: add Prime selection/advisory helper and Beacon evidence helper using the reviewed summary fields while preserving blockers, evidence, human gate, and permission gate semantics. Keep it pure/advisory and serializable only: no restart/resteer/archive execution, session/process/model/UI/Bifrost/FileMap side effects, branch/main movement, or Polaris.
+
+Completion:
+
+- Build 2 completed the recovery-readiness Prime/Beacon advisory consumer binding in local worktree commit `d0644f77`.
+- Files changed: `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_prime_autonomy.py`, `tests/test_beacon.py`.
+- Evidence: Prime now consumes `SessionRecoveryReadinessSummary` through `select_next_action_from_recovery_readiness_summary()` and keeps even readiness-cleared recovery advisory-only behind command-plan staging; blockers and human-gate rationale pause Prime safely. Beacon now serializes the same summary through `recovery_readiness_advisory_evidence()` with readiness status, command kind, recommended action, required operation, ready flag, blockers, and display-safe evidence refs. No recovery, process, model, UI, FileMap, branch/main, or Polaris action is executed.
+- Proof: `python -m pytest tests/test_prime_autonomy.py tests/test_beacon.py -q` passed with 101 tests; `git diff --check` passed.
+- Ready for Codex Review.
+- Next Candidate: bind review findings or route the next live-control command-plan staging gate.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: add a pure Session Lifecycle recovery-readiness binding after Reviews A cleared the live-control permission gate.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
