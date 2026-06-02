@@ -93,7 +93,7 @@ Replacement coordinator should record:
 
 ## Open Checkpoint 2 - Current Orchestrator Review
 
-Status: open.
+Status: reviewed; supervised routing approved.
 
 Current orchestrator should review the replacement coordinator's intake and record:
 
@@ -101,6 +101,15 @@ Current orchestrator should review the replacement coordinator's intake and reco
 - Corrections.
 - Approved route/queue updates.
 - Whether replacement coordinator can advance to supervised routing.
+
+Current orchestrator review:
+
+- Intake accepted. The replacement coordinator correctly preserved containment, did not write to shared main, did not approve movement, and did not treat read-check-only/ahead history as progress.
+- Correction: after the replacement intake, the current orchestrator fast-forwarded shared main `C:\Users\scott\Code\Meridian` to `a20d9e0b`; shared main is now aligned with `origin/main` and clean.
+- Accepted pressure-lane findings: Build 3 still owes the Relay UI/runtime FileMap audit or a concrete blocker, and Reviews B still owes the Relay UI/runtime review pass/finding/blocker.
+- Accepted Build 4 correction: the checklist task remains valid because `docs/relay-heartbeat-model-routing-implementation-checklist.md` is absent from `origin/main`; `fe0b0138` is only the wrong-scope fallback repair.
+- Approved supervised routing cycle: replacement coordinator may draft coordinator-scoped queue updates that add path-specific escalation evidence for Build 3 and Reviews B, keep Build 4 on the checklist task, and keep Build 1/2/5 on implement-or-blocker pressure. The replacement coordinator may not approve branch/worktree movement, reset/quarantine main, mark takeover complete, or replace active queues without current-orchestrator/user review.
+- Full takeover is not approved yet. Takeover remains `In transition`.
 
 ## Open Checkpoint 3 - Supervised Routing Trial
 
