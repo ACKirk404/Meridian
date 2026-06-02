@@ -184,6 +184,14 @@ Replacement coordinator pressure-lane evidence - 2026-06-02:
 - Reviews B replacement thread produced local worktree branch commit `207a101e` (`Review Relay harness UI integration`). Reported proof: `python -m pytest tests/test_relay_logic_snapshot.py -q` passed 11 tests, bridge self-test passed, and verdict was passed with no findings/blockers.
 - Movement status: no worker/review commits have been moved to main yet. Current orchestrator review/approval was requested for a path-limited movement plan covering Build 3 files (`meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`) and Reviews B provenance (`docs/live-codex-reviews-2.md`).
 
+Coordinator movement completion - 2026-06-02:
+
+- User clarified there is no separate current-orchestrator session for this handoff; this thread is the coordinator authority. The earlier external-review request is superseded by this coordinator gate check and ledger record.
+- Movement gate: fetched `origin/main`; verified shared main `C:\Users\scott\Code\Meridian` was on `main`, aligned with `origin/main` at `b47622ba`, and clean. Verified Build 3 and Reviews B worktrees were present and clean before movement.
+- Approved and completed path-limited movement by cherry-picking Build 3 commits `4c9060c3` and `969172d0`, plus Reviews B commit `207a101e`, onto shared main. Movement scope stayed limited to `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews-2.md`.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_filemap.py -q` passed 46/46; `python -m pytest tests/test_relay_logic_snapshot.py -q` passed 11/11.
+- Result: Build 3 FileMap pressure point is completed and Reviews B Relay UI/runtime review is completed/passed with no routed findings. Takeover remains `In transition` until the remaining lane criteria and explicit approval record are satisfied.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
