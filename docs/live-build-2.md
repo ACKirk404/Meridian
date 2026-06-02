@@ -1541,6 +1541,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-06-02 09:27 -06:00 - Build 2 checked queue; no Active Now section; no executable task; cadence 1 of 3; idle polling
 2026-06-02 09:28 -06:00 - Build 2 checked queue; no Active Now section; no executable task; cadence 1 of 3; idle polling
 2026-06-02 09:28 -06:00 - Build 2 checked queue; no Active Now section; new relay_executor commits from Build 1 landed on main; no executable task; cadence 1 of 3; idle polling
+2026-06-02 09:30 -06:00 - Build 2 checked queue; no Active Now section; stale cherry-pick on live-codex-reviews-2.md aborted (outside scope); no executable task; cadence 1 of 3; idle polling
 ```
 
 ## Write/Completion Log
