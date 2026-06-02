@@ -1573,6 +1573,22 @@ summary {
   border-radius: 4px;
 }
 
+.aegis-policy-human-gate-not_required {
+  color: var(--muted);
+}
+
+.aegis-policy-human-gate-required,
+.aegis-policy-human-gate-pending {
+  color: var(--amber);
+  border-color: rgba(255, 203, 107, 0.28);
+}
+
+.aegis-policy-human-gate-blocked,
+.aegis-policy-human-gate-unknown {
+  color: var(--red);
+  border-color: rgba(255, 111, 123, 0.28);
+}
+
 .aegis-policy-lists {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -1621,6 +1637,12 @@ summary {
   color: var(--amber);
   background: rgba(255, 203, 107, 0.12);
   border: 1px solid rgba(255, 203, 107, 0.28);
+}
+
+.aegis-policy-empty {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 @keyframes hud-pulse {

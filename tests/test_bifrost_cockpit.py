@@ -676,6 +676,66 @@ def test_aegis_prompt_packet_policy_supports_allow_warn_demote_block_and_human_g
             assert "Human gate: required" in doc
 
 
+def test_aegis_prompt_packet_policy_missing_packet_id_suppresses_policy_card():
+    vm = sample_cockpit_view_model()
+    vm.aegis_prompt_packet_policy = AegisPromptPacketPolicyView(
+        packet_id="",
+        policy_id="policy-without-packet",
+        decision="block",
+        human_gate_state="required",
+        proof_requirement="tier3_dual_lane",
+        aegis_evidence_ids=["aegis:missing-packet"],
+        missing_fields=["packet_id"],
+        reason_tags=["packet_id_missing"],
+    )
+    doc = render_cockpit_html(vm)
+    assert 'aria-label="Aegis PromptPacket Policy Decision"' not in doc
+    assert "policy-without-packet" not in doc
+    assert 'aria-label="PromptPacket Proof Metadata"' in doc
+    assert 'aria-label="Prompt Payload Visibility"' in doc
+
+
+def test_aegis_prompt_packet_policy_renders_degraded_empty_data_placeholders():
+    vm = sample_cockpit_view_model()
+    vm.aegis_prompt_packet_policy = AegisPromptPacketPolicyView(
+        packet_id="packet-degraded-policy",
+        policy_id="",
+        decision="demote",
+        human_gate_state="",
+        proof_requirement="",
+        aegis_evidence_ids=[],
+        missing_fields=[],
+        reason_tags=[],
+    )
+    doc = render_cockpit_html(vm)
+    assert "Packet id: packet-degraded-policy" in doc
+    assert "policy_id_missing" in doc
+    assert "Human gate: unknown" in doc
+    assert "Proof requirement: proof_requirement_missing" in doc
+    assert "no_evidence_ids" in doc
+    assert "no_missing_fields" in doc
+    assert "no_reason_tags" in doc
+    assert "aegis-policy-empty" in doc
+
+
+def test_aegis_prompt_packet_policy_renders_human_gate_edge_states():
+    for human_gate_state in ("not_required", "required", "pending", "blocked", ""):
+        vm = sample_cockpit_view_model()
+        vm.aegis_prompt_packet_policy = AegisPromptPacketPolicyView(
+            packet_id=f"packet-human-gate-{human_gate_state or 'blank'}",
+            policy_id="policy-human-gate-edge",
+            decision="warn",
+            human_gate_state=human_gate_state,
+            proof_requirement="tier2_payload_snapshot",
+            aegis_evidence_ids=["aegis:human-gate"],
+            reason_tags=["human_gate_state_visible"],
+        )
+        doc = render_cockpit_html(vm)
+        expected = human_gate_state or "unknown"
+        assert f"Human gate: {expected}" in doc
+        assert f"aegis-policy-human-gate-{expected}" in doc
+
+
 def test_aegis_prompt_packet_policy_escapes_structured_fields():
     vm = sample_cockpit_view_model()
     vm.aegis_prompt_packet_policy = AegisPromptPacketPolicyView(

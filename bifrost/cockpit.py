@@ -1258,30 +1258,33 @@ def _render_aegis_prompt_packet_policy(policy: AegisPromptPacketPolicyView) -> s
     if not policy.packet_id:
         return ""
 
+    policy_id = policy.policy_id or "policy_id_missing"
+    proof_requirement = policy.proof_requirement or "proof_requirement_missing"
+    human_gate_state = policy.human_gate_state or "unknown"
     evidence_items = "".join(
         f'<span class="aegis-policy-chip aegis-policy-evidence">{_e(evidence_id)}</span>'
         for evidence_id in policy.aegis_evidence_ids
-    )
+    ) or '<span class="aegis-policy-chip aegis-policy-empty">no_evidence_ids</span>'
     missing_items = "".join(
         f'<span class="aegis-policy-chip aegis-policy-missing-field">{_e(field_name)}</span>'
         for field_name in policy.missing_fields
-    )
+    ) or '<span class="aegis-policy-chip aegis-policy-empty">no_missing_fields</span>'
     reason_items = "".join(
         f'<span class="aegis-policy-chip aegis-policy-reason">{_e(reason_tag)}</span>'
         for reason_tag in policy.reason_tags
-    )
+    ) or '<span class="aegis-policy-chip aegis-policy-empty">no_reason_tags</span>'
 
     return (
         '<section class="aegis-packet-policy" aria-label="Aegis PromptPacket Policy Decision">'
         '<div class="aegis-policy-header-main">'
         '<h3>Aegis PromptPacket Policy</h3>'
-        f'<span class="aegis-policy-id">{_e(policy.policy_id)}</span>'
+        f'<span class="aegis-policy-id">{_e(policy_id)}</span>'
         f'<span class="aegis-policy-decision aegis-policy-decision-{_e(policy.decision)}">{_e(policy.decision)}</span>'
         "</div>"
         '<div class="aegis-policy-grid">'
         f'<span class="aegis-policy-field aegis-policy-packet-id">Packet id: {_e(policy.packet_id)}</span>'
-        f'<span class="aegis-policy-field aegis-policy-human-gate">Human gate: {_e(policy.human_gate_state)}</span>'
-        f'<span class="aegis-policy-field aegis-policy-requirement">Proof requirement: {_e(policy.proof_requirement)}</span>'
+        f'<span class="aegis-policy-field aegis-policy-human-gate aegis-policy-human-gate-{_e(human_gate_state)}">Human gate: {_e(human_gate_state)}</span>'
+        f'<span class="aegis-policy-field aegis-policy-requirement">Proof requirement: {_e(proof_requirement)}</span>'
         "</div>"
         '<div class="aegis-policy-lists">'
         '<div class="aegis-policy-list aegis-policy-evidence-ids" aria-label="Aegis Policy Evidence IDs">'
