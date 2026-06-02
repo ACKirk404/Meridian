@@ -10,6 +10,27 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: expose the reviewed `RelayDispatchMetadataEnvelope` in deterministic Relay summary/decision-record consumer views without changing adapter/provider calls.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Task: add a narrow Relay consumer slice after Reviews A cleared the dispatch metadata envelope. Preserve Build 4's separate provider transport pass-through runtime work. Do not add live provider calls, credentials/account probing, raw provider responses, UI/Bifrost/FileMap edits, or branch/main movement.
+
+Tests: `python -m pytest tests/test_relay_executor.py -q` plus `git diff --check`.
+
+Completion:
+- Status: Ready for Codex Review.
+- Completed: 2026-06-02 00:32 -06:00.
+- Commit: `5d653c90` (`feat: Expose Relay dispatch metadata consumer views`).
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+- Tests run: `python -m pytest tests/test_relay_executor.py -q` (199 passed); `git diff --check` (passed; Git reported line-ending normalization warnings only).
+- Concrete evidence: `RelayDecisionRecord` now carries the first-lane reviewed `RelayDispatchMetadataEnvelope` when execution builds one, or deterministically builds a metadata-only fallback when decision records are created directly. `RelayExecutionSummary.dispatch_metadata_consumer_view()` returns a stable serialization-only consumer dictionary with envelope tuples, decision-record envelope data, heartbeat id, and deduped fail-closed advisory tags. Tests prove the consumer views are deterministic, display-safe, fall back to decision records when no results exist, and do not alter adapter calls; adapters still receive only `_PROMPT`/`lane.payload`.
+- Next Candidate: bind review findings or connect the reviewed validation envelope to provider transport after the provider transport runtime review lane is ready.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: add provider-neutral Relay dispatch metadata envelope helpers for reviewed Model Harness capability metadata.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
