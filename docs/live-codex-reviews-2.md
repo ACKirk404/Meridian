@@ -8,6 +8,30 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review current-main Build 4 command-staging UI-review Aegis advisory.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: review Build 4 command-staging UI-review Aegis advisory commits `1bca9060` and `5c576c85`. Verify primitive/provider-neutral fields, deterministic fail-closed metadata, explicit non-executable advisory behavior, display-safe serialization/redaction, stable advisory keys, no Relay imports/types, no Bifrost/FileMap edits, no restart/resteer/archive execution, no process/session/model/provider calls, no raw prompt/provider response storage, no main/Polaris leakage, and no branch/worktree movement.
+
+Proof: `python -m pytest tests/test_aegis.py -q` plus `git diff --check 1bca9060^..5c576c85`.
+
+Review result - 2026-06-02 09:34 -06:00:
+
+- Build 4 command-staging UI-review Aegis advisory passed. Commits `1bca9060` and `5c576c85` changed only `meridian_core/aegis.py`, `tests/test_aegis.py`, and `docs/live-build-4.md`.
+- The helper stays pure Aegis-side with primitive/provider-neutral fields, deterministic fail-closed metadata, stable advisory keys, display-safe redaction, and explicit `execution_authorized: False`.
+- It preserves staged command kind, recommended action, required operation, target session id, ready flag, human gate, UI-review requirement, permission state, blockers, evidence refs, Prime advisory, and Beacon refs without importing Relay types or touching Bifrost/FileMap/session/process code.
+- Scope check found no execution calls, live process/session/model/provider calls, credentials/account probing, raw prompt/provider response storage, main write, Polaris dependency, or branch/worktree movement.
+
+Proof:
+
+- `python -m pytest tests/test_aegis.py -q` passed: 282 tests.
+- `git diff --check 1bca9060^..5c576c85` passed.
+
+Completion: Build 4 command-staging UI-review Aegis advisory is review-cleared. Reviews B returns to current-main Ready-marker polling.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 5 Bifrost command-staging review surface.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
