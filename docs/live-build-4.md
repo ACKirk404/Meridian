@@ -28,7 +28,7 @@ Completion: completed 2026-06-01.
 
 Ready for Codex Review:
 
-- Commit: pending local commit hash
+- Commit: `64a3d509`
 - Files changed: `docs/relay-prompt-payload-visibility-implementation-checklist.md`, `docs/live-build-4.md`
 - Tests: not required (docs-only)
 - Verification performed: text/shape inspection confirmed the checklist exists, covers proof payload fields, budget labels, growth/watch/degraded states, queue/Q-mode prompt-drag detection, Relay evidence, Bifrost handoff, tests, and block conditions; staged diff passes `git diff --cached --check`.
