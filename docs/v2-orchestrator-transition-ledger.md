@@ -403,6 +403,14 @@ Coordinator Build 2 audit-edge movement - 2026-06-02:
 - Approved and completed path-limited movement of Build 2 Prime audit-evidence edge coverage commits `d65ddcab` and `8922e741` onto shared main as `d13947a2` and `be83f294`, limited to `meridian_core/prime_autonomy.py`, `tests/test_prime_autonomy.py`, and `docs/live-build-2.md`.
 - Proof rerun on shared main after movement: `python -m pytest tests/test_prime_autonomy.py -q` passed 70/70; `git diff --check d13947a2^..HEAD` passed.
 
+Coordinator Build 1/3/4 movement - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified Build 1, Build 3, and Build 4 worktrees clean before movement. Build 5 remained dirty/in-progress and was not moved.
+- Approved and completed path-limited movement of Build 1 Relay decision-record packet proof commits `655c196a` and `3f1380f2` onto shared main as `3cffeaa2` and `41582efb`, limited to `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, and `docs/live-build-1.md`.
+- Approved and completed path-limited movement of Build 3 Aegis PromptPacket FileMap audit commits `710e7b4e` and `c0c101f6` onto shared main as `b962197f` and `53ee81d9`, limited to `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, and `docs/live-build-3.md`.
+- Approved and completed path-limited movement of Build 4 Aegis PromptPacket proof policy evaluator commits `ff862efa` and `271134e5` onto shared main as `62473606` and `7993022d`, limited to `meridian_core/aegis.py`, `tests/test_aegis.py`, and `docs/live-build-4.md`.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_relay_executor.py -q` passed 172/172; `python -m pytest tests/test_filemap.py -q` passed 46/46; `python -m pytest tests/test_aegis.py -q` passed 215/215; `git diff --check 3cffeaa2^..HEAD` passed.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
