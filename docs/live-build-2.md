@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add permission-aware Prime/Beacon advisory evidence for Session Lifecycle command plans after Reviews A cleared the Prime audit-edge slice.
 
@@ -20,7 +20,14 @@ Task: add a narrow deterministic, display-safe binding so Session Lifecycle perm
 
 Tests: `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py tests/test_beacon.py -q`.
 
-Completion: mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind any review findings from this permission-evidence slice before unrelated Session Lifecycle work.
+Completion:
+
+- Build 2 completed the permission-aware Prime/Beacon advisory evidence slice in local worktree commit `b7acab1d`.
+- Files changed: `meridian_core/session_lifecycle.py`, `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_session_lifecycle.py`, `tests/test_prime_autonomy.py`, `tests/test_beacon.py`.
+- Evidence: `SessionCommandPlan.audit_evidence()` now carries display-safe permission state, task scope, unlock expiry, approved operations, required operation, operation permission result, and permission evidence; branch/worktree movement commands surface blockers unless the relevant permission operation is explicitly allowed; Prime and Beacon convert the audit payload into advisory evidence strings without live control.
+- Proof: `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py tests/test_beacon.py -q` passed with 168 tests.
+- Ready for Codex Review.
+- Next Candidate: bind any review findings from this permission-evidence slice before unrelated Session Lifecycle work.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
