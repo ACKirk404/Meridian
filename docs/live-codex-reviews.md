@@ -25,6 +25,54 @@ Completion: commit only review provenance/finding/pass updates locally in `docs/
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review the current-main Build 1 and Build 3 Aegis wave slices.
+
+Status: passed by Codex Reviews A on 2026-06-01 22:54 -06:00. Review branch `HEAD` is `2ee547d8`, `origin/main` is `34a761b9`, and requested commits `3cffeaa2`, `41582efb`, `b962197f`, and `53ee81d9` are ancestors of the review branch.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Build 1 review scope: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Build 1 proof commands:
+
+- `python -m pytest tests/test_relay_executor.py -q`
+- `git diff --check 3cffeaa2^..41582efb`
+
+Build 1 review result:
+
+- Containment checks for `3cffeaa2` and `41582efb` passed.
+- Scope check shows implementation/test changes limited to `meridian_core/relay_executor.py` and `tests/test_relay_executor.py`, with queue provenance in `docs/live-build-1.md`.
+- `python -m pytest tests/test_relay_executor.py -q` passed with 172 tests.
+- `git diff --check 3cffeaa2^..41582efb` passed.
+- Verified Relay decision records expose PromptPacket proof refs/status (`packet_hash`, `prompt_budget_ref`, source-lineage compliance, metadata ref, blocked tags, proof requirements, and Aegis evidence ids) as audit/display metadata.
+- Verified missing or blocked packet proof metadata contributes fail-closed fallback blockers, while `RelayDispatchLane.payload` / model calls still receive only approved prompt text.
+- Scoped side-effect scan found no raw prompt/proof leakage into decision metadata, credential handling, raw provider response storage, account internals, UI/Bifrost rendering, FileMap edits, Polaris dependency, branch/worktree movement, or autonomous movement in the reviewed Build 1 slice.
+
+Build 1 finding: none.
+
+Build 3 review scope: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Build 3 proof commands:
+
+- `python -m pytest tests/test_filemap.py -q`
+- `git diff --check b962197f^..53ee81d9`
+
+Build 3 review result:
+
+- Containment checks for `b962197f` and `53ee81d9` passed.
+- Scope check shows FileMap changes limited to `meridian_core/filemap.py`, `docs/FileMap.md`, and `tests/test_filemap.py`, with queue provenance in `docs/live-build-3.md`.
+- `python -m pytest tests/test_filemap.py -q` passed with 46 tests.
+- `git diff --check b962197f^..53ee81d9` passed.
+- Verified `docs/aegis-promptpacket-proof-policy-checklist.md`, `tests/test_prompt_packet.py`, and `tests/test_relay_packet.py` are registered in runtime FileMap, mirrored or cross-referenced in `docs/FileMap.md`, and covered by `_REQUIRED_PATHS`.
+- Verified the live-build marker records concrete audit evidence, changed files, tests, commit, and next-candidate routing rather than read-check-only progress.
+- Scoped side-effect scan found no unrelated runtime/UI/Polaris/branch movement behavior in the reviewed Build 3 slice.
+
+Build 3 finding: none.
+
+Completion: Build 1 Relay decision-record packet proof binding and Build 3 Aegis PromptPacket FileMap audit are review-cleared. No repair routed.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 2 Prime audit-evidence edge coverage.
 
 Status: passed by Codex Reviews A on 2026-06-01 22:43 -06:00. Current `HEAD` and `origin/main` are `de626d5f`, and Build 2 commits `d13947a2` and `be83f294` are ancestors of current main.
