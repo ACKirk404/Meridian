@@ -8,6 +8,24 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review current-main Build 2 Session Lifecycle permission-invariant repair.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Required first command for this task: verify you are in your assigned unique worktree and not in `C:\Users\scott\Code\Meridian`; you are not allowed to write to main, move data between worktrees or branches, cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage without coordinator approval.
+
+Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/session-lifecycle-permissions-implementation-checklist.md`, `docs/session-lifecycle-permissions-prime-beacon-contract.md`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for review provenance/routing only.
+
+Task: review current `origin/main` commit `e41851ae` for the Build 2 repair of the remaining Session Lifecycle permission-invariant gaps. Verify invalid temporary/permanent `PermissionContext` states are rejected; temporary unlocks require expiry and task scope; permanent unlocks require dual approval; `can_accept_work()` and `can_execute_operation()` enforce expiry and task scope against the current session task id; closed heartbeat and immutable PrimeAutonomyInput repairs remain intact; and no live process control, model calls, UI/Bifrost/FileMap edits, branch movement, or Polaris dependency was added.
+
+Proof command:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+
+Completion: if clean, mark passed, close the prior HIGH permission-invariant findings, and leave the next executable Reviews A candidate: review Build 1 Relay proof payload downstream-consumer checklist commit `455ed63c`. If findings exist, route the smallest focused repair back to Build 2 ahead of normal work. Commit only review-queue/provenance updates and push to `origin/main`.
+
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review current-main Build 2 Session Lifecycle permissions contract-completeness repair.

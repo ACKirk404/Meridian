@@ -6,6 +6,24 @@ This file is the standing queue for a second specialized Codex Reviews session.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review current-main Build 4 account-first wrong-scope fallback repair.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Required first command for this task: verify you are in your assigned unique worktree and not in `C:\Users\scott\Code\Meridian`; you are not allowed to write to main, move data between worktrees or branches, cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage without coordinator approval.
+
+Allowed review files: `docs/relay-heartbeat-model-routing-logic.md`, `docs/model-harness-v2-contract.md`, `docs/deepseek-direct-provider-implementation-handoff.md`, `docs/live-build-4.md`, and `docs/live-codex-reviews-2.md` for review provenance/routing only.
+
+Task: review current `origin/main` commit `fe0b0138` for the Build 4 repair of the remaining account-first wrong-scope fallback contradiction. Verify the decision tree explicitly excludes wrong project, wrong role, and wrong tools from the generic direct API/aggregator fallback; wrong scope must start a corrected controllable account/session route or block unless a later explicit table row allows the route. Also verify the prior passed conditions remain true: Tier 3+ missing/expired account-session fallback distinguishes start/re-auth session, direct API only for explicit proof/audit needs with valid credentials, or block; `deepseek-chat` remains the exact DeepSeek direct API dispatch id; `v4-pro` and `v4-flash` remain metadata/variant labels, not dispatch keys. Confirm no runtime code, model calls, account probing, process control, UI work, branch movement, or Polaris dependency was added.
+
+Proof command:
+
+- Docs/architecture review; no pytest required unless runtime claims require proof.
+
+Completion: if clean, mark passed, close the prior wrong-scope fallback finding, and leave the next executable Reviews B candidate: review Build 5 stale-target guard sample rendering commit `31a92c8c`. If findings exist, route the smallest focused repair back to Build 4 ahead of normal work. Commit only review-queue/provenance updates and push to `origin/main`.
+
 ## Coordinator Note - Current Finding
 
 Codex Reviews B cleared the current-main Build 4 premium-cost approval blocker in commit `f15e7ceb`. Continue with the Active Now item below; do not rerun the cleared Build 4 repair unless a new current-main regression appears.
