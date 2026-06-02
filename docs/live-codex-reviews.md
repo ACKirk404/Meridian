@@ -51,6 +51,35 @@ Completion: Build 2 Prime/Beacon command-staging advisory consumers are review-c
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review Build 3 prompt payload meter FileMap registration.
+
+Status: passed by Codex Reviews A on 2026-06-02 09:21 -06:00. Candidate `HEAD` is `b8e9b7ed`, and Build 3 commit `b8e9b7ed` is the assigned FileMap registration candidate.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Review scope: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_filemap.py -q`
+- `git diff --check b8e9b7ed^..b8e9b7ed`
+
+Review result:
+
+- Containment check for `b8e9b7ed` passed on the assigned candidate branch.
+- Scope check shows changes limited to runtime FileMap, `docs/FileMap.md`, required-path test coverage, and Build 3 queue provenance.
+- `python -m pytest tests/test_filemap.py -q` passed with 47 tests.
+- `git diff --check b8e9b7ed^..b8e9b7ed` passed.
+- Verified `docs/relay-bifrost-prompt-payload-meter-checklist.md` is registered consistently in `meridian_core/filemap.py`, mirrored in `docs/FileMap.md`, and included in `tests/test_filemap.py` `_REQUIRED_PATHS`.
+- Verified `.mcp.json` is documented only as out-of-scope Polaris MCP connector evidence in `docs/live-build-3.md` and is not registered in runtime FileMap, `docs/FileMap.md`, or `_REQUIRED_PATHS`.
+- Verified no unrelated FileMap churn, runtime/UI/session/process/main/Polaris leakage, branch/worktree movement, or read-check-only progress was introduced.
+
+Finding: none.
+
+Completion: Build 3 prompt payload meter FileMap registration is review-cleared. No repair routed.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review Build 2 live-control command-plan staging.
 
 Status: passed by Codex Reviews A on 2026-06-02 09:05 -06:00. Candidate `HEAD` is `15ebb598`, and Build 2 commits `a240ea4d` and `15ebb598` are ancestors of the assigned candidate branch.
