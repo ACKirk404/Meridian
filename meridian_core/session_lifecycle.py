@@ -391,6 +391,43 @@ class SessionRuntimeStateExport:
 
 
 @dataclass(frozen=True)
+class SessionLiveControlPermissionGate:
+    """Advisory permission gate for future live-control execution readiness."""
+
+    gate_id: str
+    target_session_id: str
+    command_kind: Optional[CommandIntent]
+    recommended_action: Optional[SessionAction]
+    required_operation: Optional[OperationScope]
+    ready_for_execution: bool
+    human_gate_required: bool
+    human_gate_rationale: str
+    blockers: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+    timestamp: datetime
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize permission-gate advice to display-safe metadata."""
+        return {
+            "gate_id": self.gate_id,
+            "target_session_id": self.target_session_id,
+            "command_kind": self.command_kind.value if self.command_kind else None,
+            "recommended_action": (
+                self.recommended_action.value if self.recommended_action else None
+            ),
+            "required_operation": (
+                self.required_operation.value if self.required_operation else None
+            ),
+            "ready_for_execution": self.ready_for_execution,
+            "human_gate_required": self.human_gate_required,
+            "human_gate_rationale": self.human_gate_rationale,
+            "blockers": list(self.blockers),
+            "evidence_refs": list(self.evidence_refs),
+            "timestamp": self.timestamp.isoformat(),
+        }
+
+
+@dataclass(frozen=True)
 class PrimeAutonomyInput:
     """What Prime receives when selecting next action."""
 
@@ -1299,6 +1336,115 @@ def export_session_runtime_state_for_workflow_recovery(
     )
 
 
+def evaluate_live_control_permission_gate(
+    session: SessionLifecycleState,
+    runtime_export: SessionRuntimeStateExport,
+    timestamp: Optional[datetime] = None,
+) -> SessionLiveControlPermissionGate:
+    """Evaluate permission readiness for future restart/resteer/archive control.
+
+    This is pure advisory metadata. It does not execute recovery, spawn or
+    inspect processes, move branches/worktrees/sessions, call models, or write UI.
+    """
+    observed_at = _as_utc(timestamp or datetime.now(timezone.utc))
+    target_session_id = runtime_export.target_session_id or runtime_export.session_id
+    command_kind = _live_control_command_kind(runtime_export)
+    required_operation = (
+        _operation_for_command_intent(command_kind) if command_kind else None
+    )
+    permission = session.permission_context
+
+    blockers = list(runtime_export.human_gate_blockers)
+    if target_session_id != session.session_id:
+        blockers.append("target_session_mismatch")
+    if command_kind is None:
+        blockers.append("command_kind_missing")
+    elif command_kind not in (
+        CommandIntent.RESTART,
+        CommandIntent.RESTEER,
+        CommandIntent.ARCHIVE,
+    ):
+        blockers.append(f"command_kind_unsupported:{command_kind.value}")
+    if required_operation is None:
+        blockers.append("required_operation_missing")
+    elif not permission.is_operation_approved(required_operation):
+        blockers.append(f"permission.operation_not_approved:{required_operation.value}")
+    if permission.is_permission_locked():
+        blockers.append("permission.locked")
+    if _permission_unlock_expired_at(permission, observed_at):
+        blockers.append("permission.unlock_expired")
+    if not permission.is_unlock_task_scoped(session.current_task_id):
+        blockers.append("permission.out_of_scope")
+    if permission.escalation_gate:
+        blockers.append(
+            "permission.escalation_gate"
+            if permission.escalation_reason is None
+            else f"permission.escalation_gate:{permission.escalation_reason}"
+        )
+
+    deduped_blockers = tuple(dict.fromkeys(blockers))
+    ready_for_execution = (
+        required_operation is not None
+        and command_kind
+        in (CommandIntent.RESTART, CommandIntent.RESTEER, CommandIntent.ARCHIVE)
+        and not deduped_blockers
+    )
+    human_gate_required = not ready_for_execution
+    rationale = (
+        "Permission gate cleared for future live-control command staging."
+        if ready_for_execution
+        else "Human or Aegis gate required before future live-control command staging."
+    )
+
+    evidence_refs = list(runtime_export.evidence_refs)
+    evidence_refs.extend(
+        [
+            f"gate.target_session_id={target_session_id}",
+            "gate.command_kind=" + (command_kind.value if command_kind else "none"),
+            "gate.recommended_action="
+            + (
+                runtime_export.recommended_recovery_action.value
+                if runtime_export.recommended_recovery_action
+                else "none"
+            ),
+            "gate.required_operation="
+            + (required_operation.value if required_operation else "none"),
+            f"gate.ready_for_execution={ready_for_execution}",
+            f"gate.human_gate_required={human_gate_required}",
+            f"permission.state={permission.branch_permission_state.value}",
+            "permission.approved_operations="
+            + (
+                ",".join(
+                    operation.value
+                    for operation in sorted(
+                        permission.approval_scope,
+                        key=lambda operation: operation.value,
+                    )
+                )
+                or "none"
+            ),
+            "permission.unlock_expiry="
+            + (permission.unlock_expiry.isoformat() if permission.unlock_expiry else "none"),
+            f"permission.task_scope={permission.task_scope or 'none'}",
+        ]
+    )
+    evidence_refs.extend(f"gate.blocker={blocker}" for blocker in deduped_blockers)
+
+    return SessionLiveControlPermissionGate(
+        gate_id=f"{target_session_id}:{command_kind.value if command_kind else 'none'}:{observed_at.isoformat()}",
+        target_session_id=target_session_id,
+        command_kind=command_kind,
+        recommended_action=runtime_export.recommended_recovery_action,
+        required_operation=required_operation,
+        ready_for_execution=ready_for_execution,
+        human_gate_required=human_gate_required,
+        human_gate_rationale=rationale,
+        blockers=deduped_blockers,
+        evidence_refs=tuple(evidence_refs),
+        timestamp=observed_at,
+    )
+
+
 def _workflow_heartbeat_age_seconds(
     heartbeat_emitted_at: Optional[datetime],
     observed_at: datetime,
@@ -1306,6 +1452,23 @@ def _workflow_heartbeat_age_seconds(
     if heartbeat_emitted_at is None:
         return None
     return max(0, int((observed_at - _as_utc(heartbeat_emitted_at)).total_seconds()))
+
+
+def _live_control_command_kind(
+    runtime_export: SessionRuntimeStateExport,
+) -> Optional[CommandIntent]:
+    if runtime_export.active_command_kind in (
+        CommandIntent.RESTART,
+        CommandIntent.RESTEER,
+        CommandIntent.ARCHIVE,
+    ):
+        return runtime_export.active_command_kind
+    action_to_command = {
+        SessionAction.START_NEW: CommandIntent.RESTART,
+        SessionAction.TRANSFER: CommandIntent.RESTEER,
+        SessionAction.ARCHIVE: CommandIntent.ARCHIVE,
+    }
+    return action_to_command.get(runtime_export.recommended_recovery_action)
 
 
 def _workflow_heartbeat_status(

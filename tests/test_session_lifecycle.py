@@ -23,8 +23,10 @@ from meridian_core.session_lifecycle import (
     SessionPermissionSummary,
     WorkflowWorkOrderRecoverySummary,
     SessionRuntimeStateExport,
+    SessionLiveControlPermissionGate,
     SessionLifecycleState,
     SessionCommandPlan,
+    evaluate_live_control_permission_gate,
     export_session_runtime_state_for_workflow_recovery,
     gather_prime_autonomy_input,
     generate_restart_finding,
@@ -1914,6 +1916,195 @@ class TestSessionRuntimeStateExport:
         assert "command.target_session_mismatch" in export.human_gate_blockers
         assert "workflow.target_session_mismatch" in export.human_gate_blockers
         assert "workflow.target_session_mismatch=True" in export.evidence_refs
+
+
+class TestSessionLiveControlPermissionGate:
+    """Tests for pure live-control permission readiness advice."""
+
+    @pytest.fixture
+    def gate_state(self):
+        """Create a stale session with scoped live-control permissions."""
+        now = datetime(2026, 6, 2, 10, 0, tzinfo=timezone.utc)
+        permission_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset(
+                [OperationScope.RESTART, OperationScope.RESTEER, OperationScope.ARCHIVE]
+            ),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=now + timedelta(hours=1),
+            task_scope="live-control-gate",
+            last_permission_change=now,
+        )
+        return SessionLifecycleState(
+            session_id="session-live-gate",
+            session_name="Build 2 Live Gate",
+            project_name="Meridian",
+            project_path="/path/to/meridian",
+            harness_role=HarnessRole.BUILD,
+            assigned_queue_file="docs/live-build-2.md",
+            model_provider="anthropic",
+            model_name="claude-opus-4-7",
+            status=SessionStatus.STALE,
+            worktree_path="/worktree/build-2",
+            branch_name="codex/rolling-build-2-live-control-permission-gate",
+            current_task_id="live-control-gate",
+            last_queue_read_at=now,
+            last_queue_write_at=now,
+            last_prompt_sent_at=now - timedelta(minutes=45),
+            last_prompt_payload_size=12000,
+            review_cadence_state=ReviewCadenceState.NONE,
+            proof_state=ProofState.PERMISSION_VALIDATED,
+            health_state=HealthState.STALE,
+            blocker_summary=None,
+            permission_context=permission_context,
+        )
+
+    def test_live_control_gate_clears_ready_restart_advice(self, gate_state):
+        """Scoped restart permission can clear future command staging readiness."""
+        observed_at = datetime(2026, 6, 2, 10, 10, tzinfo=timezone.utc)
+        workflow_summary = summarize_workflow_work_order_recovery(
+            gate_state,
+            work_order_id="wo-live-restart",
+            heartbeat_emitted_at=observed_at - timedelta(minutes=10),
+            heartbeat_stale_after_seconds=300,
+            timestamp=observed_at,
+        )
+        runtime_export = export_session_runtime_state_for_workflow_recovery(
+            gate_state,
+            workflow_recovery_summary=workflow_summary,
+            timestamp=observed_at,
+        )
+
+        gate = evaluate_live_control_permission_gate(
+            gate_state,
+            runtime_export,
+            timestamp=observed_at,
+        )
+        serialized = gate.to_dict()
+
+        assert isinstance(gate, SessionLiveControlPermissionGate)
+        assert gate.ready_for_execution is True
+        assert gate.human_gate_required is False
+        assert gate.command_kind == CommandIntent.RESTART
+        assert gate.required_operation == OperationScope.RESTART
+        assert gate.target_session_id == gate_state.session_id
+        assert gate.blockers == ()
+        assert serialized["command_kind"] == "restart"
+        assert serialized["required_operation"] == "restart"
+        assert "gate.ready_for_execution=True" in gate.evidence_refs
+
+    def test_live_control_gate_preserves_permission_and_human_blockers(
+        self,
+        gate_state,
+    ):
+        """Expired/out-of-scope permissions remain human-gated advisory blockers."""
+        observed_at = datetime(2026, 6, 2, 10, 10, tzinfo=timezone.utc)
+        expired_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART]),
+            escalation_gate=True,
+            escalation_reason="Aegis approval pending",
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=observed_at - timedelta(seconds=1),
+            task_scope="different-task",
+            last_permission_change=observed_at,
+        )
+        blocked_state = SessionLifecycleState(
+            **{**gate_state.__dict__, "permission_context": expired_context}
+        )
+        workflow_summary = summarize_workflow_work_order_recovery(
+            blocked_state,
+            work_order_id="wo-live-blocked",
+            heartbeat_emitted_at=observed_at - timedelta(minutes=10),
+            timestamp=observed_at,
+        )
+        runtime_export = export_session_runtime_state_for_workflow_recovery(
+            blocked_state,
+            workflow_recovery_summary=workflow_summary,
+            timestamp=observed_at,
+        )
+
+        gate = evaluate_live_control_permission_gate(
+            blocked_state,
+            runtime_export,
+            timestamp=observed_at,
+        )
+
+        assert gate.ready_for_execution is False
+        assert gate.human_gate_required is True
+        assert gate.command_kind is None
+        assert "permission.unlock_expired" in gate.blockers
+        assert "permission.out_of_scope" in gate.blockers
+        assert "permission.escalation_gate:Aegis approval pending" in gate.blockers
+        assert "command_kind_missing" in gate.blockers
+        assert "gate.blocker=permission.unlock_expired" in gate.evidence_refs
+
+    def test_live_control_gate_flags_target_mismatch(self, gate_state):
+        """Target mismatches are preserved as non-executable advisory evidence."""
+        observed_at = datetime(2026, 6, 2, 10, 10, tzinfo=timezone.utc)
+        runtime_export = SessionRuntimeStateExport(
+            state_id=f"other-session:stale:{observed_at.isoformat()}",
+            session_id=gate_state.session_id,
+            session_name=gate_state.session_name,
+            status=gate_state.status,
+            health_state=gate_state.health_state,
+            current_task_id=gate_state.current_task_id,
+            active_command_kind=CommandIntent.RESTART,
+            target_session_id="other-session",
+            recommended_recovery_action=SessionAction.START_NEW,
+            heartbeat_status=WorkflowHeartbeatStatus.STALE,
+            heartbeat_age_seconds=600,
+            result_kind=WorkflowResultKind.PENDING,
+            permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            permission_blockers=(),
+            review_gate_blockers=(),
+            human_gate_blockers=(),
+            evidence_refs=("workflow.target_session_id=other-session",),
+            timestamp=observed_at,
+        )
+
+        gate = evaluate_live_control_permission_gate(
+            gate_state,
+            runtime_export,
+            timestamp=observed_at,
+        )
+
+        assert gate.target_session_id == "other-session"
+        assert gate.ready_for_execution is False
+        assert "target_session_mismatch" in gate.blockers
+        assert "gate.target_session_id=other-session" in gate.evidence_refs
+
+    def test_live_control_gate_maps_archive_recommendation(self, gate_state):
+        """Archive recommendations map to archive permission without execution."""
+        observed_at = datetime(2026, 6, 2, 10, 10, tzinfo=timezone.utc)
+        workflow_summary = summarize_workflow_work_order_recovery(
+            gate_state,
+            work_order_id="wo-live-archive",
+            heartbeat_emitted_at=observed_at - timedelta(seconds=5),
+            result_kind=WorkflowResultKind.SUCCEEDED,
+            timestamp=observed_at,
+        )
+        runtime_export = export_session_runtime_state_for_workflow_recovery(
+            gate_state,
+            workflow_recovery_summary=workflow_summary,
+            timestamp=observed_at,
+        )
+
+        gate = evaluate_live_control_permission_gate(
+            gate_state,
+            runtime_export,
+            timestamp=observed_at,
+        )
+
+        assert gate.command_kind == CommandIntent.ARCHIVE
+        assert gate.recommended_action == SessionAction.ARCHIVE
+        assert gate.required_operation == OperationScope.ARCHIVE
+        assert gate.ready_for_execution is True
+        assert "gate.required_operation=archive" in gate.evidence_refs
 
 
 class TestPrimeAutonomyInput:
