@@ -333,6 +333,12 @@ Completion:
 - Next Candidate Task: awaiting Prime/Codex promotion
 - Build 1 idle and polling for next task assignment
 
+**Build 1 Codex Review Result** — 2026-06-02 16:08 UTC (cadence 3/3 auto-review)
+- Reviewer: Codex GPT-5 via codex:rescue
+- Target: idle read-check commits since b6b39f9d (last approved review)
+- Verdict: APPROVE — all Build 1 commits exclusively touched docs/live-build-1.md; no findings
+- Code/doc changes reset to 0 of 3 (review cycle complete)
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add a narrow deterministic Relay/Aegis consumer binding for the reviewed `RelayProviderResultValidationEvidence`.
