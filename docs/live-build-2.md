@@ -1301,6 +1301,8 @@ Completion:
 - Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
 - Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
 
+2026-06-01 18:25 -06:00 - Build 2 completed enforce remaining Session Lifecycle permission-invariant gaps (Codex Reviews A repair); commit e41851ae; files changed: meridian_core/session_lifecycle.py (added __post_init__ validation to PermissionContext for UNLOCKED_TEMPORARY/UNLOCKED_PERMANENT invariants; updated can_accept_work() to check task_scope; fixed can_execute_operation() to delegate to PermissionContext.can_execute_operation()), tests/test_session_lifecycle.py (fixed 4 fixtures to use valid permission states; added 8 new focused regression tests for invariant enforcement); tests: 60 passed (52 prior + 8 new permission invariant tests); push: origin/main successful (merged with concurrent updates); cadence count: 1 of 3; Ready for Codex Review
+
 Last completed: V1 cockpit_provider package API surface; commit `14315b3`; files: meridian_core/__init__.py, tests/test_package_api.py; tests 1036 passed. Cadence count: 3 of 3 since cadence clear at `9c3e1a3`; review/cadence clearance may be needed before broad package API work, but this small V2 export is explicitly coordinator-assigned.
 
 Anomaly note: the `prime_approve` code was committed by Build 3 and Build 4 sessions within their idle read check bundles rather than by a dedicated Build 2 completion commit. The implementation and tests are correct and verified. Flagged for orchestrator awareness.
