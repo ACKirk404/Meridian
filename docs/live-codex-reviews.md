@@ -18,6 +18,38 @@ Task: poll current `origin/main` and the top blocks in `docs/live-build-1.md` an
 
 Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews.md`. If a finding exists, record the smallest focused repair route and stop. Next Candidate: review Build 1 Relay/Aegis runtime integration or Build 2 Session Lifecycle permission summary when either marks Ready for Codex Review.
 
+## Coordinator Override - Completed / Finding Routed
+
+Goal: review current-main Build 2 Session Lifecycle permission summary aggregation.
+
+Status: finding routed by Codex Reviews A on 2026-06-01 23:14 -06:00. Current `HEAD` and `origin/main` are `333f5b6d`, and Build 2 commits `1b56a098` and `777171fe` are ancestors of current main.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Review scope: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+- `git diff --check 1b56a098^..777171fe`
+
+Proof result:
+
+- Containment checks for `1b56a098` and `777171fe` passed.
+- Scope check shows implementation/test changes limited to `meridian_core/session_lifecycle.py` and `tests/test_session_lifecycle.py`, with queue provenance in `docs/live-build-2.md`.
+- `python -m pytest tests/test_session_lifecycle.py -q` passed with 91 tests.
+- `git diff --check 1b56a098^..777171fe` passed.
+
+Finding:
+
+- MEDIUM: `meridian_core/session_lifecycle.py:846` uses `observed_at.replace(tzinfo=timezone.utc)` and `permission.unlock_expiry.replace(tzinfo=timezone.utc)` in `_permission_unlock_expired_at()`. For aware non-UTC timestamps this rewrites the clock label instead of converting the instant, so an actually expired temporary unlock can be reported unexpired in permission summaries. Repro from the review worktree: `observed_at=2026-06-02T02:00:00-06:00` (08:00 UTC) and `unlock_expiry=2026-06-02T07:00:00+00:00` returns `helper_expired=False` while normalized UTC comparison is `True`.
+
+Smallest repair route:
+
+- Build 2 should normalize aware datetimes with `astimezone(timezone.utc)` before comparing expiry in `_permission_unlock_expired_at()` and add a regression test using a non-UTC aware `timestamp` proving `summarize_session_permission_state()` records `permission.unlock_expired` deterministically for the same instant.
+
+Completion: Build 2 permission summary aggregation is not review-cleared. Repair routed; review stopped before any Build 1/2 follow-on review.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review current-main Build 3 post-Build-4/5 FileMap audit, then poll Build 1/2 Ready markers.
