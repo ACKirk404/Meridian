@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add deterministic Bifrost provider balance and cost-pressure sample rendering for the V2 cockpit.
 
@@ -22,7 +22,15 @@ Task: add a static, deterministic provider balance/cost-pressure view-model and 
 
 Tests: `python -m pytest tests/test_bifrost_cockpit.py -q`.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind review findings or connect reviewed Model Harness metadata after review.
+Completion:
+
+- Build 5 completed deterministic Bifrost provider balance and cost-pressure sample rendering in commit `b2a9e5d7`.
+- Files changed: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`.
+- Proof: `python -m pytest tests/test_bifrost_cockpit.py -q` passed with 241 tests; `git diff --check` passed.
+- Concrete evidence: provider balance sample now renders Claude, OpenAI, DeepSeek, OpenRouter aggregator, and local routes with provider health, route kind, selected provider, context/prompt token usage, quota/credit status, estimated spend, and low/medium/high/degraded/blocked cost-pressure states. Tests cover aggregator/local details, escaping, prompt payload visibility, dispatch hardening, PromptPacket proof metadata, Relay/Aegis handoff, proof-state preview, stale-session recovery actions, and cockpit layout preservation.
+- Ready for Codex Review.
+
+Next Candidate: bind review findings or connect reviewed Model Harness metadata after review.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
