@@ -24,7 +24,7 @@ Completion: completed 2026-06-02.
 
 Ready for Codex Review:
 
-- Commit: `pending local commit hash`
+- Commit: `8ee64aa0`
 - Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-4.md`
 - Tests run: `python -m pytest tests/test_relay_executor.py -q` (197 passed)
 - Verification performed: added provider-neutral `RelayDispatchMetadataEnvelope` pass-through fields for trust mode, proof strength, direct/aggregator proof refs, validation evidence ref, allowed/blocked tasks, blocked authorities, max risk tier, telemetry flags, and metadata transport advisory state; registry-backed Relay execution now binds adapter metadata into the envelope while adapter/provider transport still receives approved lane payload text only; `git diff --check` passed.
