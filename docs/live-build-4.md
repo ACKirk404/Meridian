@@ -26,7 +26,7 @@ Completion: completed 2026-06-02.
 
 Ready for Codex Review:
 
-- Commit: `pending local commit hash`
+- Commit: `dfb96f0d`
 - Files changed: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`
 - Tests run: `python -m pytest tests/test_aegis.py -q` (228 passed)
 - Verification performed: added pure Aegis-side normalization and edge coverage for empty source lineage, missing allowed sources, blank lineage keys, missing/unknown/conflicting proof requirements, explicit demotion target absence/invalidity, human-gate and dual-lane flag conflicts, unsafe evidence IDs, and deterministic blocker/warning tags; `git diff --check` passed.
