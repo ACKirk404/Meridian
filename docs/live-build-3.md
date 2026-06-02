@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: audit FileMap coverage for the current-main Relay UI/runtime integration landing.
 
@@ -38,6 +38,18 @@ Tests:
 - `python -m pytest tests/test_filemap.py -q`
 
 Completion: mark Ready for Codex Review with commit hash, files changed, tests run, missing-file audit result, and a concrete Next Candidate: register any remaining V2/V3 architecture or domain contract docs that land without FileMap coverage before unrelated FileMap cleanup.
+
+Completion:
+
+- Build 3 registered the four missing current-main Relay UI/runtime integration files in FileMap: `meridian_core/relay_logic_snapshot.py`, `tests/test_relay_logic_snapshot.py`, `scripts/meridian-model-bridge.js`, and `index.html`.
+- Audit result: `docs/relay-completeness-audit.md`, `docs/relay-heartbeat-model-routing-logic.md`, and `docs/ui-integration-checklist.md` were already registered in runtime FileMap, `docs/FileMap.md`, and `_REQUIRED_PATHS`; no blockers.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`.
+- Tests: `python -m pytest tests/test_filemap.py -q` - 46 passed.
+- Commit: `4c9060c3`.
+- Queue marker: this completion update.
+- Next Candidate: register any remaining V2/V3 architecture or domain contract docs that land without FileMap coverage before unrelated FileMap cleanup.
+
+Ready for Codex Review.
 
 ## Completed / Ready For Codex Review
 
