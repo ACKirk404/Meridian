@@ -23,7 +23,7 @@ Task: prove Relay handoff and consumer-view surfaces intended for Bifrost, Prime
 Completion:
 - Status: Ready for Codex Review.
 - Completed: 2026-06-02.
-- Commit: `f2abf7b8` (`test: Harden Relay handoff negative paths`).
+- Commit: `32232b3a` (`test: Harden Relay handoff negative paths`).
 - Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
 - Tests run: `python -m pytest tests/test_relay_executor.py -q` (216 passed); `git diff --check` (passed with Git line-ending normalization warnings only); path-scope check limited changes to allowed files.
 - Concrete evidence: PromptPacket handoff now sanitizes policy evidence ids, blockers, warnings, and reason tags into structured display-safe tags while preserving existing known fixed policy phrases. Negative tests inject raw prompt, worker chat, credential, branch movement, provider-output, arbitrary exception, and free-text blocker sentinels across Relay proof/evidence/consumer/handoff surfaces and prove downstream rendered handoff data omits them.
@@ -3735,3 +3735,10 @@ Historical record of Build 1 V0 completed slices (most recent first). Do not re-
 - Code/doc changes in session: 0 of 3 (cadence 3 of 3 — Codex review queued)
 - Next Candidate Task: awaiting Prime/Codex promotion
 - Build 1 idle and polling for next task assignment
+
+**Build 1 Codex Review Result** — 2026-06-02 17:16 UTC (cadence 3/3 auto-review)
+- Reviewer: Codex GPT-5 via codex:rescue
+- Target: idle read-check commits since 2e06c3c6 (last approved review)
+- Build 1 commits reviewed: 4c8d61c6, 491cdb23, ab292094
+- Verdict: APPROVE — all three Build 1 commits exclusively touched docs/live-build-1.md; no actionable findings
+- Code/doc changes reset to 0 of 3 (review cycle complete)
