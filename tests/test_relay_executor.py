@@ -25,6 +25,7 @@ from meridian_core.relay_dispatch import RelayDispatchLane, RelayDispatchPlan
 from meridian_core.cognition_policy import evaluate_cognition_policy
 from meridian_core.relay_executor import (
     AegisGateEvidenceSummary,
+    RelayAegisProviderResultValidationAdvisory,
     RelayAegisPromptPacketHandoffSummary,
     RelayDecisionRecord,
     RelayDispatchEnvelope,
@@ -2099,6 +2100,115 @@ class TestRelayProviderResultValidationEvidence:
         assert _PROMPT not in rendered
         assert "provider output text" not in rendered
         assert "credential" not in rendered.lower()
+
+
+class TestRelayAegisProviderResultValidationAdvisory:
+    """Tests for post-result provider validation Aegis advisory binding."""
+
+    def test_advisory_empty_without_result_validation_evidence(self) -> None:
+        summary = RelayExecutionSummary(results=(), errors=(), decision_record=None)
+
+        advisory = summary.aegis_provider_result_validation_advisory()
+
+        assert advisory == RelayAegisProviderResultValidationAdvisory()
+        assert advisory.to_dict()["execution_mode"] == "display_advisory_only"
+        assert advisory.to_dict()["aegis_execution_timing_unchanged"] is True
+
+    def test_advisory_projects_result_blockers_for_future_aegis_input(self) -> None:
+        plan = _make_plan(1)
+        adapter = FakeModelAdapter(
+            "private provider output must not appear",
+            metadata=deepseek_candidate_metadata_preset("fast"),
+        )
+        registry = AdapterRegistry().register_model(
+            plan.lanes[0].preferred_model,
+            adapter,
+        )
+
+        summary = execute_relay_plan_with_registry(
+            plan,
+            registry,
+            include_decision_record=True,
+        )
+
+        advisory = summary.aegis_provider_result_validation_advisory()
+        result_evidence = summary.results[0].provider_result_validation_evidence
+        assert advisory.advisory_id == f"relay-aegis-provider-result:{_PACKET_ID}"
+        assert advisory.result_evidence_ids == (result_evidence.result_evidence_id,)
+        assert advisory.exact_model_ids == ("deepseek-chat",)
+        assert advisory.provider_route_kinds == ("direct",)
+        assert advisory.trust_states == ("candidate",)
+        assert advisory.external_review_statuses == ("pending",)
+        assert advisory.result_validation_statuses == ("blocked",)
+        assert advisory.response_hash_statuses == ("computed",)
+        assert "external_review_pending" in advisory.blocker_tags
+        assert result_evidence.model_metadata_ref in advisory.proof_refs
+        assert result_evidence.dispatch_metadata_envelope_ref in advisory.proof_refs
+        assert advisory.retry_requires_fresh_validation is True
+        assert advisory.demotion_required is True
+        assert advisory.human_gate_required is True
+        assert advisory.fail_closed_advisory is True
+        assert advisory.usable_for_future_retry is False
+        assert advisory.adapter_boundary_unchanged is True
+        assert advisory.aegis_execution_timing_unchanged is True
+        assert adapter.received_payloads == [_PROMPT]
+
+    def test_advisory_consumer_view_is_stable_and_display_safe(self) -> None:
+        plan = _make_plan(1)
+        registry = AdapterRegistry().register_model(
+            plan.lanes[0].preferred_model,
+            FakeModelAdapter(
+                "raw provider output should stay private",
+                metadata=deepseek_candidate_metadata_preset("fast"),
+            ),
+        )
+
+        summary = execute_relay_plan_with_registry(
+            plan,
+            registry,
+            include_decision_record=True,
+        )
+        first = summary.aegis_provider_result_validation_advisory().to_dict()
+        second = summary.aegis_provider_result_validation_advisory().to_dict()
+        rendered = " ".join(str(value) for value in first.values())
+
+        assert first == second
+        assert first["timing"] == "post_adapter_return"
+        assert first["execution_mode"] == "display_advisory_only"
+        assert first["serialization_only"] is True
+        assert first["adapter_boundary_unchanged"] is True
+        assert first["aegis_execution_timing_unchanged"] is True
+        assert _PROMPT not in rendered
+        assert "raw provider output" not in rendered
+        assert "credential" not in rendered.lower()
+        assert "Polaris" not in rendered
+
+    def test_advisory_does_not_run_before_blocking_aegis_proof_gate(self) -> None:
+        plan = _make_plan(3)
+        adapter = FakeModelAdapter("should not run")
+
+        with pytest.raises(RelayProofGateError):
+            execute_relay_dispatch_plan(
+                plan,
+                adapter,
+                proof_trail=self._blocking_proof_trail(),
+                include_decision_record=True,
+            )
+
+        assert adapter.received_payloads == []
+
+    def _blocking_proof_trail(self) -> ProofTrail:
+        return ProofTrail([
+            AegisEvidence(
+                id="aegis-blocking-provider-result-precheck",
+                evidence_type=EvidenceType.BUILD_OUTPUT,
+                severity=EvidenceSeverity.ERROR,
+                status=EvidenceStatus.OPEN,
+                source="test",
+                target="relay",
+                summary="blocking proof gate remains pre-dispatch",
+            )
+        ])
 
 
 class TestRelayDecisionRecord:
