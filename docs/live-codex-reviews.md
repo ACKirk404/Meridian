@@ -22,6 +22,36 @@ Completion: commit only review provenance/finding/pass updates locally in `docs/
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review current-main Build 1 Relay dispatch metadata consumer view.
+
+Status: passed by Codex Reviews A on 2026-06-02 07:59 -06:00. Current `HEAD` and `origin/main` are `9198bcbe`, and Build 1 commits `3da6edac` and `428313ef` are ancestors of current main.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Review scope: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_relay_executor.py -q`
+- `git diff --check 3da6edac^..428313ef`
+
+Review result:
+
+- Containment checks for `3da6edac` and `428313ef` passed.
+- Scope check shows implementation/test changes limited to `meridian_core/relay_executor.py` and `tests/test_relay_executor.py`, with queue provenance in `docs/live-build-1.md`.
+- `python -m pytest tests/test_relay_executor.py -q` passed with 200 tests.
+- `git diff --check 3da6edac^..428313ef` passed.
+- Verified `RelayExecutionSummary.dispatch_metadata_consumer_view()` is deterministic, serialization-only, display-safe, dedupes fail-closed advisory tags, and falls back to decision-record metadata envelopes when results are absent.
+- Verified `RelayDecisionRecord` carries the reviewed first-lane `RelayDispatchMetadataEnvelope` when execution builds one, or a metadata-only fallback when decision records are built directly.
+- Verified adapter/provider payload boundary is unchanged: execution still forwards only `lane.payload` to `model_call` or adapter calls.
+- Verified no live provider/model calls, credential/account probing, raw prompt text, raw provider responses, UI/Bifrost/FileMap edits, branch/worktree movement, main writes, or Polaris dependency was introduced.
+
+Finding: none.
+
+Completion: Build 1 Relay dispatch metadata consumer view is review-cleared. No repair routed.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 2 live-control permission gate.
 
 Status: passed by Codex Reviews A on 2026-06-02 00:32 -06:00. Current `HEAD` and `origin/main` are `c78b1441`, and Build 2 commits `09ba07c6` and `4cf3c7c6` are ancestors of current main.
