@@ -38,4 +38,5 @@ def assemble_relay_packet(
         budget=route.prompt_budget,
         source_lineage=source_lineage,
         construction_time_ms=construction_time_ms,
+        proof_required=tuple(route.audit.proof_required),
     )

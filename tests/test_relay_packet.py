@@ -49,6 +49,32 @@ class TestAssembleRelayPacketBasic:
         )
         assert packet.construction_time_ms == 42.5
 
+    def test_proof_metadata_uses_route_proof_requirements(self):
+        route = route_from_tier(3)
+        packet = assemble_relay_packet(
+            packet_id="pkt-proof",
+            serialized_prompt=_PROMPT,
+            route=route,
+        )
+
+        assert packet.proof_required == tuple(route.audit.proof_required)
+        assert packet.proof_metadata.proof_required == tuple(route.audit.proof_required)
+        assert packet.proof_metadata.prompt_budget_ref == (
+            f"prompt-budget:{route.prompt_budget.tier.value}:"
+            f"{route.prompt_budget.max_context_tokens}"
+        )
+
+    def test_proof_metadata_does_not_change_model_payload(self):
+        route = route_from_tier(3)
+        packet = assemble_relay_packet(
+            packet_id="pkt-proof",
+            serialized_prompt=_PROMPT,
+            route=route,
+        )
+
+        assert packet.model_payload() == _PROMPT
+        assert packet.proof_metadata.packet_hash not in packet.model_payload()
+
 
 class TestAssembleRelayPacketTokens:
     def test_prompt_tokens_matches_count_tokens(self):

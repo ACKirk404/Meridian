@@ -1130,10 +1130,12 @@ class TestAdapterMetadata:
             supports_payload_snapshot=True,
             supports_response_hash=True,
         )
-        registry = AdapterRegistry().register_model(
-            plan.lanes[0].preferred_model,
-            FakeModelAdapter("response", metadata=metadata),
-        )
+        registry = AdapterRegistry()
+        for lane in plan.lanes:
+            registry = registry.register_model(
+                lane.preferred_model,
+                FakeModelAdapter("response", metadata=metadata),
+            )
         summary = execute_relay_plan_with_registry(
             plan,
             registry,
@@ -1167,10 +1169,12 @@ class TestAdapterMetadata:
             requires_external_review=False,
             supports_payload_snapshot=True,
         )
-        registry = AdapterRegistry().register_model(
-            plan.lanes[0].preferred_model,
-            FakeModelAdapter("response", metadata=metadata),
-        )
+        registry = AdapterRegistry()
+        for lane in plan.lanes:
+            registry = registry.register_model(
+                lane.preferred_model,
+                FakeModelAdapter("response", metadata=metadata),
+            )
         summary = execute_relay_plan_with_registry(plan, registry)
         evidence_dict = summary.results[0].payload_evidence.to_dict()
         evidence_text = " ".join(str(value) for value in evidence_dict.values())
@@ -1220,10 +1224,12 @@ class TestRelayDispatchEnvelope:
             supports_payload_snapshot=True,
             supports_response_hash=True,
         )
-        registry = AdapterRegistry().register_model(
-            plan.lanes[0].preferred_model,
-            FakeModelAdapter("response", metadata=metadata),
-        )
+        registry = AdapterRegistry()
+        for lane in plan.lanes:
+            registry = registry.register_model(
+                lane.preferred_model,
+                FakeModelAdapter("response", metadata=metadata),
+            )
 
         summary = execute_relay_plan_with_registry(plan, registry)
 
@@ -1299,6 +1305,89 @@ class TestRelayDispatchEnvelope:
         assert envelope.proof_required == tuple(plan.route.audit.proof_required)
         assert envelope.safe_to_dispatch is False
 
+    def test_dispatch_envelope_binds_prompt_packet_proof_metadata(self) -> None:
+        plan = _make_plan(3)
+        metadata = ModelHarnessMetadata(
+            provider_name="provider",
+            model_name="exact-model",
+            capability_tier="standard",
+            context_budget=8192,
+            prompt_payload_budget=4096,
+            trust_state="trusted",
+            requires_external_review=False,
+            supports_completion_tokens=True,
+            supports_latency_ms=True,
+            supports_payload_snapshot=True,
+            supports_response_hash=True,
+        )
+        registry = AdapterRegistry()
+        for lane in plan.lanes:
+            registry = registry.register_model(
+                lane.preferred_model,
+                FakeModelAdapter("response", metadata=metadata),
+            )
+
+        summary = execute_relay_plan_with_registry(
+            plan,
+            registry,
+            proof_trail=ProofTrail(),
+        )
+
+        envelope = summary.results[0].dispatch_envelope
+        packet_proof = plan.packet.proof_metadata
+        assert envelope.packet_hash == packet_proof.packet_hash
+        assert envelope.prompt_budget_ref == packet_proof.prompt_budget_ref
+        assert envelope.source_lineage_compliant is True
+        assert envelope.packet_proof_metadata_ref == f"prompt-packet-proof:{_PACKET_ID}"
+        assert envelope.proof_required == packet_proof.proof_required
+
+    def test_dispatch_envelope_carries_aegis_evidence_ids_from_proof_trail(self) -> None:
+        plan = _make_plan(3)
+        proof_trail = ProofTrail([
+            AegisEvidence(
+                id="aegis-proof-1",
+                evidence_type=EvidenceType.BUILD_OUTPUT,
+                severity=EvidenceSeverity.INFO,
+                status=EvidenceStatus.OPEN,
+                source="test",
+                target="relay",
+                summary="non-blocking proof",
+            )
+        ])
+        metadata = ModelHarnessMetadata(
+            provider_name="provider",
+            model_name="exact-model",
+            capability_tier="standard",
+            context_budget=8192,
+            prompt_payload_budget=4096,
+            trust_state="trusted",
+            requires_external_review=False,
+            supports_completion_tokens=True,
+            supports_latency_ms=True,
+            supports_payload_snapshot=True,
+            supports_response_hash=True,
+        )
+        registry = AdapterRegistry()
+        for lane in plan.lanes:
+            registry = registry.register_model(
+                lane.preferred_model,
+                FakeModelAdapter("response", metadata=metadata),
+            )
+
+        summary = execute_relay_plan_with_registry(
+            plan,
+            registry,
+            proof_trail=proof_trail,
+            include_decision_record=True,
+        )
+
+        assert summary.results[0].dispatch_envelope.aegis_evidence_ids == (
+            "aegis-proof-1",
+        )
+        assert summary.decision_record.dispatch_envelope.aegis_evidence_ids == (
+            "aegis-proof-1",
+        )
+
     def test_dispatch_envelope_to_dict_has_stable_audit_keys(self) -> None:
         envelope = RelayDispatchEnvelope(
             envelope_id="relay-dispatch:pkt:builder:model",
@@ -1324,6 +1413,10 @@ class TestRelayDispatchEnvelope:
             "capability_tier",
             "payload_evidence_ref",
             "payload_snapshot_hash",
+            "packet_hash",
+            "prompt_budget_ref",
+            "source_lineage_compliant",
+            "packet_proof_metadata_ref",
             "aegis_gate_decision",
             "aegis_evidence_ids",
             "proof_required",

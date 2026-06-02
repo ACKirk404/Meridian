@@ -9,6 +9,7 @@ import pytest
 from meridian_core.prompt_budget import PromptBudgetPlan, PromptBudgetTier
 from meridian_core.prompt_packet import (
     PromptPacket,
+    PromptPacketProofMetadata,
     PromptPacketValidationError,
     build_prompt_packet,
 )
@@ -181,6 +182,63 @@ class TestPromptPacketMetadata:
         pkt1 = build_prompt_packet(**_kwargs(packet_id="pkt-001"))
         pkt2 = build_prompt_packet(**_kwargs(packet_id="pkt-002"))
         assert pkt1.packet_id != pkt2.packet_id
+
+
+class TestPromptPacketProofMetadata:
+    def test_proof_metadata_is_built_from_validated_packet(self):
+        pkt = build_prompt_packet(
+            **_kwargs(
+                proof_required=("unit-test-proof",),
+                aegis_evidence_ids=("aegis-1",),
+            )
+        )
+
+        metadata = pkt.proof_metadata
+        assert isinstance(metadata, PromptPacketProofMetadata)
+        assert metadata.packet_id == pkt.packet_id
+        assert metadata.prompt_tokens == pkt.prompt_tokens
+        assert metadata.prompt_budget_ref == "prompt-budget:focused:500"
+        assert metadata.source_lineage_compliant is True
+        assert metadata.budget_compliant is True
+        assert metadata.proof_required == ("unit-test-proof",)
+        assert metadata.aegis_evidence_ids == ("aegis-1",)
+        assert metadata.blocked_tags == ()
+
+    def test_proof_metadata_hashes_prompt_without_storing_raw_prompt(self):
+        pkt = build_prompt_packet(**_kwargs())
+
+        metadata = pkt.proof_metadata
+        assert metadata is not None
+        assert metadata.packet_hash == metadata.prompt_payload_snapshot_hash
+        assert pkt.serialized_prompt not in " ".join(
+            str(value) for value in metadata.to_dict().values()
+        )
+
+    def test_proof_metadata_to_dict_has_stable_keys(self):
+        pkt = build_prompt_packet(**_kwargs())
+
+        metadata_dict = pkt.proof_metadata.to_dict()
+
+        assert metadata_dict == pkt.proof_metadata.to_dict()
+        assert tuple(metadata_dict.keys()) == (
+            "packet_id",
+            "packet_hash",
+            "prompt_tokens",
+            "budget_tier",
+            "prompt_budget_ref",
+            "max_context_tokens",
+            "allowed_sources",
+            "source_lineage_keys",
+            "source_lineage_total_tokens",
+            "source_lineage_compliant",
+            "budget_compliant",
+            "proof_required",
+            "aegis_evidence_ids",
+            "prompt_payload_snapshot_hash",
+            "snapshot_hash_available",
+            "snapshot_hash_gap_tags",
+            "blocked_tags",
+        )
 
 
 # ---------------------------------------------------------------------------

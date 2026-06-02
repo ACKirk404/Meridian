@@ -134,6 +134,10 @@ class RelayDispatchEnvelope:
     capability_tier: str | None = None
     payload_evidence_ref: str | None = None
     payload_snapshot_hash: str | None = None
+    packet_hash: str | None = None
+    prompt_budget_ref: str | None = None
+    source_lineage_compliant: bool | None = None
+    packet_proof_metadata_ref: str | None = None
     aegis_gate_decision: str | None = None
     aegis_evidence_ids: tuple[str, ...] = ()
     proof_required: tuple[str, ...] = ()
@@ -160,6 +164,10 @@ class RelayDispatchEnvelope:
             "capability_tier": self.capability_tier,
             "payload_evidence_ref": self.payload_evidence_ref,
             "payload_snapshot_hash": self.payload_snapshot_hash,
+            "packet_hash": self.packet_hash,
+            "prompt_budget_ref": self.prompt_budget_ref,
+            "source_lineage_compliant": self.source_lineage_compliant,
+            "packet_proof_metadata_ref": self.packet_proof_metadata_ref,
             "aegis_gate_decision": self.aegis_gate_decision,
             "aegis_evidence_ids": self.aegis_evidence_ids,
             "proof_required": self.proof_required,
@@ -411,6 +419,7 @@ def _build_payload_evidence(
     route = plan.route
     audit = route.audit
     packet = plan.packet
+    packet_proof = getattr(packet, "proof_metadata", None)
 
     provider = adapter_metadata.provider_name if adapter_metadata else None
     selected_model = adapter_metadata.model_name if adapter_metadata else None
@@ -517,6 +526,12 @@ def _payload_evidence_ref(payload_evidence: RelayPromptPayloadEvidence | None) -
     return f"relay-payload-evidence:{heartbeat_id}:{lane_id}"
 
 
+def _proof_trail_evidence_ids(proof_trail: ProofTrail | None) -> tuple[str, ...]:
+    if proof_trail is None:
+        return ()
+    return tuple(evidence.id for evidence in proof_trail.evidence)
+
+
 def _dispatch_blocking_tags(
     tags: tuple[str, ...],
     *,
@@ -527,6 +542,9 @@ def _dispatch_blocking_tags(
         "budget_exceeded",
         "context_window_unknown",
         "provider_metadata_missing",
+        "packet_proof_metadata_missing",
+        "prompt_budget_exceeded",
+        "source_lineage_noncompliant",
         "telemetry_unavailable",
         "unknown_route_class",
         "unknown_session_action",
@@ -567,6 +585,7 @@ def _build_dispatch_envelope(
     route = plan.route
     audit = route.audit
     packet = plan.packet
+    packet_proof = getattr(packet, "proof_metadata", None)
 
     selected_provider = None
     exact_model_id = requested_model_id
@@ -585,6 +604,7 @@ def _build_dispatch_envelope(
 
     tags = _dedupe_tags(
         payload_evidence.telemetry_error_tags if payload_evidence else (),
+        packet_proof.blocked_tags if packet_proof else ("packet_proof_metadata_missing",),
         fallback_blockers,
     )
     blocking_tags = _dispatch_blocking_tags(tags, risk_tier=route.risk_tier)
@@ -613,9 +633,21 @@ def _build_dispatch_envelope(
         payload_snapshot_hash=(
             payload_evidence.prompt_payload_snapshot_hash if payload_evidence else None
         ),
+        packet_hash=packet_proof.packet_hash if packet_proof else None,
+        prompt_budget_ref=packet_proof.prompt_budget_ref if packet_proof else None,
+        source_lineage_compliant=(
+            packet_proof.source_lineage_compliant if packet_proof else None
+        ),
+        packet_proof_metadata_ref=(
+            f"prompt-packet-proof:{packet_proof.packet_id}" if packet_proof else None
+        ),
         aegis_gate_decision=aegis_gate_decision,
-        aegis_evidence_ids=aegis_evidence_ids,
-        proof_required=tuple(audit.proof_required),
+        aegis_evidence_ids=(
+            aegis_evidence_ids or (packet_proof.aegis_evidence_ids if packet_proof else ())
+        ),
+        proof_required=(
+            packet_proof.proof_required if packet_proof else tuple(audit.proof_required)
+        ),
         human_gate_required=route.requires_human_gate,
         blocked_error_tags=blocking_tags,
         safe_to_dispatch=not blocking_tags,
@@ -633,6 +665,10 @@ def _build_dispatch_envelope(
             "trust_state",
             "capability_tier",
             "payload_evidence_ref",
+            "packet_hash",
+            "prompt_budget_ref",
+            "source_lineage_compliant",
+            "packet_proof_metadata_ref",
             "proof_required",
             "blocked_error_tags",
             "safe_to_dispatch",
@@ -777,6 +813,7 @@ def _build_decision_record(
             (lane for lane in lanes if lane.role.value == "builder"),
             lanes[0],
         )
+    prior_envelope = dispatch_envelope
     if dispatch_envelope is None or fallback_blockers or aegis_gate_decision:
         dispatch_envelope = _build_dispatch_envelope(
             plan,
@@ -789,6 +826,7 @@ def _build_decision_record(
             payload_evidence=payload_evidence,
             fallback_blockers=tuple(fallback_blockers),
             aegis_gate_decision=aegis_gate_decision,
+            aegis_evidence_ids=prior_envelope.aegis_evidence_ids if prior_envelope else (),
         )
 
     return RelayDecisionRecord(
@@ -866,6 +904,7 @@ def execute_relay_dispatch_plan(
             lane_role=lane.role,
             requested_model_id=lane.preferred_model,
             payload_evidence=payload_evidence,
+            aegis_evidence_ids=_proof_trail_evidence_ids(proof_trail),
         )
         for lane, payload_evidence in zip(plan.lanes, payload_evidences)
     )
@@ -972,6 +1011,7 @@ def execute_relay_plan_with_registry(
             adapter_metadata=adapter.metadata,
             route_metadata=route_metadata,
             payload_evidence=payload_evidence,
+            aegis_evidence_ids=_proof_trail_evidence_ids(proof_trail),
         )
         for lane, adapter, route_metadata, payload_evidence in zip(
             plan.lanes,
