@@ -1168,6 +1168,36 @@ body {
   border-color: rgba(var(--session-electric-soft), 0.88);
 }
 
+.session-target-select {
+  position: absolute;
+  right: 51px;
+  top: -33px;
+  z-index: 3;
+  width: 178px;
+  height: 20px;
+  border: 1px solid rgba(var(--session-electric), 0.58);
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.92);
+  color: rgba(var(--session-electric-soft), 0.94);
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1px 22px 1px 7px;
+  outline: none;
+  box-shadow:
+    0 0 8px rgba(var(--session-electric), 0.28),
+    inset 0 0 8px rgba(var(--session-electric), 0.05);
+}
+
+.session-target-select:focus {
+  border-color: rgba(var(--session-electric-soft), 0.88);
+}
+
+.session-window-right.is-panel-surface .session-target-select {
+  display: none;
+}
+
 .session-window-right .session-project-select {
   display: none;
 }
@@ -3196,6 +3226,7 @@ body {
 (() => {
   const screen = document.querySelector('.harness-screen');
   const primeWindow = document.querySelector('.session-window-left');
+  const userWindow = document.querySelector('.session-window-right');
   const sessionWindows = Array.from(document.querySelectorAll('.session-window'));
   if (!screen || !sessionWindows.length) return;
   if (primeWindow && !primeWindow.querySelector('.session-model-select')) {
@@ -3204,6 +3235,13 @@ body {
         <option value="codex" selected>Codex</option>
         <option value="max">Max</option>
         <option value="auto" disabled>Auto</option>
+      </select>
+    `);
+  }
+  if (userWindow && !userWindow.querySelector('.session-target-select')) {
+    userWindow.insertAdjacentHTML('afterbegin', `
+      <select class="session-target-select" aria-label="User Sessions">
+        <option value="">Sessions loading</option>
       </select>
     `);
   }
@@ -3269,14 +3307,22 @@ body {
   let modelReadiness = [];
   let bridgeCapabilities = {};
   let bridgeOnline = false;
+  let userSessions = [];
+  const userSessionTargetKey = 'meridian.user-session.target.v1';
+  const userSessionSelect = document.querySelector('.session-target-select');
   const pathPattern = /((?:[A-Za-z]:\\|\.{0,2}[\\/])(?:[\w .()@%+=~-]+[\\/])*[\w .()@%+=~-]+\.[A-Za-z0-9]{1,12}|(?:[\w@%+=~-]+[\\/])+(?:[\w .()@%+=~-]+)(?:\.[A-Za-z0-9]{1,12})?|\b[\w@%+=~-]+\.[A-Za-z0-9]{1,12}\b)/g;
-  const transcriptKey = (input) => {
+  const selectedUserSessionId = () => userSessionSelect?.value || '';
+  const selectedUserSession = () => userSessions.find((session) => session.sessionId === selectedUserSessionId()) || null;
+  const sessionScope = (input) => {
     const windowEl = input.closest('.session-window');
-    return `meridian.session.transcript.${windowEl?.classList.contains('session-window-right') ? 'user' : 'prime'}`;
+    if (!windowEl?.classList.contains('session-window-right')) return 'prime';
+    return `user.${selectedUserSessionId() || 'unselected'}`;
+  };
+  const transcriptKey = (input) => {
+    return `meridian.session.transcript.${sessionScope(input)}`;
   };
   const draftKey = (input) => {
-    const windowEl = input.closest('.session-window');
-    return `meridian.session.prompt.${windowEl?.classList.contains('session-window-right') ? 'user' : 'prime'}`;
+    return `meridian.session.prompt.${sessionScope(input)}`;
   };
   const sessionChannel = (input) => {
     const windowEl = input.closest('.session-window');
@@ -3307,8 +3353,62 @@ body {
     if (lastIndex < value.length) fragments.push(document.createTextNode(value.slice(lastIndex)));
     return fragments.length ? fragments : [document.createTextNode(value)];
   };
-  const outputFor = (input) => input.closest('.session-window')?.querySelector('.session-response-output');
-  const statusFor = (input) => input.closest('.session-window')?.querySelector('.session-model-status');
+  const outputFor = (input) => input?.closest('.session-window')?.querySelector('.session-response-output');
+  const statusFor = (input) => input?.closest('.session-window')?.querySelector('.session-model-status');
+  const userInput = () => userWindow?.querySelector('.session-prompt-input');
+  const updateUserSessionTitle = () => {
+    const title = userWindow?.querySelector('.session-title');
+    const selected = selectedUserSession();
+    if (title && !userWindow?.classList.contains('is-panel-surface')) title.textContent = selected ? `User: ${selected.sessionName}` : 'User';
+  };
+  const sessionOptionLabel = (session) => {
+    const status = session.status && session.status !== 'live' ? ` (${session.status.replaceAll('_', ' ')})` : '';
+    return `${session.sessionName}${status}`;
+  };
+  const renderUserSessionSelect = () => {
+    if (!userSessionSelect) return;
+    const stored = localStorage.getItem(userSessionTargetKey) || '';
+    const current = selectedUserSessionId() || stored;
+    userSessionSelect.replaceChildren();
+    if (!userSessions.length) {
+      const option = document.createElement('option');
+      option.value = '';
+      option.textContent = 'No live sessions';
+      userSessionSelect.append(option);
+      updateUserSessionTitle();
+      return;
+    }
+    const projects = Array.from(new Set(userSessions.map((session) => session.projectName || 'Meridian'))).sort((a, b) => a.localeCompare(b));
+    projects.forEach((project) => {
+      const group = document.createElement('optgroup');
+      group.label = project;
+      userSessions
+        .filter((session) => (session.projectName || 'Meridian') === project)
+        .sort((left, right) => left.sessionName.localeCompare(right.sessionName))
+        .forEach((session) => {
+          const option = document.createElement('option');
+          option.value = session.sessionId;
+          option.textContent = sessionOptionLabel(session);
+          group.append(option);
+        });
+      userSessionSelect.append(group);
+    });
+    userSessionSelect.value = userSessions.some((session) => session.sessionId === current) ? current : userSessions[0].sessionId;
+    localStorage.setItem(userSessionTargetKey, userSessionSelect.value);
+    updateUserSessionTitle();
+  };
+  const loadUserSessions = async () => {
+    if (!userSessionSelect) return;
+    try {
+      const response = await fetch('http://127.0.0.1:8767/api/user-sessions', { cache: 'no-store' });
+      const result = await response.json();
+      userSessions = Array.isArray(result.sessions) ? result.sessions.filter((session) => session.routable) : [];
+    } catch {
+      userSessions = [];
+    }
+    renderUserSessionSelect();
+    renderTranscript(userInput());
+  };
   const renderTranscript = (input) => {
     const output = outputFor(input);
     if (!output) return;
@@ -3419,8 +3519,14 @@ body {
       model: entry.model || '',
       at: entry.at || '',
     }));
+    const targetSession = sessionChannel(input) === 'user' ? selectedUserSession() : null;
+    if (sessionChannel(input) === 'user' && !targetSession) {
+      setStatus(input, 'select live session');
+      pushEntry(input, 'error', 'Error: Select a live User Session target before sending.', backend, { requestedBackend: selectedBackend });
+      return;
+    }
     input.dataset.sessionSending = 'true';
-    pushEntry(input, 'user', prompt, '', { requestedBackend: selectedBackend });
+    pushEntry(input, 'user', prompt, '', { requestedBackend: selectedBackend, sessionTargetId: targetSession?.sessionId || '' });
     input.value = '';
     localStorage.setItem(draftKey(input), '');
     setStatus(input, `${backend} running`);
@@ -3439,7 +3545,8 @@ body {
           requestId,
           prompt,
           transcript: visibleTranscript,
-          cwd: 'C:\\Users\\scott\\Code\\Meridian',
+          cwd: targetSession?.cwd || 'C:\\Users\\scott\\Code\\Meridian',
+          sessionTargetId: targetSession?.sessionId || '',
         }),
       });
       window.clearTimeout(timeout);
@@ -3455,6 +3562,7 @@ body {
         requestId: result.requestId || requestId,
         sessionContextEntries: result.sessionContextEntries || 0,
         sessionContextChars: result.sessionContextChars || 0,
+        sessionTargetId: result.sessionTarget?.sessionId || targetSession?.sessionId || '',
       });
     } catch (error) {
       setStatus(input, backend);
@@ -3469,6 +3577,7 @@ body {
           sessionContextEntries: recovered.sessionContextEntries || 0,
           sessionContextChars: recovered.sessionContextChars || 0,
           recoveredFromBridge: true,
+          sessionTargetId: recovered.sessionTarget?.sessionId || targetSession?.sessionId || '',
         });
         return;
       }
@@ -3481,6 +3590,7 @@ body {
           requestId,
           sessionContextEntries: completedCall.sessionContextEntries || 0,
           sessionContextChars: completedCall.sessionContextChars || 0,
+          sessionTargetId: completedCall.sessionTargetId || targetSession?.sessionId || '',
         });
         return;
       }
@@ -3517,7 +3627,19 @@ body {
       }
     });
   });
+  userSessionSelect?.addEventListener('change', () => {
+    localStorage.setItem(userSessionTargetKey, userSessionSelect.value || '');
+    updateUserSessionTitle();
+    const input = userInput();
+    if (input) {
+      input.value = localStorage.getItem(draftKey(input)) || '';
+      renderTranscript(input);
+      setStatus(input, selectedUserSession() ? `target ${selectedUserSession().sessionName}` : 'select live session');
+    }
+  });
   updateModelReadiness();
+  loadUserSessions();
+  window.meridianRefreshUserSessionTarget = updateUserSessionTitle;
   sessionWindows.forEach((windowEl) => {
     const input = windowEl.querySelector('.session-prompt-input');
     windowEl.querySelectorAll('.session-outside-icon').forEach((button) => {
@@ -3910,6 +4032,7 @@ body {
     screen.classList.remove('session-theme-green');
     clearRightPanelSurface();
     if (userTitle) userTitle.textContent = 'User';
+    window.meridianRefreshUserSessionTarget?.();
     if (persist) storeRightPanel('user', 'User');
   };
   const refreshRelayPanel = () => {
@@ -3999,12 +4122,13 @@ body {
   const clearSessionWindows = () => {
     [
       'meridian.session.transcript.prime',
-      'meridian.session.transcript.user',
       'meridian.session.prompt.prime',
-      'meridian.session.prompt.user',
       'meridian.session.rw.prompt',
       'meridian.session.rw.user-prompt',
     ].forEach((key) => localStorage.removeItem(key));
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith('meridian.session.transcript.user.') || key.startsWith('meridian.session.prompt.user.'))
+      .forEach((key) => localStorage.removeItem(key));
   };
   const hardReloadUi = ({ clearSessions = false } = {}) => {
     if (clearSessions) clearSessionWindows();

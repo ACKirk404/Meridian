@@ -58,7 +58,7 @@ Use this as the working UI checklist. Every visible icon, selector, session cont
 |---|---|---|---|---|
 | SEL1 | Model selector | Manual model selection. Defaults to Codex. Auto stays disabled until Prime/Relay logic exists. | partial | Served page has Codex selected and Auto disabled. |
 | SEL2 | Projects selector | Selects active project context for Prime and project-scoped UI state. | planned | Track `PRJ-*` subitems before wiring the selector. |
-| SEL3 | User Sessions selector | Selects from all open live sessions when the right panel is in User Session mode. | planned | Dropdown shows project groups, including hidden and test-waiting sessions, and selection routes User prompt immediately. |
+| SEL3 | User Sessions selector | Selects from all open live sessions when the right panel is in User Session mode. | partial | Dropdown is populated from `/api/user-sessions`; selection routes User prompt with the selected session target id/cwd. |
 
 ### Projects Selector Subitems
 
@@ -85,19 +85,19 @@ The right panel needs a Sessions dropdown when it is in User Session mode. Prime
 
 | ID | User Sessions Item | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
-| USE1 | Sessions dropdown placement | Adds a Sessions dropdown to the User panel in the equivalent position to Prime's Projects dropdown. | planned | User panel shows Sessions selector without moving approved layout. |
-| USE2 | Live sessions only | Lists only currently open/live sessions. | planned | Archived/reloadable sessions do not appear here. |
-| USE3 | Hidden sessions included | Includes hidden live sessions and marks them as hidden. | planned | Hidden live session appears with hidden state label. |
+| USE1 | Sessions dropdown placement | Adds a Sessions dropdown to the User panel in the equivalent position to Prime's Projects dropdown. | wired | User panel shows Sessions selector without moving approved layout. |
+| USE2 | Live sessions only | Lists only currently open/live sessions. | partial | `/api/user-sessions` exposes routable Meridian worktree-backed targets and excludes shared main. |
+| USE3 | Hidden sessions included | Includes hidden live sessions and marks them as hidden. | partial | Review-lane worktree targets appear with hidden state label. |
 | USE4 | Test-waiting sessions included | Includes sessions waiting for user test/try-it-out state and marks that state. | planned | Test-waiting session appears with test/waiting label. |
-| USE5 | Project grouping | Groups sessions under project headers. | planned | Dropdown visually groups sessions by project. |
-| USE6 | Alphabetical project sort | Sorts project groups alphabetically by project name. | planned | Project group order is alphabetical. |
-| USE7 | Alphabetical session sort | Sorts sessions alphabetically within each project group. | planned | Session order inside project group is alphabetical. |
-| USE8 | Session title update | Changes the User panel title to the selected session name. | planned | Selecting a session updates the panel title immediately. |
-| USE9 | Immediate prompt routing | Selecting a session immediately sets that session as the User prompt target. | planned | Next User prompt is routed to selected session without extra confirmation. |
-| USE10 | Selection state persistence | Remembers selected live session during current UI session when possible. | planned | Reload/refresh behavior is explicit and does not silently route to stale session. |
-| USE11 | Session status display | Shows concise status such as live, hidden, waiting for test, blocked, or done if still open. | planned | Status is visible in selector label or row. |
-| USE12 | Stale target guard | If selected session closes or becomes unavailable, User prompt is blocked with a readable target warning. | planned | Sending to closed session shows setup/target error instead of disappearing. |
-| USE13 | User mode restore | Returning from Settings/Harness mode restores prior selected live session if still available. | planned | Toggle away and back; previous session target returns or shows stale warning. |
+| USE5 | Project grouping | Groups sessions under project headers. | wired | Dropdown visually groups sessions by project. |
+| USE6 | Alphabetical project sort | Sorts project groups alphabetically by project name. | wired | Project group order is alphabetical. |
+| USE7 | Alphabetical session sort | Sorts sessions alphabetically within each project group. | wired | Session order inside project group is alphabetical. |
+| USE8 | Session title update | Changes the User panel title to the selected session name. | wired | Selecting a session updates the panel title immediately. |
+| USE9 | Immediate prompt routing | Selecting a session immediately sets that session as the User prompt target. | wired | Next User prompt is routed to selected session without extra confirmation. |
+| USE10 | Selection state persistence | Remembers selected live session during current UI session when possible. | partial | Reload restores the target only if `/api/user-sessions` still reports it as routable. |
+| USE11 | Session status display | Shows concise status such as live, hidden, waiting for test, blocked, or done if still open. | partial | Live and hidden status appear in selector labels. |
+| USE12 | Stale target guard | If selected session closes or becomes unavailable, User prompt is blocked with a readable target warning. | partial | Sending without a bridge-confirmed target shows a target error instead of disappearing. |
+| USE13 | User mode restore | Returning from Settings/Harness mode restores prior selected live session if still available. | wired | Toggle away and back; previous routable session target returns. |
 
 ### Spark Ring Icons
 
@@ -525,6 +525,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | MB18 | Relay audit depth | Relay panel renders fallback/rejection/proof/telemetry audit depth from the backend route audit. | `/api/relay-logic` includes `auditDepth`; panel shows silent fallback blocked, counts, primary blocker, and primary proof for Tier 3. |
 | MB19 | Relay collapsible capability headers | Relay panel exposes the expert Relay capability breakdown in collapsible headers sourced from the backend snapshot. | `/api/relay-logic` includes `capabilitySections`; panel shows Relay Job, Risk Tier Routing, Model Lane Logic, Access Route Precedence, Session Lifecycle Logic, Context Latency Privacy, Prompt Budget Logic, Audit Logic, Dispatch Logic, and Current Limits. |
 | MB20 | Relay prime directives | Relay panel opens with Prime Directives and Prime Directive Proofs before deeper capability sections. | `/api/relay-logic` includes `primeDirectives` and `primeDirectiveProofs`; panel shows the three principles and three proof questions at the top. |
+| MB21 | User session targets | Bridge exposes routable User Session targets from real Meridian worktrees. | `/api/user-sessions` returns `userSessionTargets=true`, excludes shared main, and User prompts send the selected `sessionTargetId`. |
 
 ## Harness UI Rules
 

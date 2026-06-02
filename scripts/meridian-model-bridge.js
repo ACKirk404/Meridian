@@ -19,6 +19,7 @@ const BRIDGE_CAPABILITIES = {
   samePortRestart: true,
   requestResultRecovery: true,
   relayLogicSnapshot: true,
+  userSessionTargets: true,
 };
 const ALLOWED_ORIGINS = new Set((process.env.MERIDIAN_MODEL_ALLOWED_ORIGINS || 'http://127.0.0.1:5500,http://localhost:5500,null')
   .split(',')
@@ -56,8 +57,14 @@ if (process.argv.includes('--self-test')) {
   const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
   const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot;
+  const sampleSession = sessionTargetFromWorktree({
+    path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
+    branch: 'refs/heads/worktree-build-5-bifrost',
+    head: 'abc123',
+  });
+  const sessionTargetsOk = BRIDGE_CAPABILITIES.userSessionTargets && sampleSession?.sessionId === 'build-5-bifrost' && sampleSession.routable;
   const originOk = isAllowedOrigin({ headers: { origin: 'http://127.0.0.1:5500' } }) && !isAllowedOrigin({ headers: { origin: 'https://example.com' } });
-  console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && originOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, originOk }, null, 2));
+  console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && originOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, originOk }, null, 2));
   process.exit(0);
 }
 
@@ -393,6 +400,82 @@ function relayLogicSnapshot() {
   });
 }
 
+function parseGitWorktrees(stdout) {
+  const records = [];
+  let current = null;
+  for (const line of String(stdout || '').split(/\r?\n/)) {
+    if (line.startsWith('worktree ')) {
+      if (current) records.push(current);
+      current = { path: line.slice('worktree '.length), branch: '', head: '' };
+      continue;
+    }
+    if (!current) continue;
+    if (line.startsWith('HEAD ')) current.head = line.slice('HEAD '.length);
+    if (line.startsWith('branch ')) current.branch = line.slice('branch '.length);
+  }
+  if (current) records.push(current);
+  return records;
+}
+
+function sessionTargetFromWorktree(record) {
+  const worktreePath = String(record?.path || '');
+  const normalized = worktreePath.replaceAll('\\', '/');
+  if (!/\/Meridian-Worktrees\//i.test(normalized)) return null;
+  const sessionId = normalized.split('/').filter(Boolean).pop();
+  if (!sessionId) return null;
+  const branch = String(record?.branch || '').replace(/^refs\/heads\//, '');
+  const state = /review|codex-reviews/i.test(sessionId) ? 'hidden' : 'live';
+  return {
+    sessionId,
+    sessionName: sessionId.replace(/[-_]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase()),
+    projectName: 'Meridian',
+    status: state,
+    routable: true,
+    cwd: worktreePath,
+    branch,
+    head: String(record?.head || ''),
+  };
+}
+
+function userSessionTargets() {
+  return new Promise((resolve) => {
+    const child = spawn('git', ['worktree', 'list', '--porcelain'], {
+      cwd: DEFAULT_CWD,
+      shell: process.platform === 'win32',
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString(); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+    child.on('error', (error) => {
+      resolve({ ok: false, error: error.message, sessions: [] });
+    });
+    child.on('close', (code) => {
+      if (code !== 0) {
+        resolve({ ok: false, error: stderr.trim() || `git worktree exited with code ${code}`, sessions: [] });
+        return;
+      }
+      const sessions = parseGitWorktrees(stdout)
+        .map(sessionTargetFromWorktree)
+        .filter(Boolean)
+        .sort((left, right) => left.projectName.localeCompare(right.projectName) || left.sessionName.localeCompare(right.sessionName));
+      resolve({
+        ok: true,
+        service: 'meridian-model-bridge',
+        version: BRIDGE_VERSION,
+        capabilities: BRIDGE_CAPABILITIES,
+        sessions,
+      });
+    });
+  });
+}
+
+async function sessionTargetById(sessionId) {
+  const snapshot = await userSessionTargets();
+  if (!snapshot.ok) return null;
+  return snapshot.sessions.find((session) => session.sessionId === sessionId && session.routable) || null;
+}
+
 function runModel({ backend, prompt, cwd, transcript }) {
   return new Promise((resolve) => {
     let command;
@@ -495,6 +578,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && req.url === '/api/user-sessions') {
+    const snapshot = await userSessionTargets();
+    sendJson(res, snapshot.ok ? 200 : 500, snapshot, req);
+    return;
+  }
+
   if (req.method === 'GET' && req.url === '/api/recent-calls') {
     sendJson(res, 200, {
       ok: true,
@@ -540,10 +629,20 @@ const server = http.createServer(async (req, res) => {
       const requestId = String(body.requestId || '');
       const prompt = String(body.prompt || '').trim();
       const transcript = Array.isArray(body.transcript) ? body.transcript : [];
-      const cwd = body.cwd ? String(body.cwd) : DEFAULT_CWD;
+      const sessionTargetId = String(body.sessionTargetId || '');
+      let sessionTarget = null;
+      let cwd = body.cwd ? String(body.cwd) : DEFAULT_CWD;
       if (!prompt) {
         sendJson(res, 400, { ok: false, error: 'Missing prompt' }, req);
         return;
+      }
+      if (channel === 'user') {
+        sessionTarget = sessionTargetId ? await sessionTargetById(sessionTargetId) : null;
+        if (!sessionTarget) {
+          sendJson(res, 409, { ok: false, text: '', error: 'Select a live User Session target before sending.', setupRequired: false }, req);
+          return;
+        }
+        cwd = sessionTarget.cwd;
       }
       const started = Date.now();
       const result = await runModel({ backend, prompt, cwd, transcript });
@@ -551,6 +650,11 @@ const server = http.createServer(async (req, res) => {
       result.channel = channel;
       result.requestId = requestId;
       result.durationMs = Date.now() - started;
+      result.sessionTarget = sessionTarget ? {
+        sessionId: sessionTarget.sessionId,
+        sessionName: sessionTarget.sessionName,
+        cwd: sessionTarget.cwd,
+      } : null;
       rememberCall({
         requestId,
         channel,
@@ -562,6 +666,7 @@ const server = http.createServer(async (req, res) => {
         durationMs: result.durationMs,
         sessionContextEntries: result.sessionContextEntries || 0,
         sessionContextChars: result.sessionContextChars || 0,
+        sessionTargetId: sessionTarget?.sessionId || '',
       });
       rememberResult({
         requestId,
@@ -576,6 +681,7 @@ const server = http.createServer(async (req, res) => {
         durationMs: result.durationMs,
         sessionContextEntries: result.sessionContextEntries || 0,
         sessionContextChars: result.sessionContextChars || 0,
+        sessionTargetId: sessionTarget?.sessionId || '',
       });
       sendJson(res, result.ok ? 200 : 500, result, req);
     } catch (error) {
