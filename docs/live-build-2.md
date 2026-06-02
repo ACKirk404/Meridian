@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add a pure Session Lifecycle runtime-state export for workflow recovery advisory decisions.
 
@@ -22,7 +22,14 @@ Task: add a narrow deterministic runtime-state export that combines a session li
 
 Tests: `python -m pytest tests/test_session_lifecycle.py -q` plus `git diff --check`.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, changed files, proof, and Next Candidate: bind review findings or connect reviewed runtime-state export to Prime/Beacon.
+Completion:
+
+- Build 2 completed the pure Session Lifecycle runtime-state export slice in local worktree commit `99536baa`.
+- Files changed: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`.
+- Evidence: added frozen `SessionRuntimeStateExport` plus `export_session_runtime_state_for_workflow_recovery()` to combine `SessionLifecycleState`, optional `SessionCommandPlan`, permission summary, and workflow work-order recovery summary into display-safe advisory fields for Prime/Beacon. The export records state id, active command kind, target session id, recommended recovery action, human-gate blockers, stale heartbeat/result status, permission/review blockers, and evidence refs without spawning, inspecting, moving, restarting, steering, or touching UI/Bifrost/FileMap/main/Polaris.
+- Proof: `python -m pytest tests/test_session_lifecycle.py -q` passed with 100 tests; `git diff --check` passed.
+- Ready for Codex Review.
+- Next Candidate: bind review findings or connect the reviewed runtime-state export to Prime/Beacon.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
