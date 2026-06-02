@@ -1150,6 +1150,15 @@ _PROMPT_PACKET_SNAPSHOT_STATUSES = {
     "missing",
     "stale",
 }
+_PROMPT_PACKET_PROOF_REQUIREMENTS = {
+    "none",
+    "artifact",
+    "telemetry",
+    "code_review",
+    "security_review",
+    "dual_review",
+    "human_gate",
+}
 _DIRECT_SNAPSHOT_REQUIREMENTS = {"direct_provider", "exact_model", "required"}
 _PROMPT_PACKET_UNSAFE_EVIDENCE_PATTERNS = (
     "prompt:",
@@ -1248,10 +1257,17 @@ def evaluate_prompt_packet_proof_policy(
     if not isinstance(metadata.budget_ref, str) or not metadata.budget_ref.strip():
         _append_unique(blockers, "missing_budget_ref")
 
+    if not metadata.allowed_sources:
+        _append_unique(blockers, "missing_allowed_sources")
+    if not metadata.source_lineage:
+        _append_unique(blockers, "missing_source_lineage")
+
     allowed_sources = set(metadata.allowed_sources)
     lineage_total = 0
     for source, token_count in metadata.source_lineage.items():
-        if source not in allowed_sources:
+        if not isinstance(source, str) or not source.strip():
+            _append_unique(blockers, "invalid_source_lineage_key")
+        elif source not in allowed_sources:
             _append_unique(blockers, f"disallowed_source:{source}")
         if not isinstance(token_count, int) or token_count < 0:
             _append_unique(blockers, f"invalid_source_lineage:{source}")
@@ -1266,6 +1282,19 @@ def evaluate_prompt_packet_proof_policy(
         _append_unique(blockers, "duplicate_aegis_evidence_ids")
     if _has_unsafe_prompt_packet_evidence(metadata):
         _append_unique(blockers, "unsafe_aegis_evidence_id")
+
+    if not isinstance(metadata.proof_requirement, str) or not metadata.proof_requirement.strip():
+        _append_unique(blockers, "missing_proof_requirement")
+    elif metadata.proof_requirement not in _PROMPT_PACKET_PROOF_REQUIREMENTS:
+        _append_unique(blockers, "unknown_proof_requirement")
+    if metadata.proof_requirement == "human_gate" and not metadata.human_gate_required:
+        _append_unique(blockers, "human_gate_requirement_conflict")
+    if metadata.human_approval_present and not metadata.human_gate_required:
+        _append_unique(blockers, "human_approval_without_gate")
+    if metadata.proof_requirement == "dual_review" and not metadata.dual_lane_required:
+        _append_unique(blockers, "dual_lane_requirement_conflict")
+    if metadata.dual_lane_proof_present and not metadata.dual_lane_required:
+        _append_unique(blockers, "dual_lane_proof_without_requirement")
 
     if metadata.snapshot_status not in _PROMPT_PACKET_SNAPSHOT_STATUSES:
         _append_unique(blockers, "unknown_snapshot_status")
@@ -1319,7 +1348,17 @@ def evaluate_prompt_packet_proof_policy(
     if "packet_hash_unavailable_demote" in warnings:
         demote_to_tier = metadata.demotion_target_tier
         if demote_to_tier is None:
-            demote_to_tier = max(metadata.risk_tier - 1, 0)
+            _append_unique(blockers, "missing_demotion_target")
+        elif demote_to_tier < 0 or demote_to_tier >= metadata.risk_tier:
+            _append_unique(blockers, "invalid_demotion_target")
+        if blockers:
+            return _prompt_packet_result(
+                PromptPacketProofDecision.BLOCK,
+                "; ".join(blockers),
+                evidence_ids,
+                blockers,
+                warnings,
+            )
         return _prompt_packet_result(
             PromptPacketProofDecision.DEMOTE,
             "packet hash unavailable; demoting to lower proof tier",

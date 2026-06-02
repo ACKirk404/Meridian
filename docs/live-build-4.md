@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: extend Aegis PromptPacket proof policy edge coverage for Relay integration inputs.
 
@@ -22,7 +22,15 @@ Task: add focused pure-domain coverage and any minimal Aegis-side normalization 
 
 Tests: `python -m pytest tests/test_aegis.py -q`.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind review findings or leave Aegis stable for Relay runtime integration.
+Completion: completed 2026-06-02.
+
+Ready for Codex Review:
+
+- Commit: `pending local commit hash`
+- Files changed: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`
+- Tests run: `python -m pytest tests/test_aegis.py -q` (228 passed)
+- Verification performed: added pure Aegis-side normalization and edge coverage for empty source lineage, missing allowed sources, blank lineage keys, missing/unknown/conflicting proof requirements, explicit demotion target absence/invalidity, human-gate and dual-lane flag conflicts, unsafe evidence IDs, and deterministic blocker/warning tags; `git diff --check` passed.
+- Next Candidate: bind review findings or leave Aegis stable for Relay runtime integration.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 

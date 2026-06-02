@@ -1568,6 +1568,27 @@ class TestPromptPacketProofPolicyEvaluator:
         assert result.decision is PromptPacketProofDecision.BLOCK
         assert "source_lineage_exceeds_prompt_tokens" in result.blockers
 
+    def test_empty_source_lineage_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(source_lineage={})
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "missing_source_lineage" in result.blockers
+
+    def test_missing_allowed_sources_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(allowed_sources=())
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "missing_allowed_sources" in result.blockers
+
+    def test_blank_source_lineage_key_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(source_lineage={"": 10})
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "invalid_source_lineage_key" in result.blockers
+
     def test_missing_evidence_ids_blocks(self):
         result = evaluate_prompt_packet_proof_policy(
             _prompt_packet_metadata(aegis_evidence_ids=())
@@ -1588,6 +1609,71 @@ class TestPromptPacketProofPolicyEvaluator:
         )
         assert result.decision is PromptPacketProofDecision.BLOCK
         assert "unsafe_aegis_evidence_id" in result.blockers
+
+    def test_secret_like_evidence_id_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(aegis_evidence_ids=("packet:one", "token=abc123"))
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "unsafe_aegis_evidence_id" in result.blockers
+
+    def test_missing_proof_requirement_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(proof_requirement="")
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "missing_proof_requirement" in result.blockers
+
+    def test_unknown_proof_requirement_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(proof_requirement="mystery_proof")
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "unknown_proof_requirement" in result.blockers
+
+    def test_human_gate_proof_requirement_conflict_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                proof_requirement="human_gate",
+                human_gate_required=False,
+                human_approval_present=False,
+            )
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "human_gate_requirement_conflict" in result.blockers
+
+    def test_human_approval_without_gate_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                proof_requirement="artifact",
+                human_gate_required=False,
+                human_approval_present=True,
+            )
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "human_approval_without_gate" in result.blockers
+
+    def test_dual_review_requirement_without_dual_lane_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                proof_requirement="dual_review",
+                dual_lane_required=False,
+                dual_lane_proof_present=False,
+            )
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "dual_lane_requirement_conflict" in result.blockers
+
+    def test_dual_lane_proof_without_requirement_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                proof_requirement="artifact",
+                dual_lane_required=False,
+                dual_lane_proof_present=True,
+            )
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "dual_lane_proof_without_requirement" in result.blockers
 
     def test_missing_direct_provider_snapshot_blocks(self):
         result = evaluate_prompt_packet_proof_policy(
@@ -1620,6 +1706,32 @@ class TestPromptPacketProofPolicyEvaluator:
         )
         assert result.decision is PromptPacketProofDecision.BLOCK
         assert "snapshot_unavailable_for_tier" in result.blockers
+
+    def test_hash_unavailable_tier2_without_demotion_target_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                packet_hash_status="unavailable",
+                packet_hash=None,
+                risk_tier=2,
+                demotion_target_tier=None,
+            )
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "missing_demotion_target" in result.blockers
+        assert "packet_hash_unavailable_demote" in result.warnings
+
+    def test_hash_unavailable_tier2_invalid_demotion_target_blocks(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                packet_hash_status="unavailable",
+                packet_hash=None,
+                risk_tier=2,
+                demotion_target_tier=2,
+            )
+        )
+        assert result.decision is PromptPacketProofDecision.BLOCK
+        assert "invalid_demotion_target" in result.blockers
+        assert "packet_hash_unavailable_demote" in result.warnings
 
     def test_human_gate_result_when_approval_missing_and_packet_valid(self):
         result = evaluate_prompt_packet_proof_policy(
@@ -1694,3 +1806,26 @@ class TestPromptPacketProofPolicyEvaluator:
         first = evaluate_prompt_packet_proof_policy(metadata)
         second = evaluate_prompt_packet_proof_policy(metadata)
         assert first == second
+
+    def test_blocker_tags_are_deterministic_for_relay_edge_inputs(self):
+        metadata = _prompt_packet_metadata(
+            packet_id="",
+            packet_hash_status="missing",
+            packet_hash=None,
+            source_lineage={},
+            allowed_sources=(),
+            proof_requirement="mystery_proof",
+            aegis_evidence_ids=("raw_prompt:leak", "raw_prompt:leak"),
+        )
+        first = evaluate_prompt_packet_proof_policy(metadata)
+        second = evaluate_prompt_packet_proof_policy(metadata)
+        assert first == second
+        assert first.blockers == (
+            "missing_packet_id",
+            "packet_hash_missing",
+            "missing_allowed_sources",
+            "missing_source_lineage",
+            "duplicate_aegis_evidence_ids",
+            "unsafe_aegis_evidence_id",
+            "unknown_proof_requirement",
+        )
