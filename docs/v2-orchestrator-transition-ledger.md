@@ -334,6 +334,13 @@ Coordinator Reviews A Build 1 clearance and lane reactivation - 2026-06-02:
 - Approved and completed path-limited movement of Reviews A provenance commit `d690638d` onto shared main as `2b260c95`, limited to `docs/live-codex-reviews.md`. Reviews A passed Build 1 Relay prompt payload evidence with no findings; it noted a pre-existing lane/payload snapshot truncation behavior was not introduced by this slice.
 - Promoted fresh executable build tasks: Build 1 Relay dispatch hardening envelope helpers; Build 2 Session Lifecycle command-plan audit evidence; Build 3 FileMap audit for dispatch hardening/payload visibility landings; Build 4 PromptPacket proof metadata checklist; Build 5 Bifrost dispatch hardening state rendering.
 
+Coordinator Build 2/4 movement - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified Build 2 and Build 4 worktrees clean before movement. Build 1, Build 3, and Build 5 remained in-progress or not yet clean/ready and were not moved.
+- Approved and completed path-limited movement of Build 2 command-plan audit evidence commits `4513b9aa` and `464a0cbb` onto shared main as `7bd603a2` and `14d3e398`, limited to `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, and `docs/live-build-2.md`.
+- Approved and completed path-limited movement of Build 4 PromptPacket proof metadata checklist commits `234b7551` and `fd6c72da` onto shared main as `b3cc9dff` and `b9ad9dd3`, limited to `docs/relay-promptpacket-proof-metadata-implementation-checklist.md` and `docs/live-build-4.md`.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_session_lifecycle.py -q` passed 82/82; `git diff --check 7bd603a2^..b9ad9dd3` passed; checklist text/shape inspection found PromptPacket packet id/hash, allowed-source, proof, Aegis evidence, payload budget, raw-prompt exclusion, Bifrost, FileMap, block, and test coverage terms.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
