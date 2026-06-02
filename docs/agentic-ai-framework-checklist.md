@@ -96,7 +96,7 @@ No item leaves this checklist unless it has a named owner: Prime or a harness.
 - [x] **Rollback mechanisms** — **Git Harness:** Git commits, worktrees, review repair, and explicit no-branch-movement without Prime/Scott.
 - [x] **Feedback loops and evaluators** — **Aegis / Codex Reviews:** Current review lanes are evaluators; proof logs become Aegis evidence.
 - [~] **Cost and resource management** — **Relay / Model Harness / Bifrost:** Prompt budget and prompt metrics exist; Polaris's Balance button becomes the Meridian provider balance/usage surface for Claude, OpenAI, DeepSeek, and future adapters.
-- [~] **Long-term autonomy and goal chaining** — **Prime / Compass / Echo:** Architecture exists; V2 Prime Autonomy builds the first runtime selector.
+- [~] **Long-term autonomy and goal chaining** — **Prime / Compass / Echo:** Architecture exists; V2 Prime Autonomy builds the first runtime selector. V3 must add a native Goal Runtime / Goal Harness with durable goal objects, objective/status lifecycle, token/time/budget telemetry, continuation/resume policy, proof trail, and completion/blocker/usage-limited semantics.
 - [x] **Governance, safety, and guardrails** — **Aegis / Prime Directives / Review Console:** Prime directives, proof gates, human gates, risk tiers.
 - [~] **Memory governance and retention policies** — **Echo Harness:** Need explicit retention and memory-edit policy in V2.
 - [x] **Observability and tracing** — **Beacon / Bifrost / FileMap / Review Console:** V1 cockpit and proof logs cover the first version.

@@ -96,6 +96,20 @@ No active write lease.
 Start new entries below this line.
 
 ```text
+Time: 2026-06-02 11:36 -06:00
+Writer: Meridian coordinator
+Intent: docs-only V3 Goal Runtime planning update ACKed by front-end developer lane through 2026-06-02 11:43 -06:00.
+Action completed: recorded the user requirement that Meridian V3 must include native goal functionality, kept as planning scope only until V2 closes.
+Commit(s): this commit
+Pushed to origin/main: yes
+Files changed: docs/v3-parking-lot.md, docs/agentic-ai-framework-checklist.md, docs/main-write-coordination-ledger.md
+Proof run: git diff --check; targeted text checks for Native Goal Runtime / Goal Harness and V3 goal lifecycle terminology.
+Final shared main status: pending final fetch/status after push.
+Notes/blockers: no V2 implementation, worker/review movement, frontend branch movement, queue-only churn, or Polaris work included.
+Status: Complete
+```
+
+```text
 Time: 2026-06-02 11:29 -06:00
 Writer: Meridian coordinator
 Intent: path-limited reviewed Build 4/5 movement ACKed by front-end developer lane through 2026-06-02 11:35 -06:00.
