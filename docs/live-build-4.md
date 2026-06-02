@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: create a docs-only Model Harness runtime validation checklist that turns the reviewed metadata/checklist work into a build-ready runtime gate.
 
@@ -22,7 +22,15 @@ Task: write a concise build-ready runtime validation checklist for provider-neut
 
 Tests: docs-only; run text/shape inspection plus `git diff --check`.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, verification performed, and Next Candidate: implement reviewed Model Harness runtime metadata validation.
+Completion: completed 2026-06-02.
+
+Ready for Codex Review:
+
+- Commit: `pending local commit hash`
+- Files changed: `docs/model-harness-runtime-validation-checklist.md`, `docs/live-build-4.md`
+- Tests: not required (docs-only)
+- Verification performed: text/shape inspection confirmed the checklist exists and covers exact dispatch id/model id, direct-vs-aggregator route proof, candidate trust state, capability labels versus transport ids, prompt-drag telemetry, context/budget/growth fields, external-review requirements, fail-closed missing metadata behavior, Relay/Aegis policy binding, Bifrost display expectations, deterministic tests, validation evidence, and exclusions for live provider calls, credentials/account probing, raw prompts, raw provider responses, process/session control, FileMap edits, branch/worktree movement, shared-main writes, pushes to main, and Polaris; staged diff passes `git diff --cached --check`.
+- Next Candidate: implement reviewed Model Harness runtime metadata validation.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
