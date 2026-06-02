@@ -555,7 +555,11 @@ Tests:
 
 Completion: landed on current `origin/main` in commit `558af555` (`feat: complete Session Lifecycle routing-action coverage`). Files changed: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`. Proof: `python -m pytest tests/test_session_lifecycle.py -q` passed with 24 tests on 2026-06-01. Ready for Codex Review.
 
+<<<<<<< Updated upstream
 ## Coordinator Override - Completed / Ready For Codex Review
+=======
+## Coordinator Override - Active Now
+>>>>>>> Stashed changes
 
 Goal: add Prime command-plan tests that consume the new Session Lifecycle routing reasons after review clears.
 
@@ -571,7 +575,11 @@ Tests:
 
 - `python -m pytest tests/test_session_lifecycle.py -q`
 
+<<<<<<< Updated upstream
 Completion: Build 2 completed Prime command-plan tests consuming new routing actions/reasons; worker commit `f69d6683` was not on current `origin/main`, so the coordinator landed the same scoped test slice on main as commit `17d70c9d`; files changed: tests/test_session_lifecycle.py (added 12 focused tests covering ARCHIVE/REQUEST_HUMAN_GATE/SUMMARIZE_RESET/TRANSFER commands and CONTEXT_FILL/REVIEW_GATE/PERMISSION_BOUNDARY routing signals, proving Prime-facing command-plan behavior); tests 34 passed (22 prior + 12 new Prime command-plan tests exercising archive, human-gate, transfer, and summarize-reset routing decisions); Obsidian: not required (code-only); cadence 2 of 3; Ready for Codex Review.
+=======
+Completion: commit only allowed files, push to `origin/main`, mark Ready for Codex Review with commit hash, files changed, and tests run, and leave a concrete Next Candidate.
+>>>>>>> Stashed changes
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
