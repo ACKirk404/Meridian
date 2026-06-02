@@ -8,9 +8,23 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Passed
 
 Goal: review Build 1 Relay proof payload deterministic test-collection repair.
+
+Status: passed by Codex Reviews A on 2026-06-01 18:02 -06:00. Current `HEAD` and `origin/main` contain Build 1 repair commit `0641aa44`, and the duplicate deterministic test collection finding is closed.
+
+Review result:
+
+- `git merge-base --is-ancestor 0641aa44 HEAD` and `git merge-base --is-ancestor 0641aa44 origin/main` passed.
+- `git show --stat --oneline --name-only 0641aa44` shows the repair commit only changed `tests/test_relay_executor.py`.
+- `git show --stat --oneline --name-only 708a5f7e` shows the Build 1 provenance marker only changed `docs/live-build-1.md`.
+- `python -m pytest tests/test_relay_executor.py -q` passed with 152 tests.
+- `python -m pytest tests/test_relay_executor.py::TestAegisGateEvidenceSummary --collect-only -q` collected 19 tests, including both `test_evidence_summary_to_dict_multiple_calls_identical` and `test_evidence_summary_to_dict_multiple_calls_identical_with_partial_evidence`.
+
+Finding: none. Prior MEDIUM duplicate test method name / collection shadowing finding is closed.
+
+Completion: Build 1 Relay proof payload deterministic test-collection repair is review-cleared. Next Candidate: no executable Reviews A task remains; continue polling for the next coordinator-promoted Ready marker.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
 
@@ -1369,6 +1383,7 @@ YYYY-MM-DD HH:MM TZ - Codex Reviews checked queue; status: idle/running/blocked;
 2026-06-01 17:50 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch; top Build 1 visibility item remains completed/repair-routed and no executable Active Task remains in the assigned queue.
 2026-06-01 17:53 -06:00 - Codex Reviews A checked queue; status: repair-routed; notes: active current-main Build 1 Relay proof payload negative-path review executed; proof passed but duplicate test method name shadows the new deterministic negative-path test, so a focused Build 1 repair was routed.
 2026-06-01 17:57 -06:00 - Codex Reviews A checked queue; status: idle; notes: origin/main current after fetch; top Build 1 test-collection repair item remains completed/repair-routed and no executable Active Task remains in the assigned queue.
+2026-06-01 18:02 -06:00 - Codex Reviews A checked queue; status: running/passed; notes: active Build 1 Relay proof payload deterministic test-collection repair review executed exactly as assigned; Relay executor proof passed and the prior duplicate-name collection finding is closed.
 ```
 
 ## Review Log
@@ -1887,6 +1902,7 @@ Round 6 write log:
 - 2026-06-01 17:50 -06:00 - Codex Reviews A completed idle queue read after origin/main fetch. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof command: `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no new finding; no executable Active Task present after Build 1 visibility repair routing. Commit: local only. Push status: not pushed; `origin/main` advanced with Build 1 repair completion while the read-check commit was local, leaving `main` ahead/behind and requiring coordinator-approved branch cleanup before this queue-only entry can be published. Obsidian update status: not updated; no active review task or durable review finding.
 - 2026-06-01 17:53 -06:00 - Codex Reviews A completed current-main Build 1 Relay proof payload negative-path test review after origin/main fetch. Files changed: `docs/live-codex-reviews.md`, `docs/live-build-1.md`. Tests run: `python -m pytest tests/test_relay_executor.py -q` (151 passed). Proof commands: `git merge-base --is-ancestor 26a71632 HEAD`, `git merge-base --is-ancestor 26a71632 origin/main`, `git merge-base --is-ancestor 6de2c4d5 origin/main`, `git diff-tree --no-commit-id --name-only -r 26a71632`, `python -m pytest tests/test_relay_executor.py::TestAegisGateEvidenceSummary --collect-only -q`, and `git diff --check -- docs/live-codex-reviews.md docs/live-build-1.md`. Findings/fixes: MEDIUM duplicate test method name shadows the newly added deterministic negative-path test; focused test-only repair routed to Build 1. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue and Build 1 queue record repair routing only.
 - 2026-06-01 17:57 -06:00 - Codex Reviews A completed idle queue read after origin/main fetch. Files changed: `docs/live-codex-reviews.md`. Tests run: not run (read-check-only queue update). Proof command: `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no new finding; no executable Active Task present after Build 1 test-collection repair routing. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; no active review task or durable review finding.
+- 2026-06-01 18:02 -06:00 - Codex Reviews A completed Build 1 Relay proof payload deterministic test-collection repair review after origin/main fetch. Files changed: `docs/live-codex-reviews.md`. Tests run: `python -m pytest tests/test_relay_executor.py -q` (152 passed); `python -m pytest tests/test_relay_executor.py::TestAegisGateEvidenceSummary --collect-only -q` (19 collected). Proof commands: `git merge-base --is-ancestor 0641aa44 HEAD`, `git merge-base --is-ancestor 0641aa44 origin/main`, `git show --stat --oneline --name-only 0641aa44`, `git show --stat --oneline --name-only 708a5f7e`, and `git diff --check -- docs/live-codex-reviews.md`. Findings/fixes: no actionable findings; prior MEDIUM duplicate deterministic test collection finding closed. Commit: this commit. Push status: pushed to `origin/main`. Obsidian update status: not updated; review queue records pass only.
 
 When idle, continue polling `docs/live-codex-reviews.md` and `docs/live-build-1.md`/`docs/live-build-2.md` every 30 seconds for new Ready-for-Codex-Review markers, cadence triggers, or repair-verification needs.
 
