@@ -10,6 +10,25 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: add Relay-side downstream handoff sanitizer contract coverage for promoted Bifrost/Prime/Aegis display consumers.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Branch: `codex/build-1-relay-handoff-contract-consumers-20260602-1230`.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Completion:
+- Status: Ready for Codex Review.
+- Completed: 2026-06-02.
+- Commit: `1977d936` (`test: Add Relay handoff sanitizer contract coverage`).
+- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+- Tests run: `python -m pytest tests/test_relay_executor.py -q` (220 passed); `git diff --check` (passed); path-scope check limited changes to allowed files.
+- Concrete evidence: Relay now exposes `relay_display_safe_handoff_tags()` as the reusable downstream sanitizer contract, with stricter proof-evidence id suffix validation for `packet-proof-*` and `aegis-proof-*` tags. Contract tests prove unsafe free-text tags and evidence ids including `credential:sk-test-secret`, `raw_prompt_secret`, `branch_move_request`, and `packet-proof-credential:sk-test-secret` are redacted, while known structured tags and fixed safe phrases survive.
+- Next Candidate: promote matching Bifrost/Prime/Aegis renderer or consumer tests that call the reviewed Relay sanitizer contract once those downstream surfaces are active.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: repair Reviews A finding `9a0b2d36` on Relay handoff sanitizer leakage.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
