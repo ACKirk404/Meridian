@@ -1,6 +1,8 @@
 """Tests for Prime Autonomy domain model."""
 
 import pytest
+from datetime import datetime, timedelta, timezone
+
 from meridian_core.prime_autonomy import (
     PrimeActionType,
     PrimeActionConfidence,
@@ -11,6 +13,21 @@ from meridian_core.prime_autonomy import (
     select_prime_next_action,
     make_prime_next_action,
     select_next_action_from_project_state,
+    select_next_action_from_session_lifecycle_advisory,
+)
+from meridian_core.session_lifecycle import (
+    HealthState,
+    HarnessRole,
+    OperationScope,
+    PermissionContext,
+    PermissionState,
+    ProofState,
+    ReviewCadenceState,
+    SessionLifecycleState,
+    SessionStatus,
+    gather_prime_autonomy_input,
+    generate_restart_finding,
+    generate_resteer_finding,
 )
 
 
@@ -521,4 +538,155 @@ class TestSelectNextActionFromProjectState:
             confidence=PrimeActionConfidence.MEDIUM,
         )
         assert action.action_type == PrimeActionType.RUN_WORKFLOW
+        assert action.is_executable() is True
+
+
+class TestSessionLifecycleAdvisorySelection:
+    """Test Prime consumption of Session Lifecycle Prime/Beacon advisory state."""
+
+    @pytest.fixture
+    def advisory_session(self):
+        """Create a session with valid task-scoped restart/resteer permission."""
+        now = datetime.now(timezone.utc)
+        permission_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART, OperationScope.RESTEER]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=now + timedelta(hours=1),
+            task_scope="task-1",
+            last_permission_change=now,
+        )
+        return SessionLifecycleState(
+            session_id="session-advisory",
+            session_name="Build 2 Advisory",
+            project_name="Meridian",
+            project_path="/path/to/meridian",
+            harness_role=HarnessRole.BUILD,
+            assigned_queue_file="docs/live-build-2.md",
+            model_provider="anthropic",
+            model_name="claude-opus-4-7",
+            status=SessionStatus.STALE,
+            worktree_path="/worktree/build-2",
+            branch_name="codex/aligned-build-2-prime-beacon-advisory",
+            current_task_id="task-1",
+            last_queue_read_at=now,
+            last_queue_write_at=now,
+            last_prompt_sent_at=now - timedelta(minutes=45),
+            last_prompt_payload_size=12000,
+            review_cadence_state=ReviewCadenceState.NONE,
+            proof_state=ProofState.PERMISSION_VALIDATED,
+            health_state=HealthState.STALE,
+            blocker_summary=None,
+            permission_context=permission_context,
+        )
+
+    def _advisory_input(self, session, findings=(), approvals=()):
+        return gather_prime_autonomy_input(
+            sessions=[session],
+            queues_by_harness={"build": ["docs/live-build-2.md"]},
+            approvals_pending=list(approvals),
+            restart_resteer_findings=list(findings),
+            timestamp=datetime.now(timezone.utc),
+        )
+
+    def test_none_advisory_input_pauses_safely(self):
+        """Missing Session Lifecycle advisory state falls back to safe pause."""
+        action = select_next_action_from_session_lifecycle_advisory(None)
+
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.confidence == PrimeActionConfidence.FALLBACK
+        assert action.target_harness == "Session Lifecycle"
+
+    def test_restart_finding_becomes_human_gated_advisory(self, advisory_session):
+        """Restart findings become advisory-only Prime actions, not live control."""
+        finding = generate_restart_finding(advisory_session, threshold_seconds=1800)
+        action = select_next_action_from_session_lifecycle_advisory(
+            self._advisory_input(advisory_session, findings=[finding])
+        )
+
+        assert action.action_type == PrimeActionType.ADVISE_SESSION_RECOVERY
+        assert action.source == PrimeActionSource.SESSION_STATE
+        assert action.risk_tier == PrimeActionRiskTier.HIGH
+        assert action.human_gate_required is True
+        assert action.is_executable() is False
+        assert any("restart" in item for item in action.evidence)
+
+    def test_resteer_finding_becomes_human_gated_advisory(self, advisory_session):
+        """Resteer findings are consumable by Prime but remain gated."""
+        blocked_session = SessionLifecycleState(
+            **{
+                **advisory_session.__dict__,
+                "status": SessionStatus.BLOCKED,
+                "blocker_summary": "queue assignment no longer matches task",
+            }
+        )
+        finding = generate_resteer_finding(blocked_session)
+        action = select_next_action_from_session_lifecycle_advisory(
+            self._advisory_input(blocked_session, findings=[finding])
+        )
+
+        assert action.action_type == PrimeActionType.ADVISE_SESSION_RECOVERY
+        assert action.target_lane == blocked_session.session_id
+        assert action.human_gate_required is True
+        assert any("resteer" in item for item in action.evidence)
+
+    def test_review_gate_blocks_session_recovery_advisory(self, advisory_session):
+        """Review-gated sessions force human approval before recovery proceeds."""
+        gated_session = SessionLifecycleState(
+            **{
+                **advisory_session.__dict__,
+                "status": SessionStatus.REVIEW_GATED,
+                "review_cadence_state": ReviewCadenceState.REVIEW_GATED,
+            }
+        )
+        finding = generate_resteer_finding(gated_session, blocker="review gate pending")
+        action = select_next_action_from_session_lifecycle_advisory(
+            self._advisory_input(gated_session, findings=[finding])
+        )
+
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.human_gate_required is True
+        assert action.is_blocked()
+        assert "review gate" in next(iter(action.blockers))
+
+    def test_permission_boundary_blocks_recovery_advisory(self, advisory_session):
+        """Expired or out-of-scope permissions block restart/resteer advice."""
+        expired_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART, OperationScope.RESTEER]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=datetime.now(timezone.utc) - timedelta(minutes=1),
+            task_scope="different-task",
+            last_permission_change=datetime.now(timezone.utc),
+        )
+        blocked_session = SessionLifecycleState(
+            **{
+                **advisory_session.__dict__,
+                "permission_context": expired_context,
+            }
+        )
+        finding = generate_restart_finding(blocked_session, threshold_seconds=1800)
+        action = select_next_action_from_session_lifecycle_advisory(
+            self._advisory_input(blocked_session, findings=[finding])
+        )
+
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.human_gate_required is True
+        assert action.is_executable() is False
+        assert any("permission boundary" in item for item in action.blockers)
+
+    def test_no_recovery_findings_continues_watch_poll(self, advisory_session):
+        """No findings keeps Prime on a safe Session Lifecycle watch path."""
+        action = select_next_action_from_session_lifecycle_advisory(
+            self._advisory_input(advisory_session)
+        )
+
+        assert action.action_type == PrimeActionType.POLL_SESSION
+        assert action.risk_tier == PrimeActionRiskTier.SAFE
         assert action.is_executable() is True

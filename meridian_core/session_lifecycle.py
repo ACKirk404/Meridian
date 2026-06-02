@@ -595,3 +595,94 @@ class SessionCommandPlan:
             "approval_context": self.approval_context,
             "rollback_or_recovery_note": self.rollback_or_recovery_note,
         }
+
+
+def generate_restart_finding(
+    session: SessionLifecycleState,
+    threshold_seconds: int = 1800,
+    timestamp: Optional[datetime] = None,
+) -> Optional[RestartResteerFinding]:
+    """Create a Beacon restart advisory for a stale session.
+
+    This is pure advisory state. It does not restart, inspect, or mutate a live session.
+    """
+    observed_at = timestamp or datetime.now(timezone.utc)
+    stale_seconds = int(
+        (
+            observed_at.replace(tzinfo=timezone.utc)
+            - session.last_prompt_sent_at.replace(tzinfo=timezone.utc)
+        ).total_seconds()
+    )
+    if stale_seconds <= threshold_seconds:
+        return None
+
+    return RestartResteerFinding(
+        session_id=session.session_id,
+        finding_type=FindingType.RESTART,
+        reason="Session heartbeat exceeded stale threshold",
+        evidence_stale_seconds=stale_seconds,
+        evidence_last_queue_read_at=session.last_queue_read_at,
+        evidence_blocker_summary=session.blocker_summary,
+        recommended_action="Stage restart recovery through a human/Aegis-gated command plan",
+        timestamp=observed_at,
+    )
+
+
+def generate_resteer_finding(
+    session: SessionLifecycleState,
+    blocker: Optional[str] = None,
+    timestamp: Optional[datetime] = None,
+) -> Optional[RestartResteerFinding]:
+    """Create a Beacon resteer advisory for a blocked or review-gated session.
+
+    This is pure advisory state. It records evidence but does not steer a session.
+    """
+    blocker_summary = blocker or session.blocker_summary
+    if not blocker_summary and session.status not in (
+        SessionStatus.BLOCKED,
+        SessionStatus.REVIEW_GATED,
+    ):
+        return None
+
+    observed_at = timestamp or datetime.now(timezone.utc)
+    stale_seconds = int(
+        (
+            observed_at.replace(tzinfo=timezone.utc)
+            - session.last_prompt_sent_at.replace(tzinfo=timezone.utc)
+        ).total_seconds()
+    )
+
+    return RestartResteerFinding(
+        session_id=session.session_id,
+        finding_type=FindingType.RESTEER,
+        reason=blocker_summary or "Session requires resteer review",
+        evidence_stale_seconds=stale_seconds,
+        evidence_last_queue_read_at=session.last_queue_read_at,
+        evidence_blocker_summary=blocker_summary,
+        recommended_action="Stage resteer recovery through a human/Aegis-gated command plan",
+        timestamp=observed_at,
+    )
+
+
+def gather_prime_autonomy_input(
+    sessions: tuple[SessionLifecycleState, ...] | list[SessionLifecycleState],
+    queues_by_harness: dict[str, tuple[str, ...] | list[str]],
+    approvals_pending: tuple[tuple[str, str], ...] | list[tuple[str, str]] = (),
+    restart_resteer_findings: tuple[RestartResteerFinding, ...]
+    | list[RestartResteerFinding] = (),
+    recent_completions: tuple[str, ...] | list[str] = (),
+    timestamp: Optional[datetime] = None,
+) -> PrimeAutonomyInput:
+    """Collect immutable Prime advisory input from Session Lifecycle snapshots."""
+    immutable_queues = frozenset(
+        (harness, tuple(queue_files))
+        for harness, queue_files in queues_by_harness.items()
+    )
+    return PrimeAutonomyInput(
+        current_sessions=tuple(sessions),
+        queues_by_harness=immutable_queues,
+        approvals_pending=tuple(approvals_pending),
+        restart_resteer_findings=tuple(restart_resteer_findings),
+        recent_completions=tuple(recent_completions),
+        timestamp=timestamp or datetime.now(timezone.utc),
+    )

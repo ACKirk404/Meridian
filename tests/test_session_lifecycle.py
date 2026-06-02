@@ -20,6 +20,9 @@ from meridian_core.session_lifecycle import (
     PrimeAutonomyInput,
     SessionLifecycleState,
     SessionCommandPlan,
+    gather_prime_autonomy_input,
+    generate_restart_finding,
+    generate_resteer_finding,
 )
 
 
@@ -883,6 +886,111 @@ class TestRestartResteerFinding:
         assert serialized["session_id"] == "session-1"
         assert serialized["finding_type"] == "restart"
         assert serialized["evidence_stale_seconds"] == 2700
+
+
+class TestBeaconPrimeAdvisoryBinding:
+    """Tests for pure Beacon findings and Prime advisory input gathering."""
+
+    @pytest.fixture
+    def blocked_state(self):
+        """Create a blocked session with valid task-scoped recovery permission."""
+        now = datetime.now(timezone.utc)
+        future = now + timedelta(hours=1)
+        permission_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART, OperationScope.RESTEER]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=future,
+            task_scope="task-1",
+            last_permission_change=now,
+        )
+        return SessionLifecycleState(
+            session_id="session-advisory",
+            session_name="Build 2 Advisory",
+            project_name="Meridian",
+            project_path="/path/to/meridian",
+            harness_role=HarnessRole.BUILD,
+            assigned_queue_file="docs/live-build-2.md",
+            model_provider="anthropic",
+            model_name="claude-opus-4-7",
+            status=SessionStatus.BLOCKED,
+            worktree_path="/worktree/build-2",
+            branch_name="codex/aligned-build-2-prime-beacon-advisory",
+            current_task_id="task-1",
+            last_queue_read_at=now,
+            last_queue_write_at=now,
+            last_prompt_sent_at=now - timedelta(minutes=45),
+            last_prompt_payload_size=12000,
+            review_cadence_state=ReviewCadenceState.NONE,
+            proof_state=ProofState.PERMISSION_VALIDATED,
+            health_state=HealthState.STALE,
+            blocker_summary="approval needed before recovery",
+            permission_context=permission_context,
+        )
+
+    def test_generate_restart_finding_from_stale_heartbeat(self, blocked_state):
+        """Beacon restart finding records heartbeat evidence without live control."""
+        observed_at = datetime.now(timezone.utc)
+        finding = generate_restart_finding(
+            blocked_state,
+            threshold_seconds=1800,
+            timestamp=observed_at,
+        )
+
+        assert finding is not None
+        assert finding.finding_type == FindingType.RESTART
+        assert finding.session_id == blocked_state.session_id
+        assert finding.evidence_stale_seconds >= 2700
+        assert finding.evidence_last_queue_read_at == blocked_state.last_queue_read_at
+        assert finding.timestamp == observed_at
+
+    def test_generate_restart_finding_ignores_fresh_heartbeat(self, blocked_state):
+        """Fresh sessions do not receive restart advisories."""
+        fresh_state = SessionLifecycleState(
+            **{
+                **blocked_state.__dict__,
+                "last_prompt_sent_at": datetime.now(timezone.utc),
+            }
+        )
+
+        assert generate_restart_finding(fresh_state, threshold_seconds=1800) is None
+
+    def test_generate_resteer_finding_from_blocker(self, blocked_state):
+        """Beacon resteer finding records blocker evidence without steering."""
+        finding = generate_resteer_finding(blocked_state)
+
+        assert finding is not None
+        assert finding.finding_type == FindingType.RESTEER
+        assert finding.evidence_blocker_summary == blocked_state.blocker_summary
+        assert "resteer" in finding.recommended_action
+
+    def test_gather_prime_autonomy_input_normalizes_mutable_sources(self, blocked_state):
+        """Prime advisory input snapshots mutable caller containers as immutable data."""
+        queues = {"build": ["docs/live-build-2.md"]}
+        approvals = [(blocked_state.session_id, "review gate pending")]
+        finding = generate_resteer_finding(blocked_state)
+        advisory_input = gather_prime_autonomy_input(
+            sessions=[blocked_state],
+            queues_by_harness=queues,
+            approvals_pending=approvals,
+            restart_resteer_findings=[finding],
+            recent_completions=["commit-abc123"],
+            timestamp=datetime.now(timezone.utc),
+        )
+        queues["build"].append("docs/live-build-3.md")
+        approvals.append(("other", "mutated later"))
+
+        assert advisory_input.current_sessions == (blocked_state,)
+        assert advisory_input.approvals_pending == (
+            (blocked_state.session_id, "review gate pending"),
+        )
+        assert dict(advisory_input.queues_by_harness)["build"] == (
+            "docs/live-build-2.md",
+        )
+        assert advisory_input.restart_resteer_findings == (finding,)
 
 
 class TestPrimeAutonomyInput:

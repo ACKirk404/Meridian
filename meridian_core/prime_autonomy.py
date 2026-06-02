@@ -9,10 +9,19 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, List, FrozenSet
 
+from meridian_core.session_lifecycle import (
+    FindingType,
+    OperationScope,
+    PrimeAutonomyInput as SessionPrimeAutonomyInput,
+    ReviewCadenceState,
+    SessionStatus,
+)
+
 
 class PrimeActionType(Enum):
     """Type of action Prime can direct."""
     POLL_SESSION = "poll_session"  # Check session state
+    ADVISE_SESSION_RECOVERY = "advise_session_recovery"  # Stage recovery advice only
     ADVANCE_COGNITION = "advance_cognition"  # Run cognition policy evaluation
     RUN_WORKFLOW = "run_workflow"  # Execute workflow sub-agent
     PAUSE_AND_WAIT = "pause_and_wait"  # Wait for human input or external signal
@@ -280,4 +289,118 @@ def select_next_action_from_project_state(
         source=PrimeActionSource.COGNITION_POLICY,
         target_lane=state.lane_id,
         rationale=f"Active task '{state.active_task}' is ready; advancing cognition.",
+    )
+
+
+def select_next_action_from_session_lifecycle_advisory(
+    advisory_input: Optional[SessionPrimeAutonomyInput] = None,
+) -> PrimeNextAction:
+    """Convert Session Lifecycle Prime/Beacon input into a safe Prime advisory.
+
+    The returned action can advise, pause, or escalate, but it never executes
+    restart/resteer control. Live recovery still requires a separate command plan.
+    """
+    if advisory_input is None:
+        return make_prime_next_action(
+            action_type=PrimeActionType.PAUSE_AND_WAIT,
+            confidence=PrimeActionConfidence.FALLBACK,
+            risk_tier=PrimeActionRiskTier.SAFE,
+            source=PrimeActionSource.ERROR_RECOVERY,
+            target_harness="Session Lifecycle",
+            rationale="No Session Lifecycle advisory input available.",
+        )
+
+    sessions_by_id = {
+        session.session_id: session for session in advisory_input.current_sessions
+    }
+
+    if advisory_input.approvals_pending:
+        blockers = [
+            f"{session_id}: {reason}"
+            for session_id, reason in advisory_input.approvals_pending
+        ]
+        return make_prime_next_action(
+            action_type=PrimeActionType.PAUSE_AND_WAIT,
+            confidence=PrimeActionConfidence.HIGH,
+            risk_tier=PrimeActionRiskTier.HIGH,
+            source=PrimeActionSource.SESSION_STATE,
+            target_harness="Session Lifecycle",
+            rationale="Session recovery advisory is waiting on approval.",
+            evidence=blockers,
+            human_gate_required=True,
+            blockers=blockers,
+        )
+
+    for session in advisory_input.current_sessions:
+        if (
+            session.status == SessionStatus.REVIEW_GATED
+            or session.review_cadence_state == ReviewCadenceState.REVIEW_GATED
+        ):
+            evidence = [
+                f"{session.session_id}: status={session.status.value}",
+                f"{session.session_id}: review={session.review_cadence_state.value}",
+            ]
+            return make_prime_next_action(
+                action_type=PrimeActionType.PAUSE_AND_WAIT,
+                confidence=PrimeActionConfidence.HIGH,
+                risk_tier=PrimeActionRiskTier.HIGH,
+                source=PrimeActionSource.SESSION_STATE,
+                target_harness="Session Lifecycle",
+                target_lane=session.session_id,
+                rationale="Review gate blocks session recovery advice from execution.",
+                evidence=evidence,
+                human_gate_required=True,
+                blockers=["review gate requires human approval"],
+            )
+
+    for finding in advisory_input.restart_resteer_findings:
+        session = sessions_by_id.get(finding.session_id)
+        operation = (
+            OperationScope.RESTART
+            if finding.finding_type == FindingType.RESTART
+            else OperationScope.RESTEER
+        )
+        evidence = [
+            f"{finding.session_id}: finding={finding.finding_type.value}",
+            f"{finding.session_id}: stale_seconds={finding.evidence_stale_seconds}",
+            f"{finding.session_id}: recommendation={finding.recommended_action}",
+        ]
+
+        if session is not None and not session.can_execute_operation(operation):
+            blocker = f"{finding.session_id}: permission boundary blocks {operation.value}"
+            return make_prime_next_action(
+                action_type=PrimeActionType.PAUSE_AND_WAIT,
+                confidence=PrimeActionConfidence.HIGH,
+                risk_tier=PrimeActionRiskTier.HIGH,
+                source=PrimeActionSource.SESSION_STATE,
+                target_harness="Session Lifecycle",
+                target_lane=finding.session_id,
+                rationale="Permission boundary blocks session recovery advice.",
+                evidence=evidence,
+                human_gate_required=True,
+                blockers=[blocker],
+            )
+
+        return make_prime_next_action(
+            action_type=PrimeActionType.ADVISE_SESSION_RECOVERY,
+            confidence=PrimeActionConfidence.HIGH,
+            risk_tier=PrimeActionRiskTier.HIGH,
+            source=PrimeActionSource.SESSION_STATE,
+            target_harness="Session Lifecycle",
+            target_lane=finding.session_id,
+            rationale=f"Advise {finding.finding_type.value} recovery: {finding.reason}",
+            evidence=evidence,
+            human_gate_required=True,
+            blockers=["advisory only; command plan approval required before execution"],
+        )
+
+    session_ids = [session.session_id for session in advisory_input.current_sessions]
+    return make_prime_next_action(
+        action_type=PrimeActionType.POLL_SESSION,
+        confidence=PrimeActionConfidence.MEDIUM,
+        risk_tier=PrimeActionRiskTier.SAFE,
+        source=PrimeActionSource.SESSION_STATE,
+        target_harness="Session Lifecycle",
+        rationale="No restart/resteer findings; continue watching session state.",
+        evidence=session_ids,
     )
