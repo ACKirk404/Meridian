@@ -96,6 +96,20 @@ No active write lease.
 Start new entries below this line.
 
 ```text
+Time: 2026-06-02 11:29 -06:00
+Writer: Meridian coordinator
+Intent: path-limited reviewed Build 4/5 movement ACKed by front-end developer lane through 2026-06-02 11:35 -06:00.
+Action completed: landed reviewed Build 4 Compass cross-project handoff runtime on main; Build 5 reviewed render coverage/provenance was already present on current origin/main during the final rebase.
+Commit(s): 78ee859a
+Pushed to origin/main: yes
+Files changed: docs/live-build-4.md, meridian_core/compass.py, tests/test_compass.py
+Proof run: python -m pytest tests/test_compass.py tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q -> 407 passed; git diff --check origin/main..HEAD passed before push.
+Final shared main status: clean/aligned with origin/main at 6deaec59 after push/fetch check.
+Notes/blockers: initial cherry-pick attempt was aborted before push; final movement used reviewed path state and preserved current main queue history. Build 4 is no longer blocked on missing Compass files.
+Status: Complete
+```
+
+```text
 Time: 2026-06-02 11:14 -06:00
 Writer: Meridian coordinator
 Intent: record completion for the reviewed backend/FileMap movement lease ACKed by the front-end developer at 2026-06-02 11:01 -06:00, plus the docs-only completion lease ACKed at 2026-06-02 11:13 -06:00.
