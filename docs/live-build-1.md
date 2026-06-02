@@ -4,6 +4,26 @@
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: bind Relay prompt payload evidence into dispatch decision records after Reviews A cleared the route metadata binding.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Required first command for this task: verify you are in your assigned unique worktree and not in `C:\Users\scott\Code\Meridian`; you are not allowed to write to main, move data between worktrees or branches, cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage without coordinator approval.
+
+Allowed files only: `meridian_core/relay_executor.py`, `meridian_core/model_adapter.py`, `tests/test_relay_executor.py`, `tests/test_model_adapter.py`, `docs/live-build-1.md`.
+
+Required sources: `docs/relay-prompt-payload-visibility-implementation-checklist.md`, `docs/relay-heartbeat-model-routing-implementation-checklist.md`, `docs/model-harness-v2-contract.md`, `docs/v2-progress-tracker.md`, and Reviews A pass evidence in `docs/live-codex-reviews.md`.
+
+Task: add or bind a Relay-side payload evidence record to dispatch decisions before the model-call boundary. Carry prompt source, route/model context, prompt token estimate, budget percent/status, growth/watch/degraded state where available, telemetry/snapshot support flags from Model Harness metadata, and explicit missing-telemetry tags. Keep raw prompt text, credentials, raw provider responses, full transcripts, live model calls, UI/Bifrost rendering, FileMap edits, branch movement, and Polaris out of scope.
+
+Tests:
+
+- `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`
+
+Completion: mark Ready for Codex Review with commit hash, files changed, tests run, and a concrete Next Candidate: bind any review findings from the Relay payload evidence slice before further Relay/Model work.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add provider-neutral Relay route capability/tier/budget metadata binding after the DeepSeek metadata preset slice cleared Reviews A with no findings.

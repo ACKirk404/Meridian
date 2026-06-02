@@ -8,6 +8,24 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: create a Relay dispatch hardening implementation checklist after Reviews B cleared the prompt-payload visibility checklist.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Required first command for this task: verify you are in your assigned unique worktree and not in `C:\Users\scott\Code\Meridian`; you are not allowed to write to main, move data between worktrees or branches, cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage without coordinator approval.
+
+Allowed files only: `docs/relay-dispatch-hardening-implementation-checklist.md`, `docs/live-build-4.md`.
+
+Required sources: `docs/relay-heartbeat-model-routing-implementation-checklist.md`, `docs/relay-prompt-payload-visibility-implementation-checklist.md`, `docs/model-harness-v2-contract.md`, `docs/relay-completeness-audit.md`, `docs/v2-progress-tracker.md`, and Reviews B pass evidence in `docs/live-codex-reviews-2.md`.
+
+Task: produce a build-ready checklist for provider-neutral Relay dispatch hardening and metadata pass-through. Include transport envelope boundaries, exact model id handling, payload evidence propagation, Aegis proof policy hooks, blocked/error states, credential/raw prompt exclusions, deterministic tests, Bifrost visibility handoff, and FileMap routing requirements. Keep this docs-only; do not edit runtime code, tests, FileMap, Bifrost UI, model/account/process code, branches, or Polaris.
+
+Tests: none required for docs-only; run text/shape inspection plus `git diff --check` before marking complete.
+
+Completion: mark Ready for Codex Review with commit hash, files changed, verification run, and a concrete Next Candidate: bind any review findings from this checklist before dispatch-hardening runtime work.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: create a Relay prompt-payload visibility implementation checklist after Reviews B cleared the routing checklist and stale recovery slice.

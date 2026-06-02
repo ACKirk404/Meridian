@@ -271,6 +271,14 @@ Coordinator review routing after batch movement - 2026-06-02:
 - Routed Reviews B thread `019e864a-0536-7250-8057-19bf8a8a85b3` to review Build 4 current-main commits `3f8a4ca1`/`14913655` first, then Build 5 commits `f4880b76`/`eeab3768` if Build 4 passes. Required proof: docs text/shape plus diff-check for Build 4; Bifrost cockpit pytest/diff-check for Build 5.
 - Honest seven-lane status: Reviews A and Reviews B are actively routed. Build 1, Build 3, Build 4, and Build 5 are review-gated after completed work on main. Build 2 is review-cleared for the advisory slice. Fresh build implementation tasks should be promoted only after the current review pass/finding results are recorded, unless the user explicitly accepts parallel implementation past pending review gates.
 
+Coordinator review clearance and fresh task promotion - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean on `main`; verified Reviews B and Reviews A worktrees were clean before movement. Reviews B local provenance commit `f62ed0fa` was path-limited to `docs/live-codex-reviews-2.md` and moved to main as `ec084076`. Reviews A local provenance commit `abf74981` was path-limited to `docs/live-codex-reviews.md` and moved to main as `7609d0e2`.
+- Review results: Reviews A passed Build 1 Relay route metadata binding and Build 3 FileMap checkpoint audit with no findings; Reviews B passed Build 4 prompt-payload visibility checklist and Build 5 proof-state preview rendering with no findings.
+- Promoted fresh executable build tasks on shared main after review clearance: Build 1 Relay prompt payload evidence binding; Build 2 Session Lifecycle command-plan edge coverage; Build 3 FileMap coverage audit for the clearance/routing checkpoint; Build 4 Relay dispatch hardening implementation checklist; Build 5 Bifrost prompt payload visibility rendering.
+- Promoted review queue Active Now blocks: Reviews A polls/reviews the next current-main Ready marker from Build 1/2/3; Reviews B polls/reviews the next current-main Ready marker from Build 4/5. These poll tasks must not commit read-check-only progress.
+- Honest seven-lane status: all five build queues now have executable Active tasks and Next Candidate instructions; both review queues have executable polling/review tasks but are waiting for real Ready markers from the fresh build tasks.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:

@@ -8,6 +8,16 @@ The build lanes build. Review lanes review.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review the next current-main Ready marker from Build 1, Build 2, or Build 3 after the fresh post-clearance tasks complete.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Task: poll current `origin/main` and the top blocks in `docs/live-build-1.md`, `docs/live-build-2.md`, and `docs/live-build-3.md`. If any of those lanes is marked Ready for Codex Review on current main, review the oldest ready slice first using the proof listed in that lane queue. If none is ready, record a concrete polling status with the checked HEAD and do not commit read-check-only progress.
+
+Completion: if a slice is reviewed, commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews.md`. If no slice is ready, report no local commit and keep waiting for a real Ready marker.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review Build 1 current-main Relay route metadata binding, then Build 3 current-main FileMap checkpoint audit if Build 1 passes.

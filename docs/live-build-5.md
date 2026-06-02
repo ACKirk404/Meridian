@@ -4,6 +4,26 @@
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: add Bifrost prompt payload visibility sample rendering after Reviews B cleared the proof-state preview.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-5-bifrost`.
+
+Required first command for this task: verify you are in your assigned unique worktree and not in `C:\Users\scott\Code\Meridian`; you are not allowed to write to main, move data between worktrees or branches, cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage without coordinator approval.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Required sources: `docs/relay-prompt-payload-visibility-implementation-checklist.md`, `docs/bifrost-balance-payload-surface-contract.md`, `docs/bifrost-right-panel-mode-contract.md`, `docs/ui-integration-checklist.md`, `docs/v2-progress-tracker.md`, and Reviews B pass evidence in `docs/live-codex-reviews-2.md`.
+
+Task: add deterministic Bifrost sample rendering/tests for prompt payload visibility from structured view-model data. Show prompt label `(under 1k)` / `(N.Nk)` / `(over budget)` / `(unknown)`, budget percent, prompt budget, growth delta, growth/watch/degraded/block state, provider/model/trust context, evidence refs, and warnings for missing snapshot/telemetry. Preserve stale-session recovery and proof-state preview behavior. Do not spawn sessions, inspect live processes, call models, edit `index.html`, touch Polaris, add live process control, move branches, or alter Relay routing docs.
+
+Tests:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: mark Ready for Codex Review with commit hash, files changed, tests run, and a concrete Next Candidate: bind any review findings from prompt payload visibility before unrelated Bifrost work.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Bifrost proof-state preview sample rendering after Reviews B cleared stale-session recovery action rendering.

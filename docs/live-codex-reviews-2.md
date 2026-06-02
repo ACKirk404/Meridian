@@ -6,6 +6,16 @@ This file is the standing queue for a second specialized Codex Reviews session.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review the next current-main Ready marker from Build 4 or Build 5 after the fresh post-clearance tasks complete.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: poll current `origin/main` and the top blocks in `docs/live-build-4.md` and `docs/live-build-5.md`. If either lane is marked Ready for Codex Review on current main, review the oldest ready slice first using the proof listed in that lane queue. If none is ready, record a concrete polling status with the checked HEAD and do not commit read-check-only progress.
+
+Completion: if a slice is reviewed, commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If no slice is ready, report no local commit and keep waiting for a real Ready marker.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review the current-main Relay harness UI/runtime integration landing.
