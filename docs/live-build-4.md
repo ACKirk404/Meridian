@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: create a Relay PromptPacket proof metadata implementation checklist after dispatch hardening cleared review.
 
@@ -20,7 +20,15 @@ Task: produce a build-ready docs-only checklist for binding PromptPacket proof m
 
 Tests: docs-only; run text/shape inspection plus `git diff --check`.
 
-Completion: mark Ready for Codex Review with commit hash, files changed, verification run, and Next Candidate.
+Completion: completed 2026-06-01.
+
+Ready for Codex Review:
+
+- Commit: pending local commit hash
+- Files changed: `docs/relay-promptpacket-proof-metadata-implementation-checklist.md`, `docs/live-build-4.md`
+- Tests: not required (docs-only)
+- Verification performed: text/shape inspection confirmed the checklist exists and covers packet id/hash, allowed sources, proof requirements, Aegis evidence ids, payload budget refs, raw-prompt exclusions, tests, Bifrost handoff, FileMap routing, and block conditions; staged diff passes `git diff --cached --check`.
+- Next Candidate: bind any review findings from this checklist before PromptPacket proof metadata runtime work.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
