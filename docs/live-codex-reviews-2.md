@@ -8,6 +8,31 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review current-main Build 3 FileMap registration for the provider-result validation evidence checklist.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: review Build 3 FileMap registration commit `b215e0aa`. Verify `docs/provider-result-validation-evidence-checklist.md` is registered consistently in runtime FileMap, `docs/FileMap.md`, and `_REQUIRED_PATHS`; no unrelated FileMap churn, no branch/worktree/main/Polaris leakage.
+
+Proof: `python -m pytest tests/test_filemap.py -q` plus `git diff --check b215e0aa^..b215e0aa`.
+
+Completion: commit only review provenance/finding/pass updates locally in `docs/live-codex-reviews-2.md`. If a finding exists, record it and stop for coordinator repair routing.
+
+Review result - 2026-06-02 08:51 -06:00:
+
+- Build 3 FileMap registration passed. Commit `b215e0aa` changed only `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, and `docs/live-build-3.md`.
+- `docs/provider-result-validation-evidence-checklist.md` is registered consistently as a Model Harness artifact in runtime FileMap and `docs/FileMap.md`, with matching purpose, related tests, and notes. `_REQUIRED_PATHS` now includes the same checklist path.
+- Scope check found no unrelated FileMap churn, branch/worktree/main movement, shared-main write, Polaris dependency, or push.
+
+Proof:
+
+- `python -m pytest tests/test_filemap.py -q` passed: 47 tests.
+- `git diff --check b215e0aa^..b215e0aa` passed.
+
+Completion: Build 3 provider-result validation evidence checklist FileMap registration is review-cleared. Reviews B returns to current-main Ready-marker polling.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 5 recovery-readiness Bifrost surface.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
