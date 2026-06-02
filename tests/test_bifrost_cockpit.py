@@ -9,6 +9,7 @@ import pytest
 
 from bifrost.cockpit import (
     CockpitViewModel,
+    DispatchHardeningView,
     HarnessCard,
     HarnessItem,
     HarnessModeView,
@@ -381,6 +382,106 @@ def test_prompt_payload_visibility_preserves_stale_recovery_and_proof_preview():
     assert 'class="stale-target-guard"' in doc
     assert 'data-recovery-action="ask-prime-recover"' in doc
     assert "Next prompt target: Closed Payload Session" not in doc
+
+
+def test_dispatch_hardening_sample_renders_required_state_fields():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    assert 'aria-label="Dispatch Hardening State"' in doc
+    assert "Dispatch Hardening" in doc
+    assert "dispatch-sample-001" in doc
+    assert "Provider: claude" in doc
+    assert "Exact model: claude-opus-4-7" in doc
+    assert "Route class: direct_api" in doc
+    assert "Route kind: account-first" in doc
+    assert "Proof strength: strong" in doc
+    assert "External review: not_required" in doc
+    assert "Payload evidence: snapshot_present" in doc
+
+
+def test_dispatch_hardening_sample_renders_blockers_and_error_tags():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    assert 'class="dispatch-list dispatch-blocked-authorities"' in doc
+    assert "branch_movement" in doc
+    assert "review_clearing" in doc
+    assert "silent_fallback_blocked" in doc
+    assert "aggregator_identity_required" in doc
+    assert "fallback_not_authorized" in doc
+    assert "auto_routing_disabled" in doc
+
+
+def test_dispatch_hardening_supports_candidate_and_blocked_states():
+    vm = sample_cockpit_view_model()
+    vm.dispatch_hardening = DispatchHardeningView(
+        dispatch_id="dispatch-deepseek-q",
+        provider_id="deepseek",
+        exact_model_id="deepseek-chat",
+        route_class="direct_api",
+        route_kind="direct",
+        trust_state="candidate",
+        proof_strength="weak",
+        external_review_status="pending",
+        blocked_authorities=["build", "review_clearing"],
+        payload_evidence_state="snapshot_missing",
+        fallback_blockers=["aggregator_route_mismatch"],
+        dispatch_error_tags=["prompt_snapshot_missing", "candidate_trust_block"],
+    )
+    doc = render_cockpit_html(vm)
+    assert "dispatch-deepseek-q" in doc
+    assert "Exact model: deepseek-chat" in doc
+    assert 'dispatch-trust-candidate' in doc
+    assert "External review: pending" in doc
+    assert "Payload evidence: snapshot_missing" in doc
+    assert "candidate_trust_block" in doc
+
+
+def test_dispatch_hardening_escapes_structured_fields():
+    vm = sample_cockpit_view_model()
+    vm.dispatch_hardening = DispatchHardeningView(
+        dispatch_id='<script>dispatch</script>',
+        provider_id="<img src=x>",
+        exact_model_id="<script>model</script>",
+        route_class="direct_api",
+        route_kind="direct",
+        trust_state="blocked",
+        proof_strength="<script>weak</script>",
+        external_review_status="pending",
+        blocked_authorities=["<script>authority</script>"],
+        payload_evidence_state="<bad>",
+        fallback_blockers=["fallback:<bad>"],
+        dispatch_error_tags=["<script>tag</script>"],
+    )
+    doc = render_cockpit_html(vm)
+    assert "<script>" not in doc
+    assert "<img" not in doc
+    assert "&lt;script&gt;dispatch&lt;/script&gt;" in doc
+    assert "Payload evidence: &lt;bad&gt;" in doc
+    assert "fallback:&lt;bad&gt;" in doc
+
+
+def test_dispatch_hardening_in_cockpit_main_not_hud_core():
+    doc = render_cockpit_html(sample_cockpit_view_model())
+    main_section = doc[doc.find('<main class="cockpit-main">'):doc.find('</main>')]
+    core_start = doc.find('class="hud-command-core"')
+    core_end = doc.find("</div>", core_start)
+    core_section = doc[core_start:core_end]
+    assert 'class="dispatch-hardening"' in main_section
+    assert "Dispatch Hardening" not in core_section
+
+
+def test_dispatch_hardening_preserves_payload_proof_and_stale_recovery():
+    vm = sample_cockpit_view_model()
+    vm.right_panel_active_mode = "user_session"
+    vm.user_session_mode.sessions.append(
+        SessionItem("closed-dispatch-session", "Closed Dispatch Session", "Meridian", "done")
+    )
+    vm.user_session_mode.selected_session_id = "closed-dispatch-session"
+    doc = render_cockpit_html(vm)
+    assert 'aria-label="Dispatch Hardening State"' in doc
+    assert 'aria-label="Prompt Payload Visibility"' in doc
+    assert 'class="proof-preview-list"' in doc
+    assert 'class="stale-target-guard"' in doc
+    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert "Next prompt target: Closed Dispatch Session" not in doc
 
 
 

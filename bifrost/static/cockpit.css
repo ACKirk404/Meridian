@@ -1272,6 +1272,122 @@ summary {
   border-color: rgba(255, 203, 107, 0.32) !important;
 }
 
+.dispatch-hardening {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.dispatch-header-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dispatch-header-main h3 {
+  margin: 0;
+  color: var(--cyan);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dispatch-id,
+.dispatch-trust {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.dispatch-id {
+  color: var(--muted);
+  border: 1px solid rgba(93, 157, 255, 0.2);
+}
+
+.dispatch-trust-trusted {
+  color: var(--green);
+  background: rgba(101, 240, 170, 0.12);
+  border: 1px solid rgba(101, 240, 170, 0.32);
+}
+
+.dispatch-trust-candidate,
+.dispatch-trust-unknown {
+  color: var(--amber);
+  background: rgba(255, 203, 107, 0.12);
+  border: 1px solid rgba(255, 203, 107, 0.32);
+}
+
+.dispatch-trust-blocked,
+.dispatch-trust-degraded {
+  color: var(--red);
+  background: rgba(255, 111, 123, 0.12);
+  border: 1px solid rgba(255, 111, 123, 0.32);
+}
+
+.dispatch-route-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 6px;
+}
+
+.dispatch-field {
+  color: var(--text);
+  font-size: 10px;
+  padding: 6px 7px;
+  background: rgba(4, 12, 22, 0.58);
+  border: 1px solid rgba(93, 157, 255, 0.18);
+  border-radius: 4px;
+}
+
+.dispatch-hardening-lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px;
+}
+
+.dispatch-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-content: flex-start;
+  padding: 8px;
+  border-radius: 6px;
+  background: rgba(4, 12, 22, 0.55);
+  border: 1px solid rgba(93, 157, 255, 0.16);
+}
+
+.dispatch-list-title {
+  width: 100%;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.dispatch-chip {
+  font-size: 9px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.dispatch-authority {
+  color: var(--amber);
+  background: rgba(255, 203, 107, 0.12);
+  border: 1px solid rgba(255, 203, 107, 0.28);
+}
+
+.dispatch-fallback-blocker,
+.dispatch-error-tag {
+  color: var(--red);
+  background: rgba(255, 111, 123, 0.12);
+  border: 1px solid rgba(255, 111, 123, 0.28);
+}
+
 @keyframes hud-pulse {
   0%, 100% {
     transform: scale(0.96);

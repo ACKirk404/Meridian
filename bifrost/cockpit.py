@@ -134,6 +134,22 @@ class PromptPayloadView:
 
 
 @dataclass
+class DispatchHardeningView:
+    dispatch_id: str = ""
+    provider_id: str = ""
+    exact_model_id: str = ""
+    route_class: str = ""
+    route_kind: str = ""
+    trust_state: str = "unknown"
+    proof_strength: str = "unknown"
+    external_review_status: str = "unknown"
+    blocked_authorities: list[str] = field(default_factory=list)
+    payload_evidence_state: str = "unknown"
+    fallback_blockers: list[str] = field(default_factory=list)
+    dispatch_error_tags: list[str] = field(default_factory=list)
+
+
+@dataclass
 class ProofGateStatus:
     gate_id: str
     gate_name: str
@@ -250,6 +266,7 @@ class CockpitViewModel:
     voice: VoiceIOState = field(default_factory=VoiceIOState)
     provider_balance: ProviderBalanceView = field(default_factory=ProviderBalanceView)
     prompt_payload: PromptPayloadView = field(default_factory=PromptPayloadView)
+    dispatch_hardening: DispatchHardeningView = field(default_factory=DispatchHardeningView)
     session_lifecycle: SessionLifecycleView = field(default_factory=SessionLifecycleView)
     proof_state: ProofStateView = field(default_factory=ProofStateView)
     user_session_mode: UserSessionModeView = field(default_factory=UserSessionModeView)
@@ -354,6 +371,26 @@ def sample_cockpit_view_model() -> CockpitViewModel:
             telemetry_ref="telemetry:prompt-payload",
             adapter_metadata_ref="adapter:claude",
             warnings=[],
+        ),
+        dispatch_hardening=DispatchHardeningView(
+            dispatch_id="dispatch-sample-001",
+            provider_id="claude",
+            exact_model_id="claude-opus-4-7",
+            route_class="direct_api",
+            route_kind="account-first",
+            trust_state="trusted",
+            proof_strength="strong",
+            external_review_status="not_required",
+            blocked_authorities=["branch_movement", "review_clearing"],
+            payload_evidence_state="snapshot_present",
+            fallback_blockers=[
+                "silent_fallback_blocked",
+                "aggregator_identity_required",
+            ],
+            dispatch_error_tags=[
+                "fallback_not_authorized",
+                "auto_routing_disabled",
+            ],
         ),
         lanes=[
             LaneRow("Cockpit UI", "running", "hud"),
@@ -1053,6 +1090,57 @@ def _render_prompt_payload(payload: PromptPayloadView) -> str:
     )
 
 
+def _render_dispatch_hardening(dispatch: DispatchHardeningView) -> str:
+    if not dispatch.dispatch_id:
+        return ""
+
+    blocked_authorities = "".join(
+        f'<span class="dispatch-chip dispatch-authority">{_e(authority)}</span>'
+        for authority in dispatch.blocked_authorities
+    )
+    fallback_blockers = "".join(
+        f'<span class="dispatch-chip dispatch-fallback-blocker">{_e(blocker)}</span>'
+        for blocker in dispatch.fallback_blockers
+    )
+    error_tags = "".join(
+        f'<span class="dispatch-chip dispatch-error-tag">{_e(tag)}</span>'
+        for tag in dispatch.dispatch_error_tags
+    )
+
+    return (
+        '<section class="dispatch-hardening" aria-label="Dispatch Hardening State">'
+        '<div class="dispatch-header-main">'
+        '<h3>Dispatch Hardening</h3>'
+        f'<span class="dispatch-id">{_e(dispatch.dispatch_id)}</span>'
+        f'<span class="dispatch-trust dispatch-trust-{_e(dispatch.trust_state)}">{_e(dispatch.trust_state)}</span>'
+        "</div>"
+        '<div class="dispatch-route-grid">'
+        f'<span class="dispatch-field dispatch-provider">Provider: {_e(dispatch.provider_id)}</span>'
+        f'<span class="dispatch-field dispatch-model">Exact model: {_e(dispatch.exact_model_id)}</span>'
+        f'<span class="dispatch-field dispatch-route-class">Route class: {_e(dispatch.route_class)}</span>'
+        f'<span class="dispatch-field dispatch-route-kind">Route kind: {_e(dispatch.route_kind)}</span>'
+        f'<span class="dispatch-field dispatch-proof-strength">Proof strength: {_e(dispatch.proof_strength)}</span>'
+        f'<span class="dispatch-field dispatch-external-review">External review: {_e(dispatch.external_review_status)}</span>'
+        f'<span class="dispatch-field dispatch-payload-evidence">Payload evidence: {_e(dispatch.payload_evidence_state)}</span>'
+        "</div>"
+        '<div class="dispatch-hardening-lists">'
+        '<div class="dispatch-list dispatch-blocked-authorities" aria-label="Blocked Authorities">'
+        '<span class="dispatch-list-title">Blocked authorities</span>'
+        + blocked_authorities
+        + "</div>"
+        '<div class="dispatch-list dispatch-fallback-blockers" aria-label="Fallback Blockers">'
+        '<span class="dispatch-list-title">Fallback blockers</span>'
+        + fallback_blockers
+        + "</div>"
+        '<div class="dispatch-list dispatch-error-tags" aria-label="Dispatch Error Tags">'
+        '<span class="dispatch-list-title">Dispatch error tags</span>'
+        + error_tags
+        + "</div>"
+        + "</div>"
+        + "</section>"
+    )
+
+
 def _render_instrument_band(inst: InstrumentBand) -> str:
     def chip(label: str, status: str) -> str:
         return (
@@ -1378,6 +1466,7 @@ def render_cockpit_html(vm: CockpitViewModel) -> str:
     proof_state = _render_proof_state(vm.proof_state)
     provider_balance = _render_provider_balance(vm.provider_balance)
     prompt_payload = _render_prompt_payload(vm.prompt_payload)
+    dispatch_hardening = _render_dispatch_hardening(vm.dispatch_hardening)
     projects = _render_project_strip(vm.projects, vm.lanes)
     progress = _render_progress_surface(vm.progress_events)
     instrument = _render_instrument_band(vm.instrument)
@@ -1408,6 +1497,7 @@ def render_cockpit_html(vm: CockpitViewModel) -> str:
         f"{harness_dashboard}\n"
         f"{session_lifecycle}\n"
         f"{proof_state}\n"
+        f"{dispatch_hardening}\n"
         f"{provider_balance}\n"
         f"{prompt_payload}\n"
         "</main>\n"
