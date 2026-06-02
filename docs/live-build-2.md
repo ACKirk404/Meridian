@@ -10,6 +10,25 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: add a pure Session Lifecycle recovery-readiness binding after Reviews A cleared the live-control permission gate.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
+Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
+
+Task: add a deterministic helper that combines `SessionRuntimeStateExport` and the reviewed permission gate result into one display-safe readiness/advisory summary for Prime/Beacon consumers. Keep it pure/advisory only: no restart/resteer/archive execution, process/model/UI/Bifrost/FileMap edits, session movement, branch/main operations, or Polaris.
+
+Completion:
+
+- Build 2 completed the recovery-readiness binding slice in local worktree commit `2620ea65`.
+- Files changed: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`.
+- Evidence: added frozen `SessionRecoveryReadinessSummary` plus `summarize_recovery_readiness()` to combine `SessionRuntimeStateExport` and `SessionLiveControlPermissionGate` into one deterministic, display-safe advisory payload for Prime/Beacon consumers. The summary preserves state/gate ids, target session id, command kind, recommended action, required operation, readiness status, execution-readiness flag, human-gate rationale, heartbeat/result/permission fields, blockers, and evidence refs without executing recovery or touching process/model/UI/FileMap/branch/main/Polaris surfaces.
+- Proof: `python -m pytest tests/test_session_lifecycle.py -q` passed with 107 tests; `git diff --check` passed.
+- Ready for Codex Review.
+- Next Candidate: bind review findings or connect the reviewed readiness summary to Prime/Beacon advisory consumers.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: add a pure deterministic Session Lifecycle live-control permission gate for future restart/resteer/archive execution readiness after Reviews A cleared the runtime export advisory binding.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.

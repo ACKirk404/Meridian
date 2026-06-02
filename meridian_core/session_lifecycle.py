@@ -428,6 +428,57 @@ class SessionLiveControlPermissionGate:
 
 
 @dataclass(frozen=True)
+class SessionRecoveryReadinessSummary:
+    """Display-safe recovery readiness summary for Prime/Beacon consumers."""
+
+    summary_id: str
+    state_id: str
+    gate_id: str
+    target_session_id: str
+    command_kind: Optional[CommandIntent]
+    recommended_action: Optional[SessionAction]
+    required_operation: Optional[OperationScope]
+    readiness_status: str
+    ready_for_execution: bool
+    human_gate_required: bool
+    human_gate_rationale: str
+    heartbeat_status: Optional[WorkflowHeartbeatStatus]
+    result_kind: Optional[WorkflowResultKind]
+    permission_state: PermissionState
+    blockers: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+    timestamp: datetime
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize readiness advice to JSON-safe metadata."""
+        return {
+            "summary_id": self.summary_id,
+            "state_id": self.state_id,
+            "gate_id": self.gate_id,
+            "target_session_id": self.target_session_id,
+            "command_kind": self.command_kind.value if self.command_kind else None,
+            "recommended_action": (
+                self.recommended_action.value if self.recommended_action else None
+            ),
+            "required_operation": (
+                self.required_operation.value if self.required_operation else None
+            ),
+            "readiness_status": self.readiness_status,
+            "ready_for_execution": self.ready_for_execution,
+            "human_gate_required": self.human_gate_required,
+            "human_gate_rationale": self.human_gate_rationale,
+            "heartbeat_status": (
+                self.heartbeat_status.value if self.heartbeat_status else None
+            ),
+            "result_kind": self.result_kind.value if self.result_kind else None,
+            "permission_state": self.permission_state.value,
+            "blockers": list(self.blockers),
+            "evidence_refs": list(self.evidence_refs),
+            "timestamp": self.timestamp.isoformat(),
+        }
+
+
+@dataclass(frozen=True)
 class PrimeAutonomyInput:
     """What Prime receives when selecting next action."""
 
@@ -1445,6 +1496,102 @@ def evaluate_live_control_permission_gate(
     )
 
 
+def summarize_recovery_readiness(
+    runtime_export: SessionRuntimeStateExport,
+    permission_gate: SessionLiveControlPermissionGate,
+    timestamp: Optional[datetime] = None,
+) -> SessionRecoveryReadinessSummary:
+    """Combine runtime export and permission gate into recovery readiness advice.
+
+    This is a serializable advisory summary only. It does not execute restart,
+    resteer, archive, process/model/UI work, session movement, or branch changes.
+    """
+    observed_at = _as_utc(timestamp or permission_gate.timestamp)
+    target_session_id = (
+        permission_gate.target_session_id
+        or runtime_export.target_session_id
+        or runtime_export.session_id
+    )
+    blockers = list(runtime_export.human_gate_blockers)
+    blockers.extend(permission_gate.blockers)
+    if runtime_export.target_session_id and (
+        runtime_export.target_session_id != permission_gate.target_session_id
+    ):
+        blockers.append("readiness.target_session_mismatch")
+    if runtime_export.recommended_recovery_action != permission_gate.recommended_action:
+        blockers.append("readiness.recommended_action_mismatch")
+
+    deduped_blockers = tuple(dict.fromkeys(blockers))
+    ready_for_execution = permission_gate.ready_for_execution and not deduped_blockers
+    human_gate_required = (
+        permission_gate.human_gate_required
+        or runtime_export.recommended_recovery_action == SessionAction.REQUEST_HUMAN_GATE
+        or bool(deduped_blockers)
+    )
+    readiness_status = _recovery_readiness_status(
+        ready_for_execution,
+        human_gate_required,
+        runtime_export.recommended_recovery_action,
+    )
+    human_gate_rationale = (
+        permission_gate.human_gate_rationale
+        if human_gate_required
+        else "Recovery readiness advisory is clear for future command staging."
+    )
+
+    evidence_refs = list(runtime_export.evidence_refs)
+    evidence_refs.extend(permission_gate.evidence_refs)
+    evidence_refs.extend(
+        [
+            f"readiness.state_id={runtime_export.state_id}",
+            f"readiness.gate_id={permission_gate.gate_id}",
+            f"readiness.target_session_id={target_session_id}",
+            "readiness.command_kind="
+            + (
+                permission_gate.command_kind.value
+                if permission_gate.command_kind
+                else "none"
+            ),
+            "readiness.recommended_action="
+            + (
+                runtime_export.recommended_recovery_action.value
+                if runtime_export.recommended_recovery_action
+                else "none"
+            ),
+            "readiness.required_operation="
+            + (
+                permission_gate.required_operation.value
+                if permission_gate.required_operation
+                else "none"
+            ),
+            f"readiness.status={readiness_status}",
+            f"readiness.ready_for_execution={ready_for_execution}",
+            f"readiness.human_gate_required={human_gate_required}",
+        ]
+    )
+    evidence_refs.extend(f"readiness.blocker={blocker}" for blocker in deduped_blockers)
+
+    return SessionRecoveryReadinessSummary(
+        summary_id=f"{target_session_id}:{readiness_status}:{observed_at.isoformat()}",
+        state_id=runtime_export.state_id,
+        gate_id=permission_gate.gate_id,
+        target_session_id=target_session_id,
+        command_kind=permission_gate.command_kind,
+        recommended_action=runtime_export.recommended_recovery_action,
+        required_operation=permission_gate.required_operation,
+        readiness_status=readiness_status,
+        ready_for_execution=ready_for_execution,
+        human_gate_required=human_gate_required,
+        human_gate_rationale=human_gate_rationale,
+        heartbeat_status=runtime_export.heartbeat_status,
+        result_kind=runtime_export.result_kind,
+        permission_state=runtime_export.permission_state,
+        blockers=deduped_blockers,
+        evidence_refs=tuple(dict.fromkeys(evidence_refs)),
+        timestamp=observed_at,
+    )
+
+
 def _workflow_heartbeat_age_seconds(
     heartbeat_emitted_at: Optional[datetime],
     observed_at: datetime,
@@ -1469,6 +1616,20 @@ def _live_control_command_kind(
         SessionAction.ARCHIVE: CommandIntent.ARCHIVE,
     }
     return action_to_command.get(runtime_export.recommended_recovery_action)
+
+
+def _recovery_readiness_status(
+    ready_for_execution: bool,
+    human_gate_required: bool,
+    recommended_action: Optional[SessionAction],
+) -> str:
+    if ready_for_execution:
+        return "ready"
+    if human_gate_required:
+        return "blocked"
+    if recommended_action is None or recommended_action == SessionAction.REUSE:
+        return "watch"
+    return "advisory"
 
 
 def _workflow_heartbeat_status(

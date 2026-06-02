@@ -24,6 +24,7 @@ from meridian_core.session_lifecycle import (
     WorkflowWorkOrderRecoverySummary,
     SessionRuntimeStateExport,
     SessionLiveControlPermissionGate,
+    SessionRecoveryReadinessSummary,
     SessionLifecycleState,
     SessionCommandPlan,
     evaluate_live_control_permission_gate,
@@ -32,6 +33,7 @@ from meridian_core.session_lifecycle import (
     generate_restart_finding,
     generate_resteer_finding,
     plan_command_from_session_action,
+    summarize_recovery_readiness,
     summarize_session_permission_state,
     summarize_session_permission_states,
     summarize_workflow_work_order_recovery,
@@ -2105,6 +2107,192 @@ class TestSessionLiveControlPermissionGate:
         assert gate.required_operation == OperationScope.ARCHIVE
         assert gate.ready_for_execution is True
         assert "gate.required_operation=archive" in gate.evidence_refs
+
+
+class TestSessionRecoveryReadinessSummary:
+    """Tests for composed recovery readiness summaries."""
+
+    @pytest.fixture
+    def readiness_state(self):
+        """Create a stale session with scoped restart/archive permissions."""
+        now = datetime(2026, 6, 2, 11, 0, tzinfo=timezone.utc)
+        permission_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART, OperationScope.ARCHIVE]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=now + timedelta(hours=1),
+            task_scope="recovery-readiness",
+            last_permission_change=now,
+        )
+        return SessionLifecycleState(
+            session_id="session-readiness",
+            session_name="Build 2 Readiness",
+            project_name="Meridian",
+            project_path="/path/to/meridian",
+            harness_role=HarnessRole.BUILD,
+            assigned_queue_file="docs/live-build-2.md",
+            model_provider="anthropic",
+            model_name="claude-opus-4-7",
+            status=SessionStatus.STALE,
+            worktree_path="/worktree/build-2",
+            branch_name="codex/rolling-build-2-recovery-readiness-binding",
+            current_task_id="recovery-readiness",
+            last_queue_read_at=now,
+            last_queue_write_at=now,
+            last_prompt_sent_at=now - timedelta(minutes=45),
+            last_prompt_payload_size=12000,
+            review_cadence_state=ReviewCadenceState.NONE,
+            proof_state=ProofState.PERMISSION_VALIDATED,
+            health_state=HealthState.STALE,
+            blocker_summary=None,
+            permission_context=permission_context,
+        )
+
+    def test_recovery_readiness_summary_combines_ready_export_and_gate(
+        self,
+        readiness_state,
+    ):
+        """Ready runtime/gate inputs become one display-safe readiness summary."""
+        observed_at = datetime(2026, 6, 2, 11, 10, tzinfo=timezone.utc)
+        workflow_summary = summarize_workflow_work_order_recovery(
+            readiness_state,
+            work_order_id="wo-readiness-ready",
+            heartbeat_emitted_at=observed_at - timedelta(minutes=10),
+            heartbeat_stale_after_seconds=300,
+            timestamp=observed_at,
+        )
+        runtime_export = export_session_runtime_state_for_workflow_recovery(
+            readiness_state,
+            workflow_recovery_summary=workflow_summary,
+            timestamp=observed_at,
+        )
+        gate = evaluate_live_control_permission_gate(
+            readiness_state,
+            runtime_export,
+            timestamp=observed_at,
+        )
+
+        summary = summarize_recovery_readiness(
+            runtime_export,
+            gate,
+            timestamp=observed_at,
+        )
+        serialized = summary.to_dict()
+
+        assert isinstance(summary, SessionRecoveryReadinessSummary)
+        assert summary.readiness_status == "ready"
+        assert summary.ready_for_execution is True
+        assert summary.human_gate_required is False
+        assert summary.command_kind == CommandIntent.RESTART
+        assert summary.required_operation == OperationScope.RESTART
+        assert summary.recommended_action == SessionAction.START_NEW
+        assert summary.blockers == ()
+        assert serialized["readiness_status"] == "ready"
+        assert "readiness.status=ready" in summary.evidence_refs
+        assert "readiness.ready_for_execution=True" in summary.evidence_refs
+
+    def test_recovery_readiness_summary_preserves_blockers(self, readiness_state):
+        """Blocked gate inputs stay human-gated in the composed summary."""
+        observed_at = datetime(2026, 6, 2, 11, 10, tzinfo=timezone.utc)
+        expired_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=observed_at - timedelta(seconds=1),
+            task_scope="recovery-readiness",
+            last_permission_change=observed_at,
+        )
+        blocked_state = SessionLifecycleState(
+            **{**readiness_state.__dict__, "permission_context": expired_context}
+        )
+        workflow_summary = summarize_workflow_work_order_recovery(
+            blocked_state,
+            work_order_id="wo-readiness-blocked",
+            heartbeat_emitted_at=observed_at - timedelta(minutes=10),
+            timestamp=observed_at,
+        )
+        runtime_export = export_session_runtime_state_for_workflow_recovery(
+            blocked_state,
+            workflow_recovery_summary=workflow_summary,
+            timestamp=observed_at,
+        )
+        gate = evaluate_live_control_permission_gate(
+            blocked_state,
+            runtime_export,
+            timestamp=observed_at,
+        )
+
+        summary = summarize_recovery_readiness(
+            runtime_export,
+            gate,
+            timestamp=observed_at,
+        )
+
+        assert summary.readiness_status == "blocked"
+        assert summary.ready_for_execution is False
+        assert summary.human_gate_required is True
+        assert "permission.unlock_expired" in summary.blockers
+        assert "command_kind_missing" in summary.blockers
+        assert "readiness.blocker=permission.unlock_expired" in summary.evidence_refs
+        assert summary.human_gate_rationale == gate.human_gate_rationale
+
+    def test_recovery_readiness_summary_flags_input_mismatches(self, readiness_state):
+        """Mismatched reviewed inputs become display-safe readiness blockers."""
+        observed_at = datetime(2026, 6, 2, 11, 10, tzinfo=timezone.utc)
+        runtime_export = SessionRuntimeStateExport(
+            state_id=f"{readiness_state.session_id}:stale:{observed_at.isoformat()}",
+            session_id=readiness_state.session_id,
+            session_name=readiness_state.session_name,
+            status=readiness_state.status,
+            health_state=readiness_state.health_state,
+            current_task_id=readiness_state.current_task_id,
+            active_command_kind=CommandIntent.RESTART,
+            target_session_id=readiness_state.session_id,
+            recommended_recovery_action=SessionAction.START_NEW,
+            heartbeat_status=WorkflowHeartbeatStatus.STALE,
+            heartbeat_age_seconds=600,
+            result_kind=WorkflowResultKind.PENDING,
+            permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            permission_blockers=(),
+            review_gate_blockers=(),
+            human_gate_blockers=(),
+            evidence_refs=("runtime.fixture=restart",),
+            timestamp=observed_at,
+        )
+        gate = SessionLiveControlPermissionGate(
+            gate_id=f"other-session:archive:{observed_at.isoformat()}",
+            target_session_id="other-session",
+            command_kind=CommandIntent.ARCHIVE,
+            recommended_action=SessionAction.ARCHIVE,
+            required_operation=OperationScope.ARCHIVE,
+            ready_for_execution=True,
+            human_gate_required=False,
+            human_gate_rationale=(
+                "Permission gate cleared for future live-control command staging."
+            ),
+            blockers=(),
+            evidence_refs=("gate.fixture=archive",),
+            timestamp=observed_at,
+        )
+
+        summary = summarize_recovery_readiness(
+            runtime_export,
+            gate,
+            timestamp=observed_at,
+        )
+
+        assert summary.readiness_status == "blocked"
+        assert summary.ready_for_execution is False
+        assert "readiness.target_session_mismatch" in summary.blockers
+        assert "readiness.recommended_action_mismatch" in summary.blockers
+        assert "runtime.fixture=restart" in summary.evidence_refs
+        assert "gate.fixture=archive" in summary.evidence_refs
 
 
 class TestPrimeAutonomyInput:
