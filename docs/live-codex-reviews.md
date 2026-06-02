@@ -22,6 +22,36 @@ Completion: commit only review provenance/finding/pass updates locally in `docs/
 
 ## Coordinator Override - Completed / Passed
 
+Goal: bounded post-landing smoke review of Build 1 provider-result validation runtime.
+
+Status: passed by Codex Reviews A on 2026-06-02 08:48 -06:00. Current `HEAD` and `origin/main` are `aa926f07`, and landing range `d6007b21^..aa926f07` is present on current main.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Review scope: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, pushed landing provenance, and `docs/live-codex-reviews.md` for Reviews A smoke provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_relay_executor.py -q`
+- `git diff --check d6007b21^..aa926f07`
+
+Review result:
+
+- Containment checks for `d6007b21` and `aa926f07` passed.
+- Scope check shows runtime/test changes in `meridian_core/relay_executor.py` and `tests/test_relay_executor.py`, Build 1 queue provenance in `docs/live-build-1.md`, and landing review provenance in `docs/live-codex-reviews-2.md`.
+- `python -m pytest tests/test_relay_executor.py -q` passed with 204 tests.
+- `git diff --check d6007b21^..aa926f07` passed.
+- Verified `RelayProviderResultValidationEvidence` remains provider-neutral, immutable, serialization-only, and display-safe, carrying route/model/provider metadata, proof refs, output length/hash, telemetry availability statuses, warning tags, blocker tags, and validation status without storing raw provider output text.
+- Verified `RelayExecutionSummary.provider_result_validation_consumer_view()` is deterministic, dedupes blocker/warning tags, and does not expose raw prompts, raw provider responses, credentials, or account internals.
+- Verified adapter/provider request boundary is unchanged: dispatch still calls `model_call(lane.payload)` or `adapter(lane.payload)` only; no metadata crosses into the request payload.
+- Verified no live provider/model calls, credential/account probing, UI/Bifrost/FileMap/session/process edits, branch/worktree movement, main writes, or Polaris dependency was introduced.
+
+Finding: none.
+
+Completion: Build 1 provider-result validation runtime landing smoke is review-cleared. No repair routed.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 2 recovery-readiness advisory summary.
 
 Status: passed by Codex Reviews A on 2026-06-02 08:39 -06:00. Current `HEAD` and `origin/main` are `aff606fb`, and Build 2 commits `2620ea65` and `954cde56` are ancestors of current main.
