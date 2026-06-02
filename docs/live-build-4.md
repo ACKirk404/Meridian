@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: create a docs-only provider transport metadata pass-through checklist for Relay/Model Harness validation.
 
@@ -22,7 +22,15 @@ Task: write a concise build-ready checklist for future provider transport metada
 
 Tests: docs-only; run text/shape inspection plus `git diff --check`.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, verification performed, and Next Candidate: implement reviewed provider transport metadata pass-through.
+Completion: completed 2026-06-02.
+
+Ready for Codex Review:
+
+- Commit: `pending local commit hash`
+- Files changed: `docs/provider-transport-metadata-pass-through-checklist.md`, `docs/live-build-4.md`
+- Tests: not required (docs-only)
+- Verification performed: text/shape inspection confirmed the checklist exists and covers dispatch metadata envelope shape, exact model id, provider route kind, trust state, direct-vs-aggregator proof refs, prompt-drag budget/growth fields, external-review state, validation fail-closed behavior, provider request exclusion of raw prompts beyond `PromptPacket.model_payload()`, deterministic tests, Bifrost display expectations, and exclusions for live provider calls, credentials/account probing, raw provider responses, process/session control, FileMap edits, branch/worktree movement, shared-main writes, pushes to main, and Polaris; staged diff passes `git diff --cached --check`.
+- Next Candidate: implement reviewed provider transport metadata pass-through.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
