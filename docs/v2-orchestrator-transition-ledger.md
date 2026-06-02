@@ -250,6 +250,12 @@ Coordinator review clearance and lane reactivation - 2026-06-02:
 - Reviews B completed repaired Build 4 checklist review and Build 5 stale-session recovery review with no findings. Local provenance commit `9ec8ed44` was clean and path-limited to `docs/live-codex-reviews-2.md`; coordinator moved it to main as `7fc74daa`.
 - Coordinator promoted fresh top tasks for the newly review-cleared lanes: Build 3 FileMap checkpoint audit, Build 4 Relay prompt-payload visibility implementation checklist, and Build 5 Bifrost proof-state preview sample rendering. These are queue/doc routing updates only; no worker implementation files were written in shared main.
 
+Coordinator Build 2 advisory movement - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean on `main`; verified Build 2 worktree clean before movement. Build 2 branch `codex/aligned-build-2-prime-beacon-advisory-20260601-2142` was `ahead 2, behind 3` with local commits `a2cefdce` and `ced18307`.
+- Approved and completed path-limited movement of Build 2 Prime/Beacon advisory binding onto shared main as `46c118f3` (`feat: bind session recovery advisory state`) and `4096f0f5` (`docs: mark session recovery advisory ready`). Movement scope stayed limited to `meridian_core/session_lifecycle.py`, `meridian_core/prime_autonomy.py`, `tests/test_session_lifecycle.py`, `tests/test_prime_autonomy.py`, and `docs/live-build-2.md`.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py -q` passed 130/130. Next coordinator action: route Reviews A to review Build 2 advisory binding while the other build lanes continue active work.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
