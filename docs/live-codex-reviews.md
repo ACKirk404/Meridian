@@ -22,6 +22,35 @@ Completion: commit only review provenance/finding/pass updates locally in `docs/
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review Build 2 Prime/Beacon command-staging advisory consumers.
+
+Status: passed by Codex Reviews A on 2026-06-02 09:14 -06:00. Candidate `HEAD` is `683e364b`, and Build 2 commits `0f63b726` and `683e364b` are ancestors of the assigned candidate branch.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Review scope: `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_prime_autonomy.py`, `tests/test_beacon.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_prime_autonomy.py tests/test_beacon.py -q`
+- `git diff --check 0f63b726^..683e364b`
+
+Review result:
+
+- Containment checks for `0f63b726` and `683e364b` passed on the assigned candidate branch.
+- Scope check shows implementation/test changes limited to `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_prime_autonomy.py`, and `tests/test_beacon.py`, with Build 2 queue provenance in `docs/live-build-2.md`.
+- `python -m pytest tests/test_prime_autonomy.py tests/test_beacon.py -q` passed with 106 tests.
+- `git diff --check 0f63b726^..683e364b` passed.
+- Verified Prime consumes `SessionLiveControlCommandPlanStagingRecord` through `select_next_action_from_command_plan_staging_record()` as advisory-only state: UI-review-only records become non-executable `ADVISE_SESSION_RECOVERY`, and permission/stageability blockers pause safely.
+- Verified Beacon consumes the same staging record through `command_plan_staging_advisory_evidence()` as display-safe serializable evidence only, preserving target session id, command kind, recommended action, required operation, ready flag, non-executable flag, UI-review gate, permission state, blockers, and evidence refs.
+- Verified no restart, resteer, archive execution, process/session/model/provider calls, UI/Bifrost/FileMap edits, branch/worktree movement, main writes, or Polaris dependency was introduced.
+
+Finding: none.
+
+Completion: Build 2 Prime/Beacon command-staging advisory consumers are review-cleared. No repair routed.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review Build 2 live-control command-plan staging.
 
 Status: passed by Codex Reviews A on 2026-06-02 09:05 -06:00. Candidate `HEAD` is `15ebb598`, and Build 2 commits `a240ea4d` and `15ebb598` are ancestors of the assigned candidate branch.
