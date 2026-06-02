@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: create a build-ready Relay/Aegis demotion, retry, and Bifrost handoff checklist after Reviews A/B cleared the policy runtime, Aegis serialization, and Bifrost adapter slices.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Allowed files only: `docs/relay-aegis-demotion-retry-handoff-checklist.md`, `docs/live-build-4.md`.
+
+Required sources: `docs/relay-aegis-promptpacket-policy-integration-checklist.md`, Reviews A clearance evidence in `docs/live-codex-reviews.md`, Reviews B clearance evidence in `docs/live-codex-reviews-2.md`, `meridian_core/aegis.py`, `meridian_core/relay_executor.py`, and `bifrost/cockpit.py`.
+
+Task: write a concise implementation checklist for the next Relay/Aegis/Bifrost integration stage: demotion target handling, retry/fallback boundaries, fail-closed missing metadata, human-gate decisions, display-safe handoff summary shape, Bifrost adapter expectations, deterministic tests, and explicit exclusions for raw prompts, credentials, provider responses, process/session control, branch/worktree movement, FileMap edits, main writes, and Polaris. Keep this docs-only; do not edit runtime code or tests.
+
+Tests: docs-only; run text/shape inspection plus `git diff --check` before marking complete.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, verification run, and Next Candidate: review this checklist before runtime demotion/retry wiring.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add display-safe serialization for Aegis PromptPacket policy results before Relay/Bifrost runtime consumption.

@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: bind review-cleared Session Lifecycle permission summaries into Prime/Beacon advisory recovery decisions.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
+Allowed files only: `meridian_core/session_lifecycle.py`, `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_session_lifecycle.py`, `tests/test_prime_autonomy.py`, `tests/test_beacon.py`, `docs/live-build-2.md`.
+
+Required sources: Reviews A clearance evidence in `docs/live-codex-reviews.md`, `docs/session-lifecycle-v2-contract.md`, `docs/session-lifecycle-permissions-prime-beacon-contract.md`, and current `SessionPermissionSummary` / `gather_prime_autonomy_input()` behavior.
+
+Task: add a narrow pure advisory binding so expired/locked/out-of-scope permission summaries influence Prime/Beacon restart/resteer/recovery recommendations without executing them. Preserve coordinator-only branch/worktree movement: movement-sensitive actions remain blocked unless explicit permission evidence allows the relevant operation. Surface deterministic display-safe evidence strings for expired temporary unlocks, pending approvals, review-gate blockers, stale recovery, and recovery recommendation rationale. Keep this advisory and serializable only: no session spawning, process inspection, model calls, UI/Bifrost/FileMap edits, autonomous movement, main writes, or Polaris.
+
+Tests: `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py tests/test_beacon.py -q`.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind review findings or route the next Session Lifecycle runtime-state slice.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair Reviews A finding in Session Lifecycle permission summary expiry handling.

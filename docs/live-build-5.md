@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: connect the review-cleared Relay/Aegis handoff summary adapter into deterministic Bifrost cockpit view-model rendering.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-5-bifrost`.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Required sources: Reviews B clearance evidence in `docs/live-codex-reviews-2.md`, `docs/relay-aegis-promptpacket-policy-integration-checklist.md`, and existing `relay_aegis_policy_handoff_from_summary()` behavior in `bifrost/cockpit.py`.
+
+Task: wire the pure adapter into the deterministic cockpit view-model/sample path so structured Relay/Aegis summary dictionaries can render through the existing handoff panel without live Relay runtime wiring. Cover missing optional fields, demotion and human-gate states, fail-closed missing metadata, escaping/redaction, deterministic ordering, and preservation of prompt payload visibility, provider balance, dispatch hardening, PromptPacket proof metadata, proof-state preview, stale-session recovery actions, and existing cockpit layout. Do not spawn sessions, inspect live processes, call models, edit `index.html`, touch Relay runtime, edit FileMap, move branches, main, or Polaris.
+
+Tests: `python -m pytest tests/test_bifrost_cockpit.py -q`.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind review findings or connect reviewed Relay runtime summaries after review.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add a Bifrost adapter for Relay/Aegis policy handoff summary dictionaries after Reviews B cleared the static renderer.

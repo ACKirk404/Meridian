@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: extend the review-cleared Relay/Aegis PromptPacket policy runtime integration into a display-safe Relay handoff summary for Bifrost consumption.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-v2-relay`.
+
+Allowed files only: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+
+Required sources: Reviews A clearance evidence in `docs/live-codex-reviews.md`, Reviews B clearance evidence in `docs/live-codex-reviews-2.md`, `meridian_core/aegis.py`, `bifrost/cockpit.py`, and `docs/relay-aegis-promptpacket-policy-integration-checklist.md`.
+
+Task: add a narrow deterministic Relay summary surface that converts the already evaluated Aegis PromptPacket policy result and dispatch-envelope proof metadata into a structured Relay/Aegis handoff dictionary suitable for the reviewed Bifrost adapter. Include decision, severity, packet id/hash status, proof requirement, Aegis evidence ids, blockers, warnings, missing metadata fields, reason tags, demotion target, human-gate state, and fail-closed/missing-metadata state. Preserve `PromptPacket.model_payload()` as the only model-bound prompt text. Do not call live models, mutate Aegis rules, edit Bifrost/UI/FileMap/model-account-process code, move branches, push main, or touch Polaris.
+
+Tests: `python -m pytest tests/test_relay_executor.py -q`.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind review findings or connect the handoff summary into Bifrost rendering after review.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement the first Relay/Aegis PromptPacket policy runtime integration slice after Reviews B cleared the integration checklist.
