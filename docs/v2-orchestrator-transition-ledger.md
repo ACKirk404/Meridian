@@ -417,6 +417,14 @@ Coordinator Build 5 Aegis rendering movement - 2026-06-02:
 - Approved and completed path-limited movement of Build 5 Bifrost Aegis policy rendering commits `3e29b75b` and `a92b4159` onto shared main as `8d56cef5` and `9d8aa279`, limited to `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, and `docs/live-build-5.md`.
 - Proof rerun on shared main after movement: `python -m pytest tests/test_bifrost_cockpit.py -q` passed 217/217; `git diff --check 8d56cef5^..HEAD` passed.
 
+Coordinator Aegis-wave review clearance - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified Reviews A and Reviews B worktrees clean before movement. Reviews A had a completed Build 2 review provenance edit that was interrupted by the newer Build 1/3 route; the coordinator preserved it as local review-doc commit `47d39557` before movement.
+- Approved and completed path-limited movement of Reviews A provenance commit `47d39557` onto shared main as `9aa79f0b`, limited to `docs/live-codex-reviews.md`. Reviews A passed Build 2 Prime audit-evidence edge coverage with no findings.
+- Approved and completed path-limited movement of Reviews B provenance commit `4f853747` onto shared main as `2f06dff8`, limited to `docs/live-codex-reviews-2.md`. Reviews B passed Build 4 Aegis PromptPacket proof policy evaluator and Build 5 Bifrost Aegis policy decision rendering with no findings.
+- Reported proof: Build 2 `python -m pytest tests/test_prime_autonomy.py -q` passed 70/70 plus `git diff --check d13947a2^..be83f294`; Build 4 `python -m pytest tests/test_aegis.py -q` passed 215/215 plus `git diff --check 62473606^..7993022d`; Build 5 `python -m pytest tests/test_bifrost_cockpit.py -q` passed 217/217 plus `git diff --check 8d56cef5^..9d8aa279`.
+- Honest lane status after this clearance: Builds 1, 3, 4, and 5 are review-cleared for the Aegis wave; Build 2 audit-edge is review-cleared. Reviews A still needs fresh clean routing for the Build 1/3 review lane because its prior assignment was interrupted by the Build 2 provenance recovery.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
