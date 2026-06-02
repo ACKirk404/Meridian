@@ -96,6 +96,20 @@ No active write lease.
 Start new entries below this line.
 
 ```text
+Time: 2026-06-02 16:48 -06:00
+Writer: Meridian coordinator
+Intent: retroactive containment record for urgent Relay Runtime Logic restore after user reported missing Prime Directives, Prime Directive Proofs, and detailed Relay sections.
+Action completed: documented that reviewed Relay restore files landed on origin/main in commit `15e5cffa`, which was misnamed as a Build 4 read-check commit while queue/read-check activity was moving.
+Commit(s): 15e5cffa carried `index.html` and `tests/test_bifrost_cockpit.py`; this ledger-only correction commit records the containment event.
+Pushed to origin/main: pending at write time for this ledger-only correction.
+Files changed: docs/main-write-coordination-ledger.md
+Proof run: verified shared main clean/aligned; `git show --stat 15e5cffa` showed `docs/live-build-4.md`, `index.html`, and `tests/test_bifrost_cockpit.py`; `python -m pytest tests/test_bifrost_cockpit.py tests/test_relay_logic_snapshot.py -q` passed 295 tests; bridge self-test returned `ok: true`; Relay snapshot smoke returned 3 Prime directives, 3 Prime directive proofs, and 10 capability sections.
+Final shared main status: pending final fetch/status after push.
+Notes/blockers: Relay restore content is now present on origin/main, but the implementation landed in a queue/read-check commit instead of a clean coordinator restore commit. This entry preserves auditability and flags the containment irregularity for follow-up.
+Status: Complete
+```
+
+```text
 Time: 2026-06-02 12:03 -06:00
 Writer: Meridian coordinator
 Intent: docs-only coordinator status checkpoint ACKed by front-end developer lane after shared-main clean/aligned check.
