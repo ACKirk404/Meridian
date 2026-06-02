@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add display-safe serialization for Aegis PromptPacket policy results before Relay/Bifrost runtime consumption.
 
@@ -22,7 +22,15 @@ Task: add a narrow pure serialization/helper surface for `PromptPacketProofPolic
 
 Tests: `python -m pytest tests/test_aegis.py -q`.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, proof result, and Next Candidate: Reviews B review before any Relay/Bifrost consumer relies on the serialized policy result.
+Completion: completed 2026-06-02.
+
+Ready for Codex Review:
+
+- Commit: `pending local commit hash`
+- Files changed: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`
+- Tests run: `python -m pytest tests/test_aegis.py -q` (237 passed)
+- Verification performed: added `PromptPacketProofPolicyResult.to_display_dict()` and `serialize_prompt_packet_policy_result()` with stable display-safe keys, deterministic tuple ordering for evidence IDs, blockers, warnings, missing fields, and reason tags, demotion target preservation, and redaction for raw prompt, credentials, provider, and process-id sentinel strings; `git diff --check` passed.
+- Next Candidate: Reviews B review before any Relay/Bifrost consumer relies on the serialized policy result.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 

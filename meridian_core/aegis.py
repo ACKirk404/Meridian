@@ -1135,6 +1135,10 @@ class PromptPacketProofPolicyResult:
     warnings: tuple[str, ...] = ()
     demote_to_tier: int | None = None
 
+    def to_display_dict(self) -> dict[str, object]:
+        """Return a display-safe serialization for Relay/Bifrost consumers."""
+        return serialize_prompt_packet_policy_result(self)
+
 
 _PROMPT_PACKET_HASH_STATUSES = {
     "present",
@@ -1168,6 +1172,18 @@ _PROMPT_PACKET_UNSAFE_EVIDENCE_PATTERNS = (
     "credential",
     "token=",
 )
+_PROMPT_PACKET_UNSAFE_DISPLAY_PATTERNS = _PROMPT_PACKET_UNSAFE_EVIDENCE_PATTERNS + (
+    "bearer ",
+    "oauth",
+    "cookie",
+    "authorization",
+    "provider_request",
+    "provider_response",
+    "process_id",
+    "pid=",
+    "pid:",
+)
+_PROMPT_PACKET_REDACTED = "[redacted]"
 
 
 def _prompt_packet_severity(decision: PromptPacketProofDecision) -> str:
@@ -1202,6 +1218,83 @@ def _has_unsafe_prompt_packet_evidence(metadata: PromptPacketProofMetadata) -> b
         if any(pattern in lowered for pattern in _PROMPT_PACKET_UNSAFE_EVIDENCE_PATTERNS):
             return True
     return False
+
+
+def _is_prompt_packet_display_safe(value: str) -> bool:
+    lowered = value.lower()
+    return not any(pattern in lowered for pattern in _PROMPT_PACKET_UNSAFE_DISPLAY_PATTERNS)
+
+
+def _display_safe_prompt_packet_value(value: object) -> str:
+    text = str(value)
+    if not _is_prompt_packet_display_safe(text):
+        return _PROMPT_PACKET_REDACTED
+    return text
+
+
+def _display_safe_prompt_packet_tuple(values: tuple[str, ...]) -> tuple[str, ...]:
+    return tuple(_display_safe_prompt_packet_value(value) for value in values)
+
+
+def _prompt_packet_missing_field_from_tag(tag: str) -> str | None:
+    if tag.startswith("missing_"):
+        return tag.removeprefix("missing_")
+    if tag == "packet_hash_missing":
+        return "packet_hash"
+    if tag == "snapshot_missing":
+        return "snapshot"
+    return None
+
+
+def _prompt_packet_missing_fields(result: PromptPacketProofPolicyResult) -> tuple[str, ...]:
+    fields: list[str] = []
+    for tag in result.blockers:
+        field = _prompt_packet_missing_field_from_tag(tag)
+        if field is not None:
+            _append_unique(fields, _display_safe_prompt_packet_value(field))
+    return tuple(fields)
+
+
+def _prompt_packet_reason_tags(result: PromptPacketProofPolicyResult) -> tuple[str, ...]:
+    tags: list[str] = []
+    for tag in result.blockers:
+        _append_unique(tags, _display_safe_prompt_packet_value(tag))
+    for tag in result.warnings:
+        _append_unique(tags, _display_safe_prompt_packet_value(tag))
+    if tags:
+        return tuple(tags)
+    if result.decision is PromptPacketProofDecision.ALLOW:
+        return ("policy_allowed",)
+    if result.decision is PromptPacketProofDecision.HUMAN_GATE:
+        return ("human_gate_required",)
+    if result.decision is PromptPacketProofDecision.DEMOTE:
+        return ("policy_demote",)
+    if result.decision is PromptPacketProofDecision.WARN:
+        return ("policy_warn",)
+    return ("policy_block",)
+
+
+def serialize_prompt_packet_policy_result(
+    result: PromptPacketProofPolicyResult,
+) -> dict[str, object]:
+    """
+    Serialize Aegis PromptPacket policy results for Relay/Bifrost display.
+
+    The output is deterministic, plain-data, and display-safe. It does not
+    include raw prompt text, credentials, provider request/response bodies,
+    process ids, or live-control data.
+    """
+    return {
+        "decision": result.decision.value,
+        "severity": _display_safe_prompt_packet_value(result.severity),
+        "reason": _display_safe_prompt_packet_value(result.reason),
+        "evidence_ids": _display_safe_prompt_packet_tuple(result.evidence_ids),
+        "blockers": _display_safe_prompt_packet_tuple(result.blockers),
+        "warnings": _display_safe_prompt_packet_tuple(result.warnings),
+        "missing_fields": _prompt_packet_missing_fields(result),
+        "reason_tags": _prompt_packet_reason_tags(result),
+        "demote_to_tier": result.demote_to_tier,
+    }
 
 
 def _prompt_packet_result(

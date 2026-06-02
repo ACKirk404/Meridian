@@ -17,6 +17,7 @@ from meridian_core.aegis import (
     ProofTrail,
     PromptPacketProofDecision,
     PromptPacketProofMetadata,
+    PromptPacketProofPolicyResult,
     WaiverRecord,
     evidence_from_cross_check,
     evaluate_prompt_packet_proof_policy,
@@ -31,6 +32,7 @@ from meridian_core.aegis import (
     gate_unknown_proof_requirement,
     gate_unknown_route_class,
     gate_unsafe_fallback,
+    serialize_prompt_packet_policy_result,
     summarize_aggregate_route_gates,
     summarize_gate_result,
     summarize_gate_results,
@@ -1829,3 +1831,136 @@ class TestPromptPacketProofPolicyEvaluator:
             "unsafe_aegis_evidence_id",
             "unknown_proof_requirement",
         )
+
+    def test_policy_result_display_dict_has_stable_keys(self):
+        result = evaluate_prompt_packet_proof_policy(_prompt_packet_metadata())
+        display = serialize_prompt_packet_policy_result(result)
+        assert tuple(display.keys()) == (
+            "decision",
+            "severity",
+            "reason",
+            "evidence_ids",
+            "blockers",
+            "warnings",
+            "missing_fields",
+            "reason_tags",
+            "demote_to_tier",
+        )
+
+    def test_policy_result_to_display_dict_matches_helper(self):
+        result = evaluate_prompt_packet_proof_policy(_prompt_packet_metadata())
+        assert result.to_display_dict() == serialize_prompt_packet_policy_result(result)
+
+    def test_policy_result_display_dict_serializes_allow_state(self):
+        result = evaluate_prompt_packet_proof_policy(_prompt_packet_metadata())
+        display = result.to_display_dict()
+        assert display["decision"] == "allow"
+        assert display["severity"] == "info"
+        assert display["reason"] == "PromptPacket proof metadata satisfies Aegis policy"
+        assert display["evidence_ids"] == (
+            "packet:packet-relay-001",
+            "budget:budget-tier2-default",
+            "source:direct-input",
+        )
+        assert display["blockers"] == ()
+        assert display["warnings"] == ()
+        assert display["missing_fields"] == ()
+        assert display["reason_tags"] == ("policy_allowed",)
+        assert display["demote_to_tier"] is None
+
+    def test_policy_result_display_dict_preserves_warning_tags(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                packet_hash_status="unavailable",
+                packet_hash=None,
+                risk_tier=1,
+            )
+        )
+        display = result.to_display_dict()
+        assert display["decision"] == "warn"
+        assert display["warnings"] == ("packet_hash_unavailable",)
+        assert display["reason_tags"] == ("packet_hash_unavailable",)
+
+    def test_policy_result_display_dict_preserves_demotion_target(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                packet_hash_status="unavailable",
+                packet_hash=None,
+                risk_tier=2,
+                demotion_target_tier=1,
+            )
+        )
+        display = result.to_display_dict()
+        assert display["decision"] == "demote"
+        assert display["warnings"] == ("packet_hash_unavailable_demote",)
+        assert display["reason_tags"] == ("packet_hash_unavailable_demote",)
+        assert display["demote_to_tier"] == 1
+
+    def test_policy_result_display_dict_derives_missing_fields(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                packet_id="",
+                packet_hash_status="missing",
+                packet_hash=None,
+                source_lineage={},
+                allowed_sources=(),
+                budget_ref="",
+                aegis_evidence_ids=(),
+            )
+        )
+        display = result.to_display_dict()
+        assert display["decision"] == "block"
+        assert display["missing_fields"] == (
+            "packet_id",
+            "packet_hash",
+            "budget_ref",
+            "allowed_sources",
+            "source_lineage",
+            "aegis_evidence_ids",
+        )
+        assert "packet_hash_missing" in display["reason_tags"]
+
+    def test_policy_result_display_dict_derives_human_gate_reason_tag(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                risk_tier=4,
+                proof_requirement="human_gate",
+                human_gate_required=True,
+                human_approval_present=False,
+            )
+        )
+        display = result.to_display_dict()
+        assert display["decision"] == "human_gate"
+        assert display["reason_tags"] == ("human_gate_required",)
+        assert display["missing_fields"] == ()
+
+    def test_policy_result_display_dict_redacts_unsafe_strings(self):
+        result = PromptPacketProofPolicyResult(
+            decision=PromptPacketProofDecision.BLOCK,
+            severity="error",
+            reason="raw_prompt: do not show this",
+            evidence_ids=("safe-evidence", "api_key=secret-value"),
+            blockers=("provider_response:raw", "missing_packet_id"),
+            warnings=("pid=12345",),
+        )
+        display = result.to_display_dict()
+        assert display["reason"] == "[redacted]"
+        assert display["evidence_ids"] == ("safe-evidence", "[redacted]")
+        assert display["blockers"] == ("[redacted]", "missing_packet_id")
+        assert display["warnings"] == ("[redacted]",)
+        assert display["reason_tags"] == ("[redacted]", "missing_packet_id")
+        assert display["missing_fields"] == ("packet_id",)
+
+    def test_policy_result_display_dict_is_deterministic(self):
+        result = evaluate_prompt_packet_proof_policy(
+            _prompt_packet_metadata(
+                packet_id="",
+                packet_hash_status="missing",
+                packet_hash=None,
+                source_lineage={},
+                allowed_sources=(),
+                proof_requirement="mystery_proof",
+                aegis_evidence_ids=("raw_prompt:leak", "raw_prompt:leak"),
+            )
+        )
+        assert result.to_display_dict() == result.to_display_dict()
