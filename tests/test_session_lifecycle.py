@@ -1,7 +1,7 @@
 ﻿"""Tests for Session Lifecycle domain objects."""
 
 import pytest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from meridian_core.session_lifecycle import (
     SessionStatus,
@@ -457,6 +457,241 @@ class TestSessionCommandPlan:
             }
         )
         assert archive_for_fill.command_intent == CommandIntent.ARCHIVE
+
+
+class TestRestartResteerRecoveryDecisions:
+    """Tests for pure restart/resteer recovery routing and gates."""
+
+    @pytest.fixture
+    def recovery_state(self):
+        """Create a healthy, task-scoped session for recovery decisions."""
+        now = datetime.now(timezone.utc)
+        future = now + timedelta(hours=1)
+        permission_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset(
+                [
+                    OperationScope.RESTART,
+                    OperationScope.RESTEER,
+                    OperationScope.RECOVER_FROM_LIMIT,
+                ]
+            ),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=future,
+            task_scope="restart-resteer-slice",
+            last_permission_change=now,
+        )
+        return SessionLifecycleState(
+            session_id="session-recovery",
+            session_name="Build 2 Recovery",
+            project_name="Meridian",
+            project_path="/path/to/meridian",
+            harness_role=HarnessRole.BUILD,
+            assigned_queue_file="docs/live-build-2.md",
+            model_provider="anthropic",
+            model_name="claude-opus-4-7",
+            status=SessionStatus.RUNNING,
+            worktree_path="/worktree/build-2",
+            branch_name="codex/aligned-build-2-session-lifecycle",
+            current_task_id="restart-resteer-slice",
+            last_queue_read_at=now,
+            last_queue_write_at=now,
+            last_prompt_sent_at=now,
+            last_prompt_payload_size=16000,
+            review_cadence_state=ReviewCadenceState.NONE,
+            proof_state=ProofState.PERMISSION_VALIDATED,
+            health_state=HealthState.HEALTHY,
+            blocker_summary=None,
+            permission_context=permission_context,
+        )
+
+    @pytest.fixture
+    def base_plan(self, recovery_state):
+        """Create a typed, non-live command plan for recovery assertions."""
+        return SessionCommandPlan(
+            session_id=recovery_state.session_id,
+            session_name=recovery_state.session_name,
+            command_intent=CommandIntent.WATCH,
+            reason="Observe recovery signal",
+            expected_state_transition=(SessionStatus.RUNNING, SessionStatus.RUNNING),
+            current_state_evidence="typed SessionLifecycleState snapshot",
+            queue_file_evidence=recovery_state.assigned_queue_file,
+            worktree_evidence=recovery_state.worktree_path,
+            review_gate_evidence=None,
+            proof_requirement=ProofState.PERMISSION_VALIDATED,
+            queue_file_affected=recovery_state.assigned_queue_file,
+            worktree_path_affected=recovery_state.worktree_path,
+            branch_affected=recovery_state.branch_name,
+            aegis_gate_result=None,
+            cadence_gate_required=False,
+            cadence_gate_status=ReviewCadenceState.NONE,
+            is_executable_now=True,
+            human_approval_required=False,
+            approval_context=None,
+            rollback_or_recovery_note="No live restart or branch movement is executed.",
+        )
+
+    def test_stale_heartbeat_recovery_is_restart_advisory(self, recovery_state, base_plan):
+        """Stale heartbeat yields a restart finding and gated restart plan."""
+        stale_prompt_at = datetime.now(timezone.utc) - timedelta(minutes=46)
+        stale_state = SessionLifecycleState(
+            **{
+                **recovery_state.__dict__,
+                "status": SessionStatus.STALE,
+                "health_state": HealthState.STALE,
+                "last_prompt_sent_at": stale_prompt_at,
+            }
+        )
+        assert stale_state.heartbeat_stale(threshold_seconds=1800)
+
+        finding = RestartResteerFinding(
+            session_id=stale_state.session_id,
+            finding_type=FindingType.RESTART,
+            reason="Heartbeat exceeded stale threshold",
+            evidence_stale_seconds=2760,
+            evidence_last_queue_read_at=stale_state.last_queue_read_at,
+            evidence_blocker_summary=stale_state.blocker_summary,
+            recommended_action="Stage restart recovery for human/Aegis review",
+            timestamp=datetime.now(timezone.utc),
+        )
+        restart_plan = base_plan.__class__(
+            **{
+                **base_plan.__dict__,
+                "command_intent": CommandIntent.RESTART,
+                "reason": finding.reason,
+                "expected_state_transition": (SessionStatus.STALE, SessionStatus.RUNNING),
+                "is_executable_now": False,
+                "human_approval_required": True,
+                "approval_context": "stale heartbeat recovery requires review",
+            }
+        )
+
+        assert finding.finding_type == FindingType.RESTART
+        assert finding.evidence_last_queue_read_at == stale_state.last_queue_read_at
+        assert restart_plan.requires_aegis_approval()
+        assert not restart_plan.is_executable()
+
+    def test_context_fill_recovery_stages_summarize_reset(self, recovery_state, base_plan):
+        """Context pressure routes to summarize/reset without human approval."""
+        action, reason = recovery_state.suggest_routing_action(payload_near_limit=True)
+        summarize_plan = base_plan.__class__(
+            **{
+                **base_plan.__dict__,
+                "command_intent": CommandIntent.STEER,
+                "reason": "Summarize and reset context before continuing",
+                "proof_requirement": ProofState.COMMAND_STAGED,
+            }
+        )
+
+        assert action == SessionAction.SUMMARIZE_RESET
+        assert reason == SessionActionReason.PAYLOAD_BUDGET
+        assert summarize_plan.is_executable()
+        assert not summarize_plan.requires_aegis_approval()
+
+    def test_reasoning_shift_recovery_can_start_new_or_transfer(self, recovery_state, base_plan):
+        """Reasoning changes can start a clean session or transfer to an independent lane."""
+        start_action, start_reason = recovery_state.suggest_routing_action(
+            reasoning_mode_shifted=True
+        )
+        transfer_action, transfer_reason = recovery_state.suggest_routing_action(
+            tier_3_needs_independence=True
+        )
+        transfer_plan = base_plan.__class__(
+            **{
+                **base_plan.__dict__,
+                "command_intent": CommandIntent.TRANSFER,
+                "reason": "Transfer for independent reasoning lane",
+                "expected_state_transition": (SessionStatus.RUNNING, SessionStatus.WAITING),
+                "is_executable_now": False,
+                "human_approval_required": True,
+                "approval_context": "transfer requires independent approval",
+            }
+        )
+
+        assert start_action == SessionAction.START_NEW
+        assert start_reason == SessionActionReason.REASONING_SHIFT
+        assert transfer_action == SessionAction.TRANSFER
+        assert transfer_reason == SessionActionReason.DUAL_LANE_NEEDED
+        assert transfer_plan.requires_aegis_approval()
+        assert not transfer_plan.is_executable()
+
+    def test_review_gate_recovery_requires_human_approval(self, recovery_state, base_plan):
+        """Review-gated recovery is represented as a blocked human-gate plan."""
+        gated_state = SessionLifecycleState(
+            **{
+                **recovery_state.__dict__,
+                "status": SessionStatus.REVIEW_GATED,
+                "review_cadence_state": ReviewCadenceState.REVIEW_GATED,
+            }
+        )
+        action, reason = gated_state.suggest_routing_action(review_gate_pending=True)
+        gate_plan = base_plan.__class__(
+            **{
+                **base_plan.__dict__,
+                "command_intent": CommandIntent.REQUEST_HUMAN_GATE,
+                "reason": "Review gate must clear before recovery proceeds",
+                "expected_state_transition": (
+                    SessionStatus.REVIEW_GATED,
+                    SessionStatus.REVIEW_GATED,
+                ),
+                "review_gate_evidence": "Codex review gate pending",
+                "cadence_gate_required": True,
+                "cadence_gate_status": ReviewCadenceState.REVIEW_GATED,
+                "is_executable_now": False,
+                "human_approval_required": True,
+                "approval_context": "human review approval required",
+            }
+        )
+
+        assert action == SessionAction.REQUEST_HUMAN_GATE
+        assert reason == SessionActionReason.REVIEW_GATE
+        assert not gate_plan.is_executable()
+        assert gate_plan.human_approval_required
+
+    def test_permission_boundary_recovery_blocks_without_valid_unlock(self, recovery_state, base_plan):
+        """Permission-boundary recovery preserves expiry and task-scope blocking."""
+        expired_context = PermissionContext(
+            approved_by="prime",
+            approval_scope=frozenset([OperationScope.RESTART, OperationScope.RESTEER]),
+            escalation_gate=False,
+            escalation_reason=None,
+            branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+            approved_by_secondary=None,
+            unlock_expiry=datetime.now(timezone.utc) - timedelta(minutes=1),
+            task_scope="different-task",
+            last_permission_change=datetime.now(timezone.utc),
+        )
+        blocked_state = SessionLifecycleState(
+            **{
+                **recovery_state.__dict__,
+                "status": SessionStatus.BLOCKED,
+                "blocker_summary": "permission boundary requires a fresh task-scoped unlock",
+                "permission_context": expired_context,
+            }
+        )
+        action, reason = blocked_state.suggest_routing_action(
+            permission_boundary_crossed=True
+        )
+        gate_plan = base_plan.__class__(
+            **{
+                **base_plan.__dict__,
+                "command_intent": CommandIntent.REQUEST_HUMAN_GATE,
+                "reason": "Permission boundary blocks restart/resteer recovery",
+                "is_executable_now": False,
+                "human_approval_required": True,
+                "approval_context": blocked_state.blocker_summary,
+            }
+        )
+
+        assert action == SessionAction.REQUEST_HUMAN_GATE
+        assert reason == SessionActionReason.PERMISSION_BOUNDARY
+        assert not blocked_state.can_accept_work()
+        assert not blocked_state.can_execute_operation(OperationScope.RESTART)
+        assert not blocked_state.can_execute_operation(OperationScope.RESTEER)
+        assert not gate_plan.is_executable()
 
 
 class TestPermissionContext:
