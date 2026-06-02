@@ -386,6 +386,12 @@ Coordinator Reviews B clearance - 2026-06-02:
 - Approved and completed path-limited movement of Reviews B provenance commit `cb8366b2` onto shared main as `4b539ac8`, limited to `docs/live-codex-reviews-2.md`.
 - Review result: Build 4 Aegis PromptPacket proof policy checklist and Build 5 Bifrost PromptPacket proof metadata rendering passed with no findings. Reported proof: Build 4 docs/shape inspection plus `git diff --check 9a6be911^..e86f8019`; Build 5 `python -m pytest tests/test_bifrost_cockpit.py -q` passed 206/206 plus `git diff --check 6716a928^..346c6c4e`.
 
+Coordinator Reviews A Build 1 clearance - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified Reviews A worktree clean before movement.
+- Approved and completed path-limited movement of Reviews A provenance commit `5b037c70` onto shared main as `dba54fe2`, limited to `docs/live-codex-reviews.md`.
+- Review result: Build 1 PromptPacket proof metadata binding passed with no findings. Reported proof: `python -m pytest tests/test_prompt_packet.py tests/test_relay_packet.py tests/test_relay_executor.py -q` passed 234/234; `git diff --check f1acf65c^..5c6a6a28` passed.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
