@@ -3308,6 +3308,7 @@ body {
   let bridgeCapabilities = {};
   let bridgeOnline = false;
   let userSessions = [];
+  let userSessionsLoadFailed = false;
   const userSessionTargetKey = 'meridian.user-session.target.v1';
   const userSessionSelect = document.querySelector('.session-target-select');
   const localBridgeBase = 'http://127.0.0.1:8767/bridge';
@@ -3369,6 +3370,7 @@ body {
     return `${session.sessionName}${status}`;
   };
   const userSessionStatusText = () => {
+    if (userSessionsLoadFailed) return 'session list unavailable';
     const selected = selectedUserSession();
     if (!selected) return 'select live session';
     const status = selected.status && selected.status !== 'live' ? ` (${selected.status.replaceAll('_', ' ')})` : '';
@@ -3386,7 +3388,7 @@ body {
     if (!userSessions.length) {
       const option = document.createElement('option');
       option.value = '';
-      option.textContent = 'No live sessions';
+      option.textContent = userSessionsLoadFailed ? 'Sessions unavailable' : 'No live sessions';
       userSessionSelect.append(option);
       updateUserSessionTitle();
       updateUserSessionStatus();
@@ -3418,8 +3420,10 @@ body {
       const response = await fetch(bridgeUrl('user-sessions'), { cache: 'no-store' });
       const result = await response.json();
       userSessions = Array.isArray(result.sessions) ? result.sessions.filter((session) => session.routable) : [];
+      userSessionsLoadFailed = false;
     } catch {
       userSessions = [];
+      userSessionsLoadFailed = true;
     }
     renderUserSessionSelect();
     renderTranscript(userInput());

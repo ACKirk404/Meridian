@@ -96,7 +96,7 @@ The right panel needs a Sessions dropdown when it is in User Session mode. Prime
 | USE9 | Immediate prompt routing | Selecting a session immediately sets that session as the User prompt target. | wired | Next User prompt is routed to selected session without extra confirmation. |
 | USE10 | Selection state persistence | Remembers selected live session during current UI session when possible. | partial | Reload restores the target only if `/bridge/user-sessions` still reports it as routable. |
 | USE11 | Session status display | Shows concise status such as live, hidden, waiting for test, blocked, or done if still open. | partial | Live, hidden, and waiting status appear in selector labels, and the User prompt status line names the loaded target after discovery/restore. |
-| USE12 | Stale target guard | If selected session closes or becomes unavailable, User prompt is blocked with a readable target warning. | partial | Sending without a bridge-confirmed target shows a target error instead of disappearing. |
+| USE12 | Stale target guard | If selected session closes or becomes unavailable, User prompt is blocked with a readable target warning. | partial | Sending without a bridge-confirmed target shows a target error; failed target-list loading shows `Sessions unavailable` / `session list unavailable` instead of pretending no sessions exist. |
 | USE13 | User mode restore | Returning from Settings/Harness mode restores prior selected live session if still available. | wired | Toggle away and back; previous routable session target returns. |
 
 ### Spark Ring Icons
