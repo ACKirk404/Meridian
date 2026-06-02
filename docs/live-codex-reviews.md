@@ -26,6 +26,20 @@ Proof command:
 
 Completion: if clean, mark passed and promote the next Relay/Model Harness candidate from `docs/v2-progress-tracker.md`; if findings exist, route the smallest focused repair to Build 1 ahead of unrelated Relay work. Commit only review-queue/provenance updates and push to `origin/main`.
 
+## Next Candidate Task
+
+Goal: review Build 2 Session Lifecycle restart/resteer recovery tests when marked Ready for Codex Review on current main.
+
+Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/session-lifecycle-v2-contract.md`, `docs/session-lifecycle-permissions-implementation-checklist.md`, `docs/session-lifecycle-permissions-prime-beacon-contract.md`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for review provenance/routing only.
+
+Task: after the active Build 1 DeepSeek candidate metadata preset review is passed or repair-routed, poll `docs/live-build-2.md` and current `origin/main` for the Build 2 restart/resteer recovery test slice. Verify the tests cover stale heartbeat, context-fill summarize/reset, reasoning-shift transfer/start-new-session, review-gate human approval, and permission-boundary blocking while preserving reviewed permission invariants and no-live-control boundaries.
+
+Proof command:
+
+- `python -m pytest tests/test_session_lifecycle.py -q`
+
+Completion: if clean, mark passed and promote the next Session Lifecycle candidate from `docs/v2-progress-tracker.md`; if findings exist, route the smallest focused repair to Build 2 ahead of unrelated Session Lifecycle work. Commit only review-queue/provenance updates and push to `origin/main`.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review current-main Build 2 Session Lifecycle permission-invariant repair.

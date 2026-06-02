@@ -28,6 +28,24 @@ Proof commands:
 
 Completion: if clean, mark the reviewed slice passed and promote the next candidate for that lane; if findings exist, route the smallest focused repair back to the owning build lane ahead of normal work. Commit only review-queue/provenance updates and push to `origin/main`.
 
+## Next Candidate Task
+
+Goal: review the other Build 4 or Build 5 current-main Ready marker that was not consumed by the active review poll.
+
+Allowed review files by lane remain the same as the Active Now task:
+
+- Build 4 checklist review: `docs/relay-heartbeat-model-routing-implementation-checklist.md`, `docs/relay-heartbeat-model-routing-logic.md`, `docs/model-harness-v2-contract.md`, `docs/deepseek-direct-provider-implementation-handoff.md`, `docs/live-build-4.md`, and `docs/live-codex-reviews-2.md`.
+- Build 5 stale-session recovery review: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/bifrost-right-panel-mode-contract.md`, `docs/ui-integration-checklist.md`, `docs/live-build-5.md`, and `docs/live-codex-reviews-2.md`.
+
+Task: after the active review handles whichever current-main Ready marker appears first, immediately poll for the remaining lane's Ready marker and review it before idle polling. If both are ready, review Build 4 first when it is docs-only and then Build 5 with cockpit tests, unless an actionable finding or repair gate changes priority.
+
+Proof commands:
+
+- Build 4: docs/architecture review; no pytest required unless runtime claims require proof.
+- Build 5: `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Completion: if clean, mark passed and promote the owning lane's next candidate; if findings exist, route the smallest focused repair ahead of normal work. Commit only review-queue/provenance updates and push to `origin/main`.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review current-main Build 4 account-first wrong-scope fallback repair.
