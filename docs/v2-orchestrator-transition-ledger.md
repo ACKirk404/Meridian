@@ -397,6 +397,12 @@ Coordinator fresh task promotion after PromptPacket clearance - 2026-06-02:
 - Promoted fresh executable build tasks on shared main after review clearance: Build 1 Relay decision-record packet proof binding; Build 2 Prime audit-evidence edge coverage; Build 3 FileMap audit for Aegis/PromptPacket proof landings; Build 4 pure Aegis PromptPacket proof policy evaluator; Build 5 Bifrost Aegis PromptPacket policy decision rendering.
 - Promoted review queue Active Now blocks: Reviews A polls/reviews the next current-main Ready marker from Build 1/2/3; Reviews B polls/reviews the next current-main Ready marker from Build 4/5. These poll tasks must not commit read-check-only progress.
 
+Coordinator Build 2 audit-edge movement - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean/aligned on `main`; verified Build 2 worktree clean before movement. Build 1, Build 3, Build 4, and Build 5 remained dirty/in-progress or without clean Ready markers and were not moved.
+- Approved and completed path-limited movement of Build 2 Prime audit-evidence edge coverage commits `d65ddcab` and `8922e741` onto shared main as `d13947a2` and `be83f294`, limited to `meridian_core/prime_autonomy.py`, `tests/test_prime_autonomy.py`, and `docs/live-build-2.md`.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_prime_autonomy.py -q` passed 70/70; `git diff --check d13947a2^..HEAD` passed.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
