@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: repair Reviews A finding in Session Lifecycle permission summary expiry handling.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
+Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
+
+Required sources: Reviews A finding in `docs/live-codex-reviews.md`, `docs/session-lifecycle-v2-contract.md`, `docs/session-lifecycle-permissions-prime-beacon-contract.md`, and the current `SessionPermissionSummary` implementation in `meridian_core/session_lifecycle.py`.
+
+Task: fix `_permission_unlock_expired_at()` so aware datetimes are normalized with `astimezone(timezone.utc)` before comparison instead of relabeling them with `replace(tzinfo=timezone.utc)`. Add a regression test using a non-UTC aware `timestamp` proving `summarize_session_permission_state()` deterministically records `permission.unlock_expired` when the same instant is after the UTC unlock expiry. Keep the repair pure/advisory only: no session spawning, process inspection, model calls, UI/Bifrost/FileMap edits, branch/worktree movement, autonomous movement, main writes, or Polaris.
+
+Tests: `python -m pytest tests/test_session_lifecycle.py -q`.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, proof result, and Next Candidate: Reviews A re-review of the repaired permission summary slice.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Session Lifecycle permission summary aggregation for Prime/Beacon advisory input after Reviews A cleared permission evidence.

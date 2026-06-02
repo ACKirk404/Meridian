@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: add a Bifrost adapter for Relay/Aegis policy handoff summary dictionaries after Reviews B cleared the static renderer.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-5-bifrost`.
+
+Allowed files only: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+
+Required sources: Reviews B clearance evidence in `docs/live-codex-reviews-2.md`, `docs/relay-aegis-promptpacket-policy-integration-checklist.md`, and existing Relay/Aegis handoff rendering in `bifrost/cockpit.py`.
+
+Task: add a pure defensive adapter that converts a structured Relay/Aegis policy handoff summary dictionary into the existing Bifrost handoff view-model. The adapter must normalize missing optional fields into display-safe placeholders, preserve deterministic ordering, redact unsafe sentinel/raw/secret/process/provider metadata values, and preserve existing prompt payload visibility, provider balance, dispatch hardening, PromptPacket proof metadata, proof-state preview, stale-session recovery, and escaping behavior. Do not spawn sessions, inspect live processes, call models, edit `index.html`, touch Relay runtime, edit FileMap, move branches, main, or Polaris.
+
+Tests: `python -m pytest tests/test_bifrost_cockpit.py -q`.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, proof result, and Next Candidate: Reviews B review before connecting the adapter to any live Relay runtime summary source.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: add Bifrost Relay/Aegis policy handoff summary rendering for the rolling runtime integration.

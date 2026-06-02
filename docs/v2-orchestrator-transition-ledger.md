@@ -158,6 +158,20 @@ Current orchestrator review of supervised routing trial - 2026-06-02:
 
 - Review thread accepted the Open Checkpoint 3 supervised routing trial with no corrections.
 - Accepted: Build 3 and Reviews B queue updates are coordinator-scoped, specific, actionable, and reject read-check-only progress; Build 4 was correctly held unchanged.
+
+## Open Checkpoint 4 - Rolling Coordinator Actions
+
+Status: active rolling coordination.
+
+Coordinator action record - 2026-06-01 23:19 -06:00:
+
+- Fetched `origin/main`; verified shared main on `main`, aligned and clean before movement.
+- Verified Reviews A and Reviews B worktrees were clean before moving review-only provenance.
+- Moved Reviews A finding provenance to main as `3540b2cd` from local `4ab66582`, touching only `docs/live-codex-reviews.md`.
+- Moved Reviews B pass provenance to main as `e4ae4297` from local `bf69b68a`, touching only `docs/live-codex-reviews-2.md`.
+- Pushed main to `origin/main` at `e4ae4297`; shared main remained clean after push.
+- Routing follow-up: Build 2 now has an explicit Active Now repair for the non-UTC aware timestamp expiry finding; Build 4 and Build 5 now have executable follow-on tasks after Reviews B clearance; Reviews B polling was restored as an Active Now block.
+- Containment: no worker implementation files were written in shared main, no worker was approved to move data between branches/worktrees, and takeover remains an active coordinator goal rather than complete.
 - Approved next step: Build 3 and Reviews B should execute the queued tasks in their assigned unique worktrees and record pass/finding/blocker evidence.
 - Takeover remains incomplete: full takeover still waits on Build 3 and Reviews B evidence plus explicit takeover approval in this ledger.
 

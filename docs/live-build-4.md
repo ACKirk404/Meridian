@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: add display-safe serialization for Aegis PromptPacket policy results before Relay/Bifrost runtime consumption.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Allowed files only: `meridian_core/aegis.py`, `tests/test_aegis.py`, `docs/live-build-4.md`.
+
+Required sources: `docs/relay-aegis-promptpacket-policy-integration-checklist.md`, Reviews B clearance evidence in `docs/live-codex-reviews-2.md`, and existing `PromptPacketProofPolicyResult` / `evaluate_prompt_packet_proof_policy()` behavior in `meridian_core/aegis.py`.
+
+Task: add a narrow pure serialization/helper surface for `PromptPacketProofPolicyResult` that Relay and Bifrost can consume without raw prompt text, credentials, provider secrets, process ids, or live-control data. Preserve deterministic ordering for blockers, warnings, missing fields, reason tags, and evidence ids. Do not change Relay runtime, Bifrost UI, FileMap, model/account/process code, branches, main, or Polaris.
+
+Tests: `python -m pytest tests/test_aegis.py -q`.
+
+Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, proof result, and Next Candidate: Reviews B review before any Relay/Bifrost consumer relies on the serialized policy result.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: extend Aegis PromptPacket proof policy edge coverage for Relay integration inputs.
