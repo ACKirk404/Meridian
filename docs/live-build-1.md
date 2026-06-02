@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Completed / Ready For Codex Review
+## Coordinator Override - Active Now
 
 Goal: implement the first Relay/Aegis PromptPacket policy runtime integration slice after Reviews B cleared the integration checklist.
 
@@ -23,15 +23,6 @@ Task: add a narrow deterministic Relay call site/helper that builds `PromptPacke
 Tests: `python -m pytest tests/test_relay_executor.py -q`.
 
 Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind review findings or extend the integration to demotion/retry/Bifrost handoff after review.
-
-Completion:
-- Status: Ready for Codex Review.
-- Completed: 2026-06-01 23:12 -06:00.
-- Commit: `d5c4c4c8` (`feat: Evaluate PromptPacket proof policy in Relay runtime`).
-- Files changed: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
-- Tests run: `python -m pytest tests/test_relay_executor.py -q` (176 passed).
-- Concrete evidence: Relay now adapts sealed PromptPacket and dispatch-envelope proof fields into Aegis `evaluate_prompt_packet_proof_policy()` metadata on the policy-aware runtime path before model transport. Display-safe `RelayPromptPacketPolicyEvidence` is recorded on Relay summaries and decision records. Tests cover allow, warn/degraded, block/fail-closed, missing proof metadata, no model call on block, evidence-id propagation, and no raw prompt leakage.
-- Next Candidate: bind review findings or extend the integration to demotion/retry/Bifrost handoff after review.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
