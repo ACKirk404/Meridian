@@ -372,6 +372,14 @@ Coordinator Build 4/5 movement - 2026-06-02:
 - Approved and completed path-limited movement of Build 5 Bifrost PromptPacket proof metadata rendering commits `90b3ddf6` and `48c15f09` onto shared main as `6716a928` and `346c6c4e`, limited to `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, and `docs/live-build-5.md`.
 - Proof rerun on shared main after movement: `python -m pytest tests/test_bifrost_cockpit.py -q` passed 206/206; `git diff --check 9a6be911^..HEAD` passed; Aegis checklist shape scan found required packet id/hash, source-lineage, budget, Aegis evidence, human-gate, dual-lane, block/demote/warn, Bifrost, FileMap, and test terms.
 
+Coordinator Reviews A and Build 1 movement - 2026-06-02:
+
+- Gate note: before this movement, fetched `origin/main` and found shared main clean/aligned with remote commit `1945be3b` (`Complete Spark reset reload controls`), a UI reset/reload commit already present on main. No revert was performed; it is recorded here as containment context.
+- Movement gate: verified shared main clean/aligned on `main`; verified Reviews A and Build 1 worktrees clean before movement.
+- Approved and completed path-limited movement of Reviews A provenance commit `b724f0ac` onto shared main as `9e685ec2`, limited to `docs/live-codex-reviews.md`. Reviews A passed Build 2 Prime audit-evidence advisory binding and Build 3 PromptPacket FileMap audit with no findings.
+- Approved and completed path-limited movement of Build 1 PromptPacket proof metadata commits `83d48b35` and `48c74d12` onto shared main as `f1acf65c` and `5c6a6a28`, limited to `meridian_core/prompt_packet.py`, `meridian_core/relay_packet.py`, `meridian_core/relay_executor.py`, `tests/test_prompt_packet.py`, `tests/test_relay_packet.py`, `tests/test_relay_executor.py`, and `docs/live-build-1.md`.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_prompt_packet.py tests/test_relay_packet.py tests/test_relay_executor.py -q` passed 234/234; `git diff --check 9e685ec2^..HEAD` passed.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
