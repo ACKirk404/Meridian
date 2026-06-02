@@ -3615,6 +3615,19 @@ body {
     if (!lanes.length) return 'no dispatch lanes';
     return lanes.map((lane) => `${relayText(lane.role)} -> ${relayText(lane.preferredModel)}${lane.independent ? ' independent' : ''}`).join(' | ');
   };
+  const relayAuditRows = (tier) => {
+    const audit = tier?.auditDepth || {};
+    return [
+      ['route', `${relayText(audit.routeClass)} / ${relayText(audit.routeKind)}`],
+      ['session', relayText(audit.sessionAction)],
+      ['trust', relayText(audit.trustState)],
+      ['context', `${relayText(audit.contextHealth)} / ${relayText(audit.latencyPosture)} / ${relayText(audit.privacyLevel)}`],
+      ['counts', `rejected ${audit.alternativesRejectedCount ?? 0} | blockers ${audit.fallbackBlockerCount ?? 0} | proof ${audit.proofRequiredCount ?? 0} | telemetry ${audit.telemetryRequiredCount ?? 0}`],
+      ['silent fallback blocked', audit.silentFallbackBlocked ? 'yes' : 'no'],
+      ['primary blocker', relayText(audit.primaryFallbackBlocker)],
+      ['primary proof', relayText(audit.primaryProofRequirement)],
+    ];
+  };
   const renderRelayLogicSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
       return relaySection('Relay logic source', relayGrid([
@@ -3651,6 +3664,7 @@ body {
         ['payload policy', relayText(tier3.dispatch?.payloadPolicy)],
         ['payload text visible', tier3.dispatch?.payloadTextVisible ? 'yes' : 'no'],
       ])),
+      relaySection('Audit logic', relayGrid(relayAuditRows(tier3))),
       relaySection('Fallback blocker logic', relayList(blockerItems.map(relayText))),
       relaySection('Proof and telemetry logic', relayGrid([
         ['proof', proofItems.map(relayText).join(' | ') || 'none'],

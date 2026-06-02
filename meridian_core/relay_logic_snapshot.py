@@ -60,6 +60,34 @@ def _audit_snapshot(route: Any) -> dict[str, Any]:
     }
 
 
+def _audit_depth_snapshot(route: Any) -> dict[str, Any]:
+    audit = route.audit
+    fallback_blockers = list(audit.fallback_blockers)
+    alternatives_rejected = list(audit.alternatives_rejected)
+    proof_required = list(audit.proof_required)
+    telemetry_required = list(audit.telemetry_required)
+    return {
+        "routeClass": _value(audit.route_class),
+        "routeKind": _value(audit.route_kind),
+        "sessionAction": _value(audit.session_action),
+        "trustState": _value(audit.trust_state),
+        "contextHealth": _value(audit.context_health),
+        "latencyPosture": _value(audit.latency_posture),
+        "privacyLevel": _value(audit.privacy_level),
+        "alternativesRejectedCount": len(alternatives_rejected),
+        "fallbackBlockerCount": len(fallback_blockers),
+        "proofRequiredCount": len(proof_required),
+        "telemetryRequiredCount": len(telemetry_required),
+        "silentFallbackBlocked": bool(
+            fallback_blockers
+            or any("rejected" in item for item in alternatives_rejected)
+            or audit.trust_state.value in {"blocked", "candidate"}
+        ),
+        "primaryFallbackBlocker": fallback_blockers[0] if fallback_blockers else "none",
+        "primaryProofRequirement": proof_required[0] if proof_required else "none",
+    }
+
+
 def _dispatch_snapshot(route: Any) -> dict[str, Any]:
     packet = assemble_relay_packet(
         packet_id=f"relay-logic-tier-{route.risk_tier}",
@@ -105,6 +133,7 @@ def _tier_snapshot(tier: int) -> dict[str, Any]:
         "privacyLevel": _value(route.privacy_level),
         "promptBudget": _prompt_budget_snapshot(route),
         "audit": _audit_snapshot(route),
+        "auditDepth": _audit_depth_snapshot(route),
         "dispatch": _dispatch_snapshot(route),
     }
 
