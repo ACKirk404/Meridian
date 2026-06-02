@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
+
 import pytest
 
 from bifrost.cockpit import (
@@ -41,6 +44,8 @@ from meridian_core.cockpit_state import (
     QueuePolicy,
 )
 
+ROOT = Path(__file__).resolve().parents[1]
+
 
 # ── sample_cockpit_view_model ───────────────────────────────────────────────
 
@@ -72,6 +77,19 @@ def test_sample_view_model_has_project_cards():
 def test_sample_view_model_has_prime_messages():
     vm = sample_cockpit_view_model()
     assert len(vm.prime_messages) >= 1
+
+
+def test_index_spark_media_references_existing_assets():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    media_paths = {
+        match.group(1)
+        for match in re.finditer(r'url\("([^"]*spark[^"]*)"\)', doc)
+    }
+    assert "bifrost/static/media/spark-center-final.png" in media_paths
+    assert "bifrost/static/media/spark-hud-reference.jpg" in media_paths
+    assert not any(path.startswith("static/media/") for path in media_paths)
+    missing = [path for path in media_paths if not (ROOT / path).is_file()]
+    assert missing == []
 
 
 def test_sample_view_model_has_progress_events():

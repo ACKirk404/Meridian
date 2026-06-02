@@ -541,7 +541,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 
 | # | Check | Proof |
 |---|-------|-------|
-| V1 | Central spark image is present after refresh. | Visual check or served HTML references `spark-center-final.png`. |
+| V1 | Central spark image is present after refresh. | Visual check or served HTML references existing `bifrost/static/media` Spark assets, including `spark-center-final.png`; current UI has no missing `static/media` Spark URL. |
 | V2 | Prime/User panels remain empty until user/model transcript content exists. | Visual check: no unrequested instructional blocks inside the panels. |
 | V3 | Project selector sits above the Prime line and aligns with the line's right edge. | Visual check after refresh at desktop width. |
 | V4 | Prime and User prompt/response areas fill their internal panel space with low padding. | Visual check: no large dead margins inside session frames. |
