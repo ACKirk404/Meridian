@@ -483,6 +483,13 @@ def make_default_map() -> FileMap:
             notes="Read before changing Relay dispatch metadata pass-through, provider id handling, blocked/error evidence, or Bifrost-visible dispatch payload fields.",
         ),
         FileMapEntry(
+            path="docs/relay-promptpacket-proof-metadata-implementation-checklist.md",
+            area=FileArea.PROMPT_PACKET,
+            purpose="Build-ready checklist for binding PromptPacket proof metadata into Relay dispatch envelopes and audit output: packet id/hash, budget refs, source-lineage compliance, Aegis evidence ids, snapshot/hash gaps, and raw-prompt exclusions.",
+            related_tests=["tests/test_prompt_packet.py", "tests/test_relay_packet.py", "tests/test_relay_executor.py", "tests/test_bifrost_cockpit.py"],
+            notes="Read before implementing PromptPacket proof metadata, packet hash evidence, budget/source-lineage gates, Aegis evidence bindings, or Bifrost-visible packet proof fields.",
+        ),
+        FileMapEntry(
             path="meridian_core/prime_autonomy.py",
             area=FileArea.PRIME_AUTONOMY,
             purpose="Prime next-action domain model: immutable PrimeNextAction with action type, confidence, risk tier, source, targets, blockers, human gate, rationale, and evidence refs.",
