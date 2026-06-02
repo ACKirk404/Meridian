@@ -4,7 +4,7 @@
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: restore Bifrost right-panel static/sample rendering at current `HEAD`.
 
@@ -28,7 +28,13 @@ Required repairs:
 - Expose the immediate User prompt routing target state when a session is selected, separate from the visual selected option/title. A small deterministic label or metadata on the prompt surface is enough, but it must name the selected session id/name used as the next User prompt target.
 - Add focused tests proving closed/non-open sessions are excluded and the selected routing target state updates when `selected_session_id` changes.
 
-Completion: commit only this focused slice, push to `origin/main`, update Obsidian if required by lane policy, and mark Ready for Codex Review with commit hash, files changed, and tests run. Do not spawn sessions, inspect live processes, call models, edit `index.html`, touch Polaris, add live process control, move branches, or alter Build 4 Relay routing repair state.
+Completion:
+
+- Build 5 completed the focused Sessions dropdown Reviews B repair in commit `c60e02ae`, merged through current `origin/main`.
+- Files changed: `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`.
+- Repairs applied: closed/non-open sessions are excluded from selectable routing targets; selected User prompt routing target state is exposed separately from the visual title/dropdown; focused tests cover closed/non-open exclusion and selected routing target updates.
+- Proof: `python -m pytest tests/test_bifrost_cockpit.py -q` passed with 172 tests.
+- Ready for Codex Review.
 
 ## Completed / Ready For Codex Review
 
