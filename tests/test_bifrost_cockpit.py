@@ -252,6 +252,35 @@ def test_index_wired_harness_titles_use_runtime_logic_naming():
     assert "Vulcan Runtime Logic" in doc
 
 
+def test_index_relay_harness_renders_backend_logic_snapshot_contract():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+
+    assert "data-relay-logic" in doc
+    assert "bridgeUrl('relay-logic')" in doc
+    assert "renderRelayLogicSnapshot(snapshot)" in doc
+    assert "renderRelayPrimeDirectives(snapshot)" in doc
+    assert "capabilitySections.map(renderRelayCapabilitySection)" in doc
+    assert "snapshot.routePrecedence" in doc
+    assert "tier3.dispatch?.laneOrder" in doc
+    assert "tier3.dispatch?.payloadPolicy" in doc
+    assert "relayAuditRows(tier3)" in doc
+    assert "Fallback blocker logic" in doc
+    assert "Proof and telemetry logic" in doc
+
+
+def test_index_relay_refresh_reloads_logic_snapshot():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    match = re.search(r"const refreshRelayPanel = \(\) => \s*\{(?P<body>.*?)\n  \};", doc, re.S)
+
+    assert match is not None
+    body = match.group("body")
+    assert "renderRelayBridgeStatus();" in body
+    assert "loadRelayLogic();" in body
+    assert "loadPrimeLogic();" in body
+    assert "loadCompassLogic();" in body
+    assert "loadVulcanLogic();" in body
+
+
 def test_bridge_exposes_prime_logic_route_and_capability():
     doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
     assert "primeRuntimeSnapshot: true" in doc
