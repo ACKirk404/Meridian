@@ -220,6 +220,14 @@ Coordinator session launch and extra-lane pause - 2026-06-02:
 - Extra non-seven worktrees observed and clean during spot check: `C:\Users\scott\AppData\Local\Temp\meridian-coordinator-runway`, `C:\Users\scott\AppData\Local\Temp\meridian-v2-heartbeat-0439`, `C:\Users\scott\Code\Meridian-Worktrees\codex-relay-harness`, `C:\Users\scott\Code\Meridian-Worktrees\relay-main-update`, and `C:\Users\scott\Code\Meridian-Worktrees\session-target-selector`. They are not active approved V2 lanes.
 - Takeover remains `In transition`; next coordinator duty is to poll the seven lane threads for local commits, concrete blockers, or review findings before approving any movement to main.
 
+Coordinator build-slice movement - 2026-06-02:
+
+- Movement gate: fetched `origin/main`; verified shared main clean on `main`; verified affected worktrees Build 1, Build 2, Build 4, and Build 5 were clean before movement. Reviews A/B polling commits were not moved because they became stale once new build Ready markers existed.
+- Approved and completed path-limited movement of clean local build completions to shared main: Build 1 commits `1a923862` and `c6e76c98`; Build 2 commits `b74155ce` and `4dda7162`; Build 4 commits `8f7b7149` and `321e60a3`; Build 5 commits `082b8241` and `2357a422`.
+- Movement scope: Build 1 `meridian_core/model_adapter.py`, `tests/test_model_adapter.py`, `docs/live-build-1.md`; Build 2 `tests/test_session_lifecycle.py`, `docs/live-build-2.md`; Build 4 `docs/relay-heartbeat-model-routing-implementation-checklist.md`, `docs/live-build-4.md`; Build 5 `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, `docs/live-build-5.md`.
+- Proof rerun on shared main after movement: `python -m pytest tests/test_model_adapter.py -q` passed 32/32; `python -m pytest tests/test_session_lifecycle.py -q` passed 65/65; `python -m pytest tests/test_bifrost_cockpit.py -q` passed 182/182. Build 4 docs checklist shape check confirmed required account-first, wrong-scope, `deepseek-chat`, dual-model, session lifecycle, Bifrost, and proof terms are present.
+- Result: Build 1, Build 2, Build 4, and Build 5 are Ready for Codex Review on main. Build 3 remains actively working on the FileMap maintenance audit. Next coordinator action: re-steer Reviews A to Build 1 then Build 2 current-main review and Reviews B to Build 4 then Build 5 current-main review.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
