@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: create a build-ready Model Harness metadata and prompt-drag telemetry implementation checklist for the next Relay/Model slice.
 
@@ -22,7 +22,15 @@ Task: write a concise implementation checklist for provider-neutral model capabi
 
 Tests: docs-only; run text/shape inspection plus `git diff --check` before marking complete.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, verification run, and Next Candidate: review this checklist before Model Harness metadata runtime implementation.
+Completion: completed 2026-06-02.
+
+Ready for Codex Review:
+
+- Commit: `pending local commit hash`
+- Files changed: `docs/model-harness-metadata-implementation-checklist.md`, `docs/live-build-4.md`
+- Tests: not required (docs-only)
+- Verification performed: text/shape inspection confirmed the checklist exists and covers exact model id, provider direct-vs-aggregator route, trust state, context window, prompt token estimate, budget percent/status, growth delta, prompt-drag degraded state, external-review requirements, Aegis/Relay policy binding, Bifrost display expectations, deterministic tests, and exclusions for live model calls, credentials, raw prompts, raw provider responses, account probing, session/process control, branch/worktree movement, FileMap edits, main writes, and Polaris; staged diff passes `git diff --cached --check`.
+- Next Candidate: review this checklist before Model Harness metadata runtime implementation.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
