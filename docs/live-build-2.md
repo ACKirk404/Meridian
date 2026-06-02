@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: bind review-cleared Session Lifecycle permission summaries into Prime/Beacon advisory recovery decisions.
 
@@ -22,7 +22,14 @@ Task: add a narrow pure advisory binding so expired/locked/out-of-scope permissi
 
 Tests: `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py tests/test_beacon.py -q`.
 
-Completion: commit locally only in the assigned worktree, mark Ready for Codex Review with commit hash, files changed, tests run, and Next Candidate: bind review findings or route the next Session Lifecycle runtime-state slice.
+Completion:
+
+- Build 2 completed the permission-summary Prime/Beacon advisory recovery binding in local worktree commit `f2af2e26`.
+- Files changed: `meridian_core/session_lifecycle.py`, `meridian_core/prime_autonomy.py`, `meridian_core/beacon.py`, `tests/test_session_lifecycle.py`, `tests/test_prime_autonomy.py`, `tests/test_beacon.py`.
+- Evidence: `SessionPermissionSummary.evidence` now includes blocker and recovery-recommendation strings; Prime consumes summary-generated restart/resteer findings, expired/locked/out-of-scope permission blockers, pending approval evidence, and review-gate blockers when selecting advisory recovery actions; Beacon can serialize summary advisory evidence through `permission_summary_advisory_evidence()` without executing recovery or movement.
+- Proof: `python -m pytest tests/test_session_lifecycle.py tests/test_prime_autonomy.py tests/test_beacon.py -q` passed with 178 tests; `git diff --check` passed.
+- Ready for Codex Review.
+- Next Candidate: bind review findings or route the next Session Lifecycle runtime-state slice.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
