@@ -34,6 +34,7 @@ from bifrost.cockpit import (
     _render_proof_state,
     _e,
     render_cockpit_html,
+    relay_aegis_policy_handoff_from_summary,
     sample_cockpit_view_model,
     view_model_from_snapshot,
 )
@@ -811,6 +812,94 @@ def test_relay_aegis_policy_handoff_sample_renders_evidence_blockers_and_warning
     assert "demotion_route_required" in doc
     assert "response_payload_hash_pending" in doc
     assert "no_missing_metadata_fields" in doc
+
+
+def test_relay_aegis_policy_handoff_adapter_maps_relay_summary_aliases():
+    handoff = relay_aegis_policy_handoff_from_summary({
+        "aegis_gate_decision": "human_gate",
+        "aegis_gate_severity": "warning",
+        "packet_id_ref": "prompt-packet-alias",
+        "packet_hash_ref": "present",
+        "proof_requirement": "tier3_dual_lane",
+        "evidence_ids": ("aegis:review", "aegis:dual-lane"),
+        "fallback_blockers": ("aegis_human_gate_required",),
+        "warning_tags": ("review_console_approval_missing",),
+        "demotion_target_tier": "tier1:review-safe",
+        "human_gate_state": "required",
+        "aegis_explanation": "Review Console approval is required.",
+    })
+    assert handoff.decision == "human_gate"
+    assert handoff.severity == "warning"
+    assert handoff.packet_id == "prompt-packet-alias"
+    assert handoff.packet_hash_status == "present"
+    assert handoff.proof_requirement == "tier3_dual_lane"
+    assert handoff.aegis_evidence_ids == ["aegis:review", "aegis:dual-lane"]
+    assert handoff.blockers == ["aegis_human_gate_required"]
+    assert handoff.warnings == ["review_console_approval_missing"]
+    assert handoff.demotion_target == "tier1:review-safe"
+    assert handoff.human_gate_state == "required"
+    assert handoff.explanation == "Review Console approval is required."
+
+
+def test_relay_aegis_policy_handoff_adapter_normalizes_missing_optional_fields():
+    handoff = relay_aegis_policy_handoff_from_summary({
+        "missing_metadata_fail_closed": True,
+    })
+    assert handoff.decision == "block"
+    assert handoff.severity == "error"
+    assert handoff.packet_id == "packet_id_missing"
+    assert handoff.packet_hash_status == "unknown"
+    assert handoff.proof_requirement == "proof_requirement_missing"
+    assert handoff.aegis_evidence_ids == []
+    assert handoff.blockers == []
+    assert handoff.warnings == []
+    assert handoff.demotion_target == "not_applicable"
+    assert handoff.human_gate_state == "unknown"
+    assert handoff.missing_metadata_fail_closed is True
+
+
+def test_relay_aegis_policy_handoff_adapter_preserves_deterministic_ordering():
+    handoff = relay_aegis_policy_handoff_from_summary({
+        "decision": "warn",
+        "aegis_evidence_ids": {"zeta:evidence", "alpha:evidence"},
+        "blockers": {"blocked_z": True, "blocked_a": True},
+        "warnings": ["warn_b", "warn_a"],
+        "missing_metadata_fields": {"source_lineage", "budget_ref"},
+    })
+    assert handoff.aegis_evidence_ids == ["alpha:evidence", "zeta:evidence"]
+    assert handoff.blockers == ["blocked_a", "blocked_z"]
+    assert handoff.warnings == ["warn_b", "warn_a"]
+    assert handoff.missing_metadata_fields == ["budget_ref", "source_lineage"]
+
+
+def test_relay_aegis_policy_handoff_adapter_redacts_unsafe_summary_values_before_render():
+    vm = sample_cockpit_view_model()
+    vm.relay_aegis_policy_handoff = relay_aegis_policy_handoff_from_summary({
+        "decision": "block",
+        "severity": "error",
+        "packet_id": "prompt-packet-safe",
+        "packet_hash_status": "serialized_prompt:RAW_PROMPT_SENTINEL",
+        "proof_requirement": "tier2_payload_snapshot",
+        "aegis_evidence_ids": ["aegis:display-safe", "api_key:SECRET_VALUE"],
+        "fallback_blockers": {"provider_request:RAW_PROMPT_SENTINEL": True},
+        "policy_warning_tags": ["raw_provider_response:SECRET_VALUE"],
+        "demotion_route": "bearer token route",
+        "human_gate_state": "process_id:1234",
+        "metadata_fail_closed": "true",
+        "missing_fields": ["authorization_header"],
+        "aegis_explanation": "model_payload RAW_PROMPT_SENTINEL SECRET_VALUE",
+    })
+    doc = render_cockpit_html(vm)
+    assert "prompt-packet-safe" in doc
+    assert "aegis:display-safe" in doc
+    assert "RAW_PROMPT_SENTINEL" not in doc
+    assert "SECRET_VALUE" not in doc
+    assert "api_key" not in doc
+    assert "provider_request" not in doc
+    assert "raw_provider_response" not in doc
+    assert "model_payload" not in doc
+    assert "process_id" not in doc
+    assert "unsafe_metadata_redacted" in doc
 
 
 def test_relay_aegis_policy_handoff_supports_all_policy_decisions():

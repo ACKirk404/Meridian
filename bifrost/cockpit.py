@@ -13,7 +13,7 @@ from __future__ import annotations
 import html
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping
 
 if TYPE_CHECKING:
     from meridian_core.cockpit_state import PrimeCockpitSnapshot
@@ -1362,6 +1362,125 @@ def _safe_handoff_value(value: object) -> str:
     if any(marker in lowered for marker in unsafe_markers):
         return "unsafe_metadata_redacted"
     return text
+
+
+def _handoff_summary_value(
+    summary: Mapping[str, object],
+    *keys: str,
+    default: object = "",
+) -> object:
+    for key in keys:
+        value = summary.get(key)
+        if value is not None and value != "":
+            return value
+    return default
+
+
+def _handoff_summary_bool(summary: Mapping[str, object], *keys: str) -> bool:
+    value = _handoff_summary_value(summary, *keys, default=False)
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "y", "on", "blocked", "fail_closed"}
+    return bool(value)
+
+
+def _handoff_summary_list(summary: Mapping[str, object], *keys: str) -> list[str]:
+    value = _handoff_summary_value(summary, *keys, default=())
+    if value is None or value == "":
+        return []
+    if isinstance(value, Mapping):
+        return [_safe_handoff_value(key) for key in sorted(value.keys(), key=str)]
+    if isinstance(value, set):
+        return [_safe_handoff_value(item) for item in sorted(value, key=str)]
+    if isinstance(value, (list, tuple)):
+        return [_safe_handoff_value(item) for item in value]
+    return [_safe_handoff_value(value)]
+
+
+def relay_aegis_policy_handoff_from_summary(
+    summary: Mapping[str, object],
+) -> RelayAegisPolicyHandoffView:
+    """Build Bifrost's display view from a structured Relay/Aegis handoff summary."""
+    fail_closed = _handoff_summary_bool(
+        summary,
+        "missing_metadata_fail_closed",
+        "fail_closed",
+        "metadata_fail_closed",
+    )
+    decision_default = "block" if fail_closed else "unknown"
+    severity_default = "error" if fail_closed else "info"
+    return RelayAegisPolicyHandoffView(
+        decision=_safe_handoff_value(_handoff_summary_value(
+            summary,
+            "decision",
+            "aegis_gate_decision",
+            default=decision_default,
+        )),
+        severity=_safe_handoff_value(_handoff_summary_value(
+            summary,
+            "severity",
+            "aegis_gate_severity",
+            default=severity_default,
+        )),
+        packet_id=_safe_handoff_value(_handoff_summary_value(
+            summary,
+            "packet_id",
+            "packet_id_ref",
+            default="packet_id_missing",
+        )),
+        packet_hash_status=_safe_handoff_value(_handoff_summary_value(
+            summary,
+            "packet_hash_status",
+            "packet_hash_ref",
+            default="unknown",
+        )),
+        proof_requirement=_safe_handoff_value(_handoff_summary_value(
+            summary,
+            "proof_requirement",
+            default="proof_requirement_missing",
+        )),
+        aegis_evidence_ids=_handoff_summary_list(
+            summary,
+            "aegis_evidence_ids",
+            "evidence_ids",
+        ),
+        blockers=_handoff_summary_list(
+            summary,
+            "blockers",
+            "fallback_blockers",
+        ),
+        warnings=_handoff_summary_list(
+            summary,
+            "warnings",
+            "warning_tags",
+            "policy_warning_tags",
+        ),
+        demotion_target=_safe_handoff_value(_handoff_summary_value(
+            summary,
+            "demotion_target",
+            "demotion_target_tier",
+            "demotion_route",
+            default="not_applicable",
+        )),
+        human_gate_state=_safe_handoff_value(_handoff_summary_value(
+            summary,
+            "human_gate_state",
+            default="unknown" if fail_closed else "not_required",
+        )),
+        missing_metadata_fail_closed=fail_closed,
+        missing_metadata_fields=_handoff_summary_list(
+            summary,
+            "missing_metadata_fields",
+            "missing_fields",
+        ),
+        explanation=_safe_handoff_value(_handoff_summary_value(
+            summary,
+            "explanation",
+            "aegis_explanation",
+            default="",
+        )),
+    )
 
 
 def _render_relay_aegis_policy_handoff(handoff: RelayAegisPolicyHandoffView) -> str:
