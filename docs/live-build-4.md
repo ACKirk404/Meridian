@@ -8,6 +8,24 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: create a Relay prompt-payload visibility implementation checklist after Reviews B cleared the routing checklist and stale recovery slice.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Required first command for this task: verify you are in your assigned unique worktree and not in `C:\Users\scott\Code\Meridian`; you are not allowed to write to main, move data between worktrees or branches, cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage without coordinator approval.
+
+Allowed files only: `docs/relay-prompt-payload-visibility-implementation-checklist.md`, `docs/live-build-4.md`.
+
+Required sources: `docs/relay-bifrost-proof-payload-contract.md`, `docs/bifrost-balance-payload-surface-contract.md`, `docs/relay-heartbeat-model-routing-implementation-checklist.md`, `docs/model-harness-v2-contract.md`, `docs/v2-progress-tracker.md`, and Reviews B pass evidence in `docs/live-codex-reviews-2.md`.
+
+Task: produce a build-ready checklist for wiring the reviewed prompt payload helper into Relay dispatch evidence and Bifrost-visible status without introducing live model calls or UI implementation in this docs slice. Include proof payload fields, budget percent, `(under 1k)` / `(N.Nk)` display labels, growth delta/watch/degraded states, queue/Q-mode prompt-drag detection, Relay evidence requirements, Bifrost visibility handoff, test expectations, and block conditions. Keep this docs-only; do not edit runtime code, tests, FileMap, Bifrost UI, model/account/process code, branches, or Polaris.
+
+Tests: none required for docs-only; run text/shape inspection plus `git diff --check` before marking complete.
+
+Completion: mark Ready for Codex Review with commit hash, files changed, verification performed, and a concrete Next Candidate: bind any review findings from this checklist before prompt-payload runtime work.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: convert the deepened Relay harness model-selection logic into an implementation checklist.

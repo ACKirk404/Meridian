@@ -243,6 +243,13 @@ Coordinator Build 3 maintenance movement and session honesty check - 2026-06-02:
 - Proof rerun on shared main after movement: `python -m pytest tests/test_filemap.py -q` passed 46/46. Shared main remained clean and was ahead only by the expected Build 3 movement commits.
 - Reviews B was re-steered in thread `019e864a-0536-7250-8057-19bf8a8a85b3` to re-review repaired Build 4 (`a4652ce4`, `e15a38a1`, `6546595c`) and then review Build 5 (`be4074f7`, `093be886`) if Build 4 passes. No takeover completion was marked.
 
+Coordinator review clearance and lane reactivation - 2026-06-02:
+
+- Build 1 and Build 2 had already passed Reviews A with no findings. Coordinator promoted fresh top `Active Now` tasks on main: Build 1 route capability/tier/budget metadata binding and Build 2 Prime/Beacon advisory binding. Both worktrees were clean, preserved old local branches, switched to fresh current-main branches, and were prompted in threads `019e865b-2f45-7f82-b802-24e15fb98a7a` and `019e865b-37ab-72e2-be4d-ba879f85d34a`. Readback showed both in progress.
+- Reviews A completed Build 3 FileMap maintenance review with no findings. Local provenance commit `3d8efaf1` was clean and path-limited to `docs/live-codex-reviews.md`; coordinator moved it to main as `69020cd9`.
+- Reviews B completed repaired Build 4 checklist review and Build 5 stale-session recovery review with no findings. Local provenance commit `9ec8ed44` was clean and path-limited to `docs/live-codex-reviews-2.md`; coordinator moved it to main as `7fc74daa`.
+- Coordinator promoted fresh top tasks for the newly review-cleared lanes: Build 3 FileMap checkpoint audit, Build 4 Relay prompt-payload visibility implementation checklist, and Build 5 Bifrost proof-state preview sample rendering. These are queue/doc routing updates only; no worker implementation files were written in shared main.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:

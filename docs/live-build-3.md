@@ -8,6 +8,26 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Active Task
+
+Goal: audit FileMap coverage after the Build 3/4/5 review-clearance and Build 1/2 task-promotion checkpoint.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-3-filemap`.
+
+Required first command for this task: verify you are in your assigned unique worktree and not in `C:\Users\scott\Code\Meridian`; you are not allowed to write to main, move data between worktrees or branches, cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage without coordinator approval.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Required sources: current `origin/main`, `docs/live-build-1.md`, `docs/live-build-2.md`, `docs/live-build-3.md`, `docs/live-build-4.md`, `docs/live-build-5.md`, `docs/live-codex-reviews.md`, `docs/live-codex-reviews-2.md`, `docs/v2-orchestrator-transition-ledger.md`, current runtime FileMap entries, `docs/FileMap.md`, and `_REQUIRED_PATHS`.
+
+Task: audit whether the newly landed coordinator queue/review/ledger artifacts and any newly introduced V2 docs are discoverable in runtime FileMap, mirrored in `docs/FileMap.md`, and covered by `_REQUIRED_PATHS`. Register missing existing files only in the allowed FileMap surfaces. If no missing files exist, record a concrete no-op completion with command evidence; do not add a read-check-only update.
+
+Tests:
+
+- `python -m pytest tests/test_filemap.py -q`
+
+Completion: mark Ready for Codex Review with commit hash if changed, files changed or no-op evidence, tests run, and a concrete Next Candidate: bind any review findings from this FileMap audit before unrelated FileMap cleanup.
+
 ## Completed / Ready For Codex Review
 
 Goal: register any remaining V2/V3 architecture or domain contract docs that have landed without FileMap coverage.
