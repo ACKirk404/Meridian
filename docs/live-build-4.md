@@ -26,7 +26,7 @@ Completion: completed 2026-06-02.
 
 Ready for Codex Review:
 
-- Commit: `pending local commit hash`
+- Commit: `3bd5711d`
 - Files changed: `docs/model-harness-runtime-validation-checklist.md`, `docs/live-build-4.md`
 - Tests: not required (docs-only)
 - Verification performed: text/shape inspection confirmed the checklist exists and covers exact dispatch id/model id, direct-vs-aggregator route proof, candidate trust state, capability labels versus transport ids, prompt-drag telemetry, context/budget/growth fields, external-review requirements, fail-closed missing metadata behavior, Relay/Aegis policy binding, Bifrost display expectations, deterministic tests, validation evidence, and exclusions for live provider calls, credentials/account probing, raw prompts, raw provider responses, process/session control, FileMap edits, branch/worktree movement, shared-main writes, pushes to main, and Polaris; staged diff passes `git diff --cached --check`.
