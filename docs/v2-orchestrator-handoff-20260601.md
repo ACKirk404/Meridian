@@ -211,20 +211,19 @@ Current evidence:
 
 - Worktree is clean and aligned to `origin/main`.
 - The top queue block still says Active Now.
-- The same task also appears immediately below as Completed / Ready For Codex Review with commit provenance:
-  - Local commit `381080fa`
-  - Pushed/current-main commit `fe0b0138`
-- Verification result:
-  - `381080fa` exists locally but is not an ancestor of `origin/main`.
-  - `fe0b0138` is an ancestor of `origin/main`.
+- The target checklist file does not exist on `origin/main`:
+  - `docs/relay-heartbeat-model-routing-implementation-checklist.md`
+- `fe0b0138` is in `origin/main`, but it is the account-first wrong-scope fallback repair, not completion of the implementation-checklist task.
 
 Interpretation:
 
-- The Build 4 checklist task appears completed on current main, but the queue top was not promoted/rotated cleanly.
+- The Build 4 checklist task is still executable and should remain active.
+- The earlier suspicion that this task was completed by `fe0b0138` was incorrect.
 
 Next coordinator action:
 
-- Reconcile `docs/live-build-4.md`: move the stale Active Now block out of executable position or replace it with the Next Candidate, then route Reviews B to review the Build 4 checklist if Reviews B has closed the Relay UI/runtime review.
+- Keep Build 4 assigned to create `docs/relay-heartbeat-model-routing-implementation-checklist.md`.
+- After Build 4 marks the checklist Ready on current main, route Reviews B to review that checklist if no higher-priority review finding is active.
 
 ### Build 5 - Bifrost
 
@@ -312,7 +311,7 @@ Next coordinator action:
 
 - Some queue docs contain future-looking timestamps such as 2026-06-12/13 despite the current run date being 2026-06-01. Treat these as unreliable provenance unless verified by Git ancestry.
 - Build 1 and Build 2 can show `ahead` because of local merge/read-check history. Do not confuse that with active-task completion.
-- Build 4's top Active Now block appears stale because the same task is already recorded as completed and `fe0b0138` is in `origin/main`.
+- Build 4's top Active Now block is valid: `docs/relay-heartbeat-model-routing-implementation-checklist.md` is still missing from `origin/main`. `fe0b0138` is a separate wrong-scope fallback repair, not checklist completion.
 - Reviews B and Build 3 were escalated because they had drifted into passive/waiting behavior.
 
 ## Quarantine / Containment History
@@ -361,12 +360,13 @@ foreach ($dir in @(
 
 ## Next Best Actions
 
-1. Reconcile Build 4 queue because its active task appears already completed on current main as `fe0b0138`.
+1. Have the replacement coordinator write intake findings into `docs/v2-orchestrator-transition-ledger.md`.
 2. Check whether Build 3 wrote a FileMap completion or concrete blocker after the escalation.
 3. Check whether Reviews B wrote a pass/finding/blocker after the escalation.
-4. If Build 3 and Reviews B remain unchanged, update their queues with stronger routing or replace those sessions; do not let them idle.
-5. Once Reviews B closes the Relay UI/runtime review, route the Build 4 checklist review and then Build 5 stale-session recovery review.
-6. Keep Build 1/2/5 moving, but prioritize any Codex review findings ahead of normal work.
+4. Keep Build 4 on the implementation-checklist task because the checklist file is not present on `origin/main`.
+5. If Build 3 and Reviews B remain unchanged, update their queues with stronger routing or replace those sessions; do not let them idle.
+6. Once Reviews B closes the Relay UI/runtime review, route the Build 4 checklist review and then Build 5 stale-session recovery review.
+7. Keep Build 1/2/5 moving, but prioritize any Codex review findings ahead of normal work.
 
 ## Reporting Format
 

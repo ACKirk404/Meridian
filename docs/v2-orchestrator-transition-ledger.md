@@ -71,6 +71,16 @@ foreach ($dir in @(
 
 Status: open.
 
+Current orchestrator note before replacement intake:
+
+- Shared main was clean and aligned with `origin/main` after the handoff commit.
+- All seven worker/review lanes were synced to include the handoff and transition ledger.
+- Build 1 and Build 2 are clean but still show local ahead history from prior merge/read-check work; do not treat that as current task completion without commit/queue proof.
+- Build 3 remains a pressure lane: current top task is FileMap coverage for Relay UI/runtime integration, and `meridian_core/relay_logic_snapshot.py` / `tests/test_relay_logic_snapshot.py` were still not found in FileMap coverage during the coordinator spot check.
+- Reviews B remains a pressure lane: current top task is the Relay UI/runtime integration review; it must pass, route a finding, or write a concrete blocker.
+- Build 4 remains active on the Relay routing implementation checklist. The checklist file `docs/relay-heartbeat-model-routing-implementation-checklist.md` is not present on `origin/main`. Do not treat `fe0b0138` as checklist completion; it is the separate account-first wrong-scope fallback repair.
+- Replacement coordinator should now run the required first check and record intake below this note.
+
 Replacement coordinator should record:
 
 - Shared main status.
