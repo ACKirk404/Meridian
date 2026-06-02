@@ -10,6 +10,30 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: implement Compass Cross-Project Handoff Runtime from `docs/v2-progress-tracker.md`.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
+
+Dependency: builds intentionally on Compass Project Definition Runtime candidate `701bac04` (`50a692d1` implementation plus marker), Compass Bounds/Scope Runtime marker `27cf1289`, and Compass Project Difference Runtime marker `d4b97253` (`37144044` implementation).
+
+Allowed files only: `meridian_core/compass.py`, `tests/test_compass.py`, `docs/live-build-4.md`.
+
+Task: extend Compass backend logic to model safe cross-project communication after Project Definition, Bounds/Scope, and Project Difference. Model source project, target project, reason category, payload type, evidence refs, approval need, and blocked raw context bleed; require distinct source/target project identities and evidence refs before handoff review; preserve project-difference boundaries when repo or venture refs are shared; keep raw prompts/transcripts/free-form context out of serialized evidence refs and payload summaries. Keep it advisory/review-only and exclude session retargeting, UI/Bifrost/FileMap/package export, Relay/model/provider calls, network/filesystem scanning, branch/worktree movement, shared main writes, and Polaris.
+
+Tests: `python -m pytest tests/test_compass.py -q`.
+
+Completion: completed 2026-06-02.
+
+Ready for Codex Review:
+
+- Commit: `494db0b3`
+- Files changed: `meridian_core/compass.py`, `tests/test_compass.py`, `docs/live-build-4.md`
+- Tests run: `python -m pytest tests/test_compass.py -q` (97 passed)
+- Verification performed: added frozen `ProjectHandoffRequest`, `ProjectHandoffDecision`, `ProjectHandoffEvaluation`, stable handoff request/result key helpers, and deterministic `evaluate_cross_project_handoff()` that reuses project-difference evidence, blocks same/missing/mismatched project identities, requires handoff evidence refs and payload summary refs, preserves shared repo/venture refs without collapsing boundaries, blocks raw prompt/transcript/free-form/provider-response refs and raw payload types, models required approval refs, returns `review_ready=True` only for safe human review, and always serializes `execution_authorized=False`; tests cover review-ready distinct handoff, same repo/venture distinctness, same project blocker, missing identities, identity mismatch, missing evidence/summary refs, approval-required blocker and approval-not-required path, raw context bleed blockers, unknown category/type blockers, ambiguous difference questions, stable serialization, JSON serializability, determinism, evaluation type validation, no raw-context result keys, and `git diff --check` passed.
+- Next Candidate: implement reviewed Compass handoff consumer checklist/runtime bridge without execution authority.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: add a pure Aegis-side helper/test surface for live-control command-staging UI-review advisory input.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-aegis`.
