@@ -902,6 +902,95 @@ def test_relay_aegis_policy_handoff_adapter_redacts_unsafe_summary_values_before
     assert "unsafe_metadata_redacted" in doc
 
 
+def test_sample_view_model_renders_handoff_summary_dictionary_via_adapter():
+    vm = sample_cockpit_view_model({
+        "aegis_gate_decision": "human_gate",
+        "aegis_gate_severity": "warning",
+        "packet_id_ref": "prompt-packet-human-gate",
+        "packet_hash_ref": "present",
+        "proof_requirement": "tier3_dual_lane",
+        "evidence_ids": ("aegis:review-console",),
+        "fallback_blockers": ("aegis_human_gate_required",),
+        "warning_tags": ("approval_missing",),
+        "human_gate_state": "required",
+        "aegis_explanation": "Review Console approval is required.",
+    })
+    doc = render_cockpit_html(vm)
+    assert vm.relay_aegis_policy_handoff.decision == "human_gate"
+    assert 'aria-label="Relay Aegis Policy Handoff Summary"' in doc
+    assert "handoff-decision-human_gate" in doc
+    assert "Packet id: prompt-packet-human-gate" in doc
+    assert "Human gate: required" in doc
+    assert "aegis_human_gate_required" in doc
+    assert "Review Console approval is required." in doc
+
+
+def test_sample_view_model_renders_fail_closed_summary_dictionary_placeholders():
+    vm = sample_cockpit_view_model({
+        "metadata_fail_closed": "true",
+        "packet_hash_status": "missing",
+        "missing_fields": {"packet_id", "budget_ref", "aegis_evidence_ids"},
+        "fallback_blockers": {"proof_metadata_absent": True, "aegis_gate_blocked": True},
+    })
+    doc = render_cockpit_html(vm)
+    assert vm.relay_aegis_policy_handoff.decision == "block"
+    assert vm.relay_aegis_policy_handoff.severity == "error"
+    assert "Packet id: packet_id_missing" in doc
+    assert "Proof requirement: proof_requirement_missing" in doc
+    assert "Missing metadata fail closed: yes" in doc
+    assert "aegis_gate_blocked" in doc
+    assert "proof_metadata_absent" in doc
+    assert "packet_id" in doc
+    assert "budget_ref" in doc
+    assert "aegis_evidence_ids" in doc
+
+
+def test_sample_view_model_handoff_summary_preserves_deterministic_render_order():
+    vm = sample_cockpit_view_model({
+        "decision": "warn",
+        "packet_id": "prompt-packet-ordered",
+        "aegis_evidence_ids": {"zeta:evidence", "alpha:evidence"},
+        "blockers": {"blocked_z": True, "blocked_a": True},
+        "missing_metadata_fields": {"source_lineage", "budget_ref"},
+    })
+    doc = render_cockpit_html(vm)
+    assert doc.index("alpha:evidence") < doc.index("zeta:evidence")
+    assert doc.index("blocked_a") < doc.index("blocked_z")
+    assert doc.index("budget_ref") < doc.index("source_lineage")
+
+
+def test_sample_view_model_handoff_summary_redacts_and_preserves_prior_surfaces():
+    vm = sample_cockpit_view_model({
+        "decision": "block",
+        "severity": "error",
+        "packet_id": "prompt-packet-redacted",
+        "packet_hash_status": "serialized_prompt:RAW_PROMPT_SENTINEL",
+        "aegis_evidence_ids": ["aegis:display-safe", "api_key:SECRET_VALUE"],
+        "fallback_blockers": ["provider_request:RAW_PROMPT_SENTINEL"],
+        "policy_warning_tags": ["raw_provider_response:SECRET_VALUE"],
+        "aegis_explanation": "model_payload RAW_PROMPT_SENTINEL SECRET_VALUE",
+    })
+    vm.right_panel_active_mode = "user_session"
+    vm.user_session_mode.sessions.append(
+        SessionItem("closed-summary-session", "Closed Summary Session", "Meridian", "done")
+    )
+    vm.user_session_mode.selected_session_id = "closed-summary-session"
+    doc = render_cockpit_html(vm)
+    assert "prompt-packet-redacted" in doc
+    assert "aegis:display-safe" in doc
+    assert "RAW_PROMPT_SENTINEL" not in doc
+    assert "SECRET_VALUE" not in doc
+    assert "unsafe_metadata_redacted" in doc
+    assert 'aria-label="Prompt Payload Visibility"' in doc
+    assert "Provider Balance" in doc
+    assert 'aria-label="Dispatch Hardening State"' in doc
+    assert 'aria-label="PromptPacket Proof Metadata"' in doc
+    assert 'class="proof-preview-list"' in doc
+    assert 'class="stale-target-guard"' in doc
+    assert 'data-recovery-action="ask-prime-recover"' in doc
+    assert "Next prompt target: Closed Summary Session" not in doc
+
+
 def test_relay_aegis_policy_handoff_supports_all_policy_decisions():
     cases = (
         ("allow", "info", "not_applicable", "not_required"),

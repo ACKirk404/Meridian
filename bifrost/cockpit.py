@@ -326,8 +326,32 @@ class CockpitViewModel:
     )
 
 
-def sample_cockpit_view_model() -> CockpitViewModel:
+def sample_cockpit_view_model(
+    relay_aegis_policy_handoff_summary: Mapping[str, object] | None = None,
+) -> CockpitViewModel:
     """Return deterministic sample data for previewing the cockpit."""
+    handoff_summary = relay_aegis_policy_handoff_summary or {
+        "aegis_gate_decision": "demote",
+        "aegis_gate_severity": "warning",
+        "packet_id_ref": "prompt-packet-001",
+        "packet_hash_ref": "present",
+        "proof_requirement": "tier2_payload_snapshot",
+        "evidence_ids": (
+            "aegis:route-tier",
+            "aegis:payload-proof",
+        ),
+        "fallback_blockers": (
+            "demotion_route_required",
+        ),
+        "warning_tags": (
+            "response_payload_hash_pending",
+        ),
+        "demotion_target_tier": "tier1:account-first",
+        "human_gate_state": "not_required",
+        "missing_metadata_fail_closed": False,
+        "missing_metadata_fields": (),
+        "aegis_explanation": "Relay accepted Aegis demotion target with proof snapshot warning.",
+    }
     return CockpitViewModel(
         project="Meridian",
         bearing="Prime command surface",
@@ -475,28 +499,7 @@ def sample_cockpit_view_model() -> CockpitViewModel:
                 "response_hash_pending",
             ],
         ),
-        relay_aegis_policy_handoff=RelayAegisPolicyHandoffView(
-            decision="demote",
-            severity="warning",
-            packet_id="prompt-packet-001",
-            packet_hash_status="present",
-            proof_requirement="tier2_payload_snapshot",
-            aegis_evidence_ids=[
-                "aegis:route-tier",
-                "aegis:payload-proof",
-            ],
-            blockers=[
-                "demotion_route_required",
-            ],
-            warnings=[
-                "response_payload_hash_pending",
-            ],
-            demotion_target="tier1:account-first",
-            human_gate_state="not_required",
-            missing_metadata_fail_closed=False,
-            missing_metadata_fields=[],
-            explanation="Relay accepted Aegis demotion target with proof snapshot warning.",
-        ),
+        relay_aegis_policy_handoff=relay_aegis_policy_handoff_from_summary(handoff_summary),
         lanes=[
             LaneRow("Cockpit UI", "running", "hud"),
             LaneRow("Preview Shell", "idle", "html"),
