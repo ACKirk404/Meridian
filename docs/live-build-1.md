@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: bind provider-neutral Model Harness capability metadata into Relay dispatch evidence and summaries.
 
@@ -23,6 +23,15 @@ Task: add the first provider-neutral Relay/Model Harness metadata binding slice.
 Tests: `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` plus `git diff --check`.
 
 Completion: commit locally only, mark Ready for Codex Review with commit hash, changed files, proof, and Next Candidate: bind review findings or connect reviewed runtime metadata to Bifrost after review.
+
+Completion:
+- Status: Ready for Codex Review.
+- Completed: 2026-06-02 00:02 -06:00.
+- Commit: `3a8d756f` (`feat: Bind Model Harness metadata to Relay summaries`).
+- Files changed: `meridian_core/model_adapter.py`, `meridian_core/relay_executor.py`, `tests/test_model_adapter.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`.
+- Tests run: `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q` (230 passed); `git diff --check` (passed; Git reported line-ending normalization warnings only).
+- Concrete evidence: Model route metadata now carries provider route kind, external-review status, metadata evidence refs, and external-review evidence refs. Relay prompt payload evidence and `RelayExecutionSummary.model_capability_metadata_summary()` now expose display-safe exact model id, provider route kind, capability tier, trust state, context window, prompt payload budget/status, prompt-drag tags, external-review requirement/status, payload evidence refs, and metadata refs without raw prompt text, provider responses, credential/account probing, Bifrost/UI/FileMap edits, process control, or provider calls.
+- Next Candidate: bind review findings or connect reviewed runtime metadata to Bifrost after review.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
