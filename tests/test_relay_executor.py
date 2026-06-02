@@ -3569,6 +3569,47 @@ class TestRelayAegisPromptPacketHandoffSummary:
         assert handoff.missing_metadata_fields == ("packet_hash",)
         assert handoff.missing_metadata is True
 
+    def test_handoff_redacts_arbitrary_policy_free_text(self) -> None:
+        danger = (
+            "RAW_PROMPT_SENTINEL worker_chat=private "
+            "credential=sk-test-secret BRANCH_MOVE_REQUEST "
+            "free-text blocker summary: move main"
+        )
+        evidence = RelayPromptPacketPolicyEvidence(
+            decision="block",
+            severity="error",
+            reason=danger,
+            evidence_ids=(danger,),
+            blockers=(danger,),
+            warnings=(danger,),
+            packet_id=_PACKET_ID,
+            packet_hash="packet-hash-safe",
+            prompt_budget_ref="budget:safe",
+            packet_proof_metadata_ref="prompt-packet-proof:safe",
+        )
+        summary = RelayExecutionSummary(
+            results=(),
+            errors=(),
+            prompt_packet_policy_evidence=evidence,
+        )
+
+        handoff = summary.aegis_prompt_packet_policy_handoff().to_dict()
+        rendered = " ".join(str(value) for value in handoff.values())
+
+        assert handoff["aegis_evidence_ids"] == ("redacted_evidence_id",)
+        assert handoff["blockers"] == ("redacted_policy_blocker",)
+        assert handoff["warnings"] == ("redacted_policy_warning",)
+        assert handoff["reason_tags"] == ("redacted_policy_reason",)
+        for sentinel in (
+            "RAW_PROMPT_SENTINEL",
+            "worker_chat=private",
+            "credential=sk-test-secret",
+            "BRANCH_MOVE_REQUEST",
+            "free-text blocker summary",
+            "move main",
+        ):
+            assert sentinel not in rendered
+
     def test_handoff_carries_human_gate_and_fail_closed_state(self) -> None:
         plan = _make_plan(4)
         evidence = _evaluate_relay_prompt_packet_policy(

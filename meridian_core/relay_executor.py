@@ -756,6 +756,34 @@ class RelayAegisPromptPacketHandoffSummary:
         }
 
 
+_SAFE_PROMPT_PACKET_REASON_TEXT = (
+    "PromptPacket proof metadata satisfies Aegis policy",
+    "human approval required before dispatch",
+)
+
+
+def _display_safe_handoff_tags(
+    tags: tuple[str, ...],
+    *,
+    fallback: str,
+) -> tuple[str, ...]:
+    """Return structured handoff tags without arbitrary free-text leakage."""
+    safe_tags: list[str] = []
+    for tag in tags:
+        if tag in _SAFE_PROMPT_PACKET_REASON_TEXT:
+            safe_tags.append(tag)
+        elif tag and all(
+            character.islower()
+            or character.isdigit()
+            or character in {"_", "-", ":", "."}
+            for character in tag
+        ):
+            safe_tags.append(tag)
+        else:
+            safe_tags.append(fallback)
+    return tuple(dict.fromkeys(safe_tags))
+
+
 @dataclass(frozen=True)
 class RelayModelCapabilityLaneSummary:
     """Display-safe model capability metadata for one Relay lane."""
@@ -921,7 +949,22 @@ class RelayExecutionSummary:
         if not policy.evidence_ids:
             missing_metadata_fields.append("aegis_evidence_ids")
 
-        tags = tuple(policy.blockers or policy.warnings or (policy.reason,))
+        evidence_ids = _display_safe_handoff_tags(
+            policy.evidence_ids,
+            fallback="redacted_evidence_id",
+        )
+        blockers = _display_safe_handoff_tags(
+            policy.blockers,
+            fallback="redacted_policy_blocker",
+        )
+        warnings = _display_safe_handoff_tags(
+            policy.warnings,
+            fallback="redacted_policy_warning",
+        )
+        tags = _display_safe_handoff_tags(
+            tuple(policy.blockers or policy.warnings or (policy.reason,)),
+            fallback="redacted_policy_reason",
+        )
         fail_closed = policy.decision in (
             PromptPacketProofDecision.BLOCK.value,
             PromptPacketProofDecision.HUMAN_GATE.value,
@@ -935,9 +978,9 @@ class RelayExecutionSummary:
             packet_hash_status="present" if packet_hash else "missing",
             packet_hash=packet_hash,
             proof_requirement=proof_requirement,
-            aegis_evidence_ids=policy.evidence_ids,
-            blockers=policy.blockers,
-            warnings=policy.warnings,
+            aegis_evidence_ids=evidence_ids,
+            blockers=blockers,
+            warnings=warnings,
             missing_metadata_fields=tuple(missing_metadata_fields),
             reason_tags=tags,
             demotion_target_tier=policy.demote_to_tier,
