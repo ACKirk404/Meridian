@@ -25,6 +25,36 @@ Completion: commit only review provenance/finding/pass updates locally in `docs/
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review current-main Build 2 Prime audit-evidence edge coverage.
+
+Status: passed by Codex Reviews A on 2026-06-01 22:43 -06:00. Current `HEAD` and `origin/main` are `de626d5f`, and Build 2 commits `d13947a2` and `be83f294` are ancestors of current main.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-a`.
+
+Review scope: `meridian_core/prime_autonomy.py`, `tests/test_prime_autonomy.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance only.
+
+Proof commands:
+
+- `python -m pytest tests/test_prime_autonomy.py -q`
+- `git diff --check d13947a2^..be83f294`
+
+Review result:
+
+- Containment checks for `d13947a2` and `be83f294` passed.
+- Scope check shows implementation/test changes limited to `meridian_core/prime_autonomy.py` and `tests/test_prime_autonomy.py`, with queue provenance in `docs/live-build-2.md`.
+- `python -m pytest tests/test_prime_autonomy.py -q` passed with 70 tests.
+- `git diff --check d13947a2^..be83f294` passed.
+- Verified malformed serialized audit payloads fall back to non-executable advisory state with display-safe unknown/default evidence instead of crashing or executing.
+- Verified serialized string booleans parse deterministically, including `"false"` staying non-executable and `"true"` human-gate evidence blocking execution.
+- Verified permission-boundary, review-gate, and human-gate blockers remain deterministic display-safe evidence strings/blockers with stable `PrimeNextAction.evidence` key formatting.
+- Scoped side-effect scan found no session spawning, process inspection, model calls, branch/worktree movement, UI/Bifrost/FileMap edits, Polaris dependency, or autonomous movement in the reviewed Build 2 slice.
+
+Finding: none.
+
+Completion: Build 2 Prime audit-evidence edge coverage is review-cleared. No repair routed.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review current-main Build 1 PromptPacket proof metadata binding.
 
 Status: passed by Codex Reviews A on 2026-06-01 22:33 -06:00. Current `HEAD` and `origin/main` are `46315779`, and Build 1 commits `f1acf65c` and `5c6a6a28` are ancestors of current main.
