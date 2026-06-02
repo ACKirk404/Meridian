@@ -58,6 +58,7 @@ _REQUIRED_PATHS = [
     "docs/relay-dispatch-hardening-implementation-checklist.md",
     "docs/relay-promptpacket-proof-metadata-implementation-checklist.md",
     "docs/relay-aegis-promptpacket-policy-integration-checklist.md",
+    "docs/relay-aegis-demotion-retry-handoff-checklist.md",
     "meridian_core/prime_autonomy.py",
     "tests/test_prime_autonomy.py",
     "meridian_core/prompt_packet.py",

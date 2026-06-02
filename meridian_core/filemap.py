@@ -504,6 +504,13 @@ def make_default_map() -> FileMap:
             notes="Read before integrating evaluate_prompt_packet_proof_policy() into Relay dispatch or mapping Aegis PromptPacket outcomes into Relay/Bifrost proof records.",
         ),
         FileMapEntry(
+            path="docs/relay-aegis-demotion-retry-handoff-checklist.md",
+            area=FileArea.RELAY_DISPATCH,
+            purpose="Build-ready checklist for Relay/Aegis demotion, retry, fallback, human-gate, fail-closed, and display-safe Bifrost handoff behavior after PromptPacket policy review clearance.",
+            related_tests=["tests/test_aegis.py", "tests/test_relay_executor.py", "tests/test_bifrost_cockpit.py"],
+            notes="Read before wiring Aegis demotion or retry outcomes into Relay dispatch records or Bifrost handoff/view-model display fields.",
+        ),
+        FileMapEntry(
             path="meridian_core/prime_autonomy.py",
             area=FileArea.PRIME_AUTONOMY,
             purpose="Prime next-action domain model: immutable PrimeNextAction with action type, confidence, risk tier, source, targets, blockers, human gate, rationale, and evidence refs.",

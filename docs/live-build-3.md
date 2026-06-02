@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Active Task
+## Completed / Ready For Codex Review
 
 Goal: keep FileMap current after Build 4/5 movement and Reviews B provenance landed on current main `a42250be`.
 
@@ -23,6 +23,21 @@ Task: audit FileMap coverage after coordinator movement commits `3c6850ca`, `cd3
 Tests: `python -m pytest tests/test_filemap.py -q`.
 
 Completion: commit locally only in the assigned worktree if coverage changes or concrete no-op evidence is recorded, mark Ready for Codex Review with commit hash or no-op evidence, files changed, tests run, and Next Candidate: bind review findings before unrelated FileMap cleanup.
+
+Completion:
+
+- Build 3 audited current `origin/main` at `b0578e9d`; the promoted task text named Build 4/5 movement and Reviews B provenance through `a42250be`, and this audit also included routing commit `b0578e9d`.
+- Inspected required minimum paths: `docs/relay-aegis-demotion-retry-handoff-checklist.md`, `bifrost/cockpit.py`, `tests/test_bifrost_cockpit.py`, `docs/live-build-4.md`, `docs/live-build-5.md`, `docs/live-codex-reviews-2.md`, and `docs/FileMap.md`.
+- Inspected changed paths from `3c6850ca`, `cd3e1d78`, `1ec2573a`, `a6fcb977`, `db9be18f`, `a42250be`, and `b0578e9d`, plus existing docs/code artifacts referenced by the current Build 4/5 and Reviews B queue blocks.
+- Registered the missing existing artifact: `docs/relay-aegis-demotion-retry-handoff-checklist.md` in runtime FileMap, `docs/FileMap.md`, and `_REQUIRED_PATHS`.
+- Audit evidence: focused coverage check across 17 inspected changed/referenced existing paths found no remaining runtime FileMap, `docs/FileMap.md`, or `_REQUIRED_PATHS` gaps after registration.
+- Files changed: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+- Tests: `python -m pytest tests/test_filemap.py -q` - 46 passed.
+- Diff proof: `git diff --check` - passed.
+- Commit: this queue-marker commit.
+- Next Candidate: bind review findings before unrelated FileMap cleanup.
+
+Ready for Codex Review.
 
 ## Completed / Ready For Codex Review
 
