@@ -8,6 +8,26 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review Build 5 current-main Bifrost prompt payload visibility sample rendering.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Review result - 2026-06-01 22:04 -06:00:
+
+- Build 5 Bifrost prompt payload visibility sample rendering passed. Commits `41412aee` and `8ca2390e` changed only `bifrost/cockpit.py`, `bifrost/static/cockpit.css`, `tests/test_bifrost_cockpit.py`, and `docs/live-build-5.md`.
+- The static `PromptPayloadView` and renderer expose deterministic structured fields for prompt label variants, budget percent, prompt and context budget, growth delta, watch/degraded/block state, provider/model/trust/route context, evidence/telemetry/adapter refs, and missing snapshot/telemetry warnings.
+- Focused tests cover `(under 1k)`, `(N.Nk)`, `(over budget)`, and `(unknown)` labels, watch states, provider/route/evidence context, warning rendering, escaping, and preservation of stale-session recovery plus proof-state preview behavior.
+- Scope check found no session spawning, live process/model calls, `index.html` edit, Polaris dependency, live process control, branch movement, Relay routing doc edit, shared-main write, or push.
+
+Proof:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q` passed: 193 tests.
+- `git diff --check 41412aee^..8ca2390e` passed.
+
+Completion: Build 5 Bifrost prompt payload visibility sample rendering is review-cleared. Reviews B returns to current-main Ready-marker polling.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review the next current-main Ready marker from Build 4 or Build 5 after the fresh post-clearance tasks complete.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
