@@ -1557,6 +1557,70 @@ class TestRelayDecisionRecord:
             )
             assert summary.decision_record.proof_required == plan.route.audit.proof_required
 
+    def test_decision_record_binds_prompt_packet_proof_metadata(self) -> None:
+        """Decision record exposes packet proof metadata without nested envelope access."""
+        plan = _make_plan(3)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            proof_trail=ProofTrail(),
+            include_decision_record=True,
+        )
+
+        record = summary.decision_record
+        packet_proof = plan.packet.proof_metadata
+        assert record.packet_hash == packet_proof.packet_hash
+        assert record.prompt_budget_ref == packet_proof.prompt_budget_ref
+        assert record.source_lineage_compliant is True
+        assert record.packet_proof_metadata_ref == f"prompt-packet-proof:{_PACKET_ID}"
+        assert record.packet_proof_blocked_tags == ()
+
+    def test_decision_record_uses_packet_proof_required(self) -> None:
+        plan = _make_plan(3)
+        record = _build_decision_record(plan)
+
+        assert record.proof_required == plan.packet.proof_metadata.proof_required
+        assert record.proof_required == tuple(plan.route.audit.proof_required)
+
+    def test_decision_record_carries_aegis_ids_from_dispatch_envelope(self) -> None:
+        plan = _make_plan(3)
+        proof_trail = ProofTrail([
+            AegisEvidence(
+                id="packet-proof-aegis-1",
+                evidence_type=EvidenceType.BUILD_OUTPUT,
+                severity=EvidenceSeverity.INFO,
+                status=EvidenceStatus.OPEN,
+                source="test",
+                target="relay",
+                summary="non-blocking proof",
+            )
+        ])
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("ok"),
+            proof_trail=proof_trail,
+            include_decision_record=True,
+        )
+
+        assert summary.decision_record.aegis_evidence_ids == (
+            "packet-proof-aegis-1",
+        )
+
+    def test_decision_record_packet_proof_fields_do_not_contain_raw_prompt(self) -> None:
+        plan = _make_plan(2)
+        record = _build_decision_record(plan)
+        proof_text = " ".join(
+            str(value)
+            for value in (
+                record.packet_hash,
+                record.prompt_budget_ref,
+                record.packet_proof_metadata_ref,
+                record.packet_proof_blocked_tags,
+                record.aegis_evidence_ids,
+            )
+        )
+        assert _PROMPT not in proof_text
+
     def test_decision_record_fallback_blockers_from_audit(self) -> None:
         """Decision record fallback_blockers captures audit tuple plus vendor/model_id unknowns for Tier 2+."""
         from meridian_core.relay import ModelRole
@@ -1849,6 +1913,11 @@ class TestRelayDecisionRecord:
         assert isinstance(record.fallback_blockers, tuple)
         assert isinstance(record.observability_fields, tuple)
         assert isinstance(record.telemetry_required, tuple)
+        assert record.packet_hash is not None
+        assert record.prompt_budget_ref is not None
+        assert isinstance(record.source_lineage_compliant, bool)
+        assert record.packet_proof_metadata_ref is not None
+        assert isinstance(record.packet_proof_blocked_tags, tuple)
 
     def test_decision_record_vendor_from_adapter_metadata(self) -> None:
         """Decision record vendor populated from adapter metadata when available."""

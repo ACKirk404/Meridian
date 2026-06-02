@@ -229,6 +229,11 @@ class RelayDecisionRecord:
     route_metadata: ModelRouteMetadataBinding | None = None
     payload_evidence: RelayPromptPayloadEvidence | None = None
     dispatch_envelope: RelayDispatchEnvelope | None = None
+    packet_hash: str | None = None
+    prompt_budget_ref: str | None = None
+    source_lineage_compliant: bool | None = None
+    packet_proof_metadata_ref: str | None = None
+    packet_proof_blocked_tags: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -704,10 +709,17 @@ def _build_decision_record(
     route = plan.route
     audit = route.audit
     packet = plan.packet
+    packet_proof = getattr(packet, "proof_metadata", None)
     lanes = plan.lanes
 
     fallback_blockers = list(audit.fallback_blockers)
     fallback_allowed = len(fallback_blockers) == 0
+    if packet_proof is None:
+        fallback_blockers.append("packet_proof_metadata_missing")
+        fallback_allowed = False
+    elif packet_proof.blocked_tags:
+        fallback_blockers.extend(packet_proof.blocked_tags)
+        fallback_allowed = False
 
     # Check for stop conditions
     if audit.route_class is None and route.risk_tier >= 1:
@@ -828,6 +840,11 @@ def _build_decision_record(
             aegis_gate_decision=aegis_gate_decision,
             aegis_evidence_ids=prior_envelope.aegis_evidence_ids if prior_envelope else (),
         )
+    packet_aegis_evidence_ids = (
+        dispatch_envelope.aegis_evidence_ids
+        if dispatch_envelope and dispatch_envelope.aegis_evidence_ids
+        else (packet_proof.aegis_evidence_ids if packet_proof else ())
+    )
 
     return RelayDecisionRecord(
         heartbeat_id=packet.packet_id,
@@ -846,7 +863,9 @@ def _build_decision_record(
         dual_lane_required=route.requires_independence,
         lane_independence_reason=lane_independence_reason,
         trust_state=audit.trust_state.value,
-        proof_required=tuple(audit.proof_required),
+        proof_required=(
+            packet_proof.proof_required if packet_proof else tuple(audit.proof_required)
+        ),
         human_gate_required=route.requires_human_gate,
         cost_posture=route.cost_posture.value,
         latency_posture=route.latency_posture.value,
@@ -857,10 +876,24 @@ def _build_decision_record(
         telemetry_required=audit.telemetry_required,
         explanation_for_prime=explanation,
         aegis_gate_decision=aegis_gate_decision,
+        aegis_evidence_ids=packet_aegis_evidence_ids,
         aegis_explanation=aegis_explanation,
         route_metadata=route_metadata,
         payload_evidence=payload_evidence,
         dispatch_envelope=dispatch_envelope,
+        packet_hash=packet_proof.packet_hash if packet_proof else None,
+        prompt_budget_ref=packet_proof.prompt_budget_ref if packet_proof else None,
+        source_lineage_compliant=(
+            packet_proof.source_lineage_compliant if packet_proof else None
+        ),
+        packet_proof_metadata_ref=(
+            f"prompt-packet-proof:{packet_proof.packet_id}" if packet_proof else None
+        ),
+        packet_proof_blocked_tags=(
+            packet_proof.blocked_tags
+            if packet_proof
+            else ("packet_proof_metadata_missing",)
+        ),
     )
 
 
