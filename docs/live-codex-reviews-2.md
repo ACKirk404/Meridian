@@ -20,6 +20,38 @@ Completion: commit only review provenance/finding/pass updates in `docs/live-cod
 
 ## Coordinator Override - Completed / Passed
 
+Goal: review Build 3 FileMap repaired frontend/current-main audit.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Source worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-3-filemap`.
+
+Source branch: `codex/build-3-filemap-repaired-frontend-audit-20260602-1152`.
+
+Task: review commit `ddf3c29b` (`chore: audit repaired frontend FileMap coverage`) for current-main FileMap gap registration only. Verify coverage for `meridian_core/compass.py`, `tests/test_compass.py`, `docs/main-write-coordination-ledger.md`, docs mirror repairs for `docs/agentic-ai-framework-checklist.md` and `docs/federation-harness-horizon.md`, plus recorded branch-only exclusions without pre-registering frontend snapshot/test files.
+
+Review result - 2026-06-02 12:34 -06:00:
+
+- PASS. Build 3 source worktree was clean and the reviewed commit touched only `docs/FileMap.md`, `docs/live-build-3.md`, `meridian_core/filemap.py`, and `tests/test_filemap.py`.
+- Verified runtime FileMap, `docs/FileMap.md`, and `_REQUIRED_PATHS` add current-main coverage for `meridian_core/compass.py`, `tests/test_compass.py`, and `docs/main-write-coordination-ledger.md`.
+- Verified docs mirror rows for existing registered docs `docs/agentic-ai-framework-checklist.md` and `docs/federation-harness-horizon.md`.
+- Verified Build 3 provenance records branch-only runtime logic snapshot/test exclusions for Workflow, Source/Git, Federation, and Beacon instead of pre-registering those branch-only files on main.
+- Verified no implementation/runtime/UI movement, no shared-main write, no Polaris touch, and no unrelated FileMap churn beyond the current-main audit/repair scope.
+
+Proof:
+
+- `git fetch origin +refs/heads/main:refs/remotes/origin/main` completed from Reviews B.
+- Reviews B worktree was clean before pass provenance recording.
+- Build 3 source worktree status was clean on `codex/build-3-filemap-repaired-frontend-audit-20260602-1152`.
+- `python -m pytest tests/test_filemap.py -q` passed: 47 tests.
+- `git diff --check ddf3c29b^..ddf3c29b` passed.
+- `git diff --name-status ddf3c29b^..ddf3c29b` showed only the expected files: `docs/FileMap.md`, `docs/live-build-3.md`, `meridian_core/filemap.py`, `tests/test_filemap.py`.
+- Targeted absence check found no branch-only frontend runtime snapshot/test registrations added in the FileMap diff.
+
+Next Candidate: coordinator-routed frontend/runtime repair or FileMap audit after branch files land on main.
+
+## Coordinator Override - Completed / Passed
+
 Goal: review Build 3 post-voice FileMap audit / registration.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
