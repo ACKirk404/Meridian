@@ -96,6 +96,20 @@ No active write lease.
 Start new entries below this line.
 
 ```text
+Time: 2026-06-04 07:05 -06:00
+Writer: Meridian coordinator
+Intent: docs-only coordinator checkpoint under frontend ACK; follow-up ACK also allowed the already-present queue-doc commit in `docs/live-build-4.md` if bundled by automation.
+Action completed: recorded current seven-lane status, proof results, and containment state while leaving implementation/review movement pending.
+Commit(s): this commit
+Pushed to origin/main: yes
+Files changed: docs/main-write-coordination-ledger.md, docs/v2-orchestrator-transition-ledger.md
+Proof run: fetched `origin/main` with explicit refspec; verified shared main on `main`, clean, and aligned; verified all seven active lane worktrees clean; focused worktree tests passed: Build 2 session lifecycle 127/127, Build 3 FileMap 47/47, Build 4 Aegis 298/298, Build 5 Bifrost cockpit/preview 312/312; `git diff --check` before commit.
+Final shared main status: pending final fetch/status after push.
+Notes/blockers: no implementation files, review provenance movement, frontend files, branch/worktree movement, FTP/deploy work, or Polaris included. Build 2/3/4/5 exact commits are path-limited but their branches are stale/noisy, so movement remains gated on coordinated exact-commit handling.
+Status: Complete
+```
+
+```text
 Time: 2026-06-02 17:00 -06:00
 Writer: Meridian coordinator
 Intent: user-requested Relay Runtime Logic section-list repair after Prime Directives and Prime Directive Proofs were present as top-level data but absent from the visible Relay section list.

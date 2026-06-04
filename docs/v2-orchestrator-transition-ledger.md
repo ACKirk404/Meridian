@@ -526,6 +526,20 @@ Coordinator rolling checkpoint - 2026-06-02 12:03 -06:00:
 - Frontend: Federation Runtime Logic branch scope finding `46b25c12` was routed to the frontend lane; frontend is repairing the branch to remove live-build queue files from `origin/main..branch`.
 - Containment: no Polaris work, no worker file write in shared main, no branch/worktree movement approval, no takeover-complete mark. Takeover remains in transition.
 
+Coordinator seven-lane evidence checkpoint - 2026-06-04 07:05 -06:00:
+
+- Goal context: continue managing all seven Meridian lanes and update Obsidian/Git regularly; do not mark takeover complete.
+- Main gate: fetched `origin/main` with explicit refspec, fast-forwarded shared main as needed, then verified `C:\Users\scott\Code\Meridian` on `main`, clean, and aligned with `origin/main`.
+- Worktree gate: Build 1, Build 2, Build 3, Build 4, Build 5, Reviews A, and Reviews B worktrees all exist and are clean.
+- Build 1: clean on `codex/build-1-relay-v3-goal-progress-packet-audit-20260602-1346`; latest visible activity is read-check/idle only and is not counted as task progress.
+- Build 2: clean but branch-stale/noisy (`ahead 3`, `behind 7128`). Exact pending commits are path-limited to `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, and `docs/live-build-2.md`; proof passed 127/127 session lifecycle tests.
+- Build 3: clean but branch-stale/noisy (`ahead 1`, `behind 7180`). Exact pending FileMap audit commit is path-limited to FileMap docs/runtime/test plus `docs/live-build-3.md`; proof passed 47/47 FileMap tests.
+- Build 4: clean but branch-stale/noisy (`ahead 2`, `behind 7127`). Exact pending Aegis checkpoint advisory commits are path-limited to `meridian_core/aegis.py`, `tests/test_aegis.py`, and `docs/live-build-4.md`; proof passed 298/298 Aegis tests.
+- Build 5: clean but branch-stale/noisy (`ahead 2`, `behind 7127`). Exact pending render audit commits are path-limited to Bifrost tests plus `docs/live-build-5.md`; proof passed 312/312 Bifrost cockpit/preview tests.
+- Reviews B: clean and has local review-clearance provenance for Build 3 (`eb0e8a7ee`), Build 4 (`646851b2c`), and Build 5 (`213aa2366`) in `docs/live-codex-reviews-2.md`.
+- Coordination: frontend lane ACKed this docs-only coordinator checkpoint write and separately ACKed inclusion of an already-present `docs/live-build-4.md` queue-doc commit if the push bundled it. Obsidian was also updated at `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build\8-Logs.md`.
+- Next coordinator action: prepare an exact-commit, path-limited movement plan for the reviewed Build 3/4/5 slices and separately determine whether Build 2 has Reviews A clearance or needs review/repair. Do not use stale branch ranges for movement.
+
 ## Full Takeover Criteria
 
 The replacement coordinator may take full ownership only when all are true:
