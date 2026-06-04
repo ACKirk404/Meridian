@@ -84,18 +84,7 @@ Status: Complete | Aborted | Blocked
 
 ## Active Coordination
 
-```text
-Time: 2026-06-04 08:20 -06:00
-Writer: Meridian coordinator
-Requested action: path-limited frontend movement/review/landing and push
-Target base: current origin/main after explicit fetch and clean/aligned shared main gate
-Path-limited scope: index.html; tests/test_bifrost_cockpit.py; docs/main-write-coordination-ledger.md for lease/completion bookkeeping only
-Reason: land Meridian UI Build 2 Model Harness detail surface slice from contained source commit 40fe45b029ff92572e99d26049fc9229b38b6d18.
-Proof to run: focused Bifrost model harness pytest; full tests/test_bifrost_cockpit.py if feasible; git diff --check; targeted introduced-text/encoding scan; final fetch/status.
-Expected duration: 10 minutes
-Requires other party ACK: yes, frontend requested coordinator landing and scope in delegation from thread 019e86dc-1cdf-7781-9872-800b4764c87f
-Status: ACK accepted by coordinator; active write lease
-```
+No active write lease.
 
 ## Standing Acknowledgements
 
@@ -105,6 +94,20 @@ Status: ACK accepted by coordinator; active write lease
 ## Completed Coordination Log
 
 Start new entries below this line.
+
+```text
+Time: 2026-06-04 08:22 -06:00
+Writer: Meridian coordinator
+Intent: land Meridian UI Build 2 Model Harness detail surface slice from contained source commit 40fe45b029ff92572e99d26049fc9229b38b6d18 after frontend request/ACK.
+Action completed: exact two-file frontend slice moved to shared main from contained source ref.
+Commit(s): 7483a64c0 (feat: Add model harness detail surface); this ledger completion commit if separate.
+Pushed to origin/main: pending final push in this completion step
+Files changed: index.html; tests/test_bifrost_cockpit.py; docs/main-write-coordination-ledger.md
+Proof run: python -m py_compile tests/test_bifrost_cockpit.py passed; python -m pytest tests/test_bifrost_cockpit.py -q -k "model_harness_icons_open_model_surface or harness_title_toggles_model_icons" passed 2 tests, 285 deselected; python -m pytest tests/test_bifrost_cockpit.py -q passed 287 tests; git diff --check passed for the feature before commit; staged path scope was exactly index.html and tests/test_bifrost_cockpit.py.
+Final shared main status: pending final explicit fetch/status after push.
+Notes/blockers: no backend worker movement, queue docs, FileMap, Review Console branch, other frontend branch, FTP/deploy work, worker main write, or Polaris included.
+Status: Complete
+```
 
 ```text
 Time: 2026-06-04 08:12 -06:00
