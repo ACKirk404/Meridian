@@ -297,6 +297,19 @@ def test_index_model_harness_detail_surface_shows_handoff_policy():
     assert "missing blocker proof escalates before continuation" in doc
 
 
+def test_index_model_harness_detail_surface_shows_dispatch_guard():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "const modelHarnessDispatchGuard = (items) =>" in doc
+    assert 'aria-label="Model harness dispatch guard"' in doc
+    assert "const modelHarnessDispatchGuards = {" in doc
+    assert "relaySection('Dispatch guard', modelHarnessDispatchGuard(dispatchGuard), true)" in doc
+    assert ".model-harness-dispatch-guard" in doc
+    assert ".model-harness-dispatch-cell" in doc
+    assert "adapter health and provider key visible" in doc
+    assert "dispatch readiness state required" in doc
+    assert "missing blocker proof blocks continuation" in doc
+
+
 def test_index_model_harness_selection_is_visible_and_persistent():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "const modelHarnessSelectionKey = 'meridian.model-harness.selection.v1'" in doc

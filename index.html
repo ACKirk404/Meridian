@@ -1632,6 +1632,33 @@ body {
   overflow-wrap: anywhere;
 }
 
+.model-harness-dispatch-guard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 7px;
+}
+
+.model-harness-dispatch-cell {
+  min-width: 0;
+  border: 1px solid rgba(102, 255, 150, 0.26);
+  background: rgba(2, 22, 13, 0.6);
+  padding: 7px;
+  box-shadow: inset 0 0 12px rgba(102, 255, 150, 0.05);
+}
+
+.model-harness-dispatch-label {
+  color: rgba(166, 255, 192, 0.64);
+  font-size: 0.76em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.model-harness-dispatch-value {
+  margin-top: 4px;
+  color: rgba(226, 255, 234, 0.95);
+  overflow-wrap: anywhere;
+}
+
 .relay-models-header {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -4301,6 +4328,12 @@ body {
       <div class="model-harness-handoff-value">${escapeHtml(value)}</div>
     </div>
   `).join('')}</div>`;
+  const modelHarnessDispatchGuard = (items) => `<div class="model-harness-dispatch-guard" aria-label="Model harness dispatch guard">${items.map(([label, value]) => `
+    <div class="model-harness-dispatch-cell">
+      <div class="model-harness-dispatch-label">${escapeHtml(label)}</div>
+      <div class="model-harness-dispatch-value">${escapeHtml(value)}</div>
+    </div>
+  `).join('')}</div>`;
   const primeProofList = (proof) => `<div class="prime-logic-proof">${proof.map((item) => `
     <div class="prime-logic-proof-item">
       <div class="prime-logic-proof-question">${escapeHtml(item.question || 'proof question unavailable')}</div>
@@ -5202,6 +5235,104 @@ body {
       ['escalate', 'missing blocker proof escalates before continuation'],
     ],
   };
+  const modelHarnessDispatchGuards = {
+    Provider: [
+      ['ready', 'adapter health and provider key visible'],
+      ['preflight', 'credentials checked without secret display'],
+      ['mutation', 'no provider call until endpoint proof exists'],
+      ['block', 'unknown endpoint blocks dispatch'],
+    ],
+    Selection: [
+      ['ready', 'candidate set and exact model id visible'],
+      ['preflight', 'capability fit and exclusion reasons checked'],
+      ['mutation', 'no selection write until rationale is visible'],
+      ['block', 'ambiguous fit blocks model selection'],
+    ],
+    Router: [
+      ['ready', 'route tier, owner, and target visible'],
+      ['preflight', 'retry budget and escalation path checked'],
+      ['mutation', 'no dispatch until route record exists'],
+      ['block', 'unresolved route owner blocks dispatch'],
+    ],
+    Fallback: [
+      ['ready', 'fallback chain and degraded mode visible'],
+      ['preflight', 'blocked fallback reasons checked'],
+      ['mutation', 'no silent fallback mutation allowed'],
+      ['block', 'no approved fallback blocks recovery'],
+    ],
+    Verifier: [
+      ['ready', 'acceptance criteria and proof target visible'],
+      ['preflight', 'response evidence checked before completion'],
+      ['mutation', 'no completion without verifier proof'],
+      ['block', 'missing proof blocks completion'],
+    ],
+    Cost: [
+      ['ready', 'budget tier and stop threshold visible'],
+      ['preflight', 'token and spend pressure checked'],
+      ['mutation', 'no transport over budget threshold'],
+      ['block', 'over-budget route blocks dispatch'],
+    ],
+    Latency: [
+      ['ready', 'timeout and streaming posture visible'],
+      ['preflight', 'retry budget and stale state checked'],
+      ['mutation', 'no acceptance after stale timeout'],
+      ['block', 'expired retry budget blocks acceptance'],
+    ],
+    Context: [
+      ['ready', 'source envelope and window pressure visible'],
+      ['preflight', 'context lineage checked before prompt assembly'],
+      ['mutation', 'no prompt assembly with hidden context'],
+      ['block', 'hidden context pressure blocks prompt assembly'],
+    ],
+    Prompt: [
+      ['ready', 'prompt packet boundary and hash visible'],
+      ['preflight', 'instruction provenance and redaction checked'],
+      ['mutation', 'no raw prompt display or hidden payload mutation'],
+      ['block', 'prompt leakage blocks model call'],
+    ],
+    Policy: [
+      ['ready', 'policy source and permission state visible'],
+      ['preflight', 'exception and blocked action tags checked'],
+      ['mutation', 'no action when policy mismatch is present'],
+      ['block', 'policy mismatch blocks execution'],
+    ],
+    Safety: [
+      ['ready', 'risk tier and refusal boundary visible'],
+      ['preflight', 'unsafe-output handling checked'],
+      ['mutation', 'no execution past safety block'],
+      ['block', 'unsafe output blocks execution'],
+    ],
+    Privacy: [
+      ['ready', 'data exposure class and retention visible'],
+      ['preflight', 'redaction proof checked before handoff'],
+      ['mutation', 'no external handoff with secret exposure'],
+      ['block', 'secret exposure blocks provider handoff'],
+    ],
+    Tools: [
+      ['ready', 'tool permission and argument preview visible'],
+      ['preflight', 'tool-result trust boundary checked'],
+      ['mutation', 'no tool call before intent record'],
+      ['block', 'unapproved tool call blocks execution'],
+    ],
+    Compare: [
+      ['ready', 'candidate set and criteria visible'],
+      ['preflight', 'winner confidence and dissent checked'],
+      ['mutation', 'no winner mutation with hidden criteria'],
+      ['block', 'hidden criteria blocks winner selection'],
+    ],
+    Trace: [
+      ['ready', 'trace id and lineage refs visible'],
+      ['preflight', 'response hash and replay boundary checked'],
+      ['mutation', 'no acceptance without lineage record'],
+      ['block', 'missing lineage blocks acceptance'],
+    ],
+    Goal: [
+      ['ready', 'objective status and continuation budget visible'],
+      ['preflight', 'proof trail and blocker state checked'],
+      ['mutation', 'no continuation without goal proof'],
+      ['block', 'missing blocker proof blocks continuation'],
+    ],
+  };
   const isModelHarnessButton = (button) => Boolean(button?.closest?.('.harness-model-dock'));
   const modelHarnessButtons = () => Array.from(document.querySelectorAll('.harness-model-dock .harness-dock-button'));
   const selectedModelHarnessName = (button) => button?.dataset.harness || '';
@@ -5283,6 +5414,12 @@ body {
       ['evidence', 'handoff evidence required'],
       ['escalate', 'missing handoff proof escalates before dispatch'],
     ];
+    const dispatchGuard = modelHarnessDispatchGuards[aspect] || [
+      ['ready', 'dispatch readiness state required'],
+      ['preflight', 'dispatch preflight proof required'],
+      ['mutation', 'display-only until backend dispatch guard exists'],
+      ['block', 'missing dispatch proof blocks execution'],
+    ];
     const proofTelemetry = [
       ['context', contextLogic],
       ['intent', intentLogic],
@@ -5306,6 +5443,7 @@ body {
         relaySection('Capability envelope', modelHarnessCapabilityEnvelope(capabilityEnvelope), true),
         relaySection('Routing policy', modelHarnessRoutingPolicy(routingPolicy), true),
         relaySection('Handoff policy', modelHarnessHandoffPolicy(handoffPolicy), true),
+        relaySection('Dispatch guard', modelHarnessDispatchGuard(dispatchGuard), true),
         relaySection('Runtime signals', relayList(runtimeSignals), true),
         relaySection('Runtime contract', relayGrid([
           ['surface mode', 'Model Harness'],
