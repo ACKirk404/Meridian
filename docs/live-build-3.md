@@ -8,6 +8,22 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Active Task
+
+Goal: refresh FileMap audit for current V3 goal/checkpoint runtime work and pending review branches.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-3-filemap`.
+
+Allowed files only: `meridian_core/filemap.py`, `docs/FileMap.md`, `tests/test_filemap.py`, `docs/live-build-3.md`.
+
+Task: fetch current `origin/main`; inspect pending V3 goal/checkpoint work from Build 2, Build 4, Build 5, and current runtime/frontend branches if present; verify runtime FileMap, `docs/FileMap.md`, and `_REQUIRED_PATHS` coverage. If complete, write a concrete no-op audit with inspected commits/paths; if missing, register only existing missing artifacts in allowed files. No implementation edits outside FileMap surfaces, no branch/worktree movement, no shared-main write, no Polaris.
+
+Proof: `python -m pytest tests/test_filemap.py -q`; `git diff --check`; concrete inspected commit/path list.
+
+Completion: commit only this FileMap audit/registration slice, request coordinator movement after Reviews B clearance, update Obsidian, and mark Ready for Codex Review.
+
+Next Candidate: keep FileMap current after Build 1/2/4/5 V3 goal slices land or are repaired.
+
 ## Completed / Ready For Codex Review
 
 Goal: keep FileMap current after the repaired Bifrost voice runtime/status surface landed on current `origin/main`.
@@ -3811,6 +3827,7 @@ Historical record for reference. Authoritative detail is in the Write/Completion
 2026-06-04 12:57 UTC - Build 3 checked queue; status: idle; no Active Task (only Next Candidate); cadence 1/3 since next round; awaiting task assignment
 2026-06-04 12:58 UTC - Build 3 checked queue; status: idle; no Active Task (only Next Candidate); cadence 1/3 since next round; awaiting task assignment
 2026-06-04 12:59 UTC - Build 3 checked queue; status: idle; no Active Task (only Next Candidate); cadence 1/3 since next round; awaiting task assignment
+2026-06-04 13:00 UTC - Build 3 checked queue; status: idle; no Active Task (only Next Candidate); cadence 1/3 since next round; awaiting task assignment
 2026-06-02 15:34 UTC - Build 3 queue poll; appended Read Checks entry; no code changes; files: docs/live-build-3.md (queue file); status: idle, awaiting task assignment
 2026-06-02 15:36 UTC - Build 3 queue poll; appended Read Checks entry; no code changes; files: docs/live-build-3.md (queue file); status: idle, awaiting task assignment
 2026-06-02 15:38 UTC - Build 3 queue poll; appended Read Checks entry; no code changes; files: docs/live-build-3.md (queue file); status: idle, awaiting task assignment
@@ -5494,3 +5511,4 @@ Historical record for reference. Authoritative detail is in the Write/Completion
 2026-06-04 12:57 UTC - Build 3 queue poll; appended Read Checks entry; no code changes; files: docs/live-build-3.md (queue file); status: idle, awaiting task assignment
 2026-06-04 12:58 UTC - Build 3 queue poll; appended Read Checks entry; no code changes; files: docs/live-build-3.md (queue file); status: idle, awaiting task assignment
 2026-06-04 12:59 UTC - Build 3 queue poll; appended Read Checks entry; no code changes; files: docs/live-build-3.md (queue file); status: idle, awaiting task assignment
+2026-06-04 13:00 UTC - Build 3 queue poll; appended Read Checks entry; no code changes; files: docs/live-build-3.md (queue file); status: idle, awaiting task assignment
