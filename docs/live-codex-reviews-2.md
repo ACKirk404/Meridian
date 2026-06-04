@@ -6,6 +6,18 @@ This file is the standing queue for a second specialized Codex Reviews session.
 
 You must do all work inside your assigned unique worktree. You are not allowed to write to `C:\Users\scott\Code\Meridian` main or push/write to `main` without explicit coordinator approval. Do not move data between worktrees, branches, or the main checkout. Do not cherry-pick, copy files, stash-pop across worktrees, merge, rebase, reset, or salvage. If you believe work must move, stop and ask the coordinator. The coordinator may permit it only after verifying `C:\Users\scott\Code\Meridian` main is clean.
 
+## Coordinator Override - Active Now
+
+Goal: review Build 3/4/5 V3 goal checkpoint support slices and current FileMap/render/advisory refreshes.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\codex-reviews-b`.
+
+Task: review Build 3 FileMap audit commit `ddf3c29bd`, Build 4 Aegis V3 goal checkpoint discipline commits `dfc01107b`/`04bdcbb32`, and Build 5 V3 goal runtime render audit commits `a15c8ff16`/`390e6d768` if they remain pending and path-limited. Prefer oldest ready/least stale slice first. If a branch is too stale to review cleanly, record exact ahead/behind/path evidence and route refresh to the owning build lane. Verify no live model/provider calls, session/process control, implementation leakage outside allowed scope, branch/worktree/main movement, or Polaris dependency.
+
+Proof: Build 3 uses `python -m pytest tests/test_filemap.py -q`; Build 4 uses `python -m pytest tests/test_aegis.py -q`; Build 5 uses `python -m pytest tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q`; each review also runs diff-check over the ready commit/range.
+
+Completion: commit only review provenance/finding/pass updates in `docs/live-codex-reviews-2.md` and any focused repair route appended to the owning build queue; update Obsidian; leave a concrete Next Candidate.
+
 ## Coordinator Override - Completed / Passed
 
 Goal: review Build 3 post-voice FileMap audit / registration.
