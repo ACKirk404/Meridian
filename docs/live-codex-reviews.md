@@ -1344,17 +1344,6 @@ Proof command:
 
 Completion: if clean, mark passed, close the prior HIGH permission-invariant findings, and leave the next executable Reviews A candidate: review Build 1 Relay proof payload downstream-consumer checklist commit `455ed63c`. If findings exist, route the smallest focused repair back to Build 2 ahead of normal work. Commit only review-queue/provenance updates and push to `origin/main`.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review current-main Build 2 Session Lifecycle permissions contract-completeness repair.
@@ -1388,17 +1377,6 @@ Proof command:
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review current-main Build 2 Session Lifecycle permissions and Prime/Beacon binding implementation.
@@ -1433,17 +1411,6 @@ Proof command:
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 2 Session Lifecycle permissions and Prime/Beacon binding implementation.
@@ -1507,17 +1474,6 @@ Proof commands:
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate. Do not edit implementation files from the review worktree.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review current-main Build 1 Relay proof payload negative-path tests after visibility repair.
@@ -1550,17 +1506,6 @@ Proof command:
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate. Do not edit implementation files from the review worktree.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 1 Relay proof payload negative-path tests.
@@ -1622,17 +1567,6 @@ Proof command:
 
 Completion: commit only review-queue/provenance updates, push to `origin/main`, and leave a concrete Next Candidate.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 2 Prime command-plan tests for Session Lifecycle routing actions and reasons.
@@ -1774,17 +1708,6 @@ Goal: review current-main Build 1 Relay proof payload serialization landing afte
 
 Allowed review files: `meridian_core/relay_executor.py`, `tests/test_relay_executor.py`, `docs/live-build-1.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 1 Relay repair commits `c3d91214` and `69e9ff55`.
@@ -1822,17 +1745,6 @@ Goal: review Build 2 Session Lifecycle routing-action implementation after Build
 
 Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 1 Relay stop-condition repair commit `f0bb2bb6` and current `origin/main` state.
@@ -1870,17 +1782,6 @@ Goal: review Build 2 Session Lifecycle routing-action implementation after Build
 
 Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`, and `docs/live-codex-reviews.md` for provenance/routing only.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 1 Relay decision-record implementation commit `decfb84e` and its current `origin/main` state.
@@ -1916,17 +1817,6 @@ Goal: review Build 2 Session Lifecycle routing-action implementation after it is
 
 Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, and `docs/live-build-2.md` for provenance/routing only.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review the current Relay/account/session routing design before the next runtime slice is accepted.
@@ -2002,17 +1892,6 @@ Allowed review files: `meridian_core/session_lifecycle.py`, `tests/test_session_
 
 Proof command: `python -m pytest tests/test_session_lifecycle.py -q`
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review Build 2 Session Lifecycle implementation checklist commit `0296525`.
@@ -2061,17 +1940,6 @@ Finding:
 
 Completion: routed focused repair to Build 2 in `docs/live-build-2.md`; runtime implementation remains blocked until the checklist artifact is restored and review-cleared.
 
-## Coordinator Override - Completed / Passed
-
-Goal: review Build 2 Session Lifecycle close/archive observed_at permission repair and V3 goal checkpoint proof packet.
-
-Status: passed by coordinator-side Reviews A intake on 2026-06-04. Candidate branch was `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle` with source commits `a0d4db8e9`, `69541f488`, and `d1bd643d4`.
-
-Proof: Build 2 worktree `git diff --check a0d4db8e9^..d1bd643d4` passed; Build 2 worktree `python -m pytest tests\test_session_lifecycle.py -q` passed with 127 tests. Shared main proof after coordinated movement passed with 125 tests.
-
-Review result: close/archive write-through proof permission evaluation uses the proof `observed_at` timestamp instead of wall-clock expiry. V3 goal checkpoint proof packet remains display-safe, serializable, and non-executable. No process inspection, session restart/resteer/archive execution, model/provider call, UI/Bifrost/FileMap edit, branch/worktree movement, worker main write, or Polaris dependency was introduced.
-
-Completion: Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet are review-cleared and moved under the main-write coordination gate.
 ## Coordinator Override - Completed / Repair-Routed
 
 Goal: review the Build 1 Model Harness and cockpit-state runtime cadence window.
