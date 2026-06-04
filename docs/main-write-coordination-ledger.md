@@ -84,7 +84,18 @@ Status: Complete | Aborted | Blocked
 
 ## Active Coordination
 
-No active write lease.
+```text
+Time: 2026-06-04 08:07 -06:00
+Writer: Meridian coordinator
+Requested action: path-limited frontend movement/review/landing and push
+Target base: origin/main at current shared main clean/aligned state
+Path-limited scope: index.html; tests/test_bifrost_cockpit.py; docs/main-write-coordination-ledger.md for lease/completion bookkeeping only
+Reason: land Meridian UI Build 2 Model Harness aspects slice from contained source commit a604aadcffcec7017c520821865bad243a07bbfc.
+Proof to run: focused Bifrost harness pytest; full tests/test_bifrost_cockpit.py if feasible; git diff --check; targeted name/encoding scan; final fetch/status.
+Expected duration: 10 minutes
+Requires other party ACK: yes, frontend requested coordinator landing and scope in delegation from thread 019e86dc-1cdf-7781-9872-800b4764c87f
+Status: ACK accepted by coordinator; active write lease
+```
 
 ## Standing Acknowledgements
 
