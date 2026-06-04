@@ -232,6 +232,19 @@ def test_index_model_harness_detail_surface_shows_proof_telemetry_strip():
     assert "rgba(102, 255, 150, 0.28)" in doc
 
 
+def test_index_model_harness_detail_surface_shows_evidence_route():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "const modelHarnessEvidenceRoute = (items) =>" in doc
+    assert 'aria-label="Model harness evidence route"' in doc
+    assert "const modelHarnessEvidenceRoutes = {" in doc
+    assert "relaySection('Evidence route', modelHarnessEvidenceRoute(evidenceRoute), true)" in doc
+    assert ".model-harness-evidence-route" in doc
+    assert ".model-harness-evidence-step" in doc
+    assert "provider registry and adapter health snapshot" in doc
+    assert "cost posture record before dispatch" in doc
+    assert "goal proof trail before continuation" in doc
+
+
 def test_index_model_harness_selection_is_visible_and_persistent():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "const modelHarnessSelectionKey = 'meridian.model-harness.selection.v1'" in doc
