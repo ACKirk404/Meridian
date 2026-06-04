@@ -362,6 +362,19 @@ def test_index_model_harness_detail_surface_shows_acceptance_policy():
     assert "missing goal proof blocks acceptance" in doc
 
 
+def test_index_model_harness_detail_surface_shows_compliance_policy():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "const modelHarnessCompliancePolicy = (items) =>" in doc
+    assert 'aria-label="Model harness compliance policy"' in doc
+    assert "const modelHarnessCompliancePolicies = {" in doc
+    assert "relaySection('Compliance policy', modelHarnessCompliancePolicy(compliancePolicy), true)" in doc
+    assert ".model-harness-compliance-policy" in doc
+    assert ".model-harness-compliance-cell" in doc
+    assert "provider license and data-region constraint visible" in doc
+    assert "compliance rule required" in doc
+    assert "missing goal compliance proof blocks continuation" in doc
+
+
 def test_index_model_harness_selection_is_visible_and_persistent():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "const modelHarnessSelectionKey = 'meridian.model-harness.selection.v1'" in doc

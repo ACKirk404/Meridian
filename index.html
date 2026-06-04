@@ -1767,6 +1767,33 @@ body {
   overflow-wrap: anywhere;
 }
 
+.model-harness-compliance-policy {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 7px;
+}
+
+.model-harness-compliance-cell {
+  min-width: 0;
+  border: 1px solid rgba(102, 255, 150, 0.25);
+  background: rgba(2, 22, 13, 0.58);
+  padding: 7px;
+  box-shadow: inset 0 0 12px rgba(102, 255, 150, 0.045);
+}
+
+.model-harness-compliance-label {
+  color: rgba(166, 255, 192, 0.64);
+  font-size: 0.76em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.model-harness-compliance-value {
+  margin-top: 4px;
+  color: rgba(226, 255, 234, 0.95);
+  overflow-wrap: anywhere;
+}
+
 .relay-models-header {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -4466,6 +4493,12 @@ body {
       <div class="model-harness-acceptance-value">${escapeHtml(value)}</div>
     </div>
   `).join('')}</div>`;
+  const modelHarnessCompliancePolicy = (items) => `<div class="model-harness-compliance-policy" aria-label="Model harness compliance policy">${items.map(([label, value]) => `
+    <div class="model-harness-compliance-cell">
+      <div class="model-harness-compliance-label">${escapeHtml(label)}</div>
+      <div class="model-harness-compliance-value">${escapeHtml(value)}</div>
+    </div>
+  `).join('')}</div>`;
   const primeProofList = (proof) => `<div class="prime-logic-proof">${proof.map((item) => `
     <div class="prime-logic-proof-item">
       <div class="prime-logic-proof-question">${escapeHtml(item.question || 'proof question unavailable')}</div>
@@ -5857,6 +5890,104 @@ body {
       ['stop', 'missing goal proof blocks acceptance'],
     ],
   };
+  const modelHarnessCompliancePolicies = {
+    Provider: [
+      ['rule', 'provider license and data-region constraint visible'],
+      ['evidence', 'provider terms, region, and retention class recorded'],
+      ['constraint', 'provider cannot receive disallowed data classes'],
+      ['block', 'missing provider compliance proof blocks dispatch'],
+    ],
+    Selection: [
+      ['rule', 'selection must respect approved model class'],
+      ['evidence', 'model class, license fit, and excluded candidates recorded'],
+      ['constraint', 'restricted tasks cannot use unapproved model class'],
+      ['block', 'missing selection compliance proof blocks dispatch'],
+    ],
+    Router: [
+      ['rule', 'route must preserve policy and residency boundary'],
+      ['evidence', 'route target, region, and policy tag recorded'],
+      ['constraint', 'route cannot cross unapproved boundary'],
+      ['block', 'missing route compliance proof blocks dispatch'],
+    ],
+    Fallback: [
+      ['rule', 'fallback cannot weaken compliance posture'],
+      ['evidence', 'alternate model class and constraint comparison recorded'],
+      ['constraint', 'fallback must preserve original compliance tier'],
+      ['block', 'missing fallback compliance proof blocks recovery'],
+    ],
+    Verifier: [
+      ['rule', 'verifier must confirm compliance before acceptance'],
+      ['evidence', 'compliance check result and evidence refs recorded'],
+      ['constraint', 'completion cannot pass with unresolved compliance gap'],
+      ['block', 'missing verifier compliance proof blocks completion'],
+    ],
+    Cost: [
+      ['rule', 'cost controls must include contract and budget limits'],
+      ['evidence', 'budget cap, rate class, and overrun policy recorded'],
+      ['constraint', 'spend cannot exceed approved compliance budget'],
+      ['block', 'missing cost compliance proof blocks transport'],
+    ],
+    Latency: [
+      ['rule', 'latency path must preserve approved processing boundary'],
+      ['evidence', 'timeout, retry region, and stale handling recorded'],
+      ['constraint', 'retry cannot move work to unapproved region'],
+      ['block', 'missing latency compliance proof blocks acceptance'],
+    ],
+    Context: [
+      ['rule', 'context envelope must match allowed source class'],
+      ['evidence', 'source class, retention posture, and redaction proof recorded'],
+      ['constraint', 'restricted source cannot enter prompt assembly'],
+      ['block', 'missing context compliance proof blocks assembly'],
+    ],
+    Prompt: [
+      ['rule', 'prompt packet must preserve redaction and use boundary'],
+      ['evidence', 'prompt hash, redaction result, and use class recorded'],
+      ['constraint', 'unredacted restricted prompt cannot be sent'],
+      ['block', 'missing prompt compliance proof blocks model call'],
+    ],
+    Policy: [
+      ['rule', 'policy harness owns compliance decision source'],
+      ['evidence', 'decision source, permission scope, and denial tags recorded'],
+      ['constraint', 'policy denial cannot be bypassed by model route'],
+      ['block', 'missing policy compliance proof blocks execution'],
+    ],
+    Safety: [
+      ['rule', 'safety posture must satisfy compliance threshold'],
+      ['evidence', 'risk tier, mitigation state, and escalation path recorded'],
+      ['constraint', 'unmitigated risk cannot pass acceptance'],
+      ['block', 'missing safety compliance proof blocks execution'],
+    ],
+    Privacy: [
+      ['rule', 'privacy posture must satisfy exposure and retention policy'],
+      ['evidence', 'exposure class, retention window, and redaction proof recorded'],
+      ['constraint', 'unapproved exposure cannot leave local boundary'],
+      ['block', 'missing privacy compliance proof blocks handoff'],
+    ],
+    Tools: [
+      ['rule', 'tool use must respect callable permission and data scope'],
+      ['evidence', 'tool permission, argument class, and result boundary recorded'],
+      ['constraint', 'tool cannot receive unapproved restricted arguments'],
+      ['block', 'missing tool compliance proof blocks execution'],
+    ],
+    Compare: [
+      ['rule', 'comparison must preserve compliant candidate set'],
+      ['evidence', 'candidate compliance class and exclusion reasons recorded'],
+      ['constraint', 'noncompliant candidate cannot become winner'],
+      ['block', 'missing comparison compliance proof blocks selection'],
+    ],
+    Trace: [
+      ['rule', 'trace must preserve audit lineage and retention boundary'],
+      ['evidence', 'trace id, response hash, and retention class recorded'],
+      ['constraint', 'untraceable response cannot be accepted'],
+      ['block', 'missing trace compliance proof blocks acceptance'],
+    ],
+    Goal: [
+      ['rule', 'goal continuation must preserve compliance state'],
+      ['evidence', 'objective status, budget class, and compliance proof trail recorded'],
+      ['constraint', 'usage-limited or blocked goal cannot continue'],
+      ['block', 'missing goal compliance proof blocks continuation'],
+    ],
+  };
   const isModelHarnessButton = (button) => Boolean(button?.closest?.('.harness-model-dock'));
   const modelHarnessButtons = () => Array.from(document.querySelectorAll('.harness-model-dock .harness-dock-button'));
   const selectedModelHarnessName = (button) => button?.dataset.harness || '';
@@ -5968,6 +6099,12 @@ body {
       ['reviewer', 'acceptance reviewer required'],
       ['stop', 'missing acceptance proof blocks use'],
     ];
+    const compliancePolicy = modelHarnessCompliancePolicies[aspect] || [
+      ['rule', 'compliance rule required'],
+      ['evidence', 'compliance evidence required'],
+      ['constraint', 'compliance constraint required'],
+      ['block', 'missing compliance proof blocks use'],
+    ];
     const proofTelemetry = [
       ['context', contextLogic],
       ['intent', intentLogic],
@@ -5996,6 +6133,7 @@ body {
         relaySection('Observability policy', modelHarnessObservabilityPolicy(observabilityPolicy), true),
         relaySection('Governance policy', modelHarnessGovernancePolicy(governancePolicy), true),
         relaySection('Acceptance policy', modelHarnessAcceptancePolicy(acceptancePolicy), true),
+        relaySection('Compliance policy', modelHarnessCompliancePolicy(compliancePolicy), true),
         relaySection('Runtime signals', relayList(runtimeSignals), true),
         relaySection('Runtime contract', relayGrid([
           ['surface mode', 'Model Harness'],
