@@ -16231,3 +16231,10 @@ Historical record of Build 1 V0 completed slices (most recent first). Do not re-
 - Build 1 commits reviewed: `28a07a634` (B765), `dd5bfc694` (B766), `9832ec8fb` (B767)
 - Verdict: APPROVE — all three Build 1 commits exclusively touched docs/live-build-1.md (21 insertions total across 3 entries, 1 file changed); no actionable findings
 - Code/doc changes reset to 0 of 3 (review cycle complete)
+
+**Build 1 Read Check** — 2026-06-04 13:25 UTC (Heartbeat Poll, cadence 1/3 since Round B39)
+- Status: Queue poll complete; no "Coordinator Override - Active Now" section found
+- Latest origin/main: commit `efc98e6fb` (Build 4 queue poll -- 2026-06-03 19:38 UTC)
+- Code/doc changes in session: 1 of 3
+- Next Candidate Task: awaiting Prime/Codex promotion
+- Build 1 idle and polling for next task assignment
