@@ -100,13 +100,13 @@ Time: 2026-06-04 10:26 -06:00
 Writer: Meridian coordinator
 Intent: land frontend UI Build 2 Model Harness lifecycle-policy detail surface from contained clone under frontend request/ACK.
 Action completed: path-limited patch from clean contained frontend clone applied and committed on shared main.
-Commit(s): `6cd7fc87e` (`feat: Add model harness lifecycle policy`); ledger closure commit pending.
-Pushed to origin/main: pending.
+Commit(s): `6cd7fc87e` (`feat: Add model harness lifecycle policy`); `11592d5f0` (`chore: Close lifecycle policy landing lease`).
+Pushed to origin/main: yes.
 Files changed: index.html; tests/test_bifrost_cockpit.py; docs/main-write-coordination-ledger.md.
 Proof run: python -m py_compile tests/test_bifrost_cockpit.py passed; python -m pytest tests/test_bifrost_cockpit.py -q -k "lifecycle_policy or model_harness_detail_surface" passed 15 tests; python -m pytest tests/test_bifrost_cockpit.py -q passed 304 tests; git diff --check passed with line-ending notice for ledger only; targeted personal-name/encoding scan over index.html and tests/test_bifrost_cockpit.py returned no matches; lifecycle-policy markers verified in index.html and tests/test_bifrost_cockpit.py.
-Final shared main status: pending push/final status.
+Final shared main status: clean/aligned with origin/main after explicit fetch/status; rev-list origin/main...HEAD = 0 0 at `11592d5f0`.
 Notes/blockers: source frontend commit was `3ec6fa221`; source clone was clean and exact diff scope was index.html plus tests/test_bifrost_cockpit.py. No backend worker files, queue docs, FileMap, Review Console branch, other frontend branches, FTP/deploy, worker main write, or Polaris included.
-Status: Complete pending push/final status
+Status: Complete
 ```
 
 ```text
