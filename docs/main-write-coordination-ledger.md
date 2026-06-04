@@ -105,6 +105,19 @@ Status: Active lease
 ## Completed Coordination Log
 
 Start new entries below this line.
+```text
+Time: 2026-06-04 13:45 UTC
+Writer: Meridian coordinator
+Intent: land reviewed Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet after frontend ACK.
+Action completed: Build 2 implementation/provenance content moved to shared main; Reviews A pass provenance recorded; active lease closed.
+Commit(s): 73e3323e (lease marker); 488359bb0 (V3 goal checkpoint proof packet); 92d19a83a (observed_at determinism regression tests); b4f6037d7/e6049832a queue-assisted Build 2 provenance/conflict cleanup; this completion commit for Reviews A and ledger provenance.
+Pushed to origin/main: yes
+Files changed: meridian_core/session_lifecycle.py; tests/test_session_lifecycle.py; docs/live-build-2.md; docs/live-codex-reviews.md; docs/main-write-coordination-ledger.md
+Proof run: python -m pytest tests\test_session_lifecycle.py -q passed 125 tests on shared main; git diff --check passed.
+Final shared main status: clean/aligned after final explicit fetch/status.
+Notes/blockers: queue automation raced the docs conflict resolution and carried some approved Build 2 queue provenance through queue commits; final content is path-limited and conflict markers are absent. No frontend branch, model harness toggle, Relay UI/runtime production/FTP work, Build 1/3/4/5 movement, worker main write, or Polaris included.
+Status: Complete
+```
 
 ```text
 Time: 2026-06-04 07:05 -06:00
