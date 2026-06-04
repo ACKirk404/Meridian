@@ -10,49 +10,12 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
-<<<<<<< HEAD
-Goal: repair close/archive write-through proof permission timing so Session Lifecycle proof stays deterministic.
-=======
 Goal: add Session Lifecycle V3 Goal Runtime checkpoint/update proof packet, display-safe and non-executable.
->>>>>>> 69541f488 (Mark V3 goal checkpoint proof ready)
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
 
 Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
 
-<<<<<<< HEAD
-Task:
-- Repair `build_close_archive_write_through_proof()` or its permission helper so close/archive proof permission evaluation uses the proof timestamp (`observed_at`) instead of wall-clock time.
-- Preserve proof-only behavior: no session closing, archiving, stopping, process/session inspection, model/provider calls, UI/Bifrost/FileMap edits, branch/worktree/main movement, or Polaris.
-- Add or update regression tests proving the previously failing archive/close proof expectations stay stable after the temporary permission fixture would otherwise expire.
-
-Required failing evidence to close:
-- `test_close_proof_is_non_executable_and_requires_stop_before_close` must report `permission_gate_state == "approved"`.
-- `test_archive_proof_serializes_write_through_and_visibility` must not gain an extra `permission.archive_required` blocker when proof timestamp is inside the approved window.
-
-Proof:
-- `python -m pytest tests/test_session_lifecycle.py -q`
-- `git diff --check`
-- Path-scope check limited to the three allowed files.
-
-Completion:
-- Commit only this repair on the Build 2 worktree branch.
-- Do not push/write `main`; request coordinator movement after Reviews A clearance.
-- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
-- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
-
-Next Candidate: bind reviewed close/archive proof into Prime/Beacon advisory serialization after this deterministic proof repair clears review.
-
-Completion:
-
-- Build 2 completed the close/archive write-through proof permission timing repair in local worktree commit `d1bd643d`.
-- Files changed: `tests/test_session_lifecycle.py`.
-- Evidence: `build_close_archive_write_through_proof()` already calls `_permission_context_can_execute_operation_at` with `observed_at` — wall-clock bypassed. Added two determinism regression tests.
-- Required tests passing: `test_close_proof_is_non_executable_and_requires_stop_before_close` (`permission_gate_state=="approved"` ✓), `test_archive_proof_serializes_write_through_and_visibility` (no `permission.archive_required` blocker ✓).
-- Regression tests added: `test_close_proof_permission_gate_uses_observed_at_not_wallclock`, `test_archive_proof_no_permission_blocker_when_observed_at_inside_window`.
-- Proof: 127 tests passed; `git diff --check` clean. Worktree branch: `codex/build-2-v3-goal-checkpoint-proof-20260602-1327`.
-- 2026-06-04 12:58 UTC — Ready for Codex Review. Coordinator movement required after Reviews A clearance.
-=======
 Task: add a deterministic proof/checkpoint packet for V3 Goal Runtime update discipline. Record checkpoint id, goal id/title, owning lane/session label, update surface (`git`, `obsidian`, `review`, `handoff`), cadence expectation, token/time budget summary, latest Git/Obsidian refs, reviewer/lease gate refs, blocker/continuation state, evidence refs, and explicit `is_executable_now=False` without writing Git/Obsidian, creating automation, moving branches, spawning sessions, or touching Polaris.
 
 Completion:
@@ -65,7 +28,6 @@ Completion:
 - Proof: `python -m pytest tests/test_session_lifecycle.py -q` passed with 125 tests; `git diff --check` passed with only Git line-ending normalization warnings for edited files.
 - Ready for Codex Review.
 - Next Candidate: bind reviewed V3 Goal Runtime proof packets into Prime/Beacon advisory serialization when assigned, or route any Reviews A findings.
->>>>>>> 69541f488 (Mark V3 goal checkpoint proof ready)
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
