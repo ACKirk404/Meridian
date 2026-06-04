@@ -323,6 +323,19 @@ def test_index_model_harness_detail_surface_shows_recovery_policy():
     assert "restore continuation after goal proof returns" in doc
 
 
+def test_index_model_harness_detail_surface_shows_observability_policy():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "const modelHarnessObservabilityPolicy = (items) =>" in doc
+    assert 'aria-label="Model harness observability policy"' in doc
+    assert "const modelHarnessObservabilityPolicies = {" in doc
+    assert "relaySection('Observability policy', modelHarnessObservabilityPolicy(observabilityPolicy), true)" in doc
+    assert ".model-harness-observability-policy" in doc
+    assert ".model-harness-observability-cell" in doc
+    assert "provider key, adapter health, credential posture" in doc
+    assert "model telemetry signal required" in doc
+    assert "missing goal signal blocks continuation" in doc
+
+
 def test_index_model_harness_selection_is_visible_and_persistent():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "const modelHarnessSelectionKey = 'meridian.model-harness.selection.v1'" in doc
