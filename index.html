@@ -3644,7 +3644,7 @@ body {
           if (Number(entry.sessionContextEntries) > 0) {
             metaParts.push(`visible context ${entry.sessionContextEntries} entries`);
           }
-          meta.textContent = metaParts.join(' Â· ');
+          meta.textContent = metaParts.join(' - ');
           row.append(meta);
         }
       }
@@ -3697,7 +3697,7 @@ body {
       bridgeOnline = true;
       modelReadiness = Array.isArray(result.models) ? result.models : [];
       bridgeCapabilities = result.capabilities || {};
-      const bridgeLabel = result.version ? ` Â· bridge ${result.version}` : '';
+      const bridgeLabel = result.version ? ` - bridge ${result.version}` : '';
       if (modelSelect.value === 'auto') {
         document.querySelectorAll('.session-prompt-input').forEach((input) => setStatus(input, 'Prime / Relay auto'));
         return;
