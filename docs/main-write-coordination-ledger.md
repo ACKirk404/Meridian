@@ -96,6 +96,20 @@ No active write lease.
 Start new entries below this line.
 
 ```text
+Time: 2026-06-04 09:58 -06:00
+Writer: Meridian coordinator
+Intent: land frontend UI Build 2 Model Harness handoff-policy detail surface from contained clone under frontend request/ACK.
+Action completed: path-limited patch from clean contained frontend clone applied and committed on shared main.
+Commit(s): `4ad307bee` (`feat: Add model harness handoff policy`).
+Pushed to origin/main: pending at ledger close.
+Files changed: index.html; tests/test_bifrost_cockpit.py; docs/main-write-coordination-ledger.md.
+Proof run: python -m py_compile tests/test_bifrost_cockpit.py passed; python -m pytest tests/test_bifrost_cockpit.py -q passed 296 tests; git diff --check passed with line-ending notice for ledger only; targeted personal-name/encoding scan over index.html and tests/test_bifrost_cockpit.py returned no matches; handoff-policy markers verified in index.html and tests/test_bifrost_cockpit.py.
+Final shared main status: pending push/final fetch.
+Notes/blockers: source frontend commit was `79792941e`; source clone was clean and exact diff scope was index.html plus tests/test_bifrost_cockpit.py. No backend worker files, queue docs, FileMap, Review Console branch, other frontend branches, FTP/deploy, worker main write, or Polaris included.
+Status: Complete pending push/final status
+```
+
+```text
 Time: 2026-06-04 09:43 -06:00
 Writer: Meridian coordinator
 Intent: land frontend UI Build 2 Model Harness routing-policy detail surface from contained clone under frontend request/ACK.
