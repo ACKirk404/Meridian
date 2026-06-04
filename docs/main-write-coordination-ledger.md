@@ -84,18 +84,7 @@ Status: Complete | Aborted | Blocked
 
 ## Active Coordination
 
-```text
-Time: 2026-06-04 13:41 UTC
-Writer: Meridian coordinator
-Requested action: cherry-pick/commit/push
-Target base: shared main clean/aligned after explicit origin/main fetch
-Path-limited scope: meridian_core/session_lifecycle.py; tests/test_session_lifecycle.py; docs/live-build-2.md; docs/live-codex-reviews.md; docs/main-write-coordination-ledger.md only for lease/completion record
-Reason: land reviewed Build 2 close/archive observed_at permission repair and V3 goal checkpoint proof packet after frontend ACK.
-Proof to run: python -m pytest tests\test_session_lifecycle.py -q; git diff --check; final explicit fetch/status.
-Expected duration: under 10 minutes from frontend ACK.
-Requires other party ACK: yes, ACK received in frontend thread.
-Status: Active lease
-```
+No active write lease.
 
 ## Standing Acknowledgements
 
