@@ -414,6 +414,19 @@ def test_index_model_harness_detail_surface_shows_version_policy():
     assert "unpinned goal version blocks continuation" in doc
 
 
+def test_index_model_harness_detail_surface_shows_drift_policy():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "const modelHarnessDriftPolicy = (items) =>" in doc
+    assert 'aria-label="Model harness drift policy"' in doc
+    assert "const modelHarnessDriftPolicies = {" in doc
+    assert "relaySection('Drift policy', modelHarnessDriftPolicy(driftPolicy), true)" in doc
+    assert ".model-harness-drift-policy" in doc
+    assert ".model-harness-drift-cell" in doc
+    assert "provider endpoint, health, or credential posture changed" in doc
+    assert "drift detection required" in doc
+    assert "unexplained goal drift blocks continuation" in doc
+
+
 def test_index_model_harness_selection_is_visible_and_persistent():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "const modelHarnessSelectionKey = 'meridian.model-harness.selection.v1'" in doc
