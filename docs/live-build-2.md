@@ -8,6 +8,36 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Goal: repair close/archive write-through proof permission timing so Session Lifecycle proof stays deterministic.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-2-session-lifecycle`.
+
+Allowed files only: `meridian_core/session_lifecycle.py`, `tests/test_session_lifecycle.py`, `docs/live-build-2.md`.
+
+Task:
+- Repair `build_close_archive_write_through_proof()` or its permission helper so close/archive proof permission evaluation uses the proof timestamp (`observed_at`) instead of wall-clock time.
+- Preserve proof-only behavior: no session closing, archiving, stopping, process/session inspection, model/provider calls, UI/Bifrost/FileMap edits, branch/worktree/main movement, or Polaris.
+- Add or update regression tests proving the previously failing archive/close proof expectations stay stable after the temporary permission fixture would otherwise expire.
+
+Required failing evidence to close:
+- `test_close_proof_is_non_executable_and_requires_stop_before_close` must report `permission_gate_state == "approved"`.
+- `test_archive_proof_serializes_write_through_and_visibility` must not gain an extra `permission.archive_required` blocker when proof timestamp is inside the approved window.
+
+Proof:
+- `python -m pytest tests/test_session_lifecycle.py -q`
+- `git diff --check`
+- Path-scope check limited to the three allowed files.
+
+Completion:
+- Commit only this repair on the Build 2 worktree branch.
+- Do not push/write `main`; request coordinator movement after Reviews A clearance.
+- Update Obsidian in `G:\My Drive\Aesop Academy\Obsidian\Meridian_Build`.
+- Mark this slice `Ready for Codex Review` with commit hash, files changed, and tests run.
+
+Next Candidate: bind reviewed close/archive proof into Prime/Beacon advisory serialization after this deterministic proof repair clears review.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement Session Lifecycle + Close/Archive Write-Through proof slice from `docs/v2-progress-tracker.md`.
@@ -3497,6 +3527,7 @@ YYYY-MM-DD HH:MM TZ - Build 2 checked queue; status: idle/running/blocked
 2026-06-04 12:51:50 UTC - Build 2 checked queue; no Active Now section; no conflict markers; cadence 1 of 3; idle polling
 2026-06-04 12:52:18 UTC - Build 2 checked queue; no Active Now section; no conflict markers; cadence 1 of 3; idle polling
 2026-06-04 12:52:42 UTC - Build 2 checked queue; no Active Now section; no conflict markers; cadence 1 of 3; idle polling
+2026-06-04 12:54:41 UTC - Build 2 checked queue; no Active Now section; no conflict markers; cadence 1 of 3; idle polling
 ```
 
 ## Write/Completion Log
