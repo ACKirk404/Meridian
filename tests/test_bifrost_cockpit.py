@@ -156,6 +156,10 @@ def test_index_harness_title_toggles_model_icons():
     assert "Switch to model harness icons" in doc
     assert "harness-model-mode" in doc
     assert ".harness-dock-wrap.harness-model-mode .harness-dock-top" in doc
+    assert "--harness-line-y: 124px" in doc
+    assert "position: absolute;\n  left: 50%;\n  bottom: 34px;" in doc
+    assert "top: calc(var(--harness-line-y) - 6px)" in doc
+    assert "top: calc(var(--harness-line-y) - 27px)" in doc
     assert "grid-template-columns: repeat(8, minmax(44px, 1fr))" in doc
     assert "grid-template-columns: repeat(21, minmax(0, 1fr))" in doc
     assert 'class="harness-dock harness-dock-bottom harness-model-dock"' in doc

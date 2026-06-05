@@ -3088,17 +3088,25 @@ body {
 }
 
 .harness-dock-wrap {
+  --harness-line-y: 124px;
   width: min(1120px, 100%);
   margin: 0 auto;
-  position: relative;
+  position: absolute;
+  left: 50%;
+  bottom: 34px;
   z-index: 4;
-  transform: translateY(38px);
+  height: 244px;
+  transform: translateX(-50%) translateY(38px);
 }
 
 .harness-dock-title {
-  position: relative;
-  margin: 0 0 19px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--harness-line-y) - 6px);
+  margin: 0;
   width: 100%;
+  height: 12px;
   border: 0;
   background: transparent;
   color: rgba(223, 251, 255, 0.84);
@@ -3159,6 +3167,9 @@ body {
 }
 
 .harness-dock {
+  position: absolute;
+  left: 0;
+  right: 0;
   width: 100%;
   display: grid;
   gap: 10px;
@@ -3175,13 +3186,15 @@ body {
 
 .harness-dock-top {
   width: 100%;
-  margin: 0 auto -8px;
+  top: 0;
+  margin: 0;
   grid-template-columns: repeat(9, minmax(0, 1fr));
 }
 
 .harness-dock-bottom {
   width: 100%;
-  margin: -25px auto 0;
+  top: calc(var(--harness-line-y) - 22px);
+  margin: 0;
   grid-template-columns: repeat(9, minmax(0, 1fr));
 }
 
@@ -3201,6 +3214,9 @@ body {
 .harness-dock-wrap.harness-model-mode .harness-model-dock {
   display: grid;
   grid-template-columns: repeat(8, minmax(44px, 1fr));
+  align-items: center;
+  top: calc(var(--harness-line-y) - 27px);
+  margin: 0;
 }
 
 @media (min-width: 960px) {
