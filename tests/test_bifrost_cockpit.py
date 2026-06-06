@@ -168,9 +168,9 @@ def test_index_harness_title_toggles_model_icons():
     assert "grid-template-rows: repeat(2, minmax(0, 1fr))" in doc
     assert "--harness-icon-size: 34.65%" in doc
     assert ".harness-dock-wrap.harness-model-mode .harness-model-dock .harness-dock-button:nth-child(-n + 11)" in doc
-    assert "top: 12px" in doc
+    assert "top: 18px" in doc
     assert ".harness-dock-wrap.harness-model-mode .harness-model-dock .harness-dock-button:nth-child(n + 12)" in doc
-    assert "top: -12px" in doc
+    assert "top: -18px" in doc
     assert ".harness-dock-wrap.harness-model-mode .harness-model-dock .harness-dock-button:nth-child(21) { grid-column: 20 / span 2; }" in doc
     assert 'class="harness-dock harness-dock-bottom harness-model-dock"' in doc
     assert 'aria-label="Model harness"' in doc
