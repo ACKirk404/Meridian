@@ -161,6 +161,7 @@ def test_index_harness_title_toggles_model_icons():
     assert "--harness-line-y: 124px" in doc
     assert "position: absolute;\n  left: 50%;\n  bottom: 34px;" in doc
     assert ".harness-dock-top {\n  width: 100%;\n  top: 34px;" in doc
+    assert ".harness-dock-bottom {\n  width: 100%;\n  top: calc(var(--harness-line-y) - 14px);" in doc
     assert "top: calc(var(--harness-line-y) - 6px)" in doc
     assert "height: 244px" in doc
     assert "grid-template-columns: repeat(4, minmax(44px, 1fr))" in doc
