@@ -10,6 +10,36 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Active Now
 
+Goal: bind reviewed DeepSeek validation-state metadata into Relay disposition without enabling unsafe live autonomy.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-deepseek-validation`.
+
+Branch: `codex/build-1-deepseek-validation-transport-20260606`.
+
+Allowed files only: `meridian_core/model_adapter.py`, `meridian_core/relay_executor.py`, `tests/test_model_adapter.py`, `tests/test_relay_executor.py`, `docs/deepseek-provider-validation-gate.md`, `docs/live-build-1.md`.
+
+Context:
+- Codex Reviews A cleared Build 1 commits `88b491898` and `0025b4277`: `DeepSeekValidationState` / `DeepSeekValidationLevel` are local-only, preserve `deepseek-chat` as the only direct dispatch id, and keep `deepseek-v4-pro` / `deepseek-v4-flash` as variant/capability labels only.
+- The next backend slice should consume that reviewed validation-state metadata in Relay-facing disposition/advisory surfaces without granting autonomous implementation, review-clearing, branch/worktree movement, live coding, or bypass authority.
+
+Task:
+- Add a narrow deterministic Relay/Model binding that exposes DeepSeek validation level, direct dispatch id, variant labels, transport-cleared state, blocked-authority tags, and evidence refs as bounded metadata/disposition only.
+- Ensure metadata-only candidate state remains blocked for autonomous implementation, review-clearing, branch/worktree movement, live coding authority, and unsafe Relay bypass.
+- Ensure validation-cleared transport state can be represented as transport metadata only, not as live autonomous authority.
+- Keep the slice pure/local: no network calls, no credentials, no account probing, no live provider execution, no UI/Bifrost/FileMap edits, no shared-main write, no branch/worktree movement outside the assigned worktree, and no Polaris dependency.
+
+Proof:
+- `python -m pytest tests/test_model_adapter.py tests/test_relay_executor.py -q`
+- `git diff --check`
+- Path-scope check limited to the allowed files.
+
+Completion:
+- Commit only this slice on the assigned branch.
+- Mark this block `Completed / Ready For Codex Review` with commit hash, files changed, tests run, and concrete evidence.
+- Next Candidate: after Reviews A clearance, expose reviewed Relay disposition into Bifrost display-only samples or Prime/Beacon advisory state.
+
+## Coordinator Override - Completed / Review-Cleared
+
 Goal: implement the next Relay/Model backend slice for DeepSeek live validation and transport authority without granting live autonomous authority.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-1-deepseek-validation`.
@@ -30,9 +60,12 @@ Proof:
 - Path-scope check limited to the allowed files.
 
 Completion:
-- Commit only this slice on the assigned branch.
-- Mark this block `Completed / Ready For Codex Review` with commit hash, files changed, tests run, and concrete evidence.
-- Next Candidate: after Reviews A clearance, bind validation-cleared DeepSeek transport authority into Relay metadata/disposition without enabling unsafe bypass.
+- Status: Review-cleared by Codex Reviews A on 2026-06-06.
+- Commits: `88b491898` (`feat: Add DeepSeek validation-state infrastructure for direct-provider authority gating`) and `0025b4277` (`chore: Mark Build 1H DeepSeek validation-state implementation as Completed / Ready For Codex Review`).
+- Files changed: `docs/deepseek-provider-validation-gate.md`, `docs/live-build-1.md`, `meridian_core/model_adapter.py`, `tests/test_model_adapter.py`.
+- Tests run by Build 1: `python -m pytest tests/test_model_adapter.py -q` passed with 57 tests; `git diff --check` passed.
+- Review proof: Codex Reviews A verified scope was limited to the allowed files, `deepseek-chat` remains the only direct dispatch id, `deepseek-v4-pro` and `deepseek-v4-flash` remain variant/capability labels only, metadata-only presets do not gain prompt/review/branch-movement/autonomous-coding authority, and no live provider transport, credentials, UI/Bifrost/FileMap edits, branch/worktree movement, shared-main writes, or Polaris dependency were introduced.
+- Next Candidate promoted above: bind validation-cleared DeepSeek transport authority into Relay metadata/disposition without enabling unsafe bypass.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
