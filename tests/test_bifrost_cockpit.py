@@ -598,6 +598,24 @@ def test_index_prime_harness_uses_backend_runtime_snapshot():
     assert "renderPrimeLogic" in doc
 
 
+def test_index_spark_and_workflow_surfaces_use_bridge_snapshots():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Provider Balance" in doc
+    assert "Goal Runtime" in doc
+    assert "Workflow Dispatch Status" in doc
+    assert "data-provider-balance" in doc
+    assert "data-goal-runtime" in doc
+    assert "data-workflow-dispatch-status" in doc
+    assert "bridgeUrl('provider-balance')" in doc
+    assert "bridgeUrl('goal-runtime')" in doc
+    assert "bridgeUrl('workflow-dispatch-status')" in doc
+    assert "renderProviderBalance()" in doc
+    assert "renderGoalRuntime()" in doc
+    assert "renderWorkflowDispatchStatus()" in doc
+    assert "success_summary" in doc
+    assert "status_policy" in doc
+
+
 def test_index_wired_harness_titles_use_runtime_logic_naming():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "Prime Runtime Logic" in doc
@@ -642,6 +660,38 @@ def test_bridge_exposes_prime_logic_route_and_capability():
     assert "primeLogic: '/bridge/prime-logic'" in doc
     assert "meridian_core.prime_runtime" in doc
     assert "req.url === BRIDGE_ROUTES.primeLogic" in doc
+
+
+def test_bridge_exposes_reviewed_display_only_capability_routes():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+
+    for flag in (
+        "providerBalanceSnapshot: true",
+        "goalRuntimeSnapshot: true",
+        "workflowDispatchStatusSnapshot: true",
+    ):
+        assert flag in doc
+
+    for route in (
+        "providerBalance: '/bridge/provider-balance'",
+        "goalRuntime: '/bridge/goal-runtime'",
+        "workflowDispatchStatus: '/bridge/workflow-dispatch-status'",
+    ):
+        assert route in doc
+
+    for handler in (
+        "req.method === 'GET' && req.url === BRIDGE_ROUTES.providerBalance",
+        "req.method === 'GET' && req.url === BRIDGE_ROUTES.goalRuntime",
+        "req.method === 'GET' && req.url === BRIDGE_ROUTES.workflowDispatchStatus",
+    ):
+        assert handler in doc
+
+    assert "pythonJsonSnapshot" in doc
+    assert "meridian_core.provider_balance" in doc
+    assert "meridian_core.goal_runtime" in doc
+    assert "meridian_core.workflow_dispatch" in doc
+    assert '"display_only": True' in doc
+    assert '"mutation_authorized": False' in doc
 
 
 def test_ui_checklist_defers_deep_compass_and_vulcan_items_to_backend_tracker():

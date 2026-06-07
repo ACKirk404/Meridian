@@ -4930,6 +4930,146 @@ body {
       ])),
     ].join('');
   };
+  const renderProviderBalanceSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Provider balance source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Provider balance snapshot unavailable'],
+      ]), true);
+    }
+    const balance = snapshot.provider_balance || {};
+    const providers = Array.isArray(balance.providers) ? balance.providers : [];
+    const evidence = Array.isArray(balance.evidence_refs) ? balance.evidence_refs : [];
+    return [
+      relaySection('Provider balance source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Relay / Model Harness'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Routing summary', relayGrid([
+        ['selected provider', balance.selected_provider || 'none'],
+        ['routing owner', balance.routing_owner || 'unknown'],
+        ['policy state', relayText(balance.policy_state)],
+        ['provider count', providers.length],
+        ['evidence refs', evidence.length ? evidence.join(' | ') : 'none'],
+      ]), true),
+      ...providers.map((provider, index) => relaySection(
+        `Provider ${index + 1}: ${provider.display_name || provider.provider_id || 'unknown'}`,
+        relayGrid([
+          ['provider id', provider.provider_id || 'unknown'],
+          ['model', provider.model_name || 'unknown'],
+          ['trust', relayText(provider.trust_state)],
+          ['health', relayText(provider.health)],
+          ['route', relayText(provider.route_kind)],
+          ['context budget', `${provider.context_budget_tokens ?? 0} tokens`],
+          ['prompt budget', `${provider.current_prompt_tokens ?? 0}/${provider.prompt_budget_tokens ?? 0} tokens (${provider.prompt_budget_percent ?? 0}%)`],
+          ['cost pressure', relayText(provider.cost_pressure)],
+          ['quota', relayText(provider.quota_state)],
+          ['credit', `${relayText(provider.credit_status)} ${provider.remaining_credit_label || ''}`.trim()],
+          ['estimated spend', provider.estimated_spend_label || 'unavailable'],
+          ['notes', provider.notes || 'none'],
+          ['evidence refs', relayJoin(provider.evidence_refs)],
+        ]),
+        index === 0,
+      )),
+    ].join('');
+  };
+  const renderGoalRuntimeSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Goal runtime source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Goal runtime snapshot unavailable'],
+      ]), true);
+    }
+    const goal = snapshot.goal || {};
+    const policy = goal.continuation_policy || {};
+    const objective = goal.objective_ref || {};
+    return [
+      relaySection('Goal runtime source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Prime / Compass'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Active goal', relayGrid([
+        ['goal id', goal.goal_id || 'unknown'],
+        ['project', goal.project || 'unknown'],
+        ['status', relayText(goal.status)],
+        ['risk tier', goal.risk_tier ?? 'unknown'],
+        ['owners', relayJoin(goal.owners)],
+        ['objective', goal.objective_text || 'unknown'],
+        ['contract', goal.contract_version || 'unknown'],
+      ]), true),
+      relaySection('Continuation policy', relayGrid([
+        ['max active attempts', policy.max_active_attempts ?? 0],
+        ['cooldown seconds', policy.cooldown_seconds ?? 0],
+        ['usage-limit resume', relayText(policy.usage_limit_resume_kind)],
+        ['block resume', relayText(policy.block_resume_kind)],
+        ['proof required', policy.proof_required_for_resume ? 'yes' : 'no'],
+        ['human gate kinds', relayJoin(policy.human_gate_on_resume_kinds)],
+      ]), true),
+      relaySection('Runtime counters', relayGrid([
+        ['dispatched sessions', goal.dispatched_sessions ?? 0],
+        ['blocked occurrences', goal.blocked_occurrences ?? 0],
+        ['usage-limited occurrences', goal.usage_limited_occurrences ?? 0],
+        ['telemetry snapshots', Array.isArray(goal.telemetry) ? goal.telemetry.length : 0],
+        ['lineage entries', Array.isArray(goal.lineage) ? goal.lineage.length : 0],
+      ]), false),
+      relaySection('Objective ref', relayGrid([
+        ['id', objective.id || 'none'],
+        ['label', objective.label || 'none'],
+        ['source', objective.source || 'none'],
+      ]), false),
+    ].join('');
+  };
+  const renderWorkflowDispatchStatusSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Workflow dispatch source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Workflow dispatch/status snapshot unavailable'],
+      ]), true);
+    }
+    const workflow = snapshot.workflow || {};
+    const success = workflow.success_summary || {};
+    const failure = workflow.error_summary || {};
+    const statusPolicy = workflow.status_policy || {};
+    return [
+      relaySection('Workflow dispatch source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Workflow Sub-agents'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Success summary shape', relayGrid([
+        ['work order', success.work_order_id || 'unknown'],
+        ['harness', relayText(success.harness)],
+        ['result shape', success.result_shape || 'unknown'],
+        ['summary', success.summary || 'unknown'],
+        ['outputs', relayJoin(success.outputs)],
+        ['proof trail', relayJoin(success.proof_trail)],
+        ['tokens used', success.tokens_used ?? 0],
+        ['time used', `${success.time_used_seconds ?? 0}s`],
+        ['human gate', success.requires_human_gate ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Failure summary shape', relayGrid([
+        ['work order', failure.work_order_id || 'unknown'],
+        ['harness', relayText(failure.harness)],
+        ['failure kind', relayText(failure.failure_kind)],
+        ['summary', failure.summary || 'unknown'],
+        ['partial outputs', relayJoin(failure.partial_outputs)],
+        ['proof trail', relayJoin(failure.proof_trail)],
+        ['tokens used', failure.tokens_used ?? 0],
+        ['time used', `${failure.time_used_seconds ?? 0}s`],
+      ]), true),
+      relaySection('Dispatch visibility policy', relayGrid([
+        ['dispatch surface', relayText(statusPolicy.dispatch_surface)],
+        ['heartbeat history visible', statusPolicy.heartbeat_history_visible ? 'yes' : 'no'],
+        ['raw artifacts visible', statusPolicy.raw_artifacts_visible ? 'yes' : 'no'],
+        ['tier three gate required', statusPolicy.tier_three_gate_required ? 'yes' : 'no'],
+      ]), true),
+    ].join('');
+  };
   const loadRelayLogic = async () => {
     const logicNode = rightWorkspace?.querySelector('[data-relay-logic]');
     if (!logicNode) return;
@@ -4973,6 +5113,39 @@ body {
       logicNode.innerHTML = renderPrimeDecisionSnapshot(snapshot);
     } catch (error) {
       logicNode.innerHTML = renderPrimeDecisionSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadProviderBalance = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-provider-balance]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('provider-balance'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderProviderBalanceSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderProviderBalanceSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadGoalRuntime = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-goal-runtime]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('goal-runtime'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderGoalRuntimeSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderGoalRuntimeSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadWorkflowDispatchStatus = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-workflow-dispatch-status]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('workflow-dispatch-status'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderWorkflowDispatchStatusSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderWorkflowDispatchStatusSnapshot({ ok: false, error: error.message });
     }
   };
   const relayBridgeRows = (status, detail) => [
@@ -6950,6 +7123,99 @@ body {
       return false;
     }
   };
+  const renderProviderBalance = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Provider balance">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Provider Balance</div>
+            <div class="relay-models-status">Display-only</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-provider-balance>${relaySection('Provider balance source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadProviderBalance();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
+  const renderGoalRuntime = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Goal runtime">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Goal Runtime</div>
+            <div class="relay-models-status">Continuation policy</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-goal-runtime>${relaySection('Goal runtime source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadGoalRuntime();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
+  const renderWorkflowDispatchStatus = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Workflow dispatch status">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Workflow Dispatch Status</div>
+            <div class="relay-models-status">Sub-agent summaries</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-workflow-dispatch-status>${relaySection('Workflow dispatch source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadWorkflowDispatchStatus();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
   const openSpark = () => {
     stage.classList.add('spark-menu-open');
     harnessDock.classList.remove('harness-dock-open');
@@ -6967,6 +7233,9 @@ body {
     if (rightWorkspace?.querySelector('[data-prime-logic]')) loadPrimeLogic();
     if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
     if (rightWorkspace?.querySelector('[data-vulcan-logic]')) loadVulcanLogic();
+    if (rightWorkspace?.querySelector('[data-provider-balance]')) loadProviderBalance();
+    if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
+    if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
   };
   window.addEventListener('focus', refreshRelayPanel);
   document.addEventListener('visibilitychange', () => {
@@ -7179,7 +7448,9 @@ body {
         ? renderCompassProjectLogic()
         : (button.dataset.harness === 'Session Lifecycle'
           ? renderVulcanSessionLogic()
-          : (modelButton ? renderModelHarnessSurface(button) : renderHarnessSurface(button))));
+          : (button.dataset.harness === 'Workflow'
+            ? renderWorkflowDispatchStatus()
+            : (modelButton ? renderModelHarnessSurface(button) : renderHarnessSurface(button)))));
     if (!rendered) return;
     if (modelButton) {
       setHarnessDockMode('model');
@@ -7199,7 +7470,9 @@ body {
     screen.classList.remove('session-theme-aqua');
     screen.classList.add('session-theme-green');
     if (userTitle) userTitle.textContent = actionLabel || 'Spark';
-    const rendered = renderSparkSurface(actionLabel || 'Spark');
+    const rendered = actionLabel === 'Balance'
+      ? renderProviderBalance()
+      : (actionLabel === 'Routines' ? renderGoalRuntime() : renderSparkSurface(actionLabel || 'Spark'));
     if (!rendered) return;
     screen.classList.add('sessions-visible');
     setRightPanelAuthority('spark', actionLabel || 'Spark', { persist });

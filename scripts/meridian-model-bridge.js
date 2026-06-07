@@ -22,6 +22,9 @@ const BRIDGE_CAPABILITIES = {
   primeRuntimeSnapshot: true,
   compassLogicSnapshot: true,
   vulcanLogicSnapshot: true,
+  providerBalanceSnapshot: true,
+  goalRuntimeSnapshot: true,
+  workflowDispatchStatusSnapshot: true,
   userSessionTargets: true,
 };
 const BRIDGE_ROUTES = Object.freeze({
@@ -31,6 +34,9 @@ const BRIDGE_ROUTES = Object.freeze({
   primeLogic: '/bridge/prime-logic',
   compassLogic: '/bridge/compass-logic',
   vulcanLogic: '/bridge/vulcan-logic',
+  providerBalance: '/bridge/provider-balance',
+  goalRuntime: '/bridge/goal-runtime',
+  workflowDispatchStatus: '/bridge/workflow-dispatch-status',
   userSessions: '/bridge/user-sessions',
   recentCalls: '/bridge/recent-calls',
   callResult: '/bridge/call-result',
@@ -79,7 +85,7 @@ if (process.argv.includes('--self-test')) {
   rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
   const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot;
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot;
   const sampleSession = sessionTargetFromWorktree({
     path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
     branch: 'refs/heads/worktree-build-5-bifrost',
@@ -542,6 +548,212 @@ function vulcanLogicSnapshot() {
   });
 }
 
+function pythonJsonSnapshot(label, source) {
+  return new Promise((resolve) => {
+    const pythonBin = process.env.MERIDIAN_PYTHON_BIN || 'python';
+    const child = spawn(pythonBin, ['-c', source], {
+      cwd: DEFAULT_CWD,
+      shell: false,
+      windowsHide: true,
+      env: {
+        ...process.env,
+        PYTHONIOENCODING: 'utf-8',
+      },
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString(); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+    child.on('error', (error) => {
+      resolve({ ok: false, error: error.message });
+    });
+    child.on('close', (code) => {
+      if (code !== 0) {
+        resolve({ ok: false, error: stderr.trim() || `${label} snapshot exited with code ${code}` });
+        return;
+      }
+      try {
+        resolve(JSON.parse(stdout));
+      } catch (error) {
+        resolve({ ok: false, error: `${label} snapshot returned invalid JSON: ${error.message}` });
+      }
+    });
+  });
+}
+
+function providerBalanceSnapshot() {
+  return pythonJsonSnapshot('Provider balance', String.raw`
+import json
+from meridian_core.provider_balance import (
+    ProviderCostPressure,
+    ProviderCreditStatus,
+    ProviderHealth,
+    ProviderPolicyState,
+    ProviderQuotaState,
+    ProviderRouteKind,
+    ProviderRoutingOwner,
+    ProviderTrustState,
+    build_provider_balance_snapshot,
+    build_provider_balance_summary,
+)
+
+snapshots = (
+    build_provider_balance_snapshot(
+        "claude",
+        display_name="Claude",
+        model_name="claude-sonnet-4-20250514",
+        trust_state=ProviderTrustState.TRUSTED,
+        health=ProviderHealth.OK,
+        route_kind=ProviderRouteKind.DIRECT,
+        context_budget_tokens=200000,
+        prompt_budget_tokens=4000,
+        current_prompt_tokens=920,
+        prompt_budget_percent=23.0,
+        prompt_delta_tokens=0,
+        cost_pressure=ProviderCostPressure.LOW,
+        quota_state=ProviderQuotaState.AVAILABLE,
+        remaining_credit_label="credit available",
+        credit_status=ProviderCreditStatus.AVAILABLE,
+        estimated_spend_label="estimated spend low",
+        notes="Primary provider ready",
+        evidence_refs=("adapter:claude",),
+    ),
+)
+summary = build_provider_balance_summary(
+    snapshots,
+    selected_provider="claude",
+    routing_owner=ProviderRoutingOwner.RELAY,
+    policy_state=ProviderPolicyState.WARNING,
+    evidence_refs=("snapshot:relay-provider-balance-2026-06-07",),
+)
+print(json.dumps({
+    "ok": True,
+    "source": "meridian_core.provider_balance",
+    "version": "v3-provider-balance-2026-06-07",
+    "harness": "Relay / Model Harness",
+    "summary": "Display-safe provider balance summary; no live account probing.",
+    "display_only": True,
+    "mutation_authorized": False,
+    "provider_balance": summary.to_mapping(),
+}))
+`);
+}
+
+function goalRuntimeSnapshot() {
+  return pythonJsonSnapshot('Goal runtime', String.raw`
+import json
+from datetime import datetime, timezone
+from meridian_core.goal_runtime import (
+    BlockResumeKind,
+    GoalContinuationPolicy,
+    GoalObjectiveRef,
+    GoalRecord,
+    GoalStatus,
+    HarnessWriter,
+    UsageLimitResumeKind,
+)
+
+stamp = datetime(2026, 6, 7, 13, 18, tzinfo=timezone.utc)
+record = GoalRecord(
+    goal_id="goal-001",
+    project="meridian",
+    objective_text="ship the v3 goal runtime backend domain slice",
+    owners=(HarnessWriter.PRIME, HarnessWriter.COMPASS),
+    status=GoalStatus.ACTIVE,
+    risk_tier=1,
+    continuation_policy=GoalContinuationPolicy(
+        max_active_attempts=3,
+        cooldown_seconds=60,
+        usage_limit_resume_kind=UsageLimitResumeKind.WAIT_FOR_SIGNAL,
+        block_resume_kind=BlockResumeKind.MANUAL,
+        proof_required_for_resume=True,
+        human_gate_on_resume_kinds=(),
+    ),
+    created_at=stamp,
+    updated_at=stamp,
+    contract_version="v3-goal-runtime-2026-06-07",
+    objective_ref=GoalObjectiveRef(
+        id="backlog-42",
+        label="ship v3 goal slice",
+        source="backlog",
+    ),
+)
+print(json.dumps({
+    "ok": True,
+    "source": "meridian_core.goal_runtime",
+    "version": "v3-goal-runtime-2026-06-07",
+    "harness": "Prime / Compass / Beacon / Echo / Aegis",
+    "summary": "Display-safe active goal runtime record.",
+    "display_only": True,
+    "mutation_authorized": False,
+    "goal": record.to_safe_dict(),
+}))
+`);
+}
+
+function workflowDispatchStatusSnapshot() {
+  return pythonJsonSnapshot('Workflow dispatch/status', String.raw`
+import json
+from dataclasses import fields, is_dataclass
+from enum import Enum
+from meridian_core.workflow_dispatch import (
+    WorkflowErrorSummary,
+    WorkflowFailureKind,
+    WorkflowHarness,
+    WorkflowResultSummary,
+)
+
+def safe(obj):
+    if isinstance(obj, Enum):
+        return obj.value
+    if is_dataclass(obj):
+        return {field.name: safe(getattr(obj, field.name)) for field in fields(obj)}
+    if isinstance(obj, tuple):
+        return [safe(item) for item in obj]
+    if isinstance(obj, list):
+        return [safe(item) for item in obj]
+    if isinstance(obj, dict):
+        return {str(key): safe(value) for key, value in obj.items()}
+    return obj
+
+success = WorkflowResultSummary(
+    work_order_id="wo-001",
+    harness=WorkflowHarness.ATLAS,
+    result_shape="AtlasResult",
+    summary="one bounded result distilled",
+    outputs=("hit-1",),
+    proof_trail=("proof.atlas.candidates",),
+    tokens_used=12,
+    time_used_seconds=0.5,
+)
+failure = WorkflowErrorSummary(
+    work_order_id="wo-002",
+    harness=WorkflowHarness.ATLAS,
+    failure_kind=WorkflowFailureKind.GATE_REQUIRED,
+    summary="tier-three order missing gate context",
+)
+print(json.dumps({
+    "ok": True,
+    "source": "meridian_core.workflow_dispatch",
+    "version": "v3-workflow-dispatch-2026-06-07",
+    "harness": "Workflow Sub-agents",
+    "summary": "Display-safe workflow dispatch/status summaries; heartbeat history and raw artifacts are excluded.",
+    "display_only": True,
+    "mutation_authorized": False,
+    "workflow": {
+        "success_summary": safe(success),
+        "error_summary": safe(failure),
+        "status_policy": {
+            "dispatch_surface": "display_only",
+            "heartbeat_history_visible": False,
+            "raw_artifacts_visible": False,
+            "tier_three_gate_required": True,
+        },
+    },
+}))
+`);
+}
+
 function parseGitWorktrees(stdout) {
   const records = [];
   let current = null;
@@ -755,6 +967,39 @@ const server = http.createServer(async (req, res) => {
       version: BRIDGE_VERSION,
       capabilities: BRIDGE_CAPABILITIES,
       ...(result.ok ? { ...result.snapshot } : { error: result.error }),
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.providerBalance) {
+    const snapshot = await providerBalanceSnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.goalRuntime) {
+    const snapshot = await goalRuntimeSnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.workflowDispatchStatus) {
+    const snapshot = await workflowDispatchStatusSnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
     }, req);
     return;
   }
