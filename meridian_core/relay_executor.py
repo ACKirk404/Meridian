@@ -688,11 +688,20 @@ class RelayExecutionResult:
 
 @dataclass(frozen=True)
 class RelayExecutionError:
-    """Captured exception for one lane."""
+    """Captured exception or fail-closed refusal for one lane.
+
+    Carries the dispatch envelopes when the lane was refused before the
+    adapter was ever called (for example, when the DeepSeek transport
+    authority is not authorized), so consumers can still audit the
+    metadata-envelope state that led to the refusal. Envelopes are ``None``
+    for exception-path errors raised by the adapter itself.
+    """
 
     role: ModelRole
     preferred_model: str
     error: str
+    dispatch_envelope: RelayDispatchEnvelope | None = None
+    dispatch_metadata_envelope: RelayDispatchMetadataEnvelope | None = None
 
 
 @dataclass(frozen=True)
@@ -2600,6 +2609,15 @@ def _build_provider_result_validation_evidence(
             blockers.append(
                 f"external_review_{dispatch_metadata_envelope.external_review_status}"
             )
+        deepseek_authority = dispatch_metadata_envelope.deepseek_transport_authority
+        if (
+            deepseek_authority is not None
+            and not deepseek_authority.transport_authorized
+        ):
+            if deepseek_authority.blocker_tags:
+                blockers.extend(deepseek_authority.blocker_tags)
+            else:
+                blockers.append("deepseek_transport_blocked")
 
     output_text = output if isinstance(output, str) else None
     output_length = len(output_text) if output_text is not None else None
@@ -3336,6 +3354,26 @@ def execute_relay_plan_with_registry(
         dispatch_envelopes,
         dispatch_metadata_envelopes,
     ):
+        deepseek_authority = (
+            dispatch_metadata_envelope.deepseek_transport_authority
+            if dispatch_metadata_envelope is not None
+            else None
+        )
+        if deepseek_authority is not None and not deepseek_authority.transport_authorized:
+            blocker_tags = ",".join(deepseek_authority.blocker_tags) or "deepseek_transport_blocked"
+            errors.append(
+                RelayExecutionError(
+                    role=lane.role,
+                    preferred_model=lane.preferred_model,
+                    error=(
+                        f"deepseek_transport_blocked:{deepseek_authority.status.value}:"
+                        f"{blocker_tags}"
+                    ),
+                    dispatch_envelope=dispatch_envelope,
+                    dispatch_metadata_envelope=dispatch_metadata_envelope,
+                )
+            )
+            continue
         try:
             output = adapter(lane.payload)
             result_validation_evidence = _build_provider_result_validation_evidence(
@@ -3368,6 +3406,8 @@ def execute_relay_plan_with_registry(
                     role=lane.role,
                     preferred_model=lane.preferred_model,
                     error=str(exc),
+                    dispatch_envelope=dispatch_envelope,
+                    dispatch_metadata_envelope=dispatch_metadata_envelope,
                 )
             )
 

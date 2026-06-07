@@ -520,13 +520,15 @@ def bind_deepseek_transport_authority(
 
     A ``deepseek-validation:level-1:`` validation evidence reference combined
     with ``human_gate_satisfied`` and ``prime_authority_satisfied`` candidate
-    state flags both explicitly set to ``"true"`` is the only path to
-    AUTHORIZED_TRANSPORT_ONLY. Missing either gate keeps the proof PROOF_VERIFIED
-    but lets ``evaluate_deepseek_transport_authority`` emit the matching
-    blocker (``blocked:human-gate-required`` or
-    ``blocked:prime-authority-required``). Any non-level-1 validation ref —
-    including level-0 metadata-only, blank refs, and unknown levels — stays
-    fail-closed as ``CANDIDATE_METADATA_ONLY`` regardless of gate flags.
+    state values that are exactly the lowercase string ``"true"`` (after
+    surrounding whitespace is stripped) is the only path to
+    AUTHORIZED_TRANSPORT_ONLY. Case variants like ``"True"``, ``"TRUE"``,
+    ``"yes"``, or ``"1"`` are treated as unsatisfied and the matching blocker
+    (``blocked:human-gate-required`` or ``blocked:prime-authority-required``)
+    is emitted by ``evaluate_deepseek_transport_authority``. Any non-level-1
+    validation ref — including level-0 metadata-only, blank refs, and unknown
+    levels — stays fail-closed as ``CANDIDATE_METADATA_ONLY`` regardless of
+    gate flags.
     """
     if adapter_metadata is None:
         return None
@@ -545,10 +547,10 @@ def bind_deepseek_transport_authority(
     review_ref = (candidate_state.get("external_review_evidence_ref") or "").strip() or None
     proof_refs: tuple[str, ...] = (validation_ref,) if validation_ref else ()
     human_gate_satisfied = (
-        (candidate_state.get("human_gate_satisfied") or "").strip().lower() == "true"
+        (candidate_state.get("human_gate_satisfied") or "").strip() == "true"
     )
     prime_authority_satisfied = (
-        (candidate_state.get("prime_authority_satisfied") or "").strip().lower() == "true"
+        (candidate_state.get("prime_authority_satisfied") or "").strip() == "true"
     )
 
     if validation_ref.startswith("deepseek-validation:level-1:"):

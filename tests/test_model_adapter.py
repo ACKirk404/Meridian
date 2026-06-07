@@ -1850,3 +1850,67 @@ class TestBindDeepSeekTransportAuthority:
         assert auth.proof.proof_state is DeepSeekValidationProofState.CANDIDATE_METADATA_ONLY
         assert auth.proof.human_gate_satisfied is False
         assert auth.proof.prime_authority_satisfied is False
+
+    def test_bind_level_one_validation_with_uppercase_true_stays_blocked(self) -> None:
+        """Codex Review A MEDIUM fix: only the exact lowercase string ``"true"``
+        opens a gate. ``"True"`` must keep ``human_gate_satisfied`` False, so
+        the binder surfaces ``BLOCKED_HUMAN_GATE_REQUIRED`` even though the
+        validation ref is level-1 and prime authority is satisfied."""
+        meta = self._level_one_metadata(human_gate="True", prime_authority="true")
+        auth = bind_deepseek_transport_authority(meta)
+        assert auth is not None
+        assert (
+            auth.status
+            is DeepSeekTransportAuthorityStatus.BLOCKED_HUMAN_GATE_REQUIRED
+        )
+        assert auth.transport_authorized is False
+        assert auth.proof.human_gate_satisfied is False
+        assert auth.proof.prime_authority_satisfied is True
+
+    def test_bind_level_one_validation_with_all_uppercase_true_stays_blocked(
+        self,
+    ) -> None:
+        """``"TRUE"`` for both gates must keep both flags False — the contract
+        is the exact lowercase string, never a case-insensitive match."""
+        meta = self._level_one_metadata(human_gate="TRUE", prime_authority="TRUE")
+        auth = bind_deepseek_transport_authority(meta)
+        assert auth is not None
+        # Human gate is checked first in evaluate_deepseek_transport_authority,
+        # so the human-gate blocker is the surfaced status.
+        assert (
+            auth.status
+            is DeepSeekTransportAuthorityStatus.BLOCKED_HUMAN_GATE_REQUIRED
+        )
+        assert auth.transport_authorized is False
+        assert auth.proof.human_gate_satisfied is False
+        assert auth.proof.prime_authority_satisfied is False
+
+    def test_bind_level_one_validation_with_mixed_case_true_stays_blocked(self) -> None:
+        """A mixed-case ``"tRuE"`` on the prime-authority gate (with human
+        gate satisfied) must surface ``BLOCKED_PRIME_AUTHORITY_REQUIRED``."""
+        meta = self._level_one_metadata(human_gate="true", prime_authority="tRuE")
+        auth = bind_deepseek_transport_authority(meta)
+        assert auth is not None
+        assert (
+            auth.status
+            is DeepSeekTransportAuthorityStatus.BLOCKED_PRIME_AUTHORITY_REQUIRED
+        )
+        assert auth.transport_authorized is False
+        assert auth.proof.human_gate_satisfied is True
+        assert auth.proof.prime_authority_satisfied is False
+
+    def test_bind_level_one_validation_with_whitespace_true_authorizes(self) -> None:
+        """Surrounding whitespace is stripped before the equality check, so
+        ``"  true  "`` is treated the same as the exact lowercase ``"true"``."""
+        meta = self._level_one_metadata(
+            human_gate="  true  ", prime_authority=" true"
+        )
+        auth = bind_deepseek_transport_authority(meta)
+        assert auth is not None
+        assert (
+            auth.status
+            is DeepSeekTransportAuthorityStatus.AUTHORIZED_TRANSPORT_ONLY
+        )
+        assert auth.transport_authorized is True
+        assert auth.proof.human_gate_satisfied is True
+        assert auth.proof.prime_authority_satisfied is True
