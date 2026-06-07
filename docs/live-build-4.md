@@ -10,6 +10,51 @@ Only the first `Coordinator Override - Active Now` block in this file is executa
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
+Goal: implement Compass project bounds/scope runtime as the next backend boundary slice (Next Candidate after project identity review).
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-compass-project-definition`.
+
+Branch: `codex/build-4-compass-project-definition-20260606` (pushed to origin at `c6c3fdff7` on 2026-06-06).
+
+Allowed files only: `meridian_core/compass.py`, `tests/test_compass.py`, `docs/live-build-4.md`.
+
+Task:
+- Extend the deterministic Compass backend with a project bounds/scope runtime that builds on the reviewed project identity runtime.
+- Model bounded project scope using outcome, context, artifacts, objectives, tasks, proof trail, and repo/venture/session relationships.
+- Distinguish in-scope vs out-of-scope requests; surface ambiguous or incomplete scope as Compass questions/blockers.
+- Preserve shared repo/venture/session boundaries (do not collapse them silently).
+- Always serialize `execution_authorized=False`.
+- Pure backend: no model calls, no UI/Bifrost/FileMap edits, no branch/worktree movement, no shared-main writes, no raw cross-project transcript injection, no Polaris dependency.
+
+Completion: 2026-06-06 (Opus build lane).
+
+Ready for Codex Review:
+
+- Implementation commit: `3a7f3af29` (Add Compass project bounds runtime).
+- Branch marker commit: `c6c3fdff7` (Mark Compass project bounds runtime ready for Codex review).
+- Branch HEAD pushed: `origin/codex/build-4-compass-project-definition-20260606` at `c6c3fdff7` (2026-06-06).
+- Files changed: `meridian_core/compass.py` (+492 lines), `tests/test_compass.py` (+400 lines), `docs/live-build-4.md` (branch marker).
+- Tests run: `python -m pytest tests/test_compass.py -q` -> **181 passed** (29 new bounds runtime tests on top of 152 prior).
+- `git diff --check`: clean.
+- Path-scope check: implementation diff limited to `meridian_core/compass.py` and `tests/test_compass.py`; only the branch-side `docs/live-build-4.md` queue marker block changed there.
+- Concrete evidence the bounds runtime proves the required invariants:
+  - New `ProjectBoundsDecision` enum (`IN_SCOPE`, `OUT_OF_SCOPE`, `PARTIAL_SCOPE`, `AMBIGUOUS`, `BLOCKED`).
+  - New frozen `ProjectBoundsRequest` bundles a tuple of `ProjectScopeCandidate` subjects with the relationship envelope (`repo_refs`, `venture_refs`, `session_refs`), `evidence_refs`, `request_kind`, `request_ref`, and optional `ambiguity_reason`.
+  - New frozen `ProjectBoundsEvaluation` always serializes `execution_authorized=False`; stable key order via `project_bounds_result_dict_keys()`.
+  - `evaluate_project_bounds(project, request)` builds on the reviewed identity runtime by requiring the request's `project_id` to match the reviewed `ProjectDefinition`, then runs each candidate through `evaluate_project_scope` and aggregates per-subject decisions deterministically.
+  - In/out/mixed scope decisions: `test_all_in_scope_subjects_return_in_scope`, `test_all_out_of_scope_subjects_return_out_of_scope`, `test_mixed_subjects_return_partial_scope`.
+  - Ambiguous/incomplete surfaces as Compass question: `test_unknown_request_kind_returns_compass_question`, `test_explicit_ambiguous_request_kind_returns_compass_question`, `test_ambiguous_subject_returns_compass_question`.
+  - Hidden context is blocked: `test_missing_request_project_id_blocks`, `test_project_identity_mismatch_blocks`, `test_empty_candidates_blocks`, `test_missing_evidence_refs_blocks`, `test_raw_context_evidence_ref_blocks`, `test_blocked_subject_blocks_bounds`.
+  - Shared repo/venture/session preserved, not collapsed: `test_shared_repo_venture_session_surfaced_not_collapsed`, `test_non_shared_envelope_does_not_surface_shared_refs`.
+  - `execution_authorized=False` across all 5 decision branches: `test_execution_is_never_authorized_across_branches`.
+  - No identity/handoff/scope/raw-context field bleed: `test_bounds_runtime_does_not_emit_identity_or_handoff_fields`, `test_bounds_runtime_does_not_emit_raw_context_keys`.
+  - Per-candidate decisions recorded for auditability: `test_candidate_decisions_record_per_subject_outcomes`.
+  - Public surface exposed via `evaluate_project_bounds`, `project_bounds_request_dict_keys`, `project_bounds_result_dict_keys`, and `project_bounds_request_kinds` (frozen set of known request kinds).
+- Pure backend behavior preserved: no model/provider calls, no UI/Bifrost/FileMap edits, no branch/worktree movement, no shared-main writes, no raw cross-project transcript injection, no Polaris dependency.
+- Next Candidate: pending coordinator promotion after Compass project bounds review clears.
+
+## Coordinator Override - Completed / Ready For Codex Review
+
 Goal: implement Compass project definition runtime as the next backend boundary slice.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-compass-project-definition`.
@@ -3306,6 +3351,10 @@ YYYY-MM-DD HH:MM TZ - Build 4 cross-check: none/finding/fix; details: <short not
 2026-06-06 18:56 -06:00 - Build 4 checked queue; status: running; origin/main pulled (24a8e11) — already up to date; Active Task = Coordinator Override Repair Required / Invalid Ready Marker for Compass project definition runtime; verified branch `codex/build-4-compass-project-definition-20260606` HEAD `358c496ee` already carries the implementation (a5e2bd048) and Codex Review B repair (0a92221a) the marker was waiting on; 152 tests passing in worktree; promoting marker to Completed / Ready For Codex Review and pushing feature branch to origin; cadence 1/3
 
 2026-06-06 19:00 -06:00 - Build 4 completed Compass project definition runtime + Codex Review B repair; implementation commit a5e2bd048, repair commit 0a92221a, queue marker commit 358c496ee on branch codex/build-4-compass-project-definition-20260606; files changed on branch: meridian_core/compass.py (+650 lines: ProjectIdentityDecision/Candidate/Neighbor/Evaluation, evaluate_project_identity, project_identity_candidate_from_definition, _normalize_bearing_text, _bounded_identity_distinguishes, _project_identity_neighbor_overlap, three dict_keys exposers), tests/test_compass.py (+650 lines: TestProjectIdentityNeighbor/Candidate/Runtime/BearingNormalization/BoundedDistinction — 55 new tests), docs/live-build-4.md (queue marker update); tests run: python -m pytest tests/test_compass.py -q -> 152 passed; git diff --check clean; push status: branch pushed to origin/codex/build-4-compass-project-definition-20260606 at 358c496ee; Obsidian update status: not performed in this lane (build branch only; coordinator/Obsidian-lane handles vault sync after Codex review); Ready for Codex Review; cadence 2/3
+
+2026-06-06 19:07 -06:00 - Build 4 checked queue; status: running; origin/main pulled (375eb4374) — already up to date; Active Task = none executable (prior identity-runtime block already Ready For Codex Review); off-heartbeat slice completed in worktree: Compass project bounds runtime per Next Candidate; branch advanced by 2 commits (3a7f3af29 implementation + c6c3fdff7 branch marker) on top of 358c496ee; 181 tests passing locally; promoting bounds runtime to Completed / Ready For Codex Review in main queue and pushing branch to origin; cadence 3/3 — Codex review check triggered after this entry per heartbeat directive
+
+2026-06-06 19:10 -06:00 - Build 4 completed Compass project bounds runtime promotion; implementation commit 3a7f3af29, branch marker c6c3fdff7 on branch codex/build-4-compass-project-definition-20260606; files changed on branch: meridian_core/compass.py (+492 lines: ProjectBoundsDecision/Request/Evaluation, evaluate_project_bounds, _bounds_result, _project_bounds_request_blockers, _project_bounds_shared_relationship_refs, three dict_keys/kinds exposers), tests/test_compass.py (+400 lines: TestProjectBoundsRequest + TestProjectBoundsRuntime — 29 new tests), docs/live-build-4.md (branch-side marker); tests run: python -m pytest tests/test_compass.py -q -> 181 passed; git diff --check clean; push status: branch pushed to origin/codex/build-4-compass-project-definition-20260606 at c6c3fdff7 (358c496ee..c6c3fdff7); main queue updated with new Completed / Ready For Codex Review block for bounds runtime; Obsidian update status: not performed in this lane (build branch only; coordinator/Obsidian-lane handles vault sync after Codex review); Ready for Codex Review; cadence 3/3 — PAUSE FOR CODEX REVIEW
 
 2026-06-03 06:08 UTC - Build 4 checked queue; status: idle; origin/main pulled (8df5dc8e); no executable Coordinator Override - Active Now section; awaiting coordinator task promotion; cadence 1/3
 
