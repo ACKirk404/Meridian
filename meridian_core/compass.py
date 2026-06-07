@@ -1893,6 +1893,23 @@ def evaluate_project_bounds(
             ),
         )
 
+    if _has_raw_context_ref((request.request_ref,)) or (
+        request.ambiguity_reason is not None
+        and _has_raw_context_ref((request.ambiguity_reason,))
+    ):
+        return _bounds_result(
+            ProjectBoundsDecision.BLOCKED,
+            project,
+            request,
+            blockers=("raw_context_request_field_blocked",),
+            compass_question=(
+                "Compass cannot evaluate bounds while raw prompt, transcript, "
+                "free-form context, conversation, or provider-response payload "
+                "is present in the request_ref or ambiguity_reason. Pass "
+                "summarized labels and retry."
+            ),
+        )
+
     if request.request_kind not in _BOUNDS_REQUEST_KINDS:
         return _bounds_result(
             ProjectBoundsDecision.AMBIGUOUS,
@@ -2168,7 +2185,7 @@ def _bounds_result(
         decision=decision,
         project_id=request.project_id,
         request_kind=request.request_kind,
-        request_ref=request.request_ref,
+        request_ref=_redact_raw_context_refs((request.request_ref,))[0],
         in_scope_refs=in_scope_refs,
         out_of_scope_refs=out_of_scope_refs,
         ambiguous_refs=ambiguous_refs,

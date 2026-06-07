@@ -3118,3 +3118,228 @@ class TestProjectBoundsSharedRelationshipRefsRedaction:
         assert "raw_context_evidence_ref_blocked" in result.blockers
         encoded = json.dumps(result.to_dict(), sort_keys=True)
         assert "secret-bounds-evidence" not in encoded
+
+
+class TestProjectBoundsRequestLevelRedaction:
+    """Coordinator-promoted repair: bounds request-level raw context must never
+    reach serialization.
+
+    Codex review found three reproducers on main where bounds request-level
+    fields leaked raw prompt/transcript/free-form context/conversation/
+    provider-response payload despite the bounds runtime claiming to redact:
+
+    1. ``request.evidence_refs=('raw_prompt:secret...',)`` with
+       ``request_kind='task_addition'`` → BLOCKED with the right blocker, but
+       ``result.to_dict()['evidence_refs']`` still contained the raw payload
+       (already fixed earlier in _bounds_result's evidence_refs redaction).
+    2. ``request.request_ref='raw_prompt:secret request ref'`` → IN_SCOPE
+       result preserved the raw payload in ``request_ref``.
+    3. ``request.request_kind='ambiguous'`` + ``ambiguity_reason='raw_prompt:
+       secret ambiguity reason'`` → AMBIGUOUS result interpolated the raw
+       payload into ``compass_question``.
+
+    Repair: new raw-context guard on ``request.request_ref`` and
+    ``request.ambiguity_reason`` runs BEFORE the AMBIGUOUS interpolation
+    paths and returns BLOCKED with the new ``raw_context_request_field_blocked``
+    blocker. ``_bounds_result`` also routes ``request.request_ref`` through
+    ``_redact_raw_context_refs`` so any other path can't leak via that field.
+    """
+
+    @staticmethod
+    def _project() -> ProjectDefinition:
+        return define_project(
+            project_id="meridian-v2",
+            title="Meridian V2",
+            outcome="Outcome.",
+            context=("ctx",),
+            artifacts=("meridian_core/compass.py",),
+            objectives=("obj",),
+            tasks=("task",),
+            proof_trail=("proof",),
+            repo_refs=("repo:safe",),
+            venture_refs=("venture:Meridian",),
+        )
+
+    @staticmethod
+    def _safe_candidate() -> ProjectScopeCandidate:
+        return ProjectScopeCandidate(
+            project_id="meridian-v2",
+            subject_kind="artifact",
+            subject_ref="meridian_core/compass.py",
+            evidence_refs=("proof:safe",),
+        )
+
+    @pytest.mark.parametrize(
+        "raw_ref",
+        (
+            "raw_prompt:secret bounds request evidence",
+            "raw_transcript:secret evidence",
+            "free_form_context:secret evidence",
+            "transcript:secret evidence",
+            "conversation:secret evidence",
+            "provider_response:secret evidence",
+        ),
+    )
+    def test_reproducer_1_raw_evidence_refs_redacted_in_blocked_result(self, raw_ref):
+        """Reproducer 1 (from coordinator directive): raw_prompt: in
+        request.evidence_refs MUST be redacted in BLOCKED to_dict() output.
+        """
+        request = ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="task_addition",
+            request_ref="request:test-1",
+            candidates=(self._safe_candidate(),),
+            evidence_refs=(raw_ref,),
+        )
+        result = evaluate_project_bounds(self._project(), request)
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "raw_context_evidence_ref_blocked" in result.blockers
+        # to_dict()['evidence_refs'] does NOT contain raw payload.
+        payload = result.to_dict()
+        assert raw_ref not in payload["evidence_refs"]
+        assert "<redacted_raw_context>" in payload["evidence_refs"]
+        # No raw payload anywhere in JSON.
+        encoded = json.dumps(payload, sort_keys=True)
+        assert raw_ref not in encoded
+        assert "<redacted_raw_context>" in encoded
+        assert payload["execution_authorized"] is False
+
+    @pytest.mark.parametrize(
+        "raw_ref",
+        (
+            "raw_prompt:secret request ref",
+            "raw_transcript:secret request ref",
+            "free_form_context:secret request ref",
+            "transcript:secret request ref",
+            "conversation:secret request ref",
+            "provider_response:secret request ref",
+        ),
+    )
+    def test_reproducer_2_raw_request_ref_redirected_to_blocked_with_redaction(
+        self, raw_ref
+    ):
+        """Reproducer 2 (from coordinator directive): raw context in
+        request_ref MUST never reach IN_SCOPE / OUT_OF_SCOPE / AMBIGUOUS with
+        the raw payload preserved. The new guard returns BLOCKED with
+        request_ref redacted.
+        """
+        request = ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="task_addition",
+            request_ref=raw_ref,
+            candidates=(self._safe_candidate(),),
+            evidence_refs=("proof:request",),
+        )
+        result = evaluate_project_bounds(self._project(), request)
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "raw_context_request_field_blocked" in result.blockers
+        # request_ref redacted in dataclass field.
+        assert raw_ref not in result.request_ref
+        assert result.request_ref == "<redacted_raw_context>"
+        # to_dict()['request_ref'] also redacted.
+        payload = result.to_dict()
+        assert payload["request_ref"] == "<redacted_raw_context>"
+        encoded = json.dumps(payload, sort_keys=True)
+        assert raw_ref not in encoded
+        assert "<redacted_raw_context>" in encoded
+        assert payload["execution_authorized"] is False
+
+    @pytest.mark.parametrize(
+        "raw_reason",
+        (
+            "raw_prompt:secret ambiguity reason",
+            "raw_transcript:secret ambiguity reason",
+            "free_form_context:secret ambiguity reason",
+            "transcript:secret ambiguity reason",
+            "conversation:secret ambiguity reason",
+            "provider_response:secret ambiguity reason",
+        ),
+    )
+    def test_reproducer_3_raw_ambiguity_reason_redirected_to_blocked(self, raw_reason):
+        """Reproducer 3 (from coordinator directive): raw context in
+        ambiguity_reason MUST never reach AMBIGUOUS result where
+        compass_question interpolates it. The new guard returns BLOCKED
+        BEFORE the AMBIGUOUS branch runs.
+        """
+        request = ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="ambiguous",
+            request_ref="request:test-3",
+            candidates=(self._safe_candidate(),),
+            evidence_refs=("proof:safe",),
+            ambiguity_reason=raw_reason,
+        )
+        result = evaluate_project_bounds(self._project(), request)
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "raw_context_request_field_blocked" in result.blockers
+        # No raw payload in compass_question or anywhere else.
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert raw_reason not in encoded
+        assert result.to_dict()["execution_authorized"] is False
+
+    def test_safe_request_ref_and_ambiguity_reason_still_reach_ambiguous(self):
+        """Regression: legitimate AMBIGUOUS request with safe request_ref and
+        safe ambiguity_reason still produces AMBIGUOUS with the interpolated
+        compass_question. The new guard must not over-trigger.
+        """
+        request = ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="ambiguous",
+            request_ref="request:legitimate-ambiguous",
+            candidates=(self._safe_candidate(),),
+            evidence_refs=("proof:safe",),
+            ambiguity_reason="caller could not classify this request",
+        )
+        result = evaluate_project_bounds(self._project(), request)
+        assert result.decision is ProjectBoundsDecision.AMBIGUOUS
+        assert "ambiguous_bounds_request" in result.blockers
+        assert result.compass_question is not None
+        assert "request:legitimate-ambiguous" in result.compass_question
+        assert "caller could not classify this request" in result.compass_question
+        assert result.request_ref == "request:legitimate-ambiguous"
+
+    def test_safe_in_scope_request_preserves_safe_request_ref(self):
+        """Regression: safe IN_SCOPE result preserves the safe request_ref
+        unchanged in to_dict() output.
+        """
+        request = ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="feature_change",
+            request_ref="request:safe-in-scope",
+            candidates=(self._safe_candidate(),),
+            evidence_refs=("proof:bounds",),
+        )
+        result = evaluate_project_bounds(self._project(), request)
+        assert result.decision is ProjectBoundsDecision.IN_SCOPE
+        assert result.request_ref == "request:safe-in-scope"
+        assert "<redacted_raw_context>" not in result.request_ref
+
+    def test_request_field_guard_runs_before_ambiguous_kind_check(self):
+        """Ordering invariant: raw-context guard on request_ref runs BEFORE
+        the ``request_kind == 'ambiguous'`` AMBIGUOUS branch so the AMBIGUOUS
+        compass_question never interpolates a raw request_ref payload.
+        """
+        request = ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="ambiguous",
+            request_ref="raw_prompt:secret-request-via-ambiguous-path",
+            candidates=(self._safe_candidate(),),
+            evidence_refs=("proof:safe",),
+            ambiguity_reason="safe reason",
+        )
+        result = evaluate_project_bounds(self._project(), request)
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "raw_context_request_field_blocked" in result.blockers
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert "secret-request-via-ambiguous-path" not in encoded
+
+    def test_bounds_blocked_request_field_serializes_stably(self):
+        request = ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="task_addition",
+            request_ref="raw_prompt:secret",
+            candidates=(self._safe_candidate(),),
+            evidence_refs=("proof:safe",),
+        )
+        result = evaluate_project_bounds(self._project(), request)
+        assert tuple(result.to_dict().keys()) == project_bounds_result_dict_keys()
