@@ -8,6 +8,57 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Active Task / Opus Task Assigned
+
+Timestamp: 2026-06-07T12:58:00-06:00.
+
+Goal: audit FileMap coverage after the reviewed V3 intake gate and V3 Goal
+Runtime contract landed on main.
+
+Worker requirement: FileMap audit candidate must run in a Polaris Build 3 Opus
+worker (`launch-chat`, tier `power`, `claude-opus-4-7`). Codex sessions may
+review only after a real worker candidate exists.
+
+Current main includes:
+
+- `16aff14c5` / `docs/v3-intake-resolution.md` and
+  `docs/agentic-ai-framework-checklist.md` intake-gate note.
+- `c728ad56e` / `docs/v3-goal-runtime-contract.md`,
+  `docs/v3-parking-lot.md`, and `docs/live-build-2.md` completion marker.
+
+Task: inspect runtime FileMap (`meridian_core/filemap.py`), human mirror
+(`docs/FileMap.md`), and `_REQUIRED_PATHS` coverage for the new or newly
+important docs paths:
+
+- `docs/v3-intake-resolution.md`
+- `docs/v3-goal-runtime-contract.md`
+- `docs/v3-parking-lot.md`
+- `docs/agentic-ai-framework-checklist.md`
+- the relevant live queue docs only if their existing coverage is stale
+
+If coverage is missing or stale, register only the missing existing docs
+artifacts in the FileMap surfaces. If coverage is already accurate, write a
+concrete no-op audit marker here with inspected paths and evidence.
+
+Allowed files only:
+
+- `meridian_core/filemap.py`
+- `docs/FileMap.md`
+- `tests/test_filemap.py`
+- `docs/live-build-3.md`
+
+Do not edit runtime implementation outside FileMap surfaces, `index.html`,
+Electron/Bifrost UI, generated artifacts, V3 intake/contract docs, Build 1/2/4/5
+queues, review logs, branches, or Polaris.
+
+Required proof before Ready marker:
+
+- `python -m pytest tests/test_filemap.py -q`
+- `git diff --check`
+- concrete inspected path list and whether each was already covered or newly
+  registered
+- path-scope proof limited to allowed files
+
 ## Completed / Promoted To Main
 
 Goal: repair backend restart FileMap docs mirror gap found by Codex Reviews B.
