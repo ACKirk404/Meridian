@@ -651,6 +651,26 @@ def test_index_aegis_surface_uses_bridge_snapshot():
     assert "enqueue_to_review_console" not in doc
 
 
+def test_index_session_archive_surface_uses_backend_proof_snapshot():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Session Close Archive Proof" in doc
+    assert "data-session-close-archive-proof" in doc
+    assert "const renderSessionCloseArchiveProofSnapshot = (snapshot) =>" in doc
+    assert "const loadSessionCloseArchiveProof = async () =>" in doc
+    assert "bridgeUrl('session-close-archive-proof')" in doc
+    assert "renderSessionCloseArchiveProof()" in doc
+    assert "actionLabel === 'Archive' ? renderSessionCloseArchiveProof()" in doc
+    assert (
+        "if (rightWorkspace?.querySelector('[data-session-close-archive-proof]')) "
+        "loadSessionCloseArchiveProof();"
+    ) in doc
+    assert "live control authorized" in doc
+    assert "raw prompt visible" in doc
+    assert "raw worker chat visible" in doc
+    assert "Write-through gate" in doc
+    assert "executable now" in doc
+
+
 def test_index_wired_harness_titles_use_runtime_logic_naming():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "Prime Runtime Logic" in doc
@@ -779,6 +799,28 @@ def test_bridge_exposes_aegis_logic_route():
     assert '"body":' not in doc
     assert "apply_console_response" not in doc
     assert "enqueue_to_review_console" not in doc
+
+
+def test_bridge_exposes_session_close_archive_proof_route():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    assert "sessionCloseArchiveProofSnapshot: true" in doc
+    assert "sessionCloseArchiveProof: '/bridge/session-close-archive-proof'" in doc
+    assert "function sessionCloseArchiveProofSnapshot()" in doc
+    assert (
+        "req.method === 'GET' && req.url === BRIDGE_ROUTES.sessionCloseArchiveProof"
+        in doc
+    )
+    assert "meridian_core.session_lifecycle" in doc
+    assert "build_close_archive_write_through_proof" in doc
+    assert "build_v2_command_plan_preview_proof" in doc
+    assert '"display_only": True' in doc
+    assert '"mutation_authorized": False' in doc
+    assert '"live_control_authorized": False' in doc
+    assert '"raw_prompt_visible": False' in doc
+    assert '"raw_worker_chat_visible": False' in doc
+    assert '"mutation_authorized": True' not in doc
+    assert "raw_worker_chat = " not in doc
+    assert "SECRET_RAW_PROMPT" not in doc
 
 
 def test_ui_checklist_defers_deep_compass_and_vulcan_items_to_backend_tracker():

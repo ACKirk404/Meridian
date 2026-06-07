@@ -5239,6 +5239,72 @@ body {
       )),
     ].join('');
   };
+  const renderSessionCloseArchiveProofSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Session close archive proof source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Session close/archive proof unavailable'],
+      ]), true);
+    }
+    const proofs = snapshot.proofs || {};
+    const archiveProof = proofs.archive || {};
+    const closeProof = proofs.close || {};
+    const writeThroughProof = proofs.write_through || {};
+    const preview = snapshot.command_plan_preview || {};
+    const mutationAllowed = Boolean(snapshot.mutation_authorized);
+    const transition = Array.isArray(preview.expected_state_transition)
+      ? preview.expected_state_transition.join(' -> ')
+      : 'unknown';
+    return [
+      relaySection('Session close archive proof source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Session Lifecycle'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', mutationAllowed ? 'yes' : 'no'],
+        ['live control authorized', snapshot.live_control_authorized ? 'yes' : 'no'],
+        ['raw prompt visible', snapshot.raw_prompt_visible ? 'yes' : 'no'],
+        ['raw worker chat visible', snapshot.raw_worker_chat_visible ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Archive write-through proof', relayGrid([
+        ['target session', archiveProof.target_session_id || 'unknown'],
+        ['session name', archiveProof.session_name || 'unknown'],
+        ['intended action', relayText(archiveProof.intended_action)],
+        ['required operation', relayText(archiveProof.required_operation)],
+        ['write-through completed', archiveProof.write_through_completed ? 'yes' : 'no'],
+        ['permission gate', relayText(archiveProof.permission_gate_state)],
+        ['human gate', relayText(archiveProof.human_gate_state)],
+        ['executable now', archiveProof.is_executable_now ? 'yes' : 'no'],
+        ['blockers', relayJoin(archiveProof.blockers)],
+      ]), true),
+      relaySection('Close stop-before-close proof', relayGrid([
+        ['intended action', relayText(closeProof.intended_action)],
+        ['write-through completed', closeProof.write_through_completed ? 'yes' : 'no'],
+        ['human gate required', closeProof.human_gate_required ? 'yes' : 'no'],
+        ['failure visibility', closeProof.failure_visibility || 'unknown'],
+        ['preservation note', closeProof.rollback_or_preservation_note || 'none'],
+        ['blockers', relayJoin(closeProof.blockers)],
+      ]), false),
+      relaySection('Write-through review probe', relayGrid([
+        ['intended action', relayText(writeThroughProof.intended_action)],
+        ['write-through completed', writeThroughProof.write_through_completed ? 'yes' : 'no'],
+        ['failure visibility', writeThroughProof.failure_visibility || 'unknown'],
+        ['required condition', writeThroughProof.required_write_through_condition || 'unknown'],
+        ['blockers', relayJoin(writeThroughProof.blockers)],
+      ]), false),
+      relaySection('Command plan preview', relayGrid([
+        ['preview id', preview.preview_id || 'unknown'],
+        ['command kind', relayText(preview.command_kind)],
+        ['expected transition', transition],
+        ['required operation', relayText(preview.required_operation)],
+        ['aegis gate', relayText(preview.aegis_gate_status)],
+        ['review cadence', relayText(preview.review_cadence_state)],
+        ['human gate required', preview.human_gate_required ? 'yes' : 'no'],
+        ['executable now', preview.is_executable_now ? 'yes' : 'no'],
+        ['advisory blockers', relayJoin(preview.advisory_blockers)],
+      ]), true),
+    ].join('');
+  };
   const loadRelayLogic = async () => {
     const logicNode = rightWorkspace?.querySelector('[data-relay-logic]');
     if (!logicNode) return;
@@ -5359,6 +5425,17 @@ body {
       logicNode.innerHTML = renderAegisLogicSnapshot(snapshot);
     } catch (error) {
       logicNode.innerHTML = renderAegisLogicSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadSessionCloseArchiveProof = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-session-close-archive-proof]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('session-close-archive-proof'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderSessionCloseArchiveProofSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderSessionCloseArchiveProofSnapshot({ ok: false, error: error.message });
     }
   };
   const relayBridgeRows = (status, detail) => [
@@ -7553,6 +7630,37 @@ body {
       return false;
     }
   };
+  const renderSessionCloseArchiveProof = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Session close archive proof">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Session Close Archive Proof</div>
+            <div class="relay-models-status">Write-through gate</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-session-close-archive-proof>${relaySection('Session close archive proof source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadSessionCloseArchiveProof();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
   const openSpark = () => {
     stage.classList.add('spark-menu-open');
     harnessDock.classList.remove('harness-dock-open');
@@ -7577,6 +7685,7 @@ body {
     if (rightWorkspace?.querySelector('[data-atlas-retrieval]')) loadAtlasRetrieval();
     if (rightWorkspace?.querySelector('[data-filemap]')) loadFileMap();
     if (rightWorkspace?.querySelector('[data-aegis-logic]')) loadAegisLogic();
+    if (rightWorkspace?.querySelector('[data-session-close-archive-proof]')) loadSessionCloseArchiveProof();
   };
   window.addEventListener('focus', refreshRelayPanel);
   document.addEventListener('visibilitychange', () => {
@@ -7824,7 +7933,9 @@ body {
     if (userTitle) userTitle.textContent = actionLabel || 'Spark';
     const rendered = actionLabel === 'Balance'
       ? renderProviderBalance()
-      : (actionLabel === 'Routines' ? renderGoalRuntime() : renderSparkSurface(actionLabel || 'Spark'));
+      : (actionLabel === 'Routines'
+        ? renderGoalRuntime()
+        : (actionLabel === 'Archive' ? renderSessionCloseArchiveProof() : renderSparkSurface(actionLabel || 'Spark')));
     if (!rendered) return;
     screen.classList.add('sessions-visible');
     setRightPanelAuthority('spark', actionLabel || 'Spark', { persist });

@@ -29,6 +29,7 @@ const BRIDGE_CAPABILITIES = {
   atlasRetrievalSnapshot: true,
   fileMapSnapshot: true,
   aegisLogicSnapshot: true,
+  sessionCloseArchiveProofSnapshot: true,
   userSessionTargets: true,
 };
 const BRIDGE_ROUTES = Object.freeze({
@@ -45,6 +46,7 @@ const BRIDGE_ROUTES = Object.freeze({
   atlasRetrieval: '/bridge/atlas-retrieval',
   fileMap: '/bridge/filemap',
   aegisLogic: '/bridge/aegis-logic',
+  sessionCloseArchiveProof: '/bridge/session-close-archive-proof',
   userSessions: '/bridge/user-sessions',
   recentCalls: '/bridge/recent-calls',
   callResult: '/bridge/call-result',
@@ -93,7 +95,7 @@ if (process.argv.includes('--self-test')) {
   rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
   const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot;
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot;
   const sampleSession = sessionTargetFromWorktree({
     path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
     branch: 'refs/heads/worktree-build-5-bifrost',
@@ -1018,6 +1020,138 @@ print(json.dumps({
 `);
 }
 
+function sessionCloseArchiveProofSnapshot() {
+  return pythonJsonSnapshot('Session close/archive proof', String.raw`
+import json
+from datetime import datetime, timedelta, timezone
+from meridian_core.session_lifecycle import (
+    CloseArchiveWriteThroughAction,
+    CommandIntent,
+    HarnessRole,
+    HealthState,
+    OperationScope,
+    PermissionContext,
+    PermissionState,
+    ProofState,
+    ReviewCadenceState,
+    SessionCommandPlan,
+    SessionLifecycleState,
+    SessionStatus,
+    build_close_archive_write_through_proof,
+    build_v2_command_plan_preview_proof,
+)
+
+observed_at = datetime(2026, 6, 7, 18, 0, tzinfo=timezone.utc)
+permission_context = PermissionContext(
+    approved_by="prime",
+    approval_scope=frozenset([OperationScope.ARCHIVE]),
+    escalation_gate=False,
+    escalation_reason=None,
+    branch_permission_state=PermissionState.UNLOCKED_TEMPORARY,
+    approved_by_secondary=None,
+    unlock_expiry=observed_at + timedelta(minutes=45),
+    task_scope="close-archive-write-through",
+    last_permission_change=observed_at,
+)
+running_session = SessionLifecycleState(
+    session_id="session-close-archive-proof",
+    session_name="Build 2 Close Archive Proof",
+    project_name="Meridian",
+    project_path="project-ref:meridian",
+    harness_role=HarnessRole.BUILD,
+    assigned_queue_file="queue-ref:live-build-2",
+    model_provider="anthropic",
+    model_name="claude-opus-4-7",
+    status=SessionStatus.RUNNING,
+    worktree_path="worktree-ref:build-2-close-archive",
+    branch_name="codex/build-2-close-archive-proof",
+    current_task_id="close-archive-write-through",
+    last_queue_read_at=observed_at,
+    last_queue_write_at=observed_at,
+    last_prompt_sent_at=observed_at,
+    last_prompt_payload_size=9000,
+    review_cadence_state=ReviewCadenceState.CLEARED,
+    proof_state=ProofState.COMMAND_STAGED,
+    health_state=HealthState.HEALTHY,
+    blocker_summary=None,
+    permission_context=permission_context,
+)
+stopped_session = SessionLifecycleState(
+    **{**running_session.__dict__, "status": SessionStatus.STOPPED}
+)
+archive_command_plan = SessionCommandPlan(
+    session_id=stopped_session.session_id,
+    session_name=stopped_session.session_name,
+    command_intent=CommandIntent.ARCHIVE,
+    reason="Archive after durable write-through proof and review gate.",
+    expected_state_transition=(SessionStatus.STOPPED, SessionStatus.ARCHIVED),
+    current_state_evidence="session-close-archive-proof:stopped",
+    queue_file_evidence=stopped_session.assigned_queue_file,
+    worktree_evidence=stopped_session.worktree_path,
+    review_gate_evidence="session-lifecycle.review-gate.pending",
+    proof_requirement=ProofState.COMMAND_STAGED,
+    queue_file_affected=stopped_session.assigned_queue_file,
+    worktree_path_affected=stopped_session.worktree_path,
+    branch_affected=stopped_session.branch_name,
+    aegis_gate_result="pending",
+    cadence_gate_required=True,
+    cadence_gate_status=ReviewCadenceState.REVIEW_GATED,
+    is_executable_now=False,
+    human_approval_required=True,
+    approval_context="Archive preview requires human review.",
+    rollback_or_recovery_note="Preserve queue, proof, and handoff refs.",
+    permission_state=stopped_session.permission_context.branch_permission_state,
+    permission_operation=OperationScope.ARCHIVE,
+    permission_operation_allowed=True,
+)
+
+archive_proof = build_close_archive_write_through_proof(
+    stopped_session,
+    CloseArchiveWriteThroughAction.ARCHIVE,
+    write_through_completed=True,
+    human_gate_approved=True,
+    timestamp=observed_at,
+)
+close_proof = build_close_archive_write_through_proof(
+    running_session,
+    CloseArchiveWriteThroughAction.CLOSE,
+    write_through_completed=True,
+    human_gate_approved=False,
+    timestamp=observed_at,
+)
+write_through_probe = build_close_archive_write_through_proof(
+    running_session,
+    CloseArchiveWriteThroughAction.WRITE_THROUGH,
+    write_through_completed=False,
+    human_gate_approved=False,
+    timestamp=observed_at,
+)
+command_preview = build_v2_command_plan_preview_proof(
+    stopped_session,
+    archive_command_plan,
+    timestamp=observed_at,
+)
+print(json.dumps({
+    "ok": True,
+    "source": "meridian_core.session_lifecycle",
+    "version": "v2-session-close-archive-proof-2026-06-07",
+    "harness": "Session Lifecycle",
+    "summary": "Display-safe close/archive write-through and command-plan preview proof.",
+    "display_only": True,
+    "mutation_authorized": False,
+    "live_control_authorized": False,
+    "raw_prompt_visible": False,
+    "raw_worker_chat_visible": False,
+    "proofs": {
+        "archive": archive_proof.to_dict(),
+        "close": close_proof.to_dict(),
+        "write_through": write_through_probe.to_dict(),
+    },
+    "command_plan_preview": command_preview.to_dict(),
+}))
+`);
+}
+
 function parseGitWorktrees(stdout) {
   const records = [];
   let current = null;
@@ -1303,6 +1437,17 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && req.url === BRIDGE_ROUTES.aegisLogic) {
     const snapshot = await aegisLogicSnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.sessionCloseArchiveProof) {
+    const snapshot = await sessionCloseArchiveProofSnapshot();
     sendJson(res, snapshot.ok ? 200 : 500, {
       service: 'meridian-model-bridge',
       version: BRIDGE_VERSION,
