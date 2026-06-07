@@ -3,6 +3,11 @@
 import pytest
 from datetime import datetime, timedelta, timezone
 
+from meridian_core.model_adapter import (
+    DeepSeekValidationDisposition,
+    bind_deepseek_validation_disposition,
+    deepseek_candidate_metadata_preset,
+)
 from meridian_core.prime_autonomy import (
     PrimeActionType,
     PrimeActionConfidence,
@@ -13,6 +18,7 @@ from meridian_core.prime_autonomy import (
     select_prime_next_action,
     make_prime_next_action,
     select_next_action_from_command_plan_staging_record,
+    select_next_action_from_deepseek_validation_disposition,
     select_next_action_from_live_state_evidence,
     select_next_action_from_project_state,
     select_next_action_from_command_plan_audit,
@@ -1712,3 +1718,169 @@ class TestV2CommandPlanPreviewSelection:
         # Fail-closed contract intact
         assert action.human_gate_required is True
         assert action.is_executable() is False
+
+
+_DEEPSEEK_PRIME_NON_AUTHORITY_BLOCKERS = (
+    "deepseek_advisory_only_no_autonomous_implementation",
+    "deepseek_advisory_only_no_review_clearing",
+    "deepseek_advisory_only_no_branch_movement",
+    "deepseek_advisory_only_no_live_coding",
+    "deepseek_advisory_only_no_relay_bypass",
+)
+
+
+class TestSelectNextActionFromDeepSeekValidationDisposition:
+    """Prime projection from reviewed DeepSeek validation disposition."""
+
+    def test_metadata_only_disposition_pauses_with_human_gate(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("default_quality")
+        )
+        assert disposition is not None
+
+        action = select_next_action_from_deepseek_validation_disposition(disposition)
+
+        assert action.action_type is PrimeActionType.PAUSE_AND_WAIT
+        assert action.confidence is PrimeActionConfidence.HIGH
+        assert action.risk_tier is PrimeActionRiskTier.SAFE
+        assert action.source is PrimeActionSource.SESSION_STATE
+        assert action.target_harness == "Relay"
+        assert action.target_lane == "model_harness"
+        assert action.target_project == "Meridian"
+        assert action.human_gate_required is True
+        assert action.is_blocked() is True
+        assert action.is_executable() is False
+
+    def test_validation_cleared_disposition_still_pauses_with_human_gate(self) -> None:
+        cleared = DeepSeekValidationDisposition(
+            validation_level="level-1:validation-cleared",
+            direct_dispatch_id="deepseek-chat",
+            variant_labels=("deepseek-v4-pro",),
+            transport_cleared=True,
+            blocked_authority_tags=(
+                "review_clearance",
+                "branch_movement",
+                "autonomous_coding",
+            ),
+            validation_evidence_ref="deepseek-validation:level-1:validation-cleared",
+            direct_endpoint_evidence_ref=(
+                "deepseek-direct-endpoint:"
+                "https://api.deepseek.com/v1/chat/completions"
+            ),
+            external_review_evidence_ref=(
+                "external-review:deepseek:deepseek-chat:passed"
+            ),
+        )
+
+        action = select_next_action_from_deepseek_validation_disposition(cleared)
+
+        assert action.action_type is PrimeActionType.PAUSE_AND_WAIT
+        assert action.human_gate_required is True
+        assert action.is_executable() is False
+        assert "deepseek_transport_not_cleared" not in action.blockers
+        for marker in _DEEPSEEK_PRIME_NON_AUTHORITY_BLOCKERS:
+            assert marker in action.blockers
+
+    def test_action_evidence_surfaces_validation_level_and_dispatch_identity(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("fast")
+        )
+        assert disposition is not None
+
+        action = select_next_action_from_deepseek_validation_disposition(disposition)
+
+        assert "deepseek.validation_level=level-0:metadata-only" in action.evidence
+        assert "deepseek.direct_dispatch_id=deepseek-chat" in action.evidence
+        assert "deepseek.variant_labels=deepseek-v4-flash" in action.evidence
+        assert "deepseek.transport_cleared=False" in action.evidence
+        assert (
+            "deepseek.validation_evidence_ref=deepseek-validation:level-0:metadata-only"
+            in action.evidence
+        )
+        assert "deepseek.serialization_only=True" in action.evidence
+
+    def test_action_blockers_include_all_non_authority_markers(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("default_quality")
+        )
+        assert disposition is not None
+
+        action = select_next_action_from_deepseek_validation_disposition(disposition)
+
+        for marker in _DEEPSEEK_PRIME_NON_AUTHORITY_BLOCKERS:
+            assert marker in action.blockers
+
+    def test_action_blockers_include_blocked_authority_tags(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("fast")
+        )
+        assert disposition is not None
+
+        action = select_next_action_from_deepseek_validation_disposition(disposition)
+
+        assert "blocked_authority:review_clearance" in action.blockers
+        assert "blocked_authority:branch_movement" in action.blockers
+        assert "blocked_authority:relay_aegis_bypass" in action.blockers
+        assert "blocked_authority:autonomous_coding" in action.blockers
+        assert "blocked_authority:aggregator_authority" in action.blockers
+
+    def test_metadata_only_disposition_marks_transport_not_cleared_blocker(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("fast")
+        )
+        assert disposition is not None
+
+        action = select_next_action_from_deepseek_validation_disposition(disposition)
+
+        assert "deepseek_transport_not_cleared" in action.blockers
+
+    def test_unknown_validation_level_marks_unknown_blocker(self) -> None:
+        unknown = DeepSeekValidationDisposition(
+            validation_level="level-unknown",
+            direct_dispatch_id="deepseek-chat",
+            variant_labels=("deepseek-v4-pro",),
+            transport_cleared=False,
+            blocked_authority_tags=(),
+            validation_evidence_ref="deepseek-validation:level-99:unknown",
+        )
+
+        action = select_next_action_from_deepseek_validation_disposition(unknown)
+
+        assert "deepseek_validation_level_unknown" in action.blockers
+        assert "deepseek_transport_not_cleared" in action.blockers
+        assert action.is_executable() is False
+
+    def test_rationale_records_no_autonomous_authority_granted(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("default_quality")
+        )
+        assert disposition is not None
+
+        action = select_next_action_from_deepseek_validation_disposition(disposition)
+
+        assert "No autonomous authority granted" in action.rationale
+        assert "level-0:metadata-only" in action.rationale
+        assert "Transport cleared: False" in action.rationale
+
+    def test_disposition_without_endpoint_ref_omits_endpoint_evidence(self) -> None:
+        disposition = DeepSeekValidationDisposition(
+            validation_level="level-0:metadata-only",
+            direct_dispatch_id="deepseek-chat",
+            variant_labels=("deepseek-v4-pro",),
+            transport_cleared=False,
+            blocked_authority_tags=(),
+            validation_evidence_ref="deepseek-validation:level-0:metadata-only",
+            direct_endpoint_evidence_ref=None,
+            external_review_evidence_ref=None,
+        )
+
+        action = select_next_action_from_deepseek_validation_disposition(disposition)
+
+        assert not any(
+            ev.startswith("deepseek.direct_endpoint_evidence_ref=")
+            for ev in action.evidence
+        )
+        assert not any(
+            ev.startswith("deepseek.external_review_evidence_ref=")
+            for ev in action.evidence
+        )

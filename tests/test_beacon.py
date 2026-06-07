@@ -13,12 +13,18 @@ from meridian_core.beacon import (
     check_harness_liveness,
     command_plan_staging_advisory_evidence,
     command_plan_advisory_evidence,
+    deepseek_validation_disposition_advisory_evidence,
     live_state_advisory_evidence,
     permission_summary_advisory_evidence,
     recovery_readiness_advisory_evidence,
     runtime_state_advisory_evidence,
     v2_command_plan_preview_advisory_evidence,
     workflow_recovery_advisory_evidence,
+)
+from meridian_core.model_adapter import (
+    DeepSeekValidationDisposition,
+    bind_deepseek_validation_disposition,
+    deepseek_candidate_metadata_preset,
 )
 from meridian_core.models import HeartbeatStatus
 from meridian_core.session_lifecycle import (
@@ -992,3 +998,201 @@ class TestV2CommandPlanPreviewAdvisoryEvidence:
         assert not any(session.branch_name in item for item in advisory.evidence)
         # Fail-closed contract intact
         assert advisory.human_gate_required is True
+
+
+_DEEPSEEK_ADVISORY_NON_AUTHORITY_BLOCKERS = (
+    "deepseek_advisory_only_no_autonomous_implementation",
+    "deepseek_advisory_only_no_review_clearing",
+    "deepseek_advisory_only_no_branch_movement",
+    "deepseek_advisory_only_no_live_coding",
+    "deepseek_advisory_only_no_relay_bypass",
+)
+
+
+class TestDeepSeekValidationDispositionAdvisoryEvidence:
+    """Beacon projection from reviewed DeepSeek validation disposition."""
+
+    def _now(self) -> datetime:
+        return datetime(2026, 6, 6, 21, 0, tzinfo=timezone.utc)
+
+    def test_metadata_only_disposition_renders_display_safe_advisory(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("fast")
+        )
+        assert disposition is not None
+
+        advisory = deepseek_validation_disposition_advisory_evidence(
+            disposition, now=self._now()
+        )
+
+        assert advisory.harness_id == "relay-model-deepseek"
+        assert advisory.advisory_type == "deepseek_validation_level-0:metadata-only"
+        assert advisory.human_gate_required is True
+        assert "deepseek.validation_level=level-0:metadata-only" in advisory.evidence
+        assert "deepseek.direct_dispatch_id=deepseek-chat" in advisory.evidence
+        assert "deepseek.variant_labels=deepseek-v4-flash" in advisory.evidence
+        assert "deepseek.transport_cleared=False" in advisory.evidence
+        assert (
+            "deepseek.validation_evidence_ref=deepseek-validation:level-0:metadata-only"
+            in advisory.evidence
+        )
+        assert (
+            "deepseek.direct_endpoint_evidence_ref=deepseek-direct-endpoint:"
+            "https://api.deepseek.com/v1/chat/completions" in advisory.evidence
+        )
+        assert (
+            "deepseek.external_review_evidence_ref=external-review:deepseek:deepseek-chat:pending"
+            in advisory.evidence
+        )
+
+    def test_advisory_surfaces_explicit_non_authority_evidence_bits(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("default_quality")
+        )
+        assert disposition is not None
+
+        advisory = deepseek_validation_disposition_advisory_evidence(
+            disposition, now=self._now()
+        )
+
+        assert (
+            "deepseek.autonomous_implementation_authorized=False" in advisory.evidence
+        )
+        assert "deepseek.review_clearing_authorized=False" in advisory.evidence
+        assert "deepseek.branch_movement_authorized=False" in advisory.evidence
+        assert "deepseek.live_coding_authority_authorized=False" in advisory.evidence
+        assert "deepseek.relay_bypass_authorized=False" in advisory.evidence
+        assert "deepseek.serialization_only=True" in advisory.evidence
+
+    def test_advisory_blockers_include_all_non_authority_markers(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("default_quality")
+        )
+        assert disposition is not None
+
+        advisory = deepseek_validation_disposition_advisory_evidence(
+            disposition, now=self._now()
+        )
+
+        for marker in _DEEPSEEK_ADVISORY_NON_AUTHORITY_BLOCKERS:
+            assert marker in advisory.blockers
+
+    def test_advisory_blockers_include_blocked_authority_tags(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("fast")
+        )
+        assert disposition is not None
+
+        advisory = deepseek_validation_disposition_advisory_evidence(
+            disposition, now=self._now()
+        )
+
+        assert "blocked_authority:review_clearance" in advisory.blockers
+        assert "blocked_authority:branch_movement" in advisory.blockers
+        assert "blocked_authority:relay_aegis_bypass" in advisory.blockers
+        assert "blocked_authority:autonomous_coding" in advisory.blockers
+        assert "blocked_authority:aggregator_authority" in advisory.blockers
+
+    def test_metadata_only_disposition_marks_transport_not_cleared_blocker(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("fast")
+        )
+        assert disposition is not None
+
+        advisory = deepseek_validation_disposition_advisory_evidence(
+            disposition, now=self._now()
+        )
+
+        assert "deepseek_transport_not_cleared" in advisory.blockers
+
+    def test_validation_cleared_disposition_omits_transport_not_cleared_blocker(self) -> None:
+        cleared = DeepSeekValidationDisposition(
+            validation_level="level-1:validation-cleared",
+            direct_dispatch_id="deepseek-chat",
+            variant_labels=("deepseek-v4-pro",),
+            transport_cleared=True,
+            blocked_authority_tags=(
+                "review_clearance",
+                "branch_movement",
+                "autonomous_coding",
+            ),
+            validation_evidence_ref="deepseek-validation:level-1:validation-cleared",
+            direct_endpoint_evidence_ref=(
+                "deepseek-direct-endpoint:"
+                "https://api.deepseek.com/v1/chat/completions"
+            ),
+            external_review_evidence_ref=(
+                "external-review:deepseek:deepseek-chat:passed"
+            ),
+        )
+
+        advisory = deepseek_validation_disposition_advisory_evidence(
+            cleared, now=self._now()
+        )
+
+        assert "deepseek_transport_not_cleared" not in advisory.blockers
+        for marker in _DEEPSEEK_ADVISORY_NON_AUTHORITY_BLOCKERS:
+            assert marker in advisory.blockers
+        assert advisory.human_gate_required is True
+
+    def test_unknown_validation_level_adds_blocker(self) -> None:
+        unknown = DeepSeekValidationDisposition(
+            validation_level="level-unknown",
+            direct_dispatch_id="deepseek-chat",
+            variant_labels=("deepseek-v4-pro",),
+            transport_cleared=False,
+            blocked_authority_tags=(),
+            validation_evidence_ref="deepseek-validation:level-99:unknown",
+        )
+
+        advisory = deepseek_validation_disposition_advisory_evidence(
+            unknown, now=self._now()
+        )
+
+        assert "deepseek_validation_level_unknown" in advisory.blockers
+        assert "deepseek_transport_not_cleared" in advisory.blockers
+
+    def test_advisory_to_dict_is_display_safe_and_stable(self) -> None:
+        disposition = bind_deepseek_validation_disposition(
+            deepseek_candidate_metadata_preset("fast")
+        )
+        assert disposition is not None
+
+        advisory = deepseek_validation_disposition_advisory_evidence(
+            disposition, now=self._now()
+        )
+        rendered = advisory.to_dict()
+
+        assert rendered["harness_id"] == "relay-model-deepseek"
+        assert rendered["human_gate_required"] is True
+        assert rendered["generated_at"] == self._now().isoformat()
+        assert isinstance(rendered["evidence"], list)
+        assert isinstance(rendered["blockers"], list)
+        flat = " ".join(rendered["evidence"]) + " " + " ".join(rendered["blockers"])
+        assert "credential" not in flat.lower()
+        assert "api_key" not in flat.lower()
+
+    def test_disposition_without_endpoint_ref_omits_that_evidence_line(self) -> None:
+        disposition = DeepSeekValidationDisposition(
+            validation_level="level-0:metadata-only",
+            direct_dispatch_id="deepseek-chat",
+            variant_labels=("deepseek-v4-pro",),
+            transport_cleared=False,
+            blocked_authority_tags=(),
+            validation_evidence_ref="deepseek-validation:level-0:metadata-only",
+            direct_endpoint_evidence_ref=None,
+            external_review_evidence_ref=None,
+        )
+
+        advisory = deepseek_validation_disposition_advisory_evidence(
+            disposition, now=self._now()
+        )
+
+        assert not any(
+            line.startswith("deepseek.direct_endpoint_evidence_ref=")
+            for line in advisory.evidence
+        )
+        assert not any(
+            line.startswith("deepseek.external_review_evidence_ref=")
+            for line in advisory.evidence
+        )

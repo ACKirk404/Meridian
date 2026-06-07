@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .model_adapter import DeepSeekValidationDisposition
 from .models import Heartbeat, HeartbeatStatus
 from .session_lifecycle import (
     SessionAction,
@@ -376,6 +377,69 @@ def v2_command_plan_preview_advisory_evidence(
         evidence=tuple(evidence),
         blockers=proof.advisory_blockers,
         # Fail-closed: never report executable state for a V2 preview proof.
+        human_gate_required=True,
+        generated_at=_as_utc(now or datetime.now(timezone.utc)),
+    )
+
+
+_DEEPSEEK_BEACON_HARNESS_ID = "relay-model-deepseek"
+_DEEPSEEK_ADVISORY_NON_AUTHORITY_BLOCKERS: tuple[str, ...] = (
+    "deepseek_advisory_only_no_autonomous_implementation",
+    "deepseek_advisory_only_no_review_clearing",
+    "deepseek_advisory_only_no_branch_movement",
+    "deepseek_advisory_only_no_live_coding",
+    "deepseek_advisory_only_no_relay_bypass",
+)
+
+
+def deepseek_validation_disposition_advisory_evidence(
+    disposition: DeepSeekValidationDisposition,
+    *,
+    now: datetime | None = None,
+) -> BeaconAdvisoryEvidence:
+    """Project reviewed DeepSeek validation disposition into Beacon advisory evidence.
+
+    Display/advisory only. Surfaces validation level, direct dispatch id,
+    variant labels, transport_cleared, blocked-authority tags, and evidence
+    refs. The disposition's hard-coded non-authority bits surface as explicit
+    advisory evidence and blockers. Never authorizes autonomous implementation,
+    review clearing, branch movement, live coding, or relay bypass.
+    """
+    evidence: list[str] = [
+        f"deepseek.validation_level={disposition.validation_level}",
+        f"deepseek.direct_dispatch_id={disposition.direct_dispatch_id}",
+        "deepseek.variant_labels=" + ",".join(disposition.variant_labels),
+        f"deepseek.transport_cleared={disposition.transport_cleared}",
+        f"deepseek.validation_evidence_ref={disposition.validation_evidence_ref}",
+        "deepseek.blocked_authority_tags=" + ",".join(disposition.blocked_authority_tags),
+        f"deepseek.autonomous_implementation_authorized={disposition.autonomous_implementation_authorized}",
+        f"deepseek.review_clearing_authorized={disposition.review_clearing_authorized}",
+        f"deepseek.branch_movement_authorized={disposition.branch_movement_authorized}",
+        f"deepseek.live_coding_authority_authorized={disposition.live_coding_authority_authorized}",
+        f"deepseek.relay_bypass_authorized={disposition.relay_bypass_authorized}",
+        f"deepseek.serialization_only={disposition.serialization_only}",
+    ]
+    if disposition.direct_endpoint_evidence_ref is not None:
+        evidence.append(
+            f"deepseek.direct_endpoint_evidence_ref={disposition.direct_endpoint_evidence_ref}"
+        )
+    if disposition.external_review_evidence_ref is not None:
+        evidence.append(
+            f"deepseek.external_review_evidence_ref={disposition.external_review_evidence_ref}"
+        )
+
+    blockers: list[str] = list(_DEEPSEEK_ADVISORY_NON_AUTHORITY_BLOCKERS)
+    blockers.extend(f"blocked_authority:{tag}" for tag in disposition.blocked_authority_tags)
+    if not disposition.transport_cleared:
+        blockers.append("deepseek_transport_not_cleared")
+    if disposition.validation_level == "level-unknown":
+        blockers.append("deepseek_validation_level_unknown")
+
+    return BeaconAdvisoryEvidence(
+        harness_id=_DEEPSEEK_BEACON_HARNESS_ID,
+        advisory_type=f"deepseek_validation_{disposition.validation_level}",
+        evidence=tuple(evidence),
+        blockers=tuple(blockers),
         human_gate_required=True,
         generated_at=_as_utc(now or datetime.now(timezone.utc)),
     )

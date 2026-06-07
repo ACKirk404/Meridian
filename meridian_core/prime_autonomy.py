@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional, List, FrozenSet
 
+from meridian_core.model_adapter import DeepSeekValidationDisposition
 from meridian_core.session_lifecycle import (
     CommandIntent,
     FindingType,
@@ -1084,5 +1085,73 @@ def select_next_action_from_command_plan_audit(
         rationale=f"Command audit advisory for {action_name}: {reason}",
         evidence=evidence,
         human_gate_required=human_gate_required,
+        blockers=blockers,
+    )
+
+
+_DEEPSEEK_PRIME_NON_AUTHORITY_BLOCKERS: tuple[str, ...] = (
+    "deepseek_advisory_only_no_autonomous_implementation",
+    "deepseek_advisory_only_no_review_clearing",
+    "deepseek_advisory_only_no_branch_movement",
+    "deepseek_advisory_only_no_live_coding",
+    "deepseek_advisory_only_no_relay_bypass",
+)
+
+
+def select_next_action_from_deepseek_validation_disposition(
+    disposition: DeepSeekValidationDisposition,
+) -> PrimeNextAction:
+    """Project reviewed DeepSeek validation disposition into a Prime next-action.
+
+    Display/advisory only. Prime always pauses and requires a human gate: the
+    disposition never grants autonomous implementation, review clearing,
+    branch movement, live coding, or relay bypass. Validation level, dispatch
+    identity, variant labels, transport-cleared state, blocked authorities,
+    and evidence refs are surfaced as rationale/evidence/blockers only.
+    """
+    evidence: list[str] = [
+        f"deepseek.validation_level={disposition.validation_level}",
+        f"deepseek.direct_dispatch_id={disposition.direct_dispatch_id}",
+        "deepseek.variant_labels=" + ",".join(disposition.variant_labels),
+        f"deepseek.transport_cleared={disposition.transport_cleared}",
+        f"deepseek.validation_evidence_ref={disposition.validation_evidence_ref}",
+        "deepseek.blocked_authority_tags="
+        + ",".join(disposition.blocked_authority_tags),
+        f"deepseek.serialization_only={disposition.serialization_only}",
+    ]
+    if disposition.direct_endpoint_evidence_ref is not None:
+        evidence.append(
+            f"deepseek.direct_endpoint_evidence_ref={disposition.direct_endpoint_evidence_ref}"
+        )
+    if disposition.external_review_evidence_ref is not None:
+        evidence.append(
+            f"deepseek.external_review_evidence_ref={disposition.external_review_evidence_ref}"
+        )
+
+    blockers: list[str] = list(_DEEPSEEK_PRIME_NON_AUTHORITY_BLOCKERS)
+    blockers.extend(f"blocked_authority:{tag}" for tag in disposition.blocked_authority_tags)
+    if not disposition.transport_cleared:
+        blockers.append("deepseek_transport_not_cleared")
+    if disposition.validation_level == "level-unknown":
+        blockers.append("deepseek_validation_level_unknown")
+
+    rationale = (
+        f"DeepSeek validation disposition projected as advisory only. "
+        f"Validation level: {disposition.validation_level}. "
+        f"Transport cleared: {disposition.transport_cleared}. "
+        "No autonomous authority granted."
+    )
+
+    return make_prime_next_action(
+        action_type=PrimeActionType.PAUSE_AND_WAIT,
+        confidence=PrimeActionConfidence.HIGH,
+        risk_tier=PrimeActionRiskTier.SAFE,
+        source=PrimeActionSource.SESSION_STATE,
+        target_harness="Relay",
+        target_lane="model_harness",
+        target_project="Meridian",
+        rationale=rationale,
+        evidence=evidence,
+        human_gate_required=True,
         blockers=blockers,
     )
