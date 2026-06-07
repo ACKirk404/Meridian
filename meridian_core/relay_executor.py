@@ -3118,6 +3118,18 @@ def execute_relay_dispatch_plan(
     """
     _assert_proof_gate_clear(plan, proof_trail)
 
+    # When `model_call` is a full ModelAdapter (it exposes a ``.metadata``
+    # attribute of type ``ModelHarnessMetadata``), surface that metadata to
+    # envelope construction so the same DeepSeek transport-authority gate that
+    # ``execute_relay_plan_with_registry`` enforces also applies on this
+    # direct public path. A plain ``Callable[[str], str]`` has no ``.metadata``
+    # and falls through to the legacy ``adapter_metadata=None`` behaviour.
+    inline_adapter_metadata = getattr(model_call, "metadata", None)
+    if inline_adapter_metadata is not None and not isinstance(
+        inline_adapter_metadata, ModelHarnessMetadata
+    ):
+        inline_adapter_metadata = None
+
     results: list[RelayExecutionResult] = []
     errors: list[RelayExecutionError] = []
     snapshots = payload_snapshots or tuple(None for _ in plan.lanes)
@@ -3125,6 +3137,7 @@ def execute_relay_dispatch_plan(
         _build_payload_evidence(
             plan,
             snapshot,
+            adapter_metadata=inline_adapter_metadata,
             lane_id=f"{lane.role.value}:{lane.preferred_model}",
         )
         for lane, snapshot in zip(plan.lanes, snapshots)
@@ -3147,6 +3160,7 @@ def execute_relay_dispatch_plan(
             plan,
             lane_role=lane.role,
             requested_model_id=lane.preferred_model,
+            adapter_metadata=inline_adapter_metadata,
             payload_evidence=payload_evidence,
             aegis_evidence_ids=_proof_trail_evidence_ids(proof_trail),
         )
@@ -3157,6 +3171,7 @@ def execute_relay_dispatch_plan(
             plan,
             lane_role=lane.role,
             requested_model_id=lane.preferred_model,
+            adapter_metadata=inline_adapter_metadata,
             payload_evidence=payload_evidence,
             dispatch_envelope=dispatch_envelope,
         )
@@ -3175,6 +3190,26 @@ def execute_relay_dispatch_plan(
         dispatch_envelopes,
         dispatch_metadata_envelopes,
     ):
+        deepseek_authority = (
+            dispatch_metadata_envelope.deepseek_transport_authority
+            if dispatch_metadata_envelope is not None
+            else None
+        )
+        if deepseek_authority is not None and not deepseek_authority.transport_authorized:
+            blocker_tags = ",".join(deepseek_authority.blocker_tags) or "deepseek_transport_blocked"
+            errors.append(
+                RelayExecutionError(
+                    role=lane.role,
+                    preferred_model=lane.preferred_model,
+                    error=(
+                        f"deepseek_transport_blocked:{deepseek_authority.status.value}:"
+                        f"{blocker_tags}"
+                    ),
+                    dispatch_envelope=dispatch_envelope,
+                    dispatch_metadata_envelope=dispatch_metadata_envelope,
+                )
+            )
+            continue
         try:
             output = model_call(lane.payload)
             result_validation_evidence = _build_provider_result_validation_evidence(
@@ -3205,6 +3240,8 @@ def execute_relay_dispatch_plan(
                     role=lane.role,
                     preferred_model=lane.preferred_model,
                     error=str(exc),
+                    dispatch_envelope=dispatch_envelope,
+                    dispatch_metadata_envelope=dispatch_metadata_envelope,
                 )
             )
 
