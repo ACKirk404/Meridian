@@ -1507,11 +1507,25 @@ def evaluate_project_scope(
     reach scope through ``evaluate_project_bounds``.
     """
     if _has_raw_context_ref(candidate.evidence_refs):
-        return _scope_result(
-            ProjectScopeDecision.BLOCKED,
-            candidate,
+        return ProjectScopeEvaluation(
+            decision=ProjectScopeDecision.BLOCKED,
+            project_id=candidate.project_id,
+            subject_kind=candidate.subject_kind,
+            subject_ref=_redact_raw_context_refs((candidate.subject_ref,))[0],
             blockers=("raw_context_evidence_ref_blocked",),
-            evidence_refs_override=_redact_raw_context_refs(candidate.evidence_refs),
+            evidence_refs=_redact_raw_context_refs(candidate.evidence_refs),
+        )
+    if _has_raw_context_ref((candidate.subject_ref,)) or (
+        candidate.ambiguity_reason is not None
+        and _has_raw_context_ref((candidate.ambiguity_reason,))
+    ):
+        return ProjectScopeEvaluation(
+            decision=ProjectScopeDecision.BLOCKED,
+            project_id=candidate.project_id,
+            subject_kind=candidate.subject_kind,
+            subject_ref=_redact_raw_context_refs((candidate.subject_ref,))[0],
+            evidence_refs=_redact_raw_context_refs(candidate.evidence_refs),
+            blockers=("raw_context_subject_field_blocked",),
         )
     if candidate.project_id is None:
         return _scope_result(
