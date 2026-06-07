@@ -67,6 +67,38 @@ Required proof before Ready marker:
 - `git diff --check`
 - concise completion marker here with files changed, proof, and remaining risk
 
+### Worker Completion Marker - 2026-06-07 V3 Goal Runtime Contract (Repair Pass)
+
+Status: Ready for Codex Review A/B re-check after repair pass.
+
+Authority cited:
+- `docs/v3-intake-resolution.md` row 15 (checklist line 106, *Long-term autonomy and goal chaining*) promotes to V3 with owners Prime (primary) / Compass Harness / Echo Harness and pins goal-object shape, status lifecycle, telemetry, continuation/resume policy, and proof-trail semantics for later V3 specs.
+- `docs/v3-parking-lot.md` Prime section *Native Goal Runtime / Goal Harness* horizon item pre-lists the same deliverables (`active`, `complete`, `blocked`, `usage-limited` lifecycle; token/time/budget telemetry; continuation/resume policy; proof trail; completion/blocker semantics).
+
+Repair pass — addressed Review A/B findings:
+- Review A 1 (HIGH scope overreach): removed `PAUSED`, `ABANDONED`, `SUPERSEDED` from `GoalStatus`. Lifecycle is now exactly the four parking-lot tokens: `ACTIVE`, `BLOCKED`, `USAGE_LIMITED`, `COMPLETE`. Removed the `goal_kind` enum entirely. Removed the `GoalCompletionRecord` enum (`COMPLETE` / `ABANDONED` / `SUPERSEDED`) and replaced it with a single `completion_summary` + `final_proof_ref` pair tied to the `COMPLETE` transition. Reworded the "walking away" and "replacing" semantics so they live inside the four-state lifecycle (operator-hold via `BLOCKED` + `OPERATOR_HOLD`, supersession via new goal whose `objective_ref`/`lineage` points at the prior `goal_id`) — no new statuses introduced.
+- Review A 2 (MEDIUM ownership contradiction on ABANDONED): resolved by removing `ABANDONED` entirely. The remaining terminal write is `ACTIVE → COMPLETE`, owned solely by Prime; `BLOCKED` and `USAGE_LIMITED` writes are owned solely by Compass. Single author per transition is restated in three places (Harness Ownership table, Authorship Rules, Anti-Patterns).
+- Review A 3 (MEDIUM UI/shipping overreach): removed the "Display before runtime" safety constraint (formerly #10) that gated shipping on a Bifrost surface. Removed `Bifrost (read-only)` from the harness ownership table. Bifrost is now mentioned only as one possible future read-only display consumer, explicitly out of scope and not a ship gate. The Non-Goals list calls this out by name.
+- Review B 4 (P2 terminal/blocked ownership contradiction): made one authoritative statement — Prime owns create + `COMPLETE`; Compass owns `ACTIVE` / `BLOCKED` / `USAGE_LIMITED` transitions; Aegis and Beacon do not write status (they supply policy results / telemetry signals that Compass acts on). Prime no longer co-authors `BLOCKED`.
+- Review B 5 (P2 telemetry writer contradiction): made Beacon the sole appender of `GoalTelemetrySnapshot`. `recorded_by` is now always `Beacon`. Added `token_source` and `cost_source` provenance fields so Relay/Model attribution is captured without granting them write access. Anti-pattern restated.
+- Review B 6 (P2 proof-trail requirement contradiction): pulled the broader requirement into the Proof Trail Requirements section as the single source of truth — `proof_trail_ref` required when `risk_tier >= 2`, any Session Lifecycle dispatch has occurred, any `BLOCKED` has occurred, any `USAGE_LIMITED` has occurred, or `status == COMPLETE`. The `GoalRecord` field definition now defers to that section instead of restating a partial rule. `final_proof_ref` is required on `COMPLETE` when `risk_tier >= 2`. No `SUPERSEDED` / `ABANDONED` cases remain after narrowing.
+
+Files changed (docs only):
+- `docs/v3-goal-runtime-contract.md` — repaired bounded V3 contract.
+- `docs/v3-parking-lot.md` — single-line forward cross-reference (unchanged from initial pass).
+- `docs/live-build-2.md` — this completion marker (repair pass entry).
+
+Proof — no runtime / UI / generated / FileMap / tracker paths changed:
+- No edits to `meridian_core/**`, `tests/**`, `index.html`, Electron / Bifrost UI, `docs/FileMap.md`, generated artifacts, Relay / Model runtime, Compass runtime, Echo runtime, Session Lifecycle runtime, Beacon runtime, Aegis runtime, or `docs/v2-progress-tracker.md`.
+- `git diff --check`: clean (no whitespace errors, no conflict markers).
+- `git status --short`: only the three docs paths above are modified / added.
+
+Remaining risk:
+- Contract is docs-only and defers concrete persistence, retention defaults, future display-consumer surface, and contract-guard tests to later V3 implementation slices; all flagged by name in *Open Questions Deferred To Later V3 Specs*.
+- Lifecycle and policy rules are normative but unenforced until a runtime slice lands; until then, any harness writing to a future goal record must follow this contract by hand.
+
+Worker: Polaris Build 2 Opus (`launch-chat`, tier `power`, `claude-opus-4-7`). Stop ready for Codex Review A/B re-check.
+
 ## Coordinator Override - Repair Required / Active Now
 
 Goal: repair Session Lifecycle live state evidence display-safety leak found by Codex Reviews A.

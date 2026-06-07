@@ -63,7 +63,7 @@ Every item below must be owned by Prime or a named harness. Items without an own
 
 - [ ] Prime directive versioning — Prime tracks which directive version it is operating under; supports rollback and audit
 - [ ] Prime autonomy dial — configurable human-in-loop ratio; V2 Prime can run at full autonomy or stepped autonomy depending on trust level
-- [ ] Native Goal Runtime / Goal Harness - Prime and Compass own durable goal objects with objective text, status lifecycle (`active`, `complete`, `blocked`, `usage-limited`), token/time/budget telemetry, continuation/resume policy, proof trail, and completion/blocker semantics so Meridian can coordinate long-running work without relying on external Codex thread goals
+- [ ] Native Goal Runtime / Goal Harness - Prime and Compass own durable goal objects with objective text, status lifecycle (`active`, `complete`, `blocked`, `usage-limited`), token/time/budget telemetry, continuation/resume policy, proof trail, and completion/blocker semantics so Meridian can coordinate long-running work without relying on external Codex thread goals; bounded V3 contract is now drafted in `docs/v3-goal-runtime-contract.md`
 - [ ] Multi-Prime coordination — two Prime instances coordinating on a shared project without conflicting
 - [ ] Polaris backlog absorption — Prime imports the full Polaris backlog into Meridian's harness-owned backlog model after Meridian is stable enough to become the system of record
 
