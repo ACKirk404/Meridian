@@ -74,7 +74,7 @@ remains exhaustive.
 | # | Checklist line | Item | Marker | Owner | Outcome | Rationale |
 |---|---|---|---|---|---|---|
 | 19 | 120 | Video generation (duplicate of row 8) | `[ ]` | Model Harness | Park for later | Duplicate of Gen AI row 8 (line 73). Resolved once; cross-referenced here for count completeness. |
-| 20 | 123 | Speech/audio interfaces (duplicate of row 4) | `[~]` | Bifrost | Promote to V3 | Duplicate of Gen AI row 4 (line 69). Resolved once; cross-referenced here for count completeness. |
+| 20 | 123 | Speech/audio interfaces (duplicate of row 4) | `[~]` | Bifrost (primary) / Model Harness | Promote to V3 | Duplicate of Gen AI row 4 (line 69). Resolved once; cross-referenced here for count completeness. Owner set mirrors canonical row 4 exactly so the duplicate truly collapses to the same owner-anchored decision. |
 
 ### Governance And Future (lines 128, 132, 134)
 
@@ -82,7 +82,7 @@ remains exhaustive.
 |---|---|---|---|---|---|---|
 | 21 | 128 | Memory governance and retention (duplicate of row 16) | `[~]` | Echo Harness | Move earlier | Duplicate of Agentic AI Layer row 16 (line 108). Resolved once; cross-referenced here. |
 | 22 | 132 | Agent marketplaces and contracts (duplicate of row 17) | `[ ]` | Federation Harness / Release Harness | Park for later | Duplicate of Agentic AI Layer row 17 (line 112). Resolved once; cross-referenced here. |
-| 23 | 134 | Dynamic tooling (duplicate of row 18) | `[~]` | Tool Harness | Promote to V3 | Duplicate of Agentic AI Layer row 18 (line 114). Resolved once; cross-referenced here. |
+| 23 | 134 | Dynamic tooling (duplicate of row 18) | `[~]` | Tool Harness (primary) / Model Harness | Promote to V3 | Duplicate of Agentic AI Layer row 18 (line 114). Resolved once; cross-referenced here. Owner set mirrors canonical row 18 exactly so the duplicate truly collapses to the same owner-anchored decision. |
 
 ### Deep Learning Layer (line 59)
 
@@ -151,7 +151,7 @@ reachable from this table.
 | Aegis Harness | 12*, 13* | — | 26* | — |
 | Compass Harness | 15* | — | — | — |
 | Relay Harness | 14 | 6* | — | — |
-| Model Harness | 2, 4*, 7, 14*, 18* | — | 5, 8, 19, 26* | 24 |
+| Model Harness | 2, 4*, 7, 14*, 18*, 20*, 23* | — | 5, 8, 19, 26* | 24 |
 | Bifrost Harness | 2*, 4, 7*, 14*, 20 | 25* | — | — |
 | Session Lifecycle Harness | — | 6, 9, 11*, 25* | — | — |
 | Tool Harness | 18, 23 | — | — | — |
@@ -162,12 +162,12 @@ Per-row coverage cross-check (each of the 26 resolution rows is reachable
 from at least one Owner cell above; rows with multiple owners are reachable
 from every owner cell that names them):
 
-- Rows with one owner: 1, 3, 5, 8, 9, 16, 19, 20, 21, 23, 24 — 11 rows.
-- Rows with two owners: 2, 4, 6, 7, 10, 11, 17, 18, 22 — 9 rows.
+- Rows with one owner: 1, 3, 5, 8, 9, 16, 19, 21, 24 — 9 rows.
+- Rows with two owners: 2, 4, 6, 7, 10, 11, 17, 18, 20, 22, 23 — 11 rows.
 - Rows with three owners: 12, 13, 14, 15 — 4 rows.
 - Rows with four owners: 26 — 1 row.
 - Rows with five owners: 25 — 1 row.
-- Total: 11 + 9 + 4 + 1 + 1 = 26 ✓.
+- Total: 9 + 11 + 4 + 1 + 1 = 26 ✓.
 
 Owner-cell totals (Promote / Move / Park / Reject, including co-owner entries):
 
@@ -177,15 +177,15 @@ Owner-cell totals (Promote / Move / Park / Reject, including co-owner entries):
 - Aegis Harness: 2 + 0 + 1 + 0 = 3.
 - Compass Harness: 1 + 0 + 0 + 0 = 1.
 - Relay Harness: 1 + 1 + 0 + 0 = 2.
-- Model Harness: 5 + 0 + 4 + 1 = 10.
+- Model Harness: 7 + 0 + 4 + 1 = 12.
 - Bifrost Harness: 5 + 1 + 0 + 0 = 6.
 - Session Lifecycle Harness: 0 + 4 + 0 + 0 = 4.
 - Tool Harness: 2 + 0 + 0 + 0 = 2.
 - Federation Harness: 0 + 0 + 3 + 0 = 3.
 - Release Harness: 0 + 0 + 3 + 0 = 3.
-- Sum across all owners: 5 + 3 + 8 + 3 + 1 + 2 + 10 + 6 + 4 + 2 + 3 + 3 = 50,
+- Sum across all owners: 5 + 3 + 8 + 3 + 1 + 2 + 12 + 6 + 4 + 2 + 3 + 3 = 52,
   which equals the sum of owners across all 26 rows
-  (11×1 + 9×2 + 4×3 + 1×4 + 1×5 = 11 + 18 + 12 + 4 + 5 = 50) ✓.
+  (9×1 + 11×2 + 4×3 + 1×4 + 1×5 = 9 + 22 + 12 + 4 + 5 = 52) ✓.
 
 ## Cross-Checks Against Existing Docs
 

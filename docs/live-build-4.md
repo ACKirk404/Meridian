@@ -65,10 +65,11 @@ is Relay-primary, not Prime; row 25 is Move-earlier, not Promote-to-V3).
 Every (row, owner) pair was rebuilt from the resolution index, asterisks were
 applied uniformly (no asterisk = primary in that row, asterisk = co-owner in
 that row), and per-owner / per-row totals were added to the resolution doc as
-internal cross-checks (owner-cell sum = 50, equal to the sum of owners across
-all 26 rows: 11×1 + 9×2 + 4×3 + 1×4 + 1×5 = 50). Outcome roll-up counts
-(10 / 9 / 6 / 1) and the 26-row total are unchanged by the repair; only the
-owner-attribution table was rewritten.
+internal cross-checks. After the later Review B duplicate-owner repair, the
+owner-cell sum is 52, equal to the sum of owners across all 26 rows:
+9×1 + 11×2 + 4×3 + 1×4 + 1×5 = 52. Outcome roll-up counts (10 / 9 / 6 / 1)
+and the 26-row total are unchanged; only the owner-attribution table and
+duplicate owner sets were rewritten.
 
 Codex Review A repair (applied after Review A; Review B passed otherwise):
 
@@ -154,6 +155,125 @@ Remaining risk:
   work should be re-checked against the reopened V2 envelope.
 
 Ready for Codex Review A/B.
+
+## Coordinator Override - Codex Review B Repair / Ready For Review Re-Check (DELETED-START-MARKER)
+
+Worker: Polaris Build 4 Opus repair worker (`claude-opus-4-7`) in worktree
+`C:\Users\scott\AppData\Local\Temp\polaris-wt\chat_1780865951395`. Worker did
+not touch `C:\Users\scott\Code\Meridian` main; no commit, push, merge, rebase,
+branch movement, or worktree movement was performed.
+
+Review B finding (P2): Duplicate/canonical owner-set inconsistency in
+`docs/v3-intake-resolution.md`. The doc claimed duplicate checklist lines
+collapse to a single canonical owner-anchored decision and claimed 21 unique
+owner-anchored decisions, but the duplicate rows did not actually carry the
+canonical rows' owner sets:
+
+- Row 20 (Speech/audio interfaces, duplicate of row 4) listed owner `Bifrost`
+  while canonical row 4 listed `Bifrost (primary) / Model Harness`.
+- Row 23 (Dynamic tooling, duplicate of row 18) listed owner `Tool Harness`
+  while canonical row 18 listed `Tool Harness (primary) / Model Harness`.
+
+Because duplicate rows did not carry the same owner set as canonical rows,
+they were not the same owner-anchored decision, contradicting the unique-
+decision claim of 21.
+
+Exact repair (smallest fix that keeps the original intent true — mirror
+canonical owner sets exactly for duplicate rows, then recompute owner roll-up
+and sum formulas):
+
+- `docs/v3-intake-resolution.md` row 20 Owner column rewritten from
+  `Bifrost` to `Bifrost (primary) / Model Harness` so it mirrors canonical
+  row 4 exactly. Rationale extended with a one-sentence note confirming the
+  owner set mirrors the canonical row so the duplicate truly collapses.
+- `docs/v3-intake-resolution.md` row 23 Owner column rewritten from
+  `Tool Harness` to `Tool Harness (primary) / Model Harness` so it mirrors
+  canonical row 18 exactly. Rationale extended with the same one-sentence
+  note confirming the canonical owner-set mirror.
+- Owner Roll-Up table updated: Model Harness Promote-to-V3 cell extended
+  from `2, 4*, 7, 14*, 18*` to `2, 4*, 7, 14*, 18*, 20*, 23*` so the two
+  new co-owner appearances are reachable from the roll-up.
+- Per-row coverage cross-check updated: rows 20 and 23 moved from the
+  one-owner group (was 11 rows: 1, 3, 5, 8, 9, 16, 19, 20, 21, 23, 24) to
+  the two-owner group (was 9 rows). New one-owner group is 9 rows
+  (1, 3, 5, 8, 9, 16, 19, 21, 24); new two-owner group is 11 rows
+  (2, 4, 6, 7, 10, 11, 17, 18, 20, 22, 23). Total still 26 ✓.
+- Owner-cell totals updated: Model Harness `5 + 0 + 4 + 1 = 10` rewritten
+  to `7 + 0 + 4 + 1 = 12` (two new Promote-to-V3 co-owner cells from rows
+  20, 23).
+- Sum cross-check updated: sum across all owners `5 + 3 + 8 + 3 + 1 + 2 +
+  10 + 6 + 4 + 2 + 3 + 3 = 50` rewritten to `5 + 3 + 8 + 3 + 1 + 2 + 12 +
+  6 + 4 + 2 + 3 + 3 = 52`; companion row-weighted formula
+  `11×1 + 9×2 + 4×3 + 1×4 + 1×5 = 50` rewritten to
+  `9×1 + 11×2 + 4×3 + 1×4 + 1×5 = 52`. Both sides remain equal ✓.
+
+Outcome counts (row-count basis 10 / 9 / 6 / 1 → total 26) and the
+unique-decision total of 21 are **unchanged** by the repair. The repair
+only makes the existing claim true that the five duplicate checklist
+lines collapse to single owner-anchored decisions. Other duplicate rows
+(19 Video generation = canonical row 8; 21 Memory governance = canonical
+row 16; 22 Agent marketplaces = canonical row 17) already had owner sets
+matching their canonicals and required no change.
+
+Files changed by this worker:
+
+- `docs/v3-intake-resolution.md` — six edits described above.
+- `docs/live-build-4.md` — this repair marker only.
+
+Files intentionally NOT touched: `docs/agentic-ai-framework-checklist.md`
+(canonical line anchors and item counts are unchanged by the owner-column
+repair, so no edit was required there per the allowed-files preference);
+all runtime code, tests, `FileMap.md`, Electron/Bifrost UI, generated
+artifacts, package files, other build queues, review logs, and
+provider/model/account behavior.
+
+Targeted self-check (duplicate owner sets now match canonical rows):
+
+- Row 4 (canonical Speech interfaces) Owner = `Bifrost (primary) /
+  Model Harness`; Row 20 (duplicate) Owner = `Bifrost (primary) /
+  Model Harness` ✓ — identical owner set.
+- Row 18 (canonical Dynamic tooling) Owner = `Tool Harness (primary) /
+  Model Harness`; Row 23 (duplicate) Owner = `Tool Harness (primary) /
+  Model Harness` ✓ — identical owner set.
+- Row 8 (canonical Video generation) Owner = `Model Harness`; Row 19
+  (duplicate) Owner = `Model Harness` ✓ — already identical, no change.
+- Row 16 (canonical Memory governance) Owner = `Echo Harness`; Row 21
+  (duplicate) Owner = `Echo Harness` ✓ — already identical, no change.
+- Row 17 (canonical Agent marketplaces) Owner = `Federation Harness
+  (primary) / Release Harness`; Row 22 (duplicate) Owner =
+  `Federation Harness / Release Harness` ✓ — same owner set, same
+  first-listed primary owner per the doc's stated convention.
+- Unique-decision total: 26 resolution rows minus 5 duplicate rows that
+  now genuinely collapse to canonical owner-anchored decisions = 21. The
+  doc's `21` claim is therefore now true.
+
+Proof:
+
+- `python -m pytest tests/test_filemap.py -q` → **47 passed in 0.33s**.
+- `git diff --check` → clean (no whitespace errors).
+- `git status --short --branch` → `## HEAD (no branch)` with
+  `docs/v3-intake-resolution.md` and `docs/live-build-4.md` modified inside
+  the allowed scope (`.mcp.json` modification is pre-existing worktree state,
+  not a product of this repair and must not be promoted).
+
+Residual risk:
+
+- The repair only touches the resolution doc; it does not modify the
+  underlying checklist. The checklist's duplicate lines (lines 123 and
+  134 in `docs/agentic-ai-framework-checklist.md`) still spell out
+  narrower owner sets in their `**Owner**` cells than the canonical
+  occurrences do. The resolution doc is the authoritative outcome
+  artifact and now treats both occurrences as the same owner-anchored
+  decision; if a future review wants the checklist text to mirror the
+  canonical owner set as well, that is a separate task on the checklist
+  itself and is out of scope for this P2 repair.
+- The repair does not alter outcomes, marker types, the 26-row total,
+  the 10 / 9 / 6 / 1 outcome row counts, or the 21 unique-decisions
+  claim — only the internal owner-attribution consistency proof is
+  rewritten so the existing `21` claim is genuinely supported by the
+  table.
+
+Ready for Codex Review B re-check. (DELETED-END-MARKER)
 
 ## Coordinator Override - Original Opus Task Assignment (Historical)
 
