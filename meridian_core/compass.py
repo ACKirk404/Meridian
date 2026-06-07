@@ -1625,14 +1625,17 @@ def evaluate_project_difference(
     )
     shared_relationship_refs = _shared_relationship_refs(left, right)
 
+    safe_left_project_id = _redact_raw_context_scalar(left.project_id)
+    safe_right_project_id = _redact_raw_context_scalar(right.project_id)
+
     raw_context_blockers = _project_difference_raw_context_blockers(
         left, right, normalized_evidence_refs
     )
     if raw_context_blockers:
         return ProjectDifferenceEvaluation(
             decision=ProjectDifferenceDecision.BLOCKED,
-            left_project_id=left.project_id,
-            right_project_id=right.project_id,
+            left_project_id=safe_left_project_id,
+            right_project_id=safe_right_project_id,
             evidence_refs=_redact_raw_context_refs(normalized_evidence_refs),
             shared_relationship_refs=_redact_raw_context_refs(
                 shared_relationship_refs
@@ -1650,8 +1653,8 @@ def evaluate_project_difference(
     if blockers:
         return ProjectDifferenceEvaluation(
             decision=ProjectDifferenceDecision.BLOCKED,
-            left_project_id=left.project_id,
-            right_project_id=right.project_id,
+            left_project_id=safe_left_project_id,
+            right_project_id=safe_right_project_id,
             evidence_refs=normalized_evidence_refs,
             shared_relationship_refs=shared_relationship_refs,
             blockers=blockers,
@@ -1664,8 +1667,8 @@ def evaluate_project_difference(
     if difference_evidence:
         return ProjectDifferenceEvaluation(
             decision=ProjectDifferenceDecision.DISTINCT,
-            left_project_id=left.project_id,
-            right_project_id=right.project_id,
+            left_project_id=safe_left_project_id,
+            right_project_id=safe_right_project_id,
             evidence_refs=normalized_evidence_refs,
             difference_evidence=difference_evidence,
             shared_relationship_refs=shared_relationship_refs,
@@ -1674,16 +1677,16 @@ def evaluate_project_difference(
     if left.project_id == right.project_id:
         return ProjectDifferenceEvaluation(
             decision=ProjectDifferenceDecision.SAME_PROJECT,
-            left_project_id=left.project_id,
-            right_project_id=right.project_id,
+            left_project_id=safe_left_project_id,
+            right_project_id=safe_right_project_id,
             evidence_refs=normalized_evidence_refs,
             shared_relationship_refs=shared_relationship_refs,
         )
 
     return ProjectDifferenceEvaluation(
         decision=ProjectDifferenceDecision.AMBIGUOUS,
-        left_project_id=left.project_id,
-        right_project_id=right.project_id,
+        left_project_id=safe_left_project_id,
+        right_project_id=safe_right_project_id,
         evidence_refs=normalized_evidence_refs,
         shared_relationship_refs=shared_relationship_refs,
         blockers=("ambiguous_project_difference_evidence",),
@@ -1794,16 +1797,29 @@ def evaluate_project_identity(
     venture, or session label with a neighbor — the candidate must also carry
     a distinguishing mission bearing. Shared refs without a distinguishing
     bearing surface as a Compass question rather than silently merging.
+
+    Raw-context payload smuggled through scalar identity fields
+    (``project_id``, ``title``, ``outcome``, ``mission_bearing``) or through
+    relationship-ref / bounded body-of-work tuples fails closed BEFORE the
+    neighbor-overlap comparison runs. Shared relationship refs that collide
+    on raw-context payload are redacted to ``<redacted_raw_context>`` so the
+    serialized result never preserves the raw prompt/transcript/free-form
+    context payload.
     """
     blockers = _project_identity_blockers(candidate)
+    safe_project_id = _redact_raw_context_scalar(candidate.project_id)
+    safe_title = _redact_raw_context_scalar(candidate.title)
+    safe_outcome = _redact_raw_context_scalar(candidate.outcome)
+    safe_mission_bearing = _redact_raw_context_scalar(candidate.mission_bearing)
+    safe_evidence_refs = _redact_raw_context_refs(candidate.evidence_refs)
     if blockers:
         return ProjectIdentityEvaluation(
             decision=ProjectIdentityDecision.BLOCKED,
-            project_id=candidate.project_id,
-            title=candidate.title,
-            outcome=candidate.outcome,
-            mission_bearing=candidate.mission_bearing,
-            evidence_refs=_redact_raw_context_refs(candidate.evidence_refs),
+            project_id=safe_project_id,
+            title=safe_title,
+            outcome=safe_outcome,
+            mission_bearing=safe_mission_bearing,
+            evidence_refs=safe_evidence_refs,
             blockers=blockers,
             compass_question=(
                 "Compass needs complete project identity inputs before defining "
@@ -1819,20 +1835,23 @@ def evaluate_project_identity(
         collapsing,
     ) = _project_identity_neighbor_overlap(candidate)
 
+    safe_shared_repo_refs = _redact_raw_context_refs(shared_repo_refs)
+    safe_shared_venture_refs = _redact_raw_context_refs(shared_venture_refs)
+    safe_shared_session_refs = _redact_raw_context_refs(shared_session_refs)
     redacted_distinguishing = _redact_raw_context_refs(distinguishing)
     redacted_collapsing = _redact_raw_context_refs(collapsing)
 
     if collapsing:
         return ProjectIdentityEvaluation(
             decision=ProjectIdentityDecision.AMBIGUOUS,
-            project_id=candidate.project_id,
-            title=candidate.title,
-            outcome=candidate.outcome,
-            mission_bearing=candidate.mission_bearing,
-            evidence_refs=_redact_raw_context_refs(candidate.evidence_refs),
-            shared_repo_refs=shared_repo_refs,
-            shared_venture_refs=shared_venture_refs,
-            shared_session_refs=shared_session_refs,
+            project_id=safe_project_id,
+            title=safe_title,
+            outcome=safe_outcome,
+            mission_bearing=safe_mission_bearing,
+            evidence_refs=safe_evidence_refs,
+            shared_repo_refs=safe_shared_repo_refs,
+            shared_venture_refs=safe_shared_venture_refs,
+            shared_session_refs=safe_shared_session_refs,
             distinguishing_neighbors=redacted_distinguishing,
             collapsing_neighbors=redacted_collapsing,
             blockers=("project_identity_collapse_risk",),
@@ -1845,14 +1864,14 @@ def evaluate_project_identity(
 
     return ProjectIdentityEvaluation(
         decision=ProjectIdentityDecision.DEFINED,
-        project_id=candidate.project_id,
-        title=candidate.title,
-        outcome=candidate.outcome,
-        mission_bearing=candidate.mission_bearing,
-        evidence_refs=_redact_raw_context_refs(candidate.evidence_refs),
-        shared_repo_refs=shared_repo_refs,
-        shared_venture_refs=shared_venture_refs,
-        shared_session_refs=shared_session_refs,
+        project_id=safe_project_id,
+        title=safe_title,
+        outcome=safe_outcome,
+        mission_bearing=safe_mission_bearing,
+        evidence_refs=safe_evidence_refs,
+        shared_repo_refs=safe_shared_repo_refs,
+        shared_venture_refs=safe_shared_venture_refs,
+        shared_session_refs=safe_shared_session_refs,
         distinguishing_neighbors=redacted_distinguishing,
     )
 
@@ -2074,10 +2093,10 @@ def _handoff_result(
 ) -> ProjectHandoffEvaluation:
     return ProjectHandoffEvaluation(
         decision=decision,
-        source_project_id=request.source_project_id,
-        target_project_id=request.target_project_id,
-        reason_category=request.reason_category,
-        payload_type=request.payload_type,
+        source_project_id=_redact_raw_context_scalar(request.source_project_id),
+        target_project_id=_redact_raw_context_scalar(request.target_project_id),
+        reason_category=_redact_raw_context_scalar(request.reason_category),
+        payload_type=_redact_raw_context_scalar(request.payload_type),
         payload_summary_refs=_redact_raw_context_refs(request.payload_summary_refs),
         evidence_refs=_redact_raw_context_refs(request.evidence_refs),
         approval_required=request.approval_required,
@@ -2149,12 +2168,24 @@ def _handoff_request_blockers(
         blockers.append("missing_handoff_evidence_refs")
     if not request.payload_summary_refs:
         blockers.append("missing_payload_summary_refs")
-    if request.reason_category not in _HANDOFF_REASON_CATEGORIES:
+    if _is_raw_context_ref(request.reason_category):
+        blockers.append("raw_context_reason_category_blocked")
+    elif request.reason_category not in _HANDOFF_REASON_CATEGORIES:
         blockers.append("unknown_handoff_reason_category")
     if request.payload_type in _RAW_CONTEXT_PAYLOAD_TYPES:
         blockers.append("raw_context_payload_type_blocked")
+    elif _is_raw_context_ref(request.payload_type):
+        blockers.append("raw_context_payload_type_blocked")
     elif request.payload_type not in _HANDOFF_PAYLOAD_TYPES:
         blockers.append("unknown_handoff_payload_type")
+    if request.source_project_id is not None and _is_raw_context_ref(
+        request.source_project_id
+    ):
+        blockers.append("raw_context_source_project_id_blocked")
+    if request.target_project_id is not None and _is_raw_context_ref(
+        request.target_project_id
+    ):
+        blockers.append("raw_context_target_project_id_blocked")
     if not request.raw_context_blocked:
         blockers.append("raw_context_bleed_not_blocked")
     if _has_raw_context_ref(request.evidence_refs):
@@ -2254,6 +2285,16 @@ def _project_identity_blockers(
         blockers.append("missing_evidence_refs")
     if _has_raw_context_ref(candidate.evidence_refs):
         blockers.append("raw_context_evidence_ref_blocked")
+    for field_name in ("project_id", "title", "outcome", "mission_bearing"):
+        value = getattr(candidate, field_name)
+        if value is not None and _is_raw_context_ref(value):
+            blockers.append(f"raw_context_{field_name}_blocked")
+    for field_name in ("repo_refs", "venture_refs", "session_refs"):
+        if _has_raw_context_ref(getattr(candidate, field_name)):
+            blockers.append(f"raw_context_{field_name}_blocked")
+    for field_name in _PROJECT_IDENTITY_BOUNDED_TUPLE_FIELDS:
+        if _has_raw_context_ref(getattr(candidate, field_name)):
+            blockers.append(f"raw_context_{field_name}_blocked")
     return tuple(blockers)
 
 
@@ -2395,12 +2436,16 @@ def _project_difference_raw_context_blockers(
     any profile text/ref field carries a raw-prompt / raw-transcript /
     free-form-context / provider-response / embedded-newline payload, the
     runtime must fail closed BEFORE comparing the two profiles, and the
-    serialized result must not preserve the raw payload.
+    serialized result must not preserve the raw payload. Includes the scalar
+    ``project_id`` on each side so a raw payload smuggled through the id
+    label is blocked before it can be copied into the difference result.
     """
     blockers: list[str] = []
     if _has_raw_context_ref(evidence_refs):
         blockers.append("raw_context_evidence_ref_blocked")
     for side_name, profile in (("left", left), ("right", right)):
+        if profile.project_id is not None and _is_raw_context_ref(profile.project_id):
+            blockers.append(f"raw_context_in_{side_name}_project_id_blocked")
         for field in _PROJECT_DIFFERENCE_RAW_CONTEXT_SCAN_FIELDS:
             value = _difference_field_tuple(getattr(profile, field))
             if _has_raw_context_ref(value):
@@ -2467,6 +2512,23 @@ def _redact_raw_context_refs(refs: Iterable[str]) -> tuple[str, ...]:
         "<redacted_raw_context>" if _is_raw_context_ref(ref) else ref
         for ref in refs
     )
+
+
+def _redact_raw_context_scalar(value: str | None) -> str | None:
+    """Replace a single raw-context scalar with a redaction marker.
+
+    ``None`` is preserved so optional-id fields stay nullable. Safe scalars
+    pass through unchanged so identity/difference/handoff results still
+    carry legitimate project ids, titles, outcomes, bearings, reason
+    categories, and payload types without preserving any raw-prompt /
+    raw-transcript / free-form-context payload that smuggled into a scalar
+    metadata field.
+    """
+    if value is None:
+        return None
+    if _is_raw_context_ref(value):
+        return "<redacted_raw_context>"
+    return value
 
 
 def _dedupe_preserve_order(values: Iterable[str]) -> tuple[str, ...]:

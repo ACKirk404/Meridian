@@ -8,6 +8,58 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Completed / Ready For Codex Review
+
+Goal: close three Codex review raw-context follow-up gaps on the Compass project-identity, project-difference, and cross-project handoff runtime — every gap reachable on `origin/main` before the repair.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-compass-raw-context-followup-20260606`.
+
+Branch: `codex/build-4-compass-raw-context-followup-20260606` (branched off current `origin/main`).
+
+Allowed files only: `meridian_core/compass.py`, `tests/test_compass.py`, `docs/live-build-4.md`.
+
+Findings closed (all three originally HIGH/MEDIUM raw-context leaks reproducible on main before this repair):
+
+1. HIGH — Project identity scalar + shared-ref leak.
+   - Before: `_project_identity_blockers()` only scanned `candidate.evidence_refs`; `evaluate_project_identity()` serialized `mission_bearing`, `title`, `outcome`, `project_id` verbatim and the neighbor-overlap path copied `shared_repo_refs` / `shared_venture_refs` / `shared_session_refs` verbatim.
+   - Reproducers (before fix):
+     - `mission_bearing='raw_prompt:secret mission payload'` returned `DEFINED` and `to_dict()['mission_bearing']` carried the raw payload (also leaked via `json.dumps`).
+     - `repo_refs=('raw_prompt:shared-repo-secret',)` with a colliding neighbor carrying the same raw ref leaked the payload through `shared_repo_refs` on the AMBIGUOUS path.
+   - Fix: scan scalar identity fields (`project_id`, `title`, `outcome`, `mission_bearing`), relationship-ref tuples (`repo_refs` / `venture_refs` / `session_refs`), and bounded body-of-work tuples (`context`, `artifacts`, `objectives`, `tasks`, `proof_trail`) for the raw-context prefix; raise per-field `raw_context_<field>_blocked` blockers; redact scalar identity fields and shared relationship refs in every result branch.
+   - Safe identity inputs still reach `DEFINED` / `AMBIGUOUS` unchanged.
+
+2. HIGH — Project-difference `left.project_id` / `right.project_id` leak.
+   - Before: `_project_difference_raw_context_blockers()` only scanned tuple-shaped fields; `evaluate_project_difference()` copied `left.project_id` / `right.project_id` verbatim into every result branch (BLOCKED, DISTINCT, SAME_PROJECT, AMBIGUOUS).
+   - Reproducer (before fix): `left.project_id='raw_prompt:left-secret'` produced `DISTINCT` and `to_dict()['left_project_id']` carried the raw payload.
+   - Fix: add `project_id` to the difference raw-context scanner with `raw_context_in_left_project_id_blocked` / `raw_context_in_right_project_id_blocked` blockers; redact both ids via `_redact_raw_context_scalar()` before they enter any returned `ProjectDifferenceEvaluation`.
+   - Safe ids still distinguish (`DISTINCT`) and still collapse (`SAME_PROJECT`).
+
+3. MEDIUM — Handoff scalar metadata leak (`reason_category`, `payload_type`, `source_project_id`, `target_project_id`).
+   - Before: `_handoff_request_blockers()` only checked tuple refs and exact-match enum membership; `_handoff_result()` copied scalar metadata verbatim, so `reason_category='raw_prompt:secret reason'` blocked via `unknown_handoff_reason_category` but `to_dict()['reason_category']` still carried the raw payload.
+   - Reproducers (before fix): raw-prefixed `reason_category`, `payload_type`, `source_project_id`, `target_project_id` were all reachable and leaked via the BLOCKED `to_dict()`.
+   - Fix: scan the four scalar metadata fields for the raw-context prefix and emit `raw_context_reason_category_blocked` / `raw_context_payload_type_blocked` / `raw_context_source_project_id_blocked` / `raw_context_target_project_id_blocked`; redact all four through `_handoff_result()` so no decision branch (REVIEW_READY, AMBIGUOUS, BLOCKED) can serialize the raw payload.
+   - Safe scalar metadata still reaches `REVIEW_READY` unchanged.
+
+Invariants preserved:
+
+- `execution_authorized=False` across all identity / difference / handoff result branches.
+- `merge_authorized=False` on every project-difference branch.
+- `review_ready=False` on every blocked / ambiguous handoff branch.
+- Stable serialization shapes (`project_identity_result_dict_keys`, `project_difference_result_dict_keys`, `project_handoff_result_dict_keys`) unchanged.
+- Promoted-to-main scope/bounds raw-context guard behavior (`46176cc29`, `3cfb2ca4c`, etc.) remains intact.
+
+Proof:
+
+- `python -m pytest tests/test_compass.py -q` — 354 passed (328 prior + 26 new focused regression tests across the three gaps).
+- `git diff --check` — clean.
+- New focused test classes: `TestProjectIdentityScalarRawContextRedaction`, `TestProjectIdentitySharedRefRawContextRedaction`, `TestProjectDifferenceProjectIdRedaction`, `TestHandoffScalarMetadataRedaction`. Each parametrizes the raw-prefix family (`raw_prompt`, `raw_transcript`, `free_form_context`, `transcript`, `conversation`, `provider_response`, `raw_context`, embedded newlines where relevant) and asserts `json.dumps(result.to_dict())` never contains the raw secret payload while safe inputs pass through unchanged.
+
+Ready for Codex Review:
+
+- Files changed: `meridian_core/compass.py`, `tests/test_compass.py`, `docs/live-build-4.md`.
+- Tests: `python -m pytest tests/test_compass.py -q` → 354 passed.
+- Commit: see the commit appended to this Build 4 repair push.
+
 ## Coordinator Override - Completed / Promoted To Main
 
 Goal: repair Codex review finding on Compass bounds request-level raw-context serialization.

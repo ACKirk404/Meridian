@@ -3343,3 +3343,344 @@ class TestProjectBoundsRequestLevelRedaction:
         )
         result = evaluate_project_bounds(self._project(), request)
         assert tuple(result.to_dict().keys()) == project_bounds_result_dict_keys()
+
+
+class TestProjectIdentityScalarRawContextRedaction:
+    """Codex Review B follow-up — Cadence 4/4 self-review repair.
+
+    Before the repair, _project_identity_blockers() only scanned
+    candidate.evidence_refs, and evaluate_project_identity() serialized
+    candidate.mission_bearing / title / outcome / project_id verbatim. A
+    raw-prompt payload smuggled through any of those scalar identity fields
+    therefore (a) failed to add a raw-context blocker and (b) leaked into
+    ProjectIdentityEvaluation.to_dict() output.
+
+    Reproducer (mission_bearing leak):
+      candidate = ProjectIdentityCandidate(
+          ...,
+          mission_bearing='raw_prompt:secret mission payload',
+      )
+      evaluate_project_identity(candidate).decision is DEFINED  # not blocked
+      json.dumps(...to_dict()) contained 'secret mission payload'.
+    """
+
+    @pytest.mark.parametrize(
+        ("field", "raw_value"),
+        (
+            ("mission_bearing", "raw_prompt:secret mission payload"),
+            ("project_id", "raw_prompt:secret-project-id-payload"),
+            ("title", "raw_transcript:secret title transcript"),
+            ("outcome", "free_form_context:secret outcome body"),
+        ),
+    )
+    def test_raw_context_in_scalar_identity_field_blocks_and_redacts(
+        self, field, raw_value
+    ):
+        candidate = _identity_candidate(**{field: raw_value})
+        result = evaluate_project_identity(candidate)
+        assert result.decision is ProjectIdentityDecision.BLOCKED
+        assert f"raw_context_{field}_blocked" in result.blockers
+        assert getattr(result, field) == "<redacted_raw_context>"
+        payload = result.to_dict()
+        encoded = json.dumps(payload, sort_keys=True)
+        assert raw_value not in encoded
+        assert "secret" not in encoded or "<redacted_raw_context>" in encoded
+        assert payload[field] == "<redacted_raw_context>"
+        assert payload["execution_authorized"] is False
+
+    def test_safe_mission_bearing_preserved_unchanged(self):
+        candidate = _identity_candidate(
+            mission_bearing="Ship Meridian V2 project-boundary runtime.",
+        )
+        result = evaluate_project_identity(candidate)
+        assert result.decision is ProjectIdentityDecision.DEFINED
+        assert result.mission_bearing == (
+            "Ship Meridian V2 project-boundary runtime."
+        )
+        assert "<redacted_raw_context>" not in result.mission_bearing
+
+    def test_safe_scalar_identity_fields_preserved_unchanged(self):
+        candidate = _identity_candidate(
+            project_id="meridian-v2",
+            title="Meridian V2",
+            outcome=(
+                "Prime can coordinate V2 harness runtime without project drift."
+            ),
+            mission_bearing="Ship Meridian V2 project-boundary runtime.",
+        )
+        result = evaluate_project_identity(candidate)
+        payload = result.to_dict()
+        assert payload["project_id"] == "meridian-v2"
+        assert payload["title"] == "Meridian V2"
+        assert payload["outcome"] == (
+            "Prime can coordinate V2 harness runtime without project drift."
+        )
+        assert payload["mission_bearing"] == (
+            "Ship Meridian V2 project-boundary runtime."
+        )
+        assert "<redacted_raw_context>" not in json.dumps(payload, sort_keys=True)
+
+
+class TestProjectIdentitySharedRefRawContextRedaction:
+    """Codex Review B follow-up — raw-context payload smuggled through
+    relationship-ref tuples (repo_refs / venture_refs / session_refs) leaked
+    via ProjectIdentityEvaluation.shared_repo_refs / shared_venture_refs /
+    shared_session_refs when the candidate and a neighbor both carried the
+    same raw payload.
+
+    Reproducer (shared_repo_refs leak):
+      candidate.repo_refs = ('raw_prompt:shared-repo-secret',)
+      neighbor.repo_refs  = ('raw_prompt:shared-repo-secret',)
+      evaluate_project_identity(candidate).shared_repo_refs
+        -> ('raw_prompt:shared-repo-secret',)  # raw payload preserved
+    """
+
+    @pytest.mark.parametrize(
+        ("ref_field", "raw_value"),
+        (
+            ("repo_refs", "raw_prompt:shared-repo-secret"),
+            ("venture_refs", "raw_prompt:shared-venture-secret"),
+            ("session_refs", "raw_prompt:shared-session-secret"),
+        ),
+    )
+    def test_raw_context_in_relationship_ref_blocks_before_overlap(
+        self, ref_field, raw_value
+    ):
+        """The raw-context guard fires BEFORE neighbor overlap evaluation, so
+        no shared-refs leak path can be reached. The result is BLOCKED with a
+        per-field raw-context blocker and the serialized output redacts the
+        payload.
+        """
+        candidate = _identity_candidate(
+            **{ref_field: (raw_value,)},
+        )
+        result = evaluate_project_identity(candidate)
+        assert result.decision is ProjectIdentityDecision.BLOCKED
+        assert f"raw_context_{ref_field}_blocked" in result.blockers
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert raw_value not in encoded
+        assert result.to_dict()["execution_authorized"] is False
+
+    def test_safe_shared_refs_still_surfaced(self):
+        """Regression: a safe shared repo ref with a distinguishing bearing
+        still appears in shared_repo_refs (DEFINED path) unchanged.
+        """
+        neighbor = ProjectIdentityNeighbor(
+            project_id="meridian-shadow",
+            mission_bearing="A truly different bearing for the shadow project.",
+            repo_refs=(
+                "repo:C:/Users/scott/Code/Meridian-Worktrees/build-4-aegis",
+            ),
+            venture_refs=("venture:Meridian",),
+        )
+        candidate = _identity_candidate(neighbors=(neighbor,))
+        result = evaluate_project_identity(candidate)
+        assert result.decision is ProjectIdentityDecision.DEFINED
+        assert "repo:C:/Users/scott/Code/Meridian-Worktrees/build-4-aegis" in (
+            result.shared_repo_refs
+        )
+        assert "<redacted_raw_context>" not in result.shared_repo_refs
+
+
+class TestProjectDifferenceProjectIdRedaction:
+    """Codex Review B follow-up — left/right project_id raw-context leak.
+
+    Before the repair, _project_difference_raw_context_blockers() only
+    scanned tuple-shaped fields, not the scalar project_id. A raw payload
+    smuggled through left.project_id therefore reached the DISTINCT branch
+    and was copied verbatim into ProjectDifferenceEvaluation.left_project_id,
+    leaking through to_dict()['left_project_id'].
+
+    Reproducer (before fix):
+      left  = ProjectDifferenceProfile(project_id='raw_prompt:left-secret', ...)
+      right = ProjectDifferenceProfile(project_id='right-id', ...)
+      result = evaluate_project_difference(left, right, evidence_refs=('proof:cmp',))
+      result.decision is DISTINCT
+      result.to_dict()['left_project_id'] == 'raw_prompt:left-secret'
+    """
+
+    @pytest.mark.parametrize(
+        ("side", "raw_value"),
+        (
+            ("left", "raw_prompt:left-secret"),
+            ("right", "raw_prompt:right-secret"),
+            ("left", "raw_transcript:left-session"),
+            ("right", "free_form_context:right-scratch"),
+        ),
+    )
+    def test_raw_context_in_project_id_blocks_and_redacts(self, side, raw_value):
+        if side == "left":
+            left = _difference_profile(project_id=raw_value)
+            right = _other_difference_profile()
+        else:
+            left = _difference_profile()
+            right = _other_difference_profile(project_id=raw_value)
+        result = evaluate_project_difference(
+            left, right, evidence_refs=("proof:cmp",),
+        )
+        assert result.decision is ProjectDifferenceDecision.BLOCKED
+        assert f"raw_context_in_{side}_project_id_blocked" in result.blockers
+        payload = result.to_dict()
+        encoded = json.dumps(payload, sort_keys=True)
+        assert raw_value not in encoded
+        assert payload[f"{side}_project_id"] == "<redacted_raw_context>"
+        assert payload["execution_authorized"] is False
+        assert payload["merge_authorized"] is False
+
+    def test_safe_project_ids_preserved_distinct(self):
+        result = evaluate_project_difference(
+            _difference_profile(project_id="meridian-v2-a"),
+            _other_difference_profile(project_id="meridian-v2-b"),
+            evidence_refs=("proof:cmp",),
+        )
+        assert result.decision is ProjectDifferenceDecision.DISTINCT
+        payload = result.to_dict()
+        assert payload["left_project_id"] == "meridian-v2-a"
+        assert payload["right_project_id"] == "meridian-v2-b"
+        assert "<redacted_raw_context>" not in json.dumps(
+            payload, sort_keys=True
+        )
+
+    def test_safe_project_ids_preserved_same_project(self):
+        result = evaluate_project_difference(
+            _difference_profile(),
+            _difference_profile(),
+            evidence_refs=("proof:cmp",),
+        )
+        assert result.decision is ProjectDifferenceDecision.SAME_PROJECT
+        payload = result.to_dict()
+        assert payload["left_project_id"] == "meridian-v2"
+        assert payload["right_project_id"] == "meridian-v2"
+
+    def test_raw_context_in_both_project_ids_aggregates_blockers(self):
+        result = evaluate_project_difference(
+            _difference_profile(project_id="raw_prompt:left-secret"),
+            _other_difference_profile(project_id="raw_prompt:right-secret"),
+            evidence_refs=("proof:cmp",),
+        )
+        assert result.decision is ProjectDifferenceDecision.BLOCKED
+        assert "raw_context_in_left_project_id_blocked" in result.blockers
+        assert "raw_context_in_right_project_id_blocked" in result.blockers
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert "left-secret" not in encoded
+        assert "right-secret" not in encoded
+
+
+class TestHandoffScalarMetadataRedaction:
+    """Codex Review B follow-up — handoff scalar metadata raw-context leak.
+
+    Before the repair, _handoff_request_blockers() checked tuple refs and
+    enum membership, but did not scan the scalar reason_category /
+    payload_type / source_project_id / target_project_id fields for the
+    raw-context prefix (only exact-match enum membership). When any of those
+    scalar fields carried a raw payload, _handoff_result() copied them
+    verbatim and ProjectHandoffEvaluation.to_dict() leaked the payload.
+
+    Reproducer (before fix):
+      request = _handoff_request(reason_category='raw_prompt:secret reason')
+      result  = evaluate_cross_project_handoff(src, tgt, request)
+      result.decision is BLOCKED   # via unknown_handoff_reason_category
+      result.to_dict()['reason_category'] == 'raw_prompt:secret reason'
+    """
+
+    @pytest.mark.parametrize(
+        ("field", "raw_value", "expected_blocker"),
+        (
+            (
+                "reason_category",
+                "raw_prompt:secret reason",
+                "raw_context_reason_category_blocked",
+            ),
+            (
+                "reason_category",
+                "raw_transcript:reason transcript",
+                "raw_context_reason_category_blocked",
+            ),
+            (
+                "payload_type",
+                "raw_prompt:secret payload type",
+                "raw_context_payload_type_blocked",
+            ),
+            (
+                "payload_type",
+                "free_form_context:payload notes",
+                "raw_context_payload_type_blocked",
+            ),
+            (
+                "source_project_id",
+                "raw_prompt:secret-source-id",
+                "raw_context_source_project_id_blocked",
+            ),
+            (
+                "target_project_id",
+                "raw_prompt:secret-target-id",
+                "raw_context_target_project_id_blocked",
+            ),
+        ),
+    )
+    def test_raw_context_in_scalar_metadata_blocks_and_redacts(
+        self, field, raw_value, expected_blocker
+    ):
+        result = evaluate_cross_project_handoff(
+            _difference_profile(),
+            _other_difference_profile(),
+            _handoff_request(**{field: raw_value}),
+        )
+        assert result.decision is ProjectHandoffDecision.BLOCKED
+        assert expected_blocker in result.blockers
+        assert getattr(result, field) == "<redacted_raw_context>"
+        payload = result.to_dict()
+        encoded = json.dumps(payload, sort_keys=True)
+        assert raw_value not in encoded
+        assert payload[field] == "<redacted_raw_context>"
+        assert payload["execution_authorized"] is False
+        assert payload["review_ready"] is False
+
+    def test_safe_scalar_metadata_preserved_unchanged(self):
+        result = evaluate_cross_project_handoff(
+            _difference_profile(),
+            _other_difference_profile(),
+            _handoff_request(
+                reason_category="proof_packet",
+                payload_type="proof_refs",
+                source_project_id="meridian-v2",
+                target_project_id="meridian-ui-review",
+            ),
+        )
+        assert result.decision is ProjectHandoffDecision.REVIEW_READY
+        payload = result.to_dict()
+        assert payload["reason_category"] == "proof_packet"
+        assert payload["payload_type"] == "proof_refs"
+        assert payload["source_project_id"] == "meridian-v2"
+        assert payload["target_project_id"] == "meridian-ui-review"
+        assert "<redacted_raw_context>" not in json.dumps(payload, sort_keys=True)
+
+    def test_raw_context_in_multiple_scalars_aggregates_blockers(self):
+        result = evaluate_cross_project_handoff(
+            _difference_profile(),
+            _other_difference_profile(),
+            _handoff_request(
+                reason_category="raw_prompt:secret reason",
+                payload_type="raw_prompt:secret payload type",
+                source_project_id="raw_prompt:secret-source",
+                target_project_id="raw_prompt:secret-target",
+            ),
+        )
+        assert result.decision is ProjectHandoffDecision.BLOCKED
+        assert "raw_context_reason_category_blocked" in result.blockers
+        assert "raw_context_payload_type_blocked" in result.blockers
+        assert "raw_context_source_project_id_blocked" in result.blockers
+        assert "raw_context_target_project_id_blocked" in result.blockers
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert "secret reason" not in encoded
+        assert "secret payload type" not in encoded
+        assert "secret-source" not in encoded
+        assert "secret-target" not in encoded
+
+    def test_handoff_redacted_result_serializes_stably(self):
+        result = evaluate_cross_project_handoff(
+            _difference_profile(),
+            _other_difference_profile(),
+            _handoff_request(reason_category="raw_prompt:secret reason"),
+        )
+        assert tuple(result.to_dict().keys()) == project_handoff_result_dict_keys()
