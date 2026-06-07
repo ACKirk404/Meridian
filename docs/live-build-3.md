@@ -64,6 +64,103 @@ Required proof before Ready marker:
 Stop after implementation and marker. Do not promote to main, do not push to
 main, do not move branches/worktrees, and do not touch shared main.
 
+### Build 3 Opus Provider Balance FileMap Registration Marker (2026-06-07T15:55:00-06:00)
+
+Status: implementation complete, ready for Codex Review A/B. Not promoted to
+main; no commit, push, branch, or worktree movement performed.
+
+Worktree: `C:/Users/scott/AppData/Local/Temp/polaris-wt/chat_1780868743371`.
+
+Base HEAD on this worktree: `f202aced6` (`docs(build-3): assign provider
+balance filemap registration`), with the promoted backend slice at
+`7e0e79331` (`provider-balance: add v3 backend slice`) already merged into
+this base.
+
+Goal: register the newly promoted V3 Provider Balance / Usage backend domain
+slice (`meridian_core/provider_balance.py` and `tests/test_provider_balance.py`)
+in all three FileMap surfaces, following the V3 Goal Runtime registration
+pattern.
+
+Coverage table before this slice
+(path : runtime FileMap : `docs/FileMap.md` : `_REQUIRED_PATHS`):
+
+- `meridian_core/provider_balance.py` : missing : missing : missing → newly
+  registered in this slice.
+- `tests/test_provider_balance.py` : missing : missing : missing → newly
+  registered in this slice.
+
+Registrations applied (allowed files only):
+
+- `meridian_core/filemap.py`:
+  - added new `FileArea.PROVIDER_BALANCE = "Provider Balance / Usage"`
+    constant immediately after `GOAL_RUNTIME` in the area-label block;
+  - added two `FileMapEntry` blocks for `meridian_core/provider_balance.py`
+    and `tests/test_provider_balance.py` immediately after the existing
+    `tests/test_goal_runtime.py` block, following the Goal Runtime
+    registration style. Entries identify Relay Harness (primary) / Model
+    Harness / Bifrost ownership (Relay Harness writes route kind, policy
+    state, and snapshot composition; Model Harness writes token-usage
+    counters and estimated-spend labels; Bifrost is a read-only consumer of
+    the `to_mapping()` summary), frozen `ProviderBalanceSnapshot` /
+    `ProviderBalanceSummary` shapes, provider health / route kind /
+    quota-credit labels / token usage / estimated spend / cost-pressure /
+    selected-provider policy state, provider-neutral provider families,
+    display-safe evidence refs, fail-safe `unknown` / `unavailable` defaults
+    with cost-pressure fallback to `UNKNOWN`, and the pure-deterministic
+    no-live-provider-calls / no-credentials / no-account-probing /
+    no-network / no-UI/Electron-behavior / no-Bifrost-import scope.
+- `docs/FileMap.md`: added two table rows for the same two paths immediately
+  after the existing `tests/test_goal_runtime.py` row, mirroring the runtime
+  FileMap entries with the same Provider Balance / Usage area label,
+  ownership split, frozen-shape language, fail-safe defaults, display-safe
+  redaction policy, and no-Bifrost-import scope.
+- `tests/test_filemap.py`: added the two paths
+  `meridian_core/provider_balance.py` and `tests/test_provider_balance.py`
+  to `_REQUIRED_PATHS` immediately after `tests/test_goal_runtime.py` so the
+  existing default-map coverage and injection-summary tests enforce the
+  registration.
+- `docs/live-build-3.md`: this completion marker.
+
+Files changed:
+
+- `meridian_core/filemap.py`
+- `docs/FileMap.md`
+- `tests/test_filemap.py`
+- `docs/live-build-3.md` (this marker)
+
+Path-scope: edits limited to the four allowed files above. No edits to
+`meridian_core/provider_balance.py`, `tests/test_provider_balance.py`,
+Bifrost / Electron / UI files, generated artifacts, package files, other
+Build 1 / 2 / 4 / 5 queues, review logs, runtime code outside FileMap
+surfaces, `index.html`, branches, or Polaris.
+
+Proof (run in this worktree):
+
+- `python -m pytest tests/test_filemap.py tests/test_provider_balance.py -q`
+  → 191 passed in 0.15s.
+- `git diff --check` → clean (no whitespace errors).
+- `git status --short --branch` →
+  ```
+  ## HEAD (no branch)
+   M docs/FileMap.md
+   M docs/live-build-3.md
+   M meridian_core/filemap.py
+   M tests/test_filemap.py
+  ```
+  Status contains only the four allowed files; ignore `.mcp.json` if it
+  appears as Polaris-local plumbing.
+
+Residual risk: low. The new `FileArea.PROVIDER_BALANCE` constant is additive
+and does not collide with existing area labels; the runtime FileMap area
+tests and the area-filter tests pass unchanged. `docs/FileMap.md` placement
+keeps the V3 cluster contiguous (Goal Runtime followed by Provider Balance /
+Usage) so future Build 3 audits can reuse the same anchor. No
+provider-balance implementation or test code was touched; the registration
+is descriptive only. No commit or push performed; no branch operations;
+worker did not leave this worktree.
+
+Ready for Codex Review A/B.
+
 ## Completed / Review-Cleared / Promoted To Main
 
 Coordinator reconciliation: 2026-06-07T13:10:00-06:00.

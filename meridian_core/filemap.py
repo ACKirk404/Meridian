@@ -50,6 +50,7 @@ class FileArea:
     PACKAGE_POLICY   = "Package API policy"
     BIFROST          = "Bifrost / session harness"
     GOAL_RUNTIME     = "Goal Runtime / Goal Harness"
+    PROVIDER_BALANCE = "Provider Balance / Usage"
 
 
 @dataclass
@@ -1034,6 +1035,20 @@ def make_default_map() -> FileMap:
             purpose="Test suite for meridian_core/goal_runtime.py: closed GoalStatus lifecycle, single-writer transition matrix (Prime creation and ACTIVE -> COMPLETE; Compass for non-terminal transitions; Echo lineage; Beacon telemetry; Aegis proof refs), proof-trail-ref requirements (risk_tier >= 2, dispatched, blocked, usage-limited, or COMPLETE), display-safe to_safe_dict serialization, and field-cap enforcement.",
             related_tests=[],
             notes="Run before changing meridian_core/goal_runtime.py or any Goal Runtime ownership, lifecycle, transition matrix, proof requirement, or display-safety behavior.",
+        ),
+        FileMapEntry(
+            path="meridian_core/provider_balance.py",
+            area=FileArea.PROVIDER_BALANCE,
+            purpose="V3 Provider Balance / Usage domain slice: frozen ProviderBalanceSnapshot and ProviderBalanceSummary dataclasses carrying provider health, route kind, quota state, credit status, token-usage counters, estimated-spend labels, cost-pressure state, selected-provider policy state, provider-neutral provider families, and display-safe evidence refs. Exposes build_provider_balance_snapshot, build_provider_balance_summary, unknown_provider_snapshot, and safe_display_label / safe_display_notes / safe_provider_id / safe_evidence_ref helpers; summary mapping shape is structurally compatible with bifrost.cockpit.provider_balance_view_from_summary without importing Bifrost.",
+            related_tests=["tests/test_provider_balance.py"],
+            notes="Pure deterministic backend domain only: no live provider calls, no credentials, no account probing, no provider SDKs, no network, no UI/Electron behavior, and no Bifrost import. Ownership: Relay Harness (primary) writes route kind / policy state / snapshot composition; Model Harness writes token-usage counters and estimated-spend labels; Bifrost is a read-only consumer of the to_mapping() summary. Unknown balances serialize as unknown / unavailable; cost pressure falls back to UNKNOWN; raw prompt/response text, credentials, filesystem paths, and branch/worktree text are redacted to fixed sentinels before reaching any serialized summary.",
+        ),
+        FileMapEntry(
+            path="tests/test_provider_balance.py",
+            area=FileArea.PROVIDER_BALANCE,
+            purpose="Test suite for meridian_core/provider_balance.py: frozen-dataclass invariants for ProviderBalanceSnapshot and ProviderBalanceSummary, fail-safe unknown / unavailable defaults, deterministic ordering and selected-provider handling, cost-pressure fallback to UNKNOWN, display-safety redaction of raw prompt/response text, credentials, filesystem paths, and branch/worktree text, evidence-ref normalization and caps, and structural compatibility of the to_mapping() summary shape with the Bifrost cockpit consumer contract.",
+            related_tests=[],
+            notes="Run before changing meridian_core/provider_balance.py or any Provider Balance / Usage ownership, snapshot/summary shape, display-safety policy, fail-safe defaults, cost-pressure fallback, or selected-provider policy behavior. Bifrost is not imported here; the module is the source of truth for provider-balance policy.",
         ),
         FileMapEntry(
             path="docs/filemap-v2-v3-discoverability-audit.md",

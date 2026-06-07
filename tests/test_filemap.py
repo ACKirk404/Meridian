@@ -116,6 +116,8 @@ _REQUIRED_PATHS = [
     "docs/v3-goal-runtime-contract.md",
     "meridian_core/goal_runtime.py",
     "tests/test_goal_runtime.py",
+    "meridian_core/provider_balance.py",
+    "tests/test_provider_balance.py",
     "docs/filemap-v2-v3-discoverability-audit.md",
     "docs/prime-status-console-cli-brief.md",
     "docs/non-orchestrator-surface-naming.md",
