@@ -290,6 +290,54 @@ Completion marker - 2026-06-07T11:08:39-06:00:
 
 ## Coordinator Override - Active Now / Opus Task Assigned
 
+Timestamp: 2026-06-07T11:36:00-06:00.
+
+Goal: implement or verify the last remaining Bifrost V2 item:
+`Bifrost + Electron Cockpit`.
+
+Worker requirement: implementation/proof must run in a Polaris Build 5 Opus
+worker (`launch-chat`, tier `power`, `claude-opus-4-7`). Codex sessions may
+review only after a real worker candidate exists.
+
+Task: inspect current main and either prove the Electron cockpit authority is
+already fully documented/testable, or implement the smallest deterministic
+backend/docs/test slice that locks the contract:
+
+- the Meridian UI is the Electron app;
+- root `index.html` is renderer internals loaded by Electron, not a separate UI
+  product target;
+- `bifrost/preview.html` is generated backend/view-model proof output only;
+- `npm start` / Electron startup must not regenerate or substitute the Bifrost
+  preview output;
+- no new UI layout, styling, product copy, live provider, account, secrets,
+  process/session-control, or runtime microphone/audio behavior.
+
+Allowed likely files:
+
+- `docs/electron-app-ui-authority.md`
+- `docs/v2-progress-tracker.md` only if no-op completion or review-cleared
+- `docs/live-build-5.md` only for the worker completion marker
+- existing tests only if a small deterministic startup/authority guard already
+  fits the repo patterns
+
+Do not edit `index.html`, `bifrost/preview.html`, Electron startup behavior, or
+generated preview output unless a targeted test proves an existing contract bug
+and the smallest safe repair requires it. Do not read all of this large queue
+file; use targeted `rg` and small line slices. Start from:
+
+- `rg -n "Electron app|Electron Cockpit|index.html|preview.html|npm start|renderer internals|UI authority" docs package.json electron main.js index.html bifrost`
+- `git status --short --branch`
+
+Required proof before Ready marker:
+
+- targeted tests or deterministic no-op proof commands appropriate to the
+  candidate
+- `git diff --check`
+- concise completion marker here with files changed, proof, and any remaining
+  risk.
+
+## Coordinator Override - Completed / Review-Cleared / Do Not Execute
+
 Timestamp: 2026-06-07T11:11:13-06:00.
 
 Goal: implement or verify the next Bifrost V2 backend/view-model slice:
