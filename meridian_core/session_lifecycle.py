@@ -2000,7 +2000,7 @@ def build_session_live_state_evidence(
         f"session.id={session.session_id}",
         f"session.name={session.session_name}",
         f"project.name={session.project_name}",
-        f"project.path_safe={'<path>' if session.project_path else 'none'}",
+        f"project.path_safe={'<path>' if _has_meaningful_text(session.project_path) else 'none'}",
         f"queue.file={session.assigned_queue_file}",
         f"worktree.path_safe={'<worktree>' if session.worktree_path else 'none'}",
         f"branch.name={session.branch_name}",
@@ -2014,7 +2014,7 @@ def build_session_live_state_evidence(
         f"last_prompt_sent_at={session.last_prompt_sent_at.isoformat()}",
         f"proof.state={session.proof_state.value}",
         f"review.cadence={session.review_cadence_state.value}",
-        f"blocker_summary={'<blocker>' if session.blocker_summary else 'none'}",
+        f"blocker_summary={'<blocker>' if _has_meaningful_text(session.blocker_summary) else 'none'}",
         f"permission.state={session.permission_context.branch_permission_state.value}",
         f"harness.role={session.harness_role.value}",
     ]

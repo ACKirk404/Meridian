@@ -2111,6 +2111,8 @@ class TestSessionLiveStateEvidence:
         # present/label must agree — blank counts as absent
         assert serialized["project_path_present"] is False
         assert serialized["project_path_label"] == "none"
+        assert "project.path_safe=none" in evidence.evidence_refs
+        assert "project.path_safe=<path>" not in evidence.evidence_refs
 
     @pytest.mark.parametrize("blank_blocker", ["", "   ", "\t", "\n"])
     def test_to_dict_treats_blank_blocker_summary_as_absent(
@@ -2129,6 +2131,8 @@ class TestSessionLiveStateEvidence:
         assert serialized["blocker_present"] is False
         assert serialized["blocker_summary_label"] == "none"
         assert serialized["blocker_summary_length"] == 0
+        assert "blocker_summary=none" in evidence.evidence_refs
+        assert "blocker_summary=<blocker>" not in evidence.evidence_refs
 
     def test_to_dict_preserves_non_empty_project_path_and_blocker(self, session_state):
         """Legitimate non-empty strings still register as present after the repair."""
@@ -2148,6 +2152,8 @@ class TestSessionLiveStateEvidence:
         assert serialized["blocker_present"] is True
         assert serialized["blocker_summary_label"] == "<blocker_summary>"
         assert serialized["blocker_summary_length"] == len("Real blocker text")
+        assert "project.path_safe=<path>" in evidence.evidence_refs
+        assert "blocker_summary=<blocker>" in evidence.evidence_refs
 
     def test_to_dict_does_not_leak_raw_project_path(self, session_state):
         """Regression: to_dict() must not serialize raw project_path."""
