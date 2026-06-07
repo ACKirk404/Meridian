@@ -167,6 +167,42 @@ _PROJECT_IDENTITY_REQUIRED_TEXT_FIELDS = (
     "outcome",
     "mission_bearing",
 )
+_PROJECT_BOUNDS_REQUEST_KEYS = (
+    "project_id",
+    "request_kind",
+    "request_ref",
+    "candidates",
+    "repo_refs",
+    "venture_refs",
+    "session_refs",
+    "evidence_refs",
+    "ambiguity_reason",
+)
+_PROJECT_BOUNDS_RESULT_DICT_KEYS = (
+    "decision",
+    "project_id",
+    "request_kind",
+    "request_ref",
+    "in_scope_refs",
+    "out_of_scope_refs",
+    "ambiguous_refs",
+    "blocked_refs",
+    "shared_relationship_refs",
+    "evidence_refs",
+    "candidate_decisions",
+    "blockers",
+    "compass_question",
+    "execution_authorized",
+)
+_BOUNDS_REQUEST_KINDS = {
+    "feature_change",
+    "scope_inquiry",
+    "boundary_extension",
+    "context_load",
+    "task_addition",
+    "evidence_attach",
+    "ambiguous",
+}
 _SCOPE_SUBJECT_KINDS = {
     "context",
     "artifact",
@@ -240,6 +276,16 @@ class ProjectIdentityDecision(Enum):
     """Deterministic Compass decision for project identity definition."""
 
     DEFINED = "defined"
+    AMBIGUOUS = "ambiguous"
+    BLOCKED = "blocked"
+
+
+class ProjectBoundsDecision(Enum):
+    """Deterministic Compass decision for a multi-subject project bounds request."""
+
+    IN_SCOPE = "in_scope"
+    OUT_OF_SCOPE = "out_of_scope"
+    PARTIAL_SCOPE = "partial_scope"
     AMBIGUOUS = "ambiguous"
     BLOCKED = "blocked"
 
@@ -1202,6 +1248,205 @@ class ProjectIdentityEvaluation:
         }
 
 
+@dataclass(frozen=True)
+class ProjectBoundsRequest:
+    """Primitive multi-subject request proposed against a project's boundary.
+
+    A bounds request bundles one or more ``ProjectScopeCandidate`` subjects
+    along with the relationship envelope (repo/venture/session refs) and
+    evidence refs that justify the request. The Compass bounds runtime then
+    decides whether the bundle as a whole sits inside the project boundary,
+    falls outside it, splits across the boundary, requires a Compass
+    clarification, or is blocked.
+    """
+
+    project_id: str | None
+    request_kind: str
+    request_ref: str
+    candidates: tuple[ProjectScopeCandidate, ...]
+    repo_refs: tuple[str, ...] = ()
+    venture_refs: tuple[str, ...] = ()
+    session_refs: tuple[str, ...] = ()
+    evidence_refs: tuple[str, ...] = ()
+    ambiguity_reason: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.project_id is not None:
+            object.__setattr__(
+                self,
+                "project_id",
+                _normalize_required_text("project_id", self.project_id),
+            )
+        object.__setattr__(
+            self,
+            "request_kind",
+            _normalize_required_text("request_kind", self.request_kind),
+        )
+        object.__setattr__(
+            self,
+            "request_ref",
+            _normalize_required_text("request_ref", self.request_ref),
+        )
+        if any(
+            not isinstance(candidate, ProjectScopeCandidate)
+            for candidate in self.candidates
+        ):
+            raise ValueError("candidates must be ProjectScopeCandidate")
+        object.__setattr__(self, "candidates", tuple(self.candidates))
+        object.__setattr__(
+            self,
+            "repo_refs",
+            _normalize_optional_tuple("repo_refs", self.repo_refs),
+        )
+        object.__setattr__(
+            self,
+            "venture_refs",
+            _normalize_optional_tuple("venture_refs", self.venture_refs),
+        )
+        object.__setattr__(
+            self,
+            "session_refs",
+            _normalize_optional_tuple("session_refs", self.session_refs),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _normalize_optional_tuple("evidence_refs", self.evidence_refs),
+        )
+        if self.ambiguity_reason is not None:
+            object.__setattr__(
+                self,
+                "ambiguity_reason",
+                _normalize_required_text("ambiguity_reason", self.ambiguity_reason),
+            )
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "project_id": self.project_id,
+            "request_kind": self.request_kind,
+            "request_ref": self.request_ref,
+            "candidates": tuple(candidate.to_dict() for candidate in self.candidates),
+            "repo_refs": self.repo_refs,
+            "venture_refs": self.venture_refs,
+            "session_refs": self.session_refs,
+            "evidence_refs": self.evidence_refs,
+            "ambiguity_reason": self.ambiguity_reason,
+        }
+
+
+@dataclass(frozen=True)
+class ProjectBoundsEvaluation:
+    """Serializable Compass result for a multi-subject bounds request.
+
+    The result always carries ``execution_authorized=False``. Shared
+    relationship refs are surfaced rather than collapsed so the caller can
+    see overlapping repo/venture/session refs without inferring the request
+    has implicitly merged with the project.
+    """
+
+    decision: ProjectBoundsDecision
+    project_id: str | None
+    request_kind: str
+    request_ref: str
+    in_scope_refs: tuple[str, ...] = ()
+    out_of_scope_refs: tuple[str, ...] = ()
+    ambiguous_refs: tuple[str, ...] = ()
+    blocked_refs: tuple[str, ...] = ()
+    shared_relationship_refs: tuple[str, ...] = ()
+    evidence_refs: tuple[str, ...] = ()
+    candidate_decisions: tuple[Mapping[str, object], ...] = ()
+    blockers: tuple[str, ...] = ()
+    compass_question: str | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.decision, ProjectBoundsDecision):
+            raise ValueError("decision must be ProjectBoundsDecision")
+        if self.project_id is not None:
+            object.__setattr__(
+                self,
+                "project_id",
+                _normalize_required_text("project_id", self.project_id),
+            )
+        object.__setattr__(
+            self,
+            "request_kind",
+            _normalize_required_text("request_kind", self.request_kind),
+        )
+        object.__setattr__(
+            self,
+            "request_ref",
+            _normalize_required_text("request_ref", self.request_ref),
+        )
+        object.__setattr__(
+            self,
+            "in_scope_refs",
+            _normalize_optional_tuple("in_scope_refs", self.in_scope_refs),
+        )
+        object.__setattr__(
+            self,
+            "out_of_scope_refs",
+            _normalize_optional_tuple("out_of_scope_refs", self.out_of_scope_refs),
+        )
+        object.__setattr__(
+            self,
+            "ambiguous_refs",
+            _normalize_optional_tuple("ambiguous_refs", self.ambiguous_refs),
+        )
+        object.__setattr__(
+            self,
+            "blocked_refs",
+            _normalize_optional_tuple("blocked_refs", self.blocked_refs),
+        )
+        object.__setattr__(
+            self,
+            "shared_relationship_refs",
+            _normalize_optional_tuple(
+                "shared_relationship_refs",
+                self.shared_relationship_refs,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "evidence_refs",
+            _normalize_optional_tuple("evidence_refs", self.evidence_refs),
+        )
+        normalized_decisions: list[dict[str, object]] = []
+        for entry in self.candidate_decisions:
+            if not isinstance(entry, Mapping):
+                raise ValueError("candidate_decisions must contain mappings")
+            normalized_decisions.append(dict(entry))
+        object.__setattr__(self, "candidate_decisions", tuple(normalized_decisions))
+        object.__setattr__(
+            self,
+            "blockers",
+            _normalize_optional_tuple("blockers", self.blockers),
+        )
+        if self.compass_question is not None:
+            object.__setattr__(
+                self,
+                "compass_question",
+                _normalize_required_text("compass_question", self.compass_question),
+            )
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "decision": self.decision.value,
+            "project_id": self.project_id,
+            "request_kind": self.request_kind,
+            "request_ref": self.request_ref,
+            "in_scope_refs": self.in_scope_refs,
+            "out_of_scope_refs": self.out_of_scope_refs,
+            "ambiguous_refs": self.ambiguous_refs,
+            "blocked_refs": self.blocked_refs,
+            "shared_relationship_refs": self.shared_relationship_refs,
+            "evidence_refs": self.evidence_refs,
+            "candidate_decisions": self.candidate_decisions,
+            "blockers": self.blockers,
+            "compass_question": self.compass_question,
+            "execution_authorized": False,
+        }
+
+
 def define_project(
     *,
     project_id: str,
@@ -1529,6 +1774,171 @@ def evaluate_project_identity(
     )
 
 
+def evaluate_project_bounds(
+    project: ProjectDefinition,
+    request: ProjectBoundsRequest,
+) -> ProjectBoundsEvaluation:
+    """Decide whether a multi-subject bounds request fits the project boundary.
+
+    Builds on the reviewed project identity runtime: the request must name the
+    same ``project_id`` as the reviewed ``ProjectDefinition`` and must carry
+    its own evidence refs. Each ``ProjectScopeCandidate`` is evaluated through
+    ``evaluate_project_scope`` and the per-subject decisions are aggregated:
+
+    - any candidate ``BLOCKED`` -> bounds ``BLOCKED``.
+    - any candidate ``AMBIGUOUS`` -> bounds ``AMBIGUOUS`` (Compass question).
+    - all candidates ``IN_SCOPE`` -> bounds ``IN_SCOPE``.
+    - all candidates ``OUT_OF_SCOPE`` -> bounds ``OUT_OF_SCOPE``.
+    - mixed in/out -> bounds ``PARTIAL_SCOPE``.
+
+    Shared repo/venture/session refs between the request envelope and the
+    project's ``relationship_refs`` are surfaced rather than collapsed so that
+    callers cannot silently infer the request has merged with the project.
+
+    The result always serializes ``execution_authorized=False``.
+    """
+    request_blockers = _project_bounds_request_blockers(project, request)
+    if request_blockers:
+        return _bounds_result(
+            ProjectBoundsDecision.BLOCKED,
+            project,
+            request,
+            blockers=request_blockers,
+            compass_question=(
+                "Compass needs a valid project identity and evidence refs "
+                "before deciding bounds."
+            ),
+        )
+
+    if request.request_kind not in _BOUNDS_REQUEST_KINDS:
+        return _bounds_result(
+            ProjectBoundsDecision.AMBIGUOUS,
+            project,
+            request,
+            blockers=("unknown_bounds_request_kind",),
+            compass_question=(
+                "Compass needs a known bounds request kind; received "
+                f"{request.request_kind!r}."
+            ),
+        )
+
+    if request.request_kind == "ambiguous":
+        reason = request.ambiguity_reason or "request kind is ambiguous"
+        return _bounds_result(
+            ProjectBoundsDecision.AMBIGUOUS,
+            project,
+            request,
+            blockers=("ambiguous_bounds_request",),
+            compass_question=(
+                f"Compass question: should request {request.request_ref!r} "
+                f"be allowed for {project.project_id}? {reason}"
+            ),
+        )
+
+    candidate_results = tuple(
+        evaluate_project_scope(project, candidate) for candidate in request.candidates
+    )
+    candidate_decisions = tuple(
+        {
+            "subject_kind": candidate.subject_kind,
+            "subject_ref": candidate.subject_ref,
+            "decision": result.decision.value,
+        }
+        for candidate, result in zip(request.candidates, candidate_results)
+    )
+
+    in_scope_refs = tuple(
+        candidate.subject_ref
+        for candidate, result in zip(request.candidates, candidate_results)
+        if result.decision is ProjectScopeDecision.IN_SCOPE
+    )
+    out_of_scope_refs = tuple(
+        candidate.subject_ref
+        for candidate, result in zip(request.candidates, candidate_results)
+        if result.decision is ProjectScopeDecision.OUT_OF_SCOPE
+    )
+    ambiguous_refs = tuple(
+        candidate.subject_ref
+        for candidate, result in zip(request.candidates, candidate_results)
+        if result.decision is ProjectScopeDecision.AMBIGUOUS
+    )
+    blocked_refs = tuple(
+        candidate.subject_ref
+        for candidate, result in zip(request.candidates, candidate_results)
+        if result.decision is ProjectScopeDecision.BLOCKED
+    )
+
+    if blocked_refs:
+        return _bounds_result(
+            ProjectBoundsDecision.BLOCKED,
+            project,
+            request,
+            in_scope_refs=in_scope_refs,
+            out_of_scope_refs=out_of_scope_refs,
+            ambiguous_refs=ambiguous_refs,
+            blocked_refs=blocked_refs,
+            candidate_decisions=candidate_decisions,
+            blockers=("candidate_blocked",),
+            compass_question=(
+                "Compass cannot decide bounds while subjects "
+                f"{list(blocked_refs)} are blocked."
+            ),
+        )
+
+    if ambiguous_refs:
+        return _bounds_result(
+            ProjectBoundsDecision.AMBIGUOUS,
+            project,
+            request,
+            in_scope_refs=in_scope_refs,
+            out_of_scope_refs=out_of_scope_refs,
+            ambiguous_refs=ambiguous_refs,
+            candidate_decisions=candidate_decisions,
+            blockers=("candidate_ambiguous",),
+            compass_question=(
+                "Compass needs clarification on subjects "
+                f"{list(ambiguous_refs)} before deciding bounds."
+            ),
+        )
+
+    if in_scope_refs and out_of_scope_refs:
+        return _bounds_result(
+            ProjectBoundsDecision.PARTIAL_SCOPE,
+            project,
+            request,
+            in_scope_refs=in_scope_refs,
+            out_of_scope_refs=out_of_scope_refs,
+            candidate_decisions=candidate_decisions,
+            compass_question=(
+                "Compass observes mixed scope: "
+                f"{list(in_scope_refs)} in-scope, "
+                f"{list(out_of_scope_refs)} out-of-scope. Should the "
+                "out-of-scope subjects be split off?"
+            ),
+        )
+
+    if in_scope_refs:
+        return _bounds_result(
+            ProjectBoundsDecision.IN_SCOPE,
+            project,
+            request,
+            in_scope_refs=in_scope_refs,
+            candidate_decisions=candidate_decisions,
+        )
+
+    return _bounds_result(
+        ProjectBoundsDecision.OUT_OF_SCOPE,
+        project,
+        request,
+        out_of_scope_refs=out_of_scope_refs,
+        candidate_decisions=candidate_decisions,
+        compass_question=(
+            "Compass question: should request "
+            f"{request.request_ref!r} be redirected to a different project?"
+        ),
+    )
+
+
 def _scope_result(
     decision: ProjectScopeDecision,
     candidate: ProjectScopeCandidate,
@@ -1651,6 +2061,73 @@ def _handoff_request_blockers(
     if _has_raw_context_ref(request.approval_refs):
         blockers.append("raw_context_approval_ref_blocked")
     return tuple(blockers)
+
+
+def _bounds_result(
+    decision: ProjectBoundsDecision,
+    project: ProjectDefinition,
+    request: ProjectBoundsRequest,
+    *,
+    in_scope_refs: tuple[str, ...] = (),
+    out_of_scope_refs: tuple[str, ...] = (),
+    ambiguous_refs: tuple[str, ...] = (),
+    blocked_refs: tuple[str, ...] = (),
+    candidate_decisions: tuple[Mapping[str, object], ...] = (),
+    blockers: tuple[str, ...] = (),
+    compass_question: str | None = None,
+) -> ProjectBoundsEvaluation:
+    return ProjectBoundsEvaluation(
+        decision=decision,
+        project_id=request.project_id,
+        request_kind=request.request_kind,
+        request_ref=request.request_ref,
+        in_scope_refs=in_scope_refs,
+        out_of_scope_refs=out_of_scope_refs,
+        ambiguous_refs=ambiguous_refs,
+        blocked_refs=blocked_refs,
+        shared_relationship_refs=_project_bounds_shared_relationship_refs(
+            project, request
+        ),
+        evidence_refs=request.evidence_refs,
+        candidate_decisions=candidate_decisions,
+        blockers=blockers,
+        compass_question=compass_question,
+    )
+
+
+def _project_bounds_request_blockers(
+    project: ProjectDefinition,
+    request: ProjectBoundsRequest,
+) -> tuple[str, ...]:
+    blockers: list[str] = []
+    if request.project_id is None:
+        blockers.append("missing_request_project_id")
+    elif request.project_id != project.project_id:
+        blockers.append("project_identity_mismatch")
+    if not request.candidates:
+        blockers.append("missing_request_candidates")
+    if not request.evidence_refs:
+        blockers.append("missing_request_evidence_refs")
+    if _has_raw_context_ref(request.evidence_refs):
+        blockers.append("raw_context_evidence_ref_blocked")
+    return tuple(blockers)
+
+
+def _project_bounds_shared_relationship_refs(
+    project: ProjectDefinition,
+    request: ProjectBoundsRequest,
+) -> tuple[str, ...]:
+    shared: set[str] = set()
+    shared.update(
+        set(request.repo_refs) & set(project.relationship_refs.repo_refs)
+    )
+    shared.update(
+        set(request.venture_refs) & set(project.relationship_refs.venture_refs)
+    )
+    shared.update(
+        set(request.session_refs) & set(project.relationship_refs.session_refs)
+    )
+    return tuple(sorted(shared))
 
 
 def _project_identity_blockers(
@@ -1917,3 +2394,18 @@ def project_identity_candidate_dict_keys() -> tuple[str, ...]:
 def project_identity_result_dict_keys() -> tuple[str, ...]:
     """Expose the stable identity-evaluation serialization shape."""
     return _PROJECT_IDENTITY_RESULT_DICT_KEYS
+
+
+def project_bounds_request_dict_keys() -> tuple[str, ...]:
+    """Expose the stable bounds-request serialization shape."""
+    return _PROJECT_BOUNDS_REQUEST_KEYS
+
+
+def project_bounds_result_dict_keys() -> tuple[str, ...]:
+    """Expose the stable bounds-evaluation serialization shape."""
+    return _PROJECT_BOUNDS_RESULT_DICT_KEYS
+
+
+def project_bounds_request_kinds() -> frozenset[str]:
+    """Expose the known bounds request kinds as a frozen set."""
+    return frozenset(_BOUNDS_REQUEST_KINDS)

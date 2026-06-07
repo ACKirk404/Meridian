@@ -8,6 +8,9 @@ from dataclasses import FrozenInstanceError
 import pytest
 
 from meridian_core.compass import (
+    ProjectBoundsDecision,
+    ProjectBoundsEvaluation,
+    ProjectBoundsRequest,
     ProjectDefinition,
     ProjectDifferenceDecision,
     ProjectDifferenceEvaluation,
@@ -26,9 +29,13 @@ from meridian_core.compass import (
     ProjectScopeEvaluation,
     define_project,
     evaluate_cross_project_handoff,
+    evaluate_project_bounds,
     evaluate_project_difference,
     evaluate_project_identity,
     evaluate_project_scope,
+    project_bounds_request_dict_keys,
+    project_bounds_request_kinds,
+    project_bounds_result_dict_keys,
     project_difference_evidence_dict_keys,
     project_difference_profile_dict_keys,
     project_difference_profile_from_definition,
@@ -1585,3 +1592,396 @@ class TestProjectIdentityBoundedDistinction:
         assert candidate.objectives == project.objectives
         assert candidate.tasks == project.tasks
         assert candidate.proof_trail == project.proof_trail
+
+
+def _bounds_request(**overrides) -> ProjectBoundsRequest:
+    base = {
+        "project_id": "meridian-v2",
+        "request_kind": "feature_change",
+        "request_ref": "request:add-deterministic-test",
+        "candidates": (
+            ProjectScopeCandidate(
+                project_id="meridian-v2",
+                subject_kind="artifact",
+                subject_ref="meridian_core/compass.py",
+                evidence_refs=("proof:bounds-artifact",),
+            ),
+        ),
+        "repo_refs": ("repo:C:/Users/scott/Code/Meridian-Worktrees/build-4-aegis",),
+        "venture_refs": ("venture:Meridian",),
+        "session_refs": ("session:build-4-aegis",),
+        "evidence_refs": ("proof:bounds-request",),
+    }
+    base.update(overrides)
+    return ProjectBoundsRequest(**base)
+
+
+def _in_scope_candidate(**overrides) -> ProjectScopeCandidate:
+    base = {
+        "project_id": "meridian-v2",
+        "subject_kind": "artifact",
+        "subject_ref": "meridian_core/compass.py",
+        "evidence_refs": ("proof:bounds-in",),
+    }
+    base.update(overrides)
+    return ProjectScopeCandidate(**base)
+
+
+def _out_of_scope_candidate(**overrides) -> ProjectScopeCandidate:
+    base = {
+        "project_id": "meridian-v2",
+        "subject_kind": "artifact",
+        "subject_ref": "bifrost/ui/command_staging.py",
+        "evidence_refs": ("proof:bounds-out",),
+    }
+    base.update(overrides)
+    return ProjectScopeCandidate(**base)
+
+
+def _ambiguous_candidate(**overrides) -> ProjectScopeCandidate:
+    base = {
+        "project_id": "meridian-v2",
+        "subject_kind": "ambiguous",
+        "subject_ref": "shared repo note",
+        "evidence_refs": ("proof:bounds-ambiguous",),
+        "ambiguity_reason": "same repo but unclear project",
+    }
+    base.update(overrides)
+    return ProjectScopeCandidate(**base)
+
+
+def _blocked_candidate(**overrides) -> ProjectScopeCandidate:
+    base = {
+        "project_id": "polaris-orchestrator",
+        "subject_kind": "artifact",
+        "subject_ref": "polaris/some.py",
+        "evidence_refs": ("proof:bounds-blocked",),
+    }
+    base.update(overrides)
+    return ProjectScopeCandidate(**base)
+
+
+class TestProjectBoundsRequest:
+    def test_request_is_frozen(self):
+        request = _bounds_request()
+        with pytest.raises(FrozenInstanceError):
+            request.request_kind = "scope_inquiry"  # type: ignore[misc]
+
+    def test_request_serializes_stably(self):
+        assert tuple(_bounds_request().to_dict().keys()) == (
+            project_bounds_request_dict_keys()
+        )
+
+    def test_request_is_json_serializable(self):
+        encoded = json.dumps(_bounds_request().to_dict(), sort_keys=True)
+        assert "request_kind" in encoded
+        assert "candidates" in encoded
+
+    def test_request_ref_is_required(self):
+        with pytest.raises(ValueError, match="request_ref"):
+            ProjectBoundsRequest(
+                project_id="meridian-v2",
+                request_kind="feature_change",
+                request_ref="",
+                candidates=(_in_scope_candidate(),),
+                evidence_refs=("proof:bounds",),
+            )
+
+    def test_request_kind_is_required(self):
+        with pytest.raises(ValueError, match="request_kind"):
+            ProjectBoundsRequest(
+                project_id="meridian-v2",
+                request_kind="",
+                request_ref="request:test",
+                candidates=(_in_scope_candidate(),),
+                evidence_refs=("proof:bounds",),
+            )
+
+    def test_candidates_must_be_project_scope_candidate(self):
+        with pytest.raises(ValueError, match="candidates"):
+            ProjectBoundsRequest(
+                project_id="meridian-v2",
+                request_kind="feature_change",
+                request_ref="request:test",
+                candidates=("not-a-candidate",),  # type: ignore[arg-type]
+                evidence_refs=("proof:bounds",),
+            )
+
+
+class TestProjectBoundsRuntime:
+    def test_all_in_scope_subjects_return_in_scope(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(
+                candidates=(
+                    _in_scope_candidate(),
+                    _in_scope_candidate(
+                        subject_kind="proof",
+                        subject_ref="tests/test_compass.py",
+                    ),
+                ),
+            ),
+        )
+        assert result.decision is ProjectBoundsDecision.IN_SCOPE
+        assert "meridian_core/compass.py" in result.in_scope_refs
+        assert "tests/test_compass.py" in result.in_scope_refs
+        assert result.out_of_scope_refs == ()
+        assert result.blockers == ()
+        assert result.to_dict()["execution_authorized"] is False
+
+    def test_all_out_of_scope_subjects_return_out_of_scope(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(
+                candidates=(
+                    _out_of_scope_candidate(),
+                    _out_of_scope_candidate(
+                        subject_ref="docs/live-build-3.md",
+                    ),
+                ),
+            ),
+        )
+        assert result.decision is ProjectBoundsDecision.OUT_OF_SCOPE
+        assert result.in_scope_refs == ()
+        assert "bifrost/ui/command_staging.py" in result.out_of_scope_refs
+        assert "docs/live-build-3.md" in result.out_of_scope_refs
+        assert result.compass_question is not None
+        assert "redirected" in result.compass_question
+
+    def test_mixed_subjects_return_partial_scope(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(
+                candidates=(
+                    _in_scope_candidate(),
+                    _out_of_scope_candidate(),
+                ),
+            ),
+        )
+        assert result.decision is ProjectBoundsDecision.PARTIAL_SCOPE
+        assert "meridian_core/compass.py" in result.in_scope_refs
+        assert "bifrost/ui/command_staging.py" in result.out_of_scope_refs
+        assert result.compass_question is not None
+        assert "mixed scope" in result.compass_question
+
+    def test_missing_request_project_id_blocks(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(project_id=None),
+        )
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "missing_request_project_id" in result.blockers
+        assert result.to_dict()["execution_authorized"] is False
+
+    def test_project_identity_mismatch_blocks(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(
+                project_id="polaris-orchestrator",
+                candidates=(
+                    _in_scope_candidate(project_id="polaris-orchestrator"),
+                ),
+            ),
+        )
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "project_identity_mismatch" in result.blockers
+
+    def test_empty_candidates_blocks(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(candidates=()),
+        )
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "missing_request_candidates" in result.blockers
+
+    def test_missing_evidence_refs_blocks(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(evidence_refs=()),
+        )
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "missing_request_evidence_refs" in result.blockers
+
+    def test_raw_context_evidence_ref_blocks(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(evidence_refs=("raw_prompt:full prompt text",)),
+        )
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "raw_context_evidence_ref_blocked" in result.blockers
+
+    def test_unknown_request_kind_returns_compass_question(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(request_kind="unknown_kind"),
+        )
+        assert result.decision is ProjectBoundsDecision.AMBIGUOUS
+        assert "unknown_bounds_request_kind" in result.blockers
+        assert result.compass_question is not None
+        assert "unknown_kind" in result.compass_question
+
+    def test_explicit_ambiguous_request_kind_returns_compass_question(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(
+                request_kind="ambiguous",
+                ambiguity_reason="caller could not classify request",
+            ),
+        )
+        assert result.decision is ProjectBoundsDecision.AMBIGUOUS
+        assert "ambiguous_bounds_request" in result.blockers
+        assert result.compass_question is not None
+        assert "caller could not classify request" in result.compass_question
+
+    def test_blocked_subject_blocks_bounds(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(
+                candidates=(
+                    _in_scope_candidate(),
+                    _blocked_candidate(),
+                ),
+            ),
+        )
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "candidate_blocked" in result.blockers
+        assert "polaris/some.py" in result.blocked_refs
+        assert result.compass_question is not None
+
+    def test_ambiguous_subject_returns_compass_question(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(
+                candidates=(
+                    _in_scope_candidate(),
+                    _ambiguous_candidate(),
+                ),
+            ),
+        )
+        assert result.decision is ProjectBoundsDecision.AMBIGUOUS
+        assert "candidate_ambiguous" in result.blockers
+        assert "shared repo note" in result.ambiguous_refs
+        assert result.compass_question is not None
+
+    def test_shared_repo_venture_session_surfaced_not_collapsed(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(),
+        )
+        assert result.decision is ProjectBoundsDecision.IN_SCOPE
+        assert (
+            "repo:C:/Users/scott/Code/Meridian-Worktrees/build-4-aegis"
+            in result.shared_relationship_refs
+        )
+        assert "venture:Meridian" in result.shared_relationship_refs
+        assert "session:build-4-aegis" in result.shared_relationship_refs
+
+    def test_non_shared_envelope_does_not_surface_shared_refs(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(
+                repo_refs=("repo:unrelated",),
+                venture_refs=("venture:Other",),
+                session_refs=("session:other-session",),
+            ),
+        )
+        assert result.shared_relationship_refs == ()
+
+    def test_candidate_decisions_record_per_subject_outcomes(self):
+        result = evaluate_project_bounds(
+            _project(),
+            _bounds_request(
+                candidates=(
+                    _in_scope_candidate(),
+                    _out_of_scope_candidate(),
+                ),
+            ),
+        )
+        decisions = {
+            entry["subject_ref"]: entry["decision"]
+            for entry in result.candidate_decisions
+        }
+        assert decisions["meridian_core/compass.py"] == "in_scope"
+        assert decisions["bifrost/ui/command_staging.py"] == "out_of_scope"
+
+    def test_bounds_result_serializes_stably(self):
+        result = evaluate_project_bounds(_project(), _bounds_request())
+        assert tuple(result.to_dict().keys()) == project_bounds_result_dict_keys()
+
+    def test_bounds_result_is_json_serializable(self):
+        result = evaluate_project_bounds(_project(), _bounds_request())
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert "in_scope" in encoded
+        assert "execution_authorized" in encoded
+
+    def test_bounds_result_is_deterministic(self):
+        project = _project()
+        request = _bounds_request()
+        assert evaluate_project_bounds(project, request) == evaluate_project_bounds(
+            project,
+            request,
+        )
+
+    def test_bounds_evaluation_decision_type_required(self):
+        with pytest.raises(ValueError, match="decision"):
+            ProjectBoundsEvaluation(
+                decision="in_scope",  # type: ignore[arg-type]
+                project_id="meridian-v2",
+                request_kind="feature_change",
+                request_ref="request:test",
+            )
+
+    def test_bounds_runtime_does_not_emit_identity_or_handoff_fields(self):
+        payload = evaluate_project_bounds(_project(), _bounds_request()).to_dict()
+        assert "mission_bearing" not in payload
+        assert "distinguishing_neighbors" not in payload
+        assert "collapsing_neighbors" not in payload
+        assert "source_project_id" not in payload
+        assert "target_project_id" not in payload
+        assert "review_ready" not in payload
+        assert "merge_authorized" not in payload
+
+    def test_bounds_runtime_does_not_emit_raw_context_keys(self):
+        payload = evaluate_project_bounds(_project(), _bounds_request()).to_dict()
+        assert "raw_prompt" not in payload
+        assert "transcript" not in payload
+        assert "free_form_context" not in payload
+
+    def test_execution_is_never_authorized_across_branches(self):
+        defined = evaluate_project_bounds(_project(), _bounds_request()).to_dict()
+        partial = evaluate_project_bounds(
+            _project(),
+            _bounds_request(
+                candidates=(
+                    _in_scope_candidate(),
+                    _out_of_scope_candidate(),
+                ),
+            ),
+        ).to_dict()
+        out_of_scope = evaluate_project_bounds(
+            _project(),
+            _bounds_request(candidates=(_out_of_scope_candidate(),)),
+        ).to_dict()
+        ambiguous = evaluate_project_bounds(
+            _project(),
+            _bounds_request(request_kind="unknown_kind"),
+        ).to_dict()
+        blocked = evaluate_project_bounds(
+            _project(),
+            _bounds_request(project_id=None),
+        ).to_dict()
+        for payload in (defined, partial, out_of_scope, ambiguous, blocked):
+            assert payload["execution_authorized"] is False
+
+    def test_request_kinds_exposes_known_set(self):
+        kinds = project_bounds_request_kinds()
+        assert "feature_change" in kinds
+        assert "scope_inquiry" in kinds
+        assert "boundary_extension" in kinds
+        assert "context_load" in kinds
+        assert "task_addition" in kinds
+        assert "evidence_attach" in kinds
+        assert "ambiguous" in kinds
+        # frozen set: cannot be mutated by callers
+        with pytest.raises(AttributeError):
+            kinds.add("rogue_kind")  # type: ignore[attr-defined]
