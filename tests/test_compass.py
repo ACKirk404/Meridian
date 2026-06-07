@@ -804,6 +804,42 @@ class TestProjectHandoffRuntime:
         assert result.decision is ProjectHandoffDecision.BLOCKED
         assert blocker in result.blockers
 
+    def test_handoff_result_redacts_raw_context_ref_fields(self):
+        result = evaluate_cross_project_handoff(
+            _difference_profile(),
+            _other_difference_profile(),
+            _handoff_request(
+                evidence_refs=("proof:cross-project-handoff", "raw_context:evidence"),
+                payload_summary_refs=(
+                    "proof-summary:compass-project-difference",
+                    "transcript:payload details",
+                ),
+                approval_refs=("approval:build-4-coordinator", "conversation:approval"),
+            ),
+        )
+        payload = result.to_dict()
+        encoded = json.dumps(payload, sort_keys=True)
+
+        assert result.decision is ProjectHandoffDecision.BLOCKED
+        assert "raw_context_evidence_ref_blocked" in result.blockers
+        assert "raw_context_payload_summary_ref_blocked" in result.blockers
+        assert "raw_context_approval_ref_blocked" in result.blockers
+        assert payload["evidence_refs"] == (
+            "proof:cross-project-handoff",
+            "<redacted_raw_context>",
+        )
+        assert payload["payload_summary_refs"] == (
+            "proof-summary:compass-project-difference",
+            "<redacted_raw_context>",
+        )
+        assert payload["approval_refs"] == (
+            "approval:build-4-coordinator",
+            "<redacted_raw_context>",
+        )
+        assert "raw_context:evidence" not in encoded
+        assert "transcript:payload details" not in encoded
+        assert "conversation:approval" not in encoded
+
     def test_raw_context_block_flag_is_required(self):
         result = evaluate_cross_project_handoff(
             _difference_profile(),
