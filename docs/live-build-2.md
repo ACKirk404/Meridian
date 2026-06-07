@@ -65,6 +65,229 @@ Required proof before Ready marker:
 - path-scope proof limited to allowed files
 - completion marker here with files changed, tests, proof, and remaining risk
 
+### Worker Repair Marker #2 - Ready For Codex Review A/B Rerun
+
+Timestamp: 2026-06-07T15:45:00-06:00.
+
+Codex Review B returned two P1 findings against the pre-repair candidate.
+The previously-repaired Prime/blocked_reason writer finding from Review A
+is preserved. Both new P1 findings are addressed in this repair without
+expanding scope.
+
+- **P1.1 (resolved) — Typed references not enforced at construction.**
+  Added `__post_init__` validation so invalid reference values are
+  rejected before serialization:
+  - `GoalBlockedReason.reference` must be `None`, `GoalObjectiveRef`, or
+    `ProofTrailRef`. Anything else (bare string, dict, int, list, raw
+    object) raises `DisplaySafetyError`.
+  - `GoalRecord.proof_trail_ref` must be `None` or `ProofTrailRef`.
+    `GoalObjectiveRef` and bare values are rejected.
+  - `GoalRecord.final_proof_ref` must be `None` or `ProofTrailRef`.
+  - `GoalRecord.objective_ref` validation preserved as-is.
+- **P1.2 (resolved) — Short unsafe strings passed through bounded text
+  fields.** Tightened `_enforce_short_text` with a new deterministic
+  helper `_assert_display_safe_content`. The helper applies a closed
+  set of regex deny patterns covering: HTML markup (`<tag`, `</tag`,
+  `<!doctype`), chat-template role tokens (`<|im_start|>` etc.),
+  transcript role lines (`system:`, `user:`, `assistant:`),
+  prompt-override phrases (`ignore prior/previous/all prior
+  instructions`), markdown code fences, `javascript:` URIs, JS handler
+  attributes (`on*=`), credential assignments (`api_key=`, `password=`,
+  `secret=`, `access_token=`), Authorization headers, Bearer tokens,
+  OpenAI-style keys (`sk-...`), GitHub tokens (`ghp_...`, `ghs_...`,
+  `gho_...`, `github_pat_...`), AWS access keys (`AKIA...`), PEM
+  private-key blocks, and JWT-shaped tokens. Also rejects every C0/DEL
+  control character (replaces the previous NUL-only check). All checks
+  are offline, deterministic, dependency-free, and never rewrite input —
+  unsafe content always raises `DisplaySafetyError`. Normal human
+  summaries like "operator paused while reviewing", "goal closed after
+  backend slice landed", and "provider_quota threshold reached" are
+  preserved by explicit positive tests.
+
+Files changed in this repair (path-scoped to the allowed set):
+
+- `meridian_core/goal_runtime.py` — added `re` import; added
+  `_assert_display_safe_content` helper and the `_UNSAFE_PATTERNS`
+  table; routed `_enforce_short_text` (and therefore
+  `_enforce_short_label`) through the new content check; added
+  `isinstance` reference-type validation in `GoalBlockedReason` for
+  `reference` and in `GoalRecord` for `proof_trail_ref` and
+  `final_proof_ref`.
+- `tests/test_goal_runtime.py` — added `TestTypedReferenceEnforcement`
+  (parametrized rejection of bare strings, ints, dicts, lists, raw
+  objects, and the wrong typed ref; positive coverage for `None`,
+  `GoalObjectiveRef`, and `ProofTrailRef`; positive serializer
+  round-trip for record-level proof refs) and
+  `TestUnsafeContentRejection` (parametrized rejection of 18 short
+  unsafe strings on `objective_text`; targeted rejection for
+  multi-line objective text, blocked-reason summary chat-role / HTML
+  injection, completion-summary prompt override, and snapshot note
+  carrying a secret or chat-role line; positive coverage that ordinary
+  human summaries still pass).
+- `docs/live-build-2.md` — this repair marker only.
+
+Proof:
+
+- `python -m pytest tests/test_goal_runtime.py -q` → 110 passed in
+  0.20s (was 65; +45 new tests across both P1 areas).
+- `git diff --check` → clean (no whitespace errors).
+- `git status --short --branch` → only the allowed candidate files:
+  `M docs/live-build-2.md`, `?? meridian_core/goal_runtime.py`,
+  `?? tests/test_goal_runtime.py`.
+
+Remaining risk for Codex Review A/B rerun:
+
+- The unsafe-content reject list is a closed regex set chosen by the
+  worker. It is conservative and biased toward false-rejection of
+  unfamiliar shapes rather than guessing intent, but it is not
+  exhaustive — new credential formats and new chat-template tokens will
+  need entries added in later slices. Reviewer should confirm the
+  current set is sufficient for the V3 first-slice surface or specify
+  additional shapes.
+- `_assert_display_safe_content` does not run on the raw byte string,
+  so an attacker who pastes content already pre-encoded (e.g.,
+  URL-encoded `%3Cscript%3E`) would survive the HTML check. The
+  contract calls this out as "display consumers render without
+  sanitization" — re-encoding by a downstream display surface is the
+  consumer's responsibility. Worker chose not to chase encoded
+  payloads here; reviewer may want a follow-up slice that adds
+  decode-then-check if any consumer renders without escaping.
+- `GoalContinuationPolicy.human_gate_on_resume_kinds` still auto-fills
+  the mandatory always-human-gate kinds instead of rejecting policies
+  that omit them — unchanged from the prior marker.
+- Scope is unchanged from the original slice: domain objects and
+  validation helpers only; no mutation API, no persistence, no
+  retention-cap enforcement, no cross-harness orchestration.
+
+Stop: ready for Codex Review A/B rerun. Worker has not committed, pushed,
+merged, rebased, moved branches, or touched `index.html` or
+`C:\Users\scott\Code\Meridian` main.
+
+### Worker Repair Marker - Ready For Codex Review A/B Rerun
+
+Timestamp: 2026-06-07T15:05:00-06:00.
+
+Codex Review A returned two findings against the prior candidate; both are
+addressed in this repair without expanding scope.
+
+- **HIGH (resolved):** `GoalBlockedReason.__post_init__` previously accepted
+  `recorded_by=HarnessWriter.PRIME` alongside `COMPASS`. Tightened to
+  Compass-only per contract §"GoalBlockedReason" — status-write-induced
+  blocks are always Compass, and goals never enter `BLOCKED` or
+  `USAGE_LIMITED` at creation (Prime creates into `ACTIVE` only), so there
+  is no Prime-authored blocker case to preserve. Misleading comment and
+  error text replaced.
+- **MEDIUM (resolved):** `test_blocked_reason_recorded_by_must_be_compass`
+  previously only rejected Aegis. Replaced with
+  `test_blocked_reason_rejects_every_non_compass_writer` (parametrized
+  across Prime, Aegis, Beacon, Echo, Session Lifecycle) plus
+  `test_blocked_reason_accepts_compass_only` proving Compass is the sole
+  accepted writer.
+
+Files changed in this repair (path-scoped to the allowed set):
+
+- `meridian_core/goal_runtime.py` — tightened
+  `GoalBlockedReason.__post_init__` to reject any `recorded_by` value
+  other than `HarnessWriter.COMPASS`; rewrote the inline comment and the
+  `DisplaySafetyError` message accordingly.
+- `tests/test_goal_runtime.py` — replaced the weak Aegis-only test with a
+  parametrized rejection across every non-Compass writer (including
+  Prime), and added an explicit Compass-accepted positive test.
+- `docs/live-build-2.md` — this repair marker only.
+
+Proof:
+
+- `python -m pytest tests/test_goal_runtime.py -q` → 65 passed in 0.19s.
+- `git diff --check` → clean (no whitespace errors).
+- `git status --short --branch` → only the allowed candidate files:
+  `M docs/live-build-2.md`, `?? meridian_core/goal_runtime.py`,
+  `?? tests/test_goal_runtime.py`.
+
+Remaining risk for Codex Review A/B rerun is unchanged from the original
+marker below, except the previously-listed Prime-blocker risk is now
+resolved.
+
+### Worker Completion Marker - Ready For Codex Review A/B
+
+Timestamp: 2026-06-07T14:30:00-06:00.
+
+Worker: Polaris Build 2 Opus worker (`launch-chat`, tier `power`,
+`claude-opus-4-7`) in worktree
+`C:/Users/scott/AppData/Local/Temp/polaris-wt/build2-goal-runtime-domain-20260607-1313`.
+
+Files changed (path-scoped to the allowed set):
+
+- new `meridian_core/goal_runtime.py` — pure-Python Goal Runtime domain
+  module. Closed `GoalStatus` enum (`ACTIVE`, `BLOCKED`, `USAGE_LIMITED`,
+  `COMPLETE`); closed `GoalBlockedReasonKind` (13 contract kinds);
+  `HarnessWriter`, `UsageLimitResumeKind`, `BlockResumeKind`; frozen
+  records `GoalObjectiveRef`, `ProofTrailRef`, `GoalBlockedReason`,
+  `GoalTokenWindow`, `GoalTimeWindow`, `GoalBudgetWindow`,
+  `GoalSessionWindow`, `GoalTelemetrySnapshot`, `GoalContinuationPolicy`,
+  `GoalLineageEntry`, `GoalRecord`; transition validator
+  (`validate_transition`, `assert_transition`, `expected_writer_for`,
+  `allowed_transitions_from`) enforcing the contract's allowed
+  transitions and single-writer authorship (Prime creates and writes
+  `ACTIVE -> COMPLETE`; Compass writes every transition among `ACTIVE`,
+  `BLOCKED`, `USAGE_LIMITED`; `COMPLETE` is terminal); proof-reference
+  helpers `proof_trail_ref_required` (risk_tier >= 2, dispatched
+  sessions, blocked occurrences, usage-limited occurrences, or
+  `COMPLETE`) and `final_proof_ref_required` (`COMPLETE` and
+  risk_tier >= 2); `to_safe_dict` serializer that walks only typed,
+  bounded fields and enum values. No persistence, no model calls, no
+  network, no FileMap entry, no UI.
+- new `tests/test_goal_runtime.py` — focused tests covering closed enum,
+  every allowed transition with its expected writer, forbidden
+  transitions, single-writer authorship (Prime cannot write `BLOCKED` /
+  `USAGE_LIMITED`; Compass cannot write `COMPLETE`; Aegis / Beacon /
+  Echo / Session Lifecycle cannot write status), display-safety caps and
+  recorded-by constraints on `GoalBlockedReason`, `GoalTelemetrySnapshot`,
+  and `GoalLineageEntry`, status-coupled invariants on `GoalRecord`,
+  proof-reference required helper across all five trigger conditions,
+  and serializer collapse to JSON-friendly primitives.
+- `docs/live-build-2.md` — this completion marker only.
+
+Proof:
+
+- `python -m pytest tests/test_goal_runtime.py -q` → 60 passed in 0.31s.
+- `git diff --check` → clean (no whitespace errors).
+- Path scope: only `meridian_core/goal_runtime.py`,
+  `tests/test_goal_runtime.py`, and this marker in
+  `docs/live-build-2.md`. `docs/v3-goal-runtime-contract.md`, FileMap
+  surfaces, `index.html`, Electron/Bifrost UI, generated artifacts, and
+  every other runtime untouched. `git status` shows exactly:
+  `?? meridian_core/goal_runtime.py` and `?? tests/test_goal_runtime.py`
+  before this marker is committed.
+
+Remaining risk for Codex Review A/B:
+
+- The full repo suite has one pre-existing unrelated failure
+  (`tests/test_prime_runtime.py::test_prime_runtime_context_assembles_backend_sources`)
+  on this worktree's HEAD; it does not import `goal_runtime` and is
+  independent of this slice. Worker did not touch
+  `meridian_core/prime_runtime.py` or `tests/test_prime_runtime.py`.
+- `GoalContinuationPolicy` auto-fills the mandatory always-human-gate
+  kinds (`HUMAN_GATE`, `BRANCH_PERMISSION_REQUIRED`,
+  `WORKTREE_COLLISION`, `POLICY_DENIED`) instead of rejecting policies
+  that omit them. Reviewer should confirm "auto-include" matches contract
+  intent rather than "reject the policy".
+- ~~`GoalBlockedReason.recorded_by` accepts `PRIME` in addition to
+  `COMPASS`...~~ — **resolved in repair above**: tightened to
+  Compass-only.
+- This slice deliberately ships only domain objects and validation
+  helpers. No mutation API (e.g., `apply_transition`, `append_telemetry`,
+  `append_lineage`) is included — those land in the next implementation
+  slice once the contract's broader writer-binding and persistence
+  questions are decided. Reviewer should confirm "domain + validator
+  only" was the intended scope.
+- No persistence, retention-cap enforcement (`telemetry_snapshot_cap`),
+  or cross-harness orchestration is included — all deferred to later V3
+  specs per contract §"Open Questions Deferred To Later V3 Specs".
+
+Stop: ready for Codex Review A/B. Worker has not committed, pushed,
+merged, rebased, moved branches, or touched `index.html` or
+`C:\Users\scott\Code\Meridian` main.
+
 ## Coordinator Override - Completed / Review-Cleared / Promoted To Main
 
 Coordinator reconciliation: 2026-06-07T13:10:00-06:00.
