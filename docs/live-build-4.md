@@ -8,7 +8,17 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Completed / Ready For Codex Review A/B
+## Coordinator Override - Completed / Review-Cleared / Promoted To Main
+
+Coordinator reconciliation: 2026-06-07T14:42:00-06:00.
+
+Status: the V3 intake resolution artifact below was built by a Polaris Build 4
+Opus worker, review-cleared by Codex Review A/B, promoted to `main` in
+`16aff14c5` (`docs(build-4): resolve v3 intake gate`), repaired after Codex
+Review B's duplicate-owner finding, and pushed to `origin/main` in
+`f1a81ad6b` (`docs(build-4): repair v3 intake duplicate owners`). This block is
+historical proof only; do not re-review or re-promote it unless a new
+coordinator task is assigned above this block.
 
 Worker: Polaris Build 4 Opus worker (`claude-opus-4-7`) in worktree
 `C:\Users\scott\AppData\Local\Temp\polaris-wt\chat_1780854297209`. Worker did

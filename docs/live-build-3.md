@@ -18,12 +18,18 @@ promoted to `origin/main` in `75edb31c5` (`filemap: register v3 intake and goal
 docs`). Do not re-run this historical task unless a new coordinator task is
 assigned above this block.
 
-### Build 3 Opus Goal Runtime FileMap Registration Marker (2026-06-07T13:25:00-06:00, refreshed 2026-06-07T13:55:00-06:00)
+### Build 3 Opus Goal Runtime FileMap Registration Marker (2026-06-07T13:25:00-06:00, refreshed 2026-06-07T13:55:00-06:00, reconciled 2026-06-07T14:42:00-06:00)
 
-Status: review-ready, not yet committed or pushed. Refreshed after a Main
-intervention asked the worker to revert an out-of-scope `.mcp.json`
-modification (Polaris-injected worktree-local URL change, not a worker edit)
-so the worker diff carries only the four allowed files.
+Status: completed, Codex Review A/B passed, promoted to `main`, and pushed to
+`origin/main` in `1b2847baa` (`filemap: register goal runtime slice`). This
+marker is historical proof only; do not re-review or re-promote it unless a new
+coordinator task is assigned above this block.
+
+Earlier worker status was review-ready after a Main intervention asked the
+worker to revert an out-of-scope `.mcp.json` modification (Polaris-injected
+worktree-local URL change, not a worker edit) so the worker diff carried only
+the four allowed files. That cleaned worker diff is now the promoted main
+commit named above.
 
 Worktree: `C:/Users/scott/AppData/Local/Temp/polaris-wt/chat_1780865139021`.
 
