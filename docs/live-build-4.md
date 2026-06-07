@@ -8,6 +8,38 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now / Repair Required
+
+Goal: repair Codex review finding on Compass bounds request-level raw-context serialization.
+
+Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-compass-project-definition`.
+
+Branch: continue from a fresh branch based on current `origin/main`; do not merge or reuse the stale full `origin/codex/build-4-compass-project-definition-20260606` branch because direct merge would roll back newer promoted backend and Bifrost work.
+
+Allowed files only: `meridian_core/compass.py`, `tests/test_compass.py`, `docs/live-build-4.md`.
+
+Finding (HIGH): Codex review verified that Compass blocks raw-context request evidence at the bounds layer, but `_bounds_result` still serializes request-level raw context verbatim. Reproducer on current main before repair:
+- `ProjectBoundsRequest(evidence_refs=("raw_prompt:secret bounds request evidence",), request_kind="task_addition", ...)` returns `BLOCKED` with `raw_context_evidence_ref_blocked`, but `result.to_dict()["evidence_refs"]` still contains the raw prompt payload.
+- `ProjectBoundsRequest(request_ref="raw_prompt:secret request ref", request_kind="task_addition", evidence_refs=("proof:request",), ...)` can return `IN_SCOPE`, and `result.to_dict()["request_ref"]` preserves the raw payload.
+- `ProjectBoundsRequest(request_kind="ambiguous", ambiguity_reason="raw_prompt:secret ambiguity reason", ...)` returns `AMBIGUOUS`, and `compass_question` interpolates the raw ambiguity payload.
+
+Task:
+- Add bounds request-level raw-context detection for `request_ref`, `ambiguity_reason`, and request `evidence_refs`.
+- Ensure blocked/ambiguous/successful `ProjectBoundsEvaluation.to_dict()` output never preserves raw prompt, transcript, free-form context, conversation, provider-response, or newline payloads from those request-level fields.
+- Preserve safe refs and safe request labels unchanged.
+- Keep `execution_authorized=False` and the existing bounds aggregation redaction behavior intact.
+- Do not edit Bifrost/UI, FileMap, Relay, Session Lifecycle, Prime/Beacon, Polaris, process-control code, or queue files outside this Build 4 marker.
+
+Proof:
+- Add focused regression tests in `tests/test_compass.py` for the three reproducers above, plus safe-value preservation.
+- `python -m pytest tests/test_compass.py -q`
+- `git diff --check`
+
+Completion:
+- Commit only this focused repair on the assigned Build 4 branch.
+- Mark this block `Completed / Ready For Codex Review` with commit hash, files changed, tests run, and concrete before/after evidence.
+- Next Candidate: Codex Reviews B re-review of the focused bounds request-level redaction repair before coordinator promotion to `main`.
+
 ## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: repair cadence-3/3 self-review finding — `neighbor.project_id` raw context leaked via `collapsing_neighbors` / `distinguishing_neighbors` lists and the AMBIGUOUS `compass_question` interpolation.
