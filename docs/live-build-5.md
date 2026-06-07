@@ -49,6 +49,16 @@ Required proof before Ready marker:
 - concise completion marker here with files changed, proof, and any remaining
   risk.
 
+Launch attempt note - 2026-06-07T09:01:20-06:00:
+
+- Worker `chat_1780844478717` launched through Polaris `launch-chat`, tier
+  `power`, and reached `claude-opus-4-7`.
+- Result: no candidate. Diagnostics show a Claude rate-limit event before any
+  backend/test file changes. The isolated worker worktree contains only
+  Polaris-generated `.mcp.json` dirt.
+- This task remains active for the next Opus availability window. Do not route
+  Codex review until a real worker candidate exists.
+
 ## Coordinator Update - Opus Worker Relaunch Attempt / No Candidate
 
 Timestamp: 2026-06-07T08:49:01-06:00.
