@@ -87,6 +87,138 @@ Required proof before Ready marker:
 Stop after implementation and marker. Do not promote to main, do not push to
 main, do not move branches/worktrees, and do not touch shared main.
 
+Completion:
+- Status: Ready for Codex Review (Review B P2 path-display-safety repair on
+  top of the prior 2026-06-07 first-V3 candidate; Claude Opus implementation
+  builder, no Sonnet handoff).
+- Completed: 2026-06-07 (initial slice) + Review B repair on the same date.
+- Files changed: `meridian_core/provider_balance.py` (initial + repair),
+  `tests/test_provider_balance.py` (initial + repair), `docs/live-build-1.md`
+  (marker only — initial + Review B repair section below).
+- Tests run after Review B repair: `python -m pytest tests/test_provider_balance.py -q`
+  -> 126 passed in 0.18s (+27 new path-rejection tests on top of the 99
+  baseline). `git diff --check -- meridian_core/provider_balance.py
+  tests/test_provider_balance.py docs/live-build-1.md` -> clean (no
+  whitespace errors in any allowed file). Path-scope confined to the three
+  allowed files only; no edits to `index.html`, Electron/Bifrost UI,
+  generated artifacts, FileMap surfaces, other queues, `.mcp.json`, or
+  `main`.
+- Coordinator promotion proof: Codex Review A and Codex Review B both passed
+  the repaired Opus candidate on 2026-06-07. Promoted to main from worker
+  `chat_1780866920244` with `.mcp.json` excluded. Main-checkout proof:
+  `python -m pytest tests/test_provider_balance.py -q` -> 144 passed;
+  `python -m pytest tests/test_filemap.py -q` -> 47 passed; `git diff --check`
+  -> clean.
+- Slice shape: pure-Python `meridian_core/provider_balance.py` defines
+  frozen dataclasses `ProviderBalanceSnapshot` and `ProviderBalanceSummary`,
+  eight enums (`ProviderHealth`, `ProviderRouteKind`, `ProviderCostPressure`,
+  `ProviderQuotaState`, `ProviderCreditStatus`, `ProviderTrustState`,
+  `ProviderPolicyState`, `ProviderRoutingOwner`), display-safety helpers
+  (`safe_provider_id`, `safe_evidence_ref`, `safe_display_label`,
+  `safe_display_notes`), defensive builders (`unknown_provider_snapshot`,
+  `build_provider_balance_snapshot`, `build_provider_balance_summary`), and
+  `ProviderBalanceValidationError`. `ProviderBalanceSummary.to_mapping()`
+  emits the exact key set Bifrost's `provider_balance_view_from_summary`
+  consumes (summary keys: `providers`, `selected_provider`,
+  `routing_owner`, `policy_state`, `evidence_refs`; per-provider keys
+  match the 18-field contract). Bifrost is not imported; tests verify the
+  contract structurally.
+- Fail-safe behavior proven: `unknown_provider_snapshot` serializes every
+  state as `unknown` and never as `ok`/`available`/`none`; numeric inputs
+  coerce safely (negative balances → 0, invalid strings → 0, percent
+  clamps to `[0, 100]`); bool inputs do not silently become 0/1.
+- Display-safety proven: unsafe markers (`raw_prompt`, `provider_response`,
+  `api_key`, `bearer `, `credential`, `password`, `model_payload`,
+  `secret`, `git checkout`, `git rebase`, `git merge`, `worktree`,
+  `branch_movement`, etc.) trigger redaction to
+  `unsafe_metadata_redacted` (labels/notes) or
+  `unsafe_evidence_ref_redacted` (refs); evidence refs reject path
+  separators, whitespace, and oversized inputs; `provider_id` raises
+  rather than redacting (routing identity must never be invented).
+- Provider-neutral coverage: tests construct snapshots for `claude`,
+  `openai`, `deepseek`, `openrouter`, and `local-llama` and assert the
+  resulting mapping covers `direct`, `aggregator`, and `local` route
+  kinds plus `trusted`, `candidate`, `aggregator`, and `local` trust
+  states.
+- Determinism: `ProviderBalanceSummary.ordered_snapshots()` puts the
+  selected provider first then sorts the rest by `provider_id`; equal
+  inputs produce equal summaries and equal mappings across repeated
+  calls.
+- Pure/local: no network calls, no credentials, no provider SDKs, no
+  account probing, no live model calls, no UI/Electron/Bifrost edits,
+  no FileMap edits, no shared-main write, no branch/worktree movement;
+  module body has no I/O, no `urllib`, no `subprocess`, no `os` imports.
+- Remaining risk: the Bifrost adapter `provider_balance_view_from_summary`
+  is not driven by this slice's mapping at runtime — only the key
+  contract is asserted structurally. A future slice should add an
+  end-to-end integration test that round-trips
+  `ProviderBalanceSummary.to_mapping()` through the Bifrost projector
+  inside `tests/test_bifrost_cockpit.py`. Cost-pressure ladder and
+  quota/credit ladders are deliberately coarse here; future slices may
+  introduce numeric pressure thresholds or per-provider override hooks,
+  both of which can extend the existing enums without breaking the
+  current mapping shape.
+- Review B P2 repair (path display-safety, 2026-06-07):
+  - Finding: `_is_safe_display_value` only blocked newlines + unsafe marker
+    substrings, so `safe_display_label(r"C:\Users\scott\file.txt")`,
+    `safe_display_notes("/tmp/file.txt")`, and
+    `build_provider_balance_snapshot("claude",
+    display_name=r"C:\Users\scott\file.txt", notes="/tmp/file.txt")`
+    preserved raw filesystem paths in `display_name`, `model_name`,
+    `notes`, `remaining_credit_label`, and `estimated_spend_label`. Tests
+    covered path redaction for `provider_id` and `evidence_ref` but not
+    for labels, notes, or snapshot construction.
+  - Repair: new `_looks_like_filesystem_path()` helper rejects four shapes:
+    Windows drive-letter starts (`C:\\...` / `C:/...`, case-insensitive on
+    the drive letter), any string containing a backslash (legitimate
+    display content never does), any POSIX absolute path (leading `/`),
+    and any string with a common absolute-path prefix embedded mid-text
+    (`/tmp/`, `/etc/`, `/var/`, `/usr/`, `/home/`, `/Users/`, `/opt/`,
+    `/Library/`, `/Volumes/`, `/proc/`, `/dev/`, `/root/`, `/mnt/`,
+    `/srv/`), matched case-insensitively so case-variant Unix paths
+    (`/users/...`) also trip. `_is_safe_display_value` now calls this
+    helper after the marker check, so the new rule propagates uniformly
+    through `safe_display_label`, `safe_display_notes`, `safe_provider_id`,
+    and `safe_evidence_ref` without changing the public signatures.
+    `ProviderBalanceSnapshot.__post_init__` already validates every
+    string surface via `safe_display_label`/`safe_display_notes`, so
+    direct construction with path-bearing `display_name`, `model_name`,
+    `remaining_credit_label`, `estimated_spend_label`, or `notes` now
+    raises `ProviderBalanceValidationError`; the defensive
+    `build_provider_balance_snapshot` builder still routes those fields
+    through the safety helpers and emits `unsafe_metadata_redacted`
+    instead. Legitimate short labels with embedded `/` in non-path
+    context (`$5/day`, `3/4 capacity`) continue to pass — the heuristic
+    only triggers on path shapes.
+  - Tests added: new `TestFilesystemPathRejectionInLabels` class with 27
+    tests proving: `safe_display_label` redacts Windows drive paths
+    (backslash + forward-slash variants), lowercase drive letters, POSIX
+    absolute paths, embedded path prefixes, UNC paths, any backslash, and
+    case-variant Unix paths; `safe_display_label` preserves `$5/day`,
+    `3/4 capacity`, `credit: available`, `$0.18 estimated`, and
+    `credit: provider-hidden`; `safe_display_notes` redacts the same
+    shapes (Windows drive, POSIX absolute, embedded prefix, backslash)
+    and preserves `Primary provider ready` and
+    `DeepSeek metadata candidate-only`; `build_provider_balance_snapshot`
+    redacts path-shaped `display_name`, `model_name`, `notes`,
+    `estimated_spend_label`, and `remaining_credit_label`, including the
+    exact Review B reproducer combo (`display_name=r"C:\Users\scott\file.txt"`
+    plus `notes="/tmp/file.txt"`); `ProviderBalanceSnapshot.__post_init__`
+    raises for path-shaped inputs on every one of those five fields
+    (five separate raises tests); and the end-to-end
+    `ProviderBalanceSummary.to_mapping()` repr contains no `C:\Users`,
+    `/Users/scott`, `/tmp/`, `/etc/`, `/home/`, `\\server`, or `\spend`
+    fragments even when the snapshot was constructed with every label
+    set to a different path shape.
+  - Pure/local: unchanged from the initial slice — no new imports, no
+    network calls, no credentials, no provider SDKs, no live model calls,
+    no UI/Electron/Bifrost edits, no FileMap edits, no shared-main write,
+    no branch/worktree movement. `.mcp.json` untouched (the pre-existing
+    CRLF-advisory dirt from session start is unrelated to this repair).
+- Next Candidate: Codex Review B re-review of the path-display-safety
+  repair on top of the prior 2026-06-07 candidate before any coordinator
+  promotion to `main`.
+
 ## Coordinator Override - Completed / Review-Cleared / Promoted To Main
 
 Coordinator reconciliation: 2026-06-07T13:07:00-06:00.
