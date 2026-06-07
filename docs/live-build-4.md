@@ -8,13 +8,13 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Repair Required / Invalid Ready Marker
+## Coordinator Override - Completed / Ready For Codex Review
 
 Goal: implement Compass project definition runtime as the next backend boundary slice.
 
 Worktree: `C:\Users\scott\Code\Meridian-Worktrees\build-4-compass-project-definition`.
 
-Branch: `codex/build-4-compass-project-definition-20260606`.
+Branch: `codex/build-4-compass-project-definition-20260606` (pushed to origin 2026-06-06).
 
 Allowed files only: `meridian_core/compass.py`, `tests/test_compass.py`, `docs/live-build-4.md`.
 
@@ -24,12 +24,28 @@ Task:
 - Surface ambiguous or incomplete project identity as a Compass question/blocker rather than silently selecting hidden context.
 - Preserve pure backend behavior: no model calls, no UI/Bifrost/FileMap edits, no branch/worktree movement, no shared-main write, no raw cross-project transcript injection, and no Polaris dependency.
 
-Repair required:
+Completion: 2026-06-06 (Opus repair lane; Codex Review B repair applied).
 
-- The 2026-06-06 Build 4H marker was not review-ready. Branch `codex/build-4-compass-project-definition-20260606` only contains a queue marker commit (`5b2166278`) on top of `3b7bae9f2`; it does not contain the required `meridian_core/compass.py` or `tests/test_compass.py` implementation diff.
-- Do not review or land this Build 4 slice until a Claude Max build lane completes the actual allowed-file implementation or the coordinator explicitly promotes a verified existing Compass implementation branch for review.
-- Current blocker: Claude Max Haiku resumes returned `You've hit your monthly spend limit`; keep this task parked rather than substituting Codex as the implementer.
-- 2026-06-06 14:34 -06:00: Coordinator resumed existing Polaris Claude Haiku card `chat_1780776552390` with the implementation prompt. The lane accepted the prompt and immediately returned the same spend-limit error. Resume on Haiku/Opus after the account limit is raised.
+Ready for Codex Review:
+
+- Implementation commit: `a5e2bd048` (Add Compass project identity runtime).
+- Codex Review B repair commit: `0a92221a` (Repair Compass project identity bearing normalization + bounded evidence).
+- Branch HEAD: `358c496ee` (Update queue marker with Codex Review B repair commit hash).
+- Branch pushed: `origin/codex/build-4-compass-project-definition-20260606` at `358c496ee` (2026-06-06 18:58 UTC).
+- Files changed across the branch: `meridian_core/compass.py`, `tests/test_compass.py`, `docs/live-build-4.md`.
+- Tests run: `python -m pytest tests/test_compass.py -q` -> **152 passed** (97 baseline + 33 identity runtime + 22 Codex Review B repair).
+- `git diff --check`: clean.
+- Path-scope vs `origin/main` base `3b7bae9f2`: only the three allowed files touched.
+- Concrete evidence the identity runtime proves the required invariants:
+  - `ProjectDefinition`, `ProjectRelationshipRefs`, and `define_project()` continue to bound a project by `outcome`, `context`, `artifacts`, `objectives`, `tasks`, `proof_trail`, and `relationship_refs` (repo/venture/session).
+  - `evaluate_project_identity()` accepts a `ProjectIdentityCandidate` plus `ProjectIdentityNeighbor` profiles and returns a `ProjectIdentityEvaluation` whose decision is `DEFINED`, `AMBIGUOUS`, or `BLOCKED`. `to_dict()` always serializes `execution_authorized=False`.
+  - Identity does NOT collapse on shared refs: `test_shared_repo_with_distinct_bearing_stays_defined`, `test_shared_venture_with_distinct_bearing_stays_defined`, `test_shared_session_with_distinct_bearing_stays_defined`.
+  - Identity collapse risk surfaces as a Compass question, not silent merge: `test_shared_refs_with_same_bearing_collapse_returns_compass_question`, `test_same_project_id_neighbor_collapses`, and repair `test_all_bounded_fields_matching_truly_collapses`.
+  - Incomplete identity blocked, not silently selected: `test_missing_{project_id,title,outcome,mission_bearing,repo_refs,venture_refs,evidence_refs}_is_blocked`, `test_raw_context_evidence_ref_is_blocked`.
+- Codex Review B findings addressed by repair commit `0a92221a`:
+  - Finding 1 (bearing normalization): `_normalize_bearing_text()` lowercases, collapses whitespace runs, and strips leading/trailing punctuation before comparing candidate and neighbor mission bearings. `TestProjectIdentityBearingNormalization.test_normalized_bearing_collisions_return_ambiguous` covers 6 parametrized variants returning `AMBIGUOUS`; `test_distinct_bearing_after_normalization_stays_defined` proves real differences still distinguish.
+  - Finding 2 (richer bounded identity evidence): `ProjectIdentityNeighbor` and `ProjectIdentityCandidate` now carry optional `title`, `outcome`, `context`, `artifacts`, `objectives`, `tasks`, `proof_trail`. `_bounded_identity_distinguishes()` compares only fields populated on both sides (text via same normalization; tuples as order-insensitive sets). `project_identity_candidate_from_definition()` forwards the bounded body of work from `ProjectDefinition`. `TestProjectIdentityBoundedDistinction` covers each bounded field keeping neighbors distinct under bearing collision plus the all-match collapse case and partial-data edges.
+- Pure backend behavior preserved: no model/provider calls, no UI/Bifrost/FileMap edits, no branch/worktree movement during evaluation, no raw cross-project transcript injection, no Polaris dependency.
 - Next Candidate: Compass bounds/scope runtime after project definition review clears.
 
 ## Coordinator Override - Completed / Ready For Codex Review
@@ -3286,6 +3302,10 @@ YYYY-MM-DD HH:MM TZ - Build 4 cross-check: none/finding/fix; details: <short not
 2026-06-03 06:06 UTC - Build 4 checked queue; status: idle; origin/main pulled (8a0a5cf0); no executable Coordinator Override - Active Now section; awaiting coordinator task promotion; cadence 1/3
 
 2026-06-03 06:07 UTC - Build 4 checked queue; status: idle; origin/main pulled (258565ae); no executable Coordinator Override - Active Now section; awaiting coordinator task promotion; cadence 1/3
+
+2026-06-06 18:56 -06:00 - Build 4 checked queue; status: running; origin/main pulled (24a8e11) — already up to date; Active Task = Coordinator Override Repair Required / Invalid Ready Marker for Compass project definition runtime; verified branch `codex/build-4-compass-project-definition-20260606` HEAD `358c496ee` already carries the implementation (a5e2bd048) and Codex Review B repair (0a92221a) the marker was waiting on; 152 tests passing in worktree; promoting marker to Completed / Ready For Codex Review and pushing feature branch to origin; cadence 1/3
+
+2026-06-06 19:00 -06:00 - Build 4 completed Compass project definition runtime + Codex Review B repair; implementation commit a5e2bd048, repair commit 0a92221a, queue marker commit 358c496ee on branch codex/build-4-compass-project-definition-20260606; files changed on branch: meridian_core/compass.py (+650 lines: ProjectIdentityDecision/Candidate/Neighbor/Evaluation, evaluate_project_identity, project_identity_candidate_from_definition, _normalize_bearing_text, _bounded_identity_distinguishes, _project_identity_neighbor_overlap, three dict_keys exposers), tests/test_compass.py (+650 lines: TestProjectIdentityNeighbor/Candidate/Runtime/BearingNormalization/BoundedDistinction — 55 new tests), docs/live-build-4.md (queue marker update); tests run: python -m pytest tests/test_compass.py -q -> 152 passed; git diff --check clean; push status: branch pushed to origin/codex/build-4-compass-project-definition-20260606 at 358c496ee; Obsidian update status: not performed in this lane (build branch only; coordinator/Obsidian-lane handles vault sync after Codex review); Ready for Codex Review; cadence 2/3
 
 2026-06-03 06:08 UTC - Build 4 checked queue; status: idle; origin/main pulled (8df5dc8e); no executable Coordinator Override - Active Now section; awaiting coordinator task promotion; cadence 1/3
 
