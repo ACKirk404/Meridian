@@ -2933,3 +2933,188 @@ class TestProjectIdentityNeighborProjectIdRedaction:
         result = evaluate_project_identity(candidate)
         assert tuple(result.to_dict().keys()) == project_identity_result_dict_keys()
         assert result.to_dict()["execution_authorized"] is False
+
+
+class TestProjectBoundsSharedRelationshipRefsRedaction:
+    """Cadence 3/3 self-review repair: bounds shared_relationship_refs carried
+    raw payload when both project.relationship_refs AND request envelope
+    contained the same raw-context entry — parallel of the difference-layer
+    df8120b49 leak but on the bounds runtime, and reachable on ALL bounds
+    decision branches (IN_SCOPE / OUT_OF_SCOPE / PARTIAL_SCOPE / AMBIGUOUS /
+    BLOCKED), not just BLOCKED.
+    """
+
+    @staticmethod
+    def _project_with_raw_repo(raw_ref: str) -> ProjectDefinition:
+        return define_project(
+            project_id="meridian-v2",
+            title="Meridian V2",
+            outcome="Outcome.",
+            context=("ctx",),
+            artifacts=("meridian_core/compass.py",),
+            objectives=("obj",),
+            tasks=("task",),
+            proof_trail=("proof",),
+            repo_refs=(raw_ref,),
+            venture_refs=("venture:Meridian",),
+        )
+
+    @staticmethod
+    def _request_with_raw_repo(raw_ref: str) -> ProjectBoundsRequest:
+        return ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="feature_change",
+            request_ref="request:test-bounds-shared",
+            candidates=(
+                ProjectScopeCandidate(
+                    project_id="meridian-v2",
+                    subject_kind="artifact",
+                    subject_ref="meridian_core/compass.py",
+                    evidence_refs=("proof:safe",),
+                ),
+            ),
+            repo_refs=(raw_ref,),
+            venture_refs=("venture:Meridian",),
+            evidence_refs=("proof:bounds",),
+        )
+
+    @pytest.mark.parametrize(
+        "raw_ref",
+        (
+            "raw_prompt:secret-shared-repo",
+            "raw_transcript:secret-shared-repo",
+            "free_form_context:secret-shared-repo",
+            "transcript:secret-shared-repo",
+            "conversation:secret-shared-repo",
+            "provider_response:secret-shared-repo",
+        ),
+    )
+    def test_raw_context_in_shared_repo_ref_redacted_in_bounds_result(self, raw_ref):
+        project = self._project_with_raw_repo(raw_ref)
+        request = self._request_with_raw_repo(raw_ref)
+        result = evaluate_project_bounds(project, request)
+        # Bounds reaches IN_SCOPE on the safe artifact subject.
+        assert result.decision is ProjectBoundsDecision.IN_SCOPE
+        # shared_relationship_refs MUST NOT carry the raw payload.
+        assert raw_ref not in result.shared_relationship_refs
+        assert "<redacted_raw_context>" in result.shared_relationship_refs
+        # Safe venture intersection still appears unredacted.
+        assert "venture:Meridian" in result.shared_relationship_refs
+        # JSON output has no raw payload.
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert "secret-shared-repo" not in encoded
+        assert "<redacted_raw_context>" in encoded
+        assert result.to_dict()["execution_authorized"] is False
+
+    def test_raw_context_in_shared_venture_ref_redacted_in_bounds_result(self):
+        project = define_project(
+            project_id="meridian-v2",
+            title="Meridian V2",
+            outcome="Outcome.",
+            context=("ctx",),
+            artifacts=("meridian_core/compass.py",),
+            objectives=("obj",),
+            tasks=("task",),
+            proof_trail=("proof",),
+            repo_refs=("repo:safe",),
+            venture_refs=("transcript:secret-shared-venture",),
+        )
+        request = ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="feature_change",
+            request_ref="request:test-shared-venture",
+            candidates=(
+                ProjectScopeCandidate(
+                    project_id="meridian-v2",
+                    subject_kind="artifact",
+                    subject_ref="meridian_core/compass.py",
+                    evidence_refs=("proof:safe",),
+                ),
+            ),
+            repo_refs=("repo:safe",),
+            venture_refs=("transcript:secret-shared-venture",),
+            evidence_refs=("proof:bounds",),
+        )
+        result = evaluate_project_bounds(project, request)
+        assert result.decision is ProjectBoundsDecision.IN_SCOPE
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert "secret-shared-venture" not in encoded
+        assert "<redacted_raw_context>" in encoded
+
+    def test_safe_shared_relationship_refs_pass_through_unchanged(self):
+        """Regression: legitimate shared refs still appear unredacted."""
+        project = define_project(
+            project_id="meridian-v2",
+            title="Meridian V2",
+            outcome="Outcome.",
+            context=("ctx",),
+            artifacts=("meridian_core/compass.py",),
+            objectives=("obj",),
+            tasks=("task",),
+            proof_trail=("proof",),
+            repo_refs=("repo:safe",),
+            venture_refs=("venture:Meridian",),
+        )
+        request = ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="feature_change",
+            request_ref="request:test-safe-shared",
+            candidates=(
+                ProjectScopeCandidate(
+                    project_id="meridian-v2",
+                    subject_kind="artifact",
+                    subject_ref="meridian_core/compass.py",
+                    evidence_refs=("proof:safe",),
+                ),
+            ),
+            repo_refs=("repo:safe",),
+            venture_refs=("venture:Meridian",),
+            evidence_refs=("proof:bounds",),
+        )
+        result = evaluate_project_bounds(project, request)
+        assert result.decision is ProjectBoundsDecision.IN_SCOPE
+        assert "repo:safe" in result.shared_relationship_refs
+        assert "venture:Meridian" in result.shared_relationship_refs
+        assert "<redacted_raw_context>" not in result.shared_relationship_refs
+
+    def test_bounds_evidence_refs_also_redacted_in_shared_path(self):
+        """Defense-in-depth: when shared_relationship_refs are redacted, the
+        bounds request.evidence_refs must also be redacted in the same result
+        path so a caller cannot leak via that field either.
+        """
+        project = define_project(
+            project_id="meridian-v2",
+            title="Meridian V2",
+            outcome="Outcome.",
+            context=("ctx",),
+            artifacts=("meridian_core/compass.py",),
+            objectives=("obj",),
+            tasks=("task",),
+            proof_trail=("proof",),
+            repo_refs=("repo:safe",),
+            venture_refs=("venture:Meridian",),
+        )
+        request = ProjectBoundsRequest(
+            project_id="meridian-v2",
+            request_kind="feature_change",
+            request_ref="request:test-evidence-redact",
+            candidates=(
+                ProjectScopeCandidate(
+                    project_id="meridian-v2",
+                    subject_kind="artifact",
+                    subject_ref="meridian_core/compass.py",
+                    evidence_refs=("proof:safe",),
+                ),
+            ),
+            repo_refs=("repo:safe",),
+            venture_refs=("venture:Meridian",),
+            # Raw context in request envelope evidence_refs.
+            evidence_refs=("raw_prompt:secret-bounds-evidence",),
+        )
+        # NOTE: request envelope raw-context evidence triggers BLOCKED via the
+        # request-level guard before reaching _bounds_result's redaction.
+        result = evaluate_project_bounds(project, request)
+        assert result.decision is ProjectBoundsDecision.BLOCKED
+        assert "raw_context_evidence_ref_blocked" in result.blockers
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert "secret-bounds-evidence" not in encoded

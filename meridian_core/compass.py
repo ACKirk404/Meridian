@@ -2173,10 +2173,10 @@ def _bounds_result(
         out_of_scope_refs=out_of_scope_refs,
         ambiguous_refs=ambiguous_refs,
         blocked_refs=blocked_refs,
-        shared_relationship_refs=_project_bounds_shared_relationship_refs(
-            project, request
+        shared_relationship_refs=_redact_raw_context_refs(
+            _project_bounds_shared_relationship_refs(project, request)
         ),
-        evidence_refs=request.evidence_refs,
+        evidence_refs=_redact_raw_context_refs(request.evidence_refs),
         candidate_decisions=candidate_decisions,
         blockers=blockers,
         compass_question=compass_question,
