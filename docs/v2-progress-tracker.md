@@ -15,13 +15,13 @@
 | Prime Autonomy | 3 | 0 | 0 | 0 | 3 | 100% |
 | Echo Harness | 2 | 0 | 2 | 0 | 4 | 100% |
 | Atlas Harness | 2 | 0 | 1 | 0 | 3 | 100% |
-| Relay/Model Harness | 7 | 0 | 2 | 1 | 10 | 70% clear + 20% baseline |
+| Relay/Model Harness | 8 | 0 | 2 | 0 | 10 | 80% clear + 20% baseline |
 | Aegis Harness | 2 | 0 | 0 | 0 | 2 | 100% |
 | Compass Harness | 4 | 0 | 1 | 0 | 5 | 80% clear + 20% baseline |
 | Session Lifecycle Harness | 6 | 0 | 1 | 0 | 7 | 86% clear + 14% baseline |
 | Bifrost Harness | 1 | 0 | 2 | 6 | 9 | 33% |
 | Federation Harness | 1 | 0 | 0 | 0 | 1 | 100% |
-| **Total V2** | **28** | **0** | **9** | **7** | **44** | **64% Clear + 20% Baseline** |
+| **Total V2** | **29** | **0** | **9** | **6** | **44** | **66% Clear + 20% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
@@ -52,6 +52,7 @@
 - [x] **Relay + Dispatch Metadata Envelope:** provider-neutral dispatch metadata envelope and validation/fail-closed advisory fields for future HTTP/provider transports - review-cleared by Reviews A.
 - [x] **Relay + PromptPacket Proof Metadata Binding:** PromptPacket proof metadata is carried into Relay dispatch envelopes and decision records without changing the model payload boundary - review-cleared by Reviews A.
 - [x] **Relay + Aegis PromptPacket Policy Runtime:** Relay evaluates Aegis PromptPacket proof policy before provider transport and records display-safe policy evidence/disposition for allow, warn, demote, human-gate, block, and missing-metadata outcomes - review-cleared by Reviews A.
+- [x] **Model Harness + DeepSeek Live Validation/Transport:** DeepSeek validation-gate proof and transport-authority runtime are promoted on main through `2cca03492`, with follow-up gate repairs through `56a539cf2`; direct and registry-backed Relay dispatch both fail closed before adapter invocation unless level-1 proof plus exact lowercase `"true"` human and Prime gate strings authorize transport only. Autonomous implementation, review-clearing, branch/worktree movement, live coding authority, and Relay bypass remain denied.
 
 ### Echo Harness
 
@@ -105,8 +106,8 @@
 
 ### Relay/Model Harness
 
-- [x] **Model Harness + DeepSeek Validation Gate:** `docs/deepseek-provider-validation-gate.md` - DeepSeek is a primary provider candidate, but not trusted for autonomous coding/review-clearing until direct API routing, prompt payload metering, bounded Q-mode behavior, and coding benchmark proof are recorded.
-- [x] **Model Harness + Metadata Contract:** `docs/model-harness-v2-contract.md` - provider capability metadata, prompt-drag telemetry, trust state, route ownership, direct-vs-aggregator evidence, allowed/blocked task types, external-review requirements, and Aegis/Relay policy binding; review-cleared by Reviews B on 2026-05-31. Runtime metadata implementation remains in Needs Build.
+- [x] **Model Harness + DeepSeek Validation Gate:** `docs/deepseek-provider-validation-gate.md` - DeepSeek trust criteria and validation-gate baseline. The transport-authority runtime is now represented above under Built and Review-Cleared; DeepSeek still cannot clear reviews, move branches/worktrees, run autonomous implementation lanes, hold live coding authority, or bypass Relay.
+- [x] **Model Harness + Metadata Contract:** `docs/model-harness-v2-contract.md` - provider capability metadata, prompt-drag telemetry, trust state, route ownership, direct-vs-aggregator evidence, allowed/blocked task types, external-review requirements, and Aegis/Relay policy binding; review-cleared by Reviews B on 2026-05-31. Runtime metadata binding is now represented above under Built and Review-Cleared.
 
 ### Bifrost Harness
 
@@ -129,7 +130,7 @@
 
 ### Relay / Model Harness
 
-- [ ] **Model Harness + DeepSeek Live Validation/Transport:** DeepSeek remains candidate-trust metadata only. Complete the validation-gate proof and live transport authority before Prime can route autonomous implementation, review-clearing, branch/worktree movement, or live coding lanes through DeepSeek.
+- None currently. DeepSeek transport authority is review-promoted on main; future Relay/Model work should focus on Bifrost-visible metadata/model-routing follow-ups after tracker and FileMap upkeep.
 
 ### Session Lifecycle Harness
 
