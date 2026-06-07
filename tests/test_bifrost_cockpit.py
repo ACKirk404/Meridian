@@ -616,6 +616,25 @@ def test_index_spark_and_workflow_surfaces_use_bridge_snapshots():
     assert "status_policy" in doc
 
 
+def test_index_memory_retrieval_and_filemap_surfaces_use_bridge_snapshots():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Echo Memory" in doc
+    assert "Atlas Retrieval" in doc
+    assert "FileMap Registry" in doc
+    assert "data-echo-memory" in doc
+    assert "data-atlas-retrieval" in doc
+    assert "data-filemap" in doc
+    assert "bridgeUrl('echo-memory')" in doc
+    assert "bridgeUrl('atlas-retrieval')" in doc
+    assert "bridgeUrl('filemap')" in doc
+    assert "renderEchoMemory()" in doc
+    assert "renderAtlasRetrieval()" in doc
+    assert "renderFileMap()" in doc
+    assert "hit.record.body" not in doc
+    assert "record.body" not in doc
+    assert "mutation_authorized ? 'yes'" not in doc
+
+
 def test_index_wired_harness_titles_use_runtime_logic_naming():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "Prime Runtime Logic" in doc
@@ -692,6 +711,39 @@ def test_bridge_exposes_reviewed_display_only_capability_routes():
     assert "meridian_core.workflow_dispatch" in doc
     assert '"display_only": True' in doc
     assert '"mutation_authorized": False' in doc
+
+
+def test_bridge_exposes_memory_retrieval_and_filemap_routes():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+
+    for flag in (
+        "echoMemorySnapshot: true",
+        "atlasRetrievalSnapshot: true",
+        "fileMapSnapshot: true",
+    ):
+        assert flag in doc
+
+    for route in (
+        "echoMemory: '/bridge/echo-memory'",
+        "atlasRetrieval: '/bridge/atlas-retrieval'",
+        "fileMap: '/bridge/filemap'",
+    ):
+        assert route in doc
+
+    for handler in (
+        "req.method === 'GET' && req.url === BRIDGE_ROUTES.echoMemory",
+        "req.method === 'GET' && req.url === BRIDGE_ROUTES.atlasRetrieval",
+        "req.method === 'GET' && req.url === BRIDGE_ROUTES.fileMap",
+    ):
+        assert handler in doc
+
+    assert "meridian_core.echo" in doc
+    assert "meridian_core.atlas" in doc
+    assert "meridian_core.filemap" in doc
+    assert '"display_only": True' in doc
+    assert '"mutation_authorized": False' in doc
+    assert "hit.record.body" not in doc
+    assert '"body":' not in doc
 
 
 def test_ui_checklist_defers_deep_compass_and_vulcan_items_to_backend_tracker():

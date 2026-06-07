@@ -5070,6 +5070,117 @@ body {
       ]), true),
     ].join('');
   };
+  const renderEchoMemorySnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Echo memory source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Echo memory snapshot unavailable'],
+      ]), true);
+    }
+    const hits = Array.isArray(snapshot.hits) ? snapshot.hits : [];
+    const query = snapshot.query || {};
+    return [
+      relaySection('Echo memory source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Echo'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Query boundary', relayGrid([
+        ['project', query.project || 'unknown'],
+        ['tags', relayJoin(query.tags)],
+        ['limit', query.limit ?? 0],
+        ['include superseded', query.include_superseded ? 'yes' : 'no'],
+      ]), true),
+      ...hits.map((hit, index) => relaySection(
+        `Memory ${index + 1}: ${hit.record_id || 'unknown'}`,
+        relayGrid([
+          ['kind', relayText(hit.kind)],
+          ['summary', hit.summary || 'unknown'],
+          ['source', relayText(hit.source)],
+          ['importance', hit.importance ?? 0],
+          ['pinned', hit.pinned ? 'yes' : 'no'],
+          ['tags', relayJoin(hit.tags)],
+          ['score', hit.score ?? 0],
+          ['reason', hit.reason || 'unknown'],
+          ['created', hit.created_at || 'unknown'],
+        ]),
+        index === 0,
+      )),
+    ].join('');
+  };
+  const renderAtlasRetrievalSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Atlas retrieval source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Atlas retrieval snapshot unavailable'],
+      ]), true);
+    }
+    const hits = Array.isArray(snapshot.hits) ? snapshot.hits : [];
+    const query = snapshot.query || {};
+    return [
+      relaySection('Atlas retrieval source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Atlas'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Retrieval query', relayGrid([
+        ['terms', relayJoin(query.terms)],
+        ['required paths', relayJoin(query.required_paths)],
+        ['limit', query.limit ?? 0],
+        ['truncated', snapshot.truncated ? 'yes' : 'no'],
+        ['missing paths', relayJoin(snapshot.missing_paths)],
+      ]), true),
+      ...hits.map((hit, index) => relaySection(
+        `Hit ${index + 1}: ${hit.path || 'unknown'}`,
+        relayGrid([
+          ['title', hit.title || 'unknown'],
+          ['source', relayText(hit.source)],
+          ['score', hit.score ?? 0],
+          ['reason', hit.reason || 'unknown'],
+          ['excerpt', hit.excerpt || 'none'],
+        ]),
+        index < 2,
+      )),
+    ].join('');
+  };
+  const renderFileMapSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('FileMap source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'FileMap snapshot unavailable'],
+      ]), true);
+    }
+    const areaCounts = Array.isArray(snapshot.area_counts) ? snapshot.area_counts : [];
+    const entries = Array.isArray(snapshot.focus_entries) ? snapshot.focus_entries : [];
+    return [
+      relaySection('FileMap source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'FileMap / Charon'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Registry summary', relayGrid([
+        ['entries', snapshot.entry_count ?? 0],
+        ['entries with tests', snapshot.with_tests_count ?? 0],
+        ['area count', areaCounts.length],
+      ]), true),
+      relaySection('Area counts', areaCounts.length
+        ? relayGrid(areaCounts.slice(0, 12).map((item) => [item.area || 'unknown', item.count ?? 0]))
+        : relaySummary('none'), false),
+      ...entries.map((entry, index) => relaySection(
+        `Entry ${index + 1}: ${entry.path || 'unknown'}`,
+        relayGrid([
+          ['area', entry.area || 'unknown'],
+          ['purpose', entry.purpose || 'unknown'],
+          ['related tests', relayJoin(entry.related_tests)],
+          ['notes', entry.notes || 'none'],
+        ]),
+        index < 2,
+      )),
+    ].join('');
+  };
   const loadRelayLogic = async () => {
     const logicNode = rightWorkspace?.querySelector('[data-relay-logic]');
     if (!logicNode) return;
@@ -5146,6 +5257,39 @@ body {
       logicNode.innerHTML = renderWorkflowDispatchStatusSnapshot(snapshot);
     } catch (error) {
       logicNode.innerHTML = renderWorkflowDispatchStatusSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadEchoMemory = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-echo-memory]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('echo-memory'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderEchoMemorySnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderEchoMemorySnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadAtlasRetrieval = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-atlas-retrieval]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('atlas-retrieval'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderAtlasRetrievalSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderAtlasRetrievalSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadFileMap = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-filemap]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('filemap'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderFileMapSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderFileMapSnapshot({ ok: false, error: error.message });
     }
   };
   const relayBridgeRows = (status, detail) => [
@@ -7216,6 +7360,99 @@ body {
       return false;
     }
   };
+  const renderEchoMemory = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Echo memory">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Echo Memory</div>
+            <div class="relay-models-status">Ranked recall</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-echo-memory>${relaySection('Echo memory source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadEchoMemory();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
+  const renderAtlasRetrieval = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Atlas retrieval">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Atlas Retrieval</div>
+            <div class="relay-models-status">FileMap + docs</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-atlas-retrieval>${relaySection('Atlas retrieval source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadAtlasRetrieval();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
+  const renderFileMap = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="FileMap registry">
+          <div class="relay-models-header">
+            <div class="relay-models-title">FileMap Registry</div>
+            <div class="relay-models-status">Knowledge tracker</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-filemap>${relaySection('FileMap source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadFileMap();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
   const openSpark = () => {
     stage.classList.add('spark-menu-open');
     harnessDock.classList.remove('harness-dock-open');
@@ -7236,6 +7473,9 @@ body {
     if (rightWorkspace?.querySelector('[data-provider-balance]')) loadProviderBalance();
     if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
     if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
+    if (rightWorkspace?.querySelector('[data-echo-memory]')) loadEchoMemory();
+    if (rightWorkspace?.querySelector('[data-atlas-retrieval]')) loadAtlasRetrieval();
+    if (rightWorkspace?.querySelector('[data-filemap]')) loadFileMap();
   };
   window.addEventListener('focus', refreshRelayPanel);
   document.addEventListener('visibilitychange', () => {
@@ -7440,17 +7680,26 @@ body {
     screen.classList.remove('session-theme-green');
     if (userTitle) userTitle.textContent = button.dataset.sessionTitle || button.dataset.harness || 'User';
     clearRightPanelSurface();
-    const rendered = button.dataset.harness === 'Prime'
-      ? renderPrimeLogic()
-      : button.dataset.harness === 'Relay'
-      ? renderRelayModels()
-      : (button.dataset.harness === 'Compass'
-        ? renderCompassProjectLogic()
-        : (button.dataset.harness === 'Session Lifecycle'
-          ? renderVulcanSessionLogic()
-          : (button.dataset.harness === 'Workflow'
-            ? renderWorkflowDispatchStatus()
-            : (modelButton ? renderModelHarnessSurface(button) : renderHarnessSurface(button)))));
+    let rendered = false;
+    if (button.dataset.harness === 'Prime') {
+      rendered = renderPrimeLogic();
+    } else if (button.dataset.harness === 'Relay') {
+      rendered = renderRelayModels();
+    } else if (button.dataset.harness === 'Compass') {
+      rendered = renderCompassProjectLogic();
+    } else if (button.dataset.harness === 'Session Lifecycle') {
+      rendered = renderVulcanSessionLogic();
+    } else if (button.dataset.harness === 'Workflow') {
+      rendered = renderWorkflowDispatchStatus();
+    } else if (button.dataset.harness === 'Echo') {
+      rendered = renderEchoMemory();
+    } else if (button.dataset.harness === 'Atlas') {
+      rendered = renderAtlasRetrieval();
+    } else if (button.dataset.harness === 'FileMap') {
+      rendered = renderFileMap();
+    } else {
+      rendered = modelButton ? renderModelHarnessSurface(button) : renderHarnessSurface(button);
+    }
     if (!rendered) return;
     if (modelButton) {
       setHarnessDockMode('model');

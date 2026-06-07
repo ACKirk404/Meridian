@@ -25,6 +25,9 @@ const BRIDGE_CAPABILITIES = {
   providerBalanceSnapshot: true,
   goalRuntimeSnapshot: true,
   workflowDispatchStatusSnapshot: true,
+  echoMemorySnapshot: true,
+  atlasRetrievalSnapshot: true,
+  fileMapSnapshot: true,
   userSessionTargets: true,
 };
 const BRIDGE_ROUTES = Object.freeze({
@@ -37,6 +40,9 @@ const BRIDGE_ROUTES = Object.freeze({
   providerBalance: '/bridge/provider-balance',
   goalRuntime: '/bridge/goal-runtime',
   workflowDispatchStatus: '/bridge/workflow-dispatch-status',
+  echoMemory: '/bridge/echo-memory',
+  atlasRetrieval: '/bridge/atlas-retrieval',
+  fileMap: '/bridge/filemap',
   userSessions: '/bridge/user-sessions',
   recentCalls: '/bridge/recent-calls',
   callResult: '/bridge/call-result',
@@ -85,7 +91,7 @@ if (process.argv.includes('--self-test')) {
   rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
   const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot;
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot;
   const sampleSession = sessionTargetFromWorktree({
     path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
     branch: 'refs/heads/worktree-build-5-bifrost',
@@ -754,6 +760,176 @@ print(json.dumps({
 `);
 }
 
+function echoMemorySnapshot() {
+  return pythonJsonSnapshot('Echo memory', String.raw`
+import json
+from datetime import datetime, timezone
+from meridian_core.echo import (
+    EchoRepository,
+    MemoryKind,
+    MemoryQuery,
+    MemoryRecord,
+    MemorySource,
+)
+
+repo = EchoRepository()
+records = (
+    MemoryRecord(
+        record_id="memory-001",
+        project="Meridian",
+        kind=MemoryKind.DECISION,
+        summary="Electron app is the Meridian UI",
+        body="display body intentionally withheld",
+        source=MemorySource.PRIME,
+        created_at=datetime(2026, 6, 7, 12, 0, tzinfo=timezone.utc),
+        importance=5,
+        pinned=True,
+        tags=("ui", "electron", "authority"),
+    ),
+    MemoryRecord(
+        record_id="memory-002",
+        project="Meridian",
+        kind=MemoryKind.PLAN,
+        summary="Backend capabilities surface as display-only panels first",
+        body="display body intentionally withheld",
+        source=MemorySource.REVIEW_CONSOLE,
+        created_at=datetime(2026, 6, 7, 12, 30, tzinfo=timezone.utc),
+        importance=4,
+        pinned=False,
+        tags=("ui", "backend", "proof"),
+    ),
+)
+for record in records:
+    repo.add(record)
+hits = repo.query(MemoryQuery(project="Meridian", tags=("ui",), limit=5))
+print(json.dumps({
+    "ok": True,
+    "source": "meridian_core.echo",
+    "version": "v2-echo-runtime-2026-06-07",
+    "harness": "Echo",
+    "summary": "Display-safe Echo memory ranking sample; record bodies are withheld.",
+    "display_only": True,
+    "mutation_authorized": False,
+    "query": {
+        "project": "Meridian",
+        "tags": ["ui"],
+        "limit": 5,
+        "include_superseded": False,
+    },
+    "hits": [
+        {
+            "record_id": hit.record.record_id,
+            "kind": hit.record.kind.value,
+            "summary": hit.record.summary,
+            "source": hit.record.source.value,
+            "importance": hit.record.importance,
+            "pinned": hit.record.pinned,
+            "tags": list(hit.record.tags),
+            "score": hit.score,
+            "reason": hit.reason,
+            "created_at": hit.record.created_at.isoformat(),
+        }
+        for hit in hits
+    ],
+}))
+`);
+}
+
+function atlasRetrievalSnapshot() {
+  return pythonJsonSnapshot('Atlas retrieval', String.raw`
+import json
+from dataclasses import asdict
+from meridian_core.atlas import AtlasQuery, query
+from meridian_core.filemap import make_default_map
+
+result = query(
+    AtlasQuery(
+        terms=("workflow", "echo", "atlas"),
+        required_paths=("docs/workflow-subagent-harness-contract.md", "docs/echo-memory-contract.md"),
+        limit=6,
+    ),
+    filemap_entries=tuple(make_default_map().all_entries()),
+)
+print(json.dumps({
+    "ok": True,
+    "source": "meridian_core.atlas",
+    "version": "v2-atlas-runtime-2026-06-07",
+    "harness": "Atlas",
+    "summary": "Display-safe Atlas retrieval sample over FileMap and allowlisted docs.",
+    "display_only": True,
+    "mutation_authorized": False,
+    "query": {
+        "terms": ["workflow", "echo", "atlas"],
+        "required_paths": ["docs/workflow-subagent-harness-contract.md", "docs/echo-memory-contract.md"],
+        "limit": 6,
+    },
+    "hits": [
+        {
+            "path": hit.path,
+            "title": hit.title,
+            "reason": hit.reason,
+            "excerpt": hit.excerpt or "",
+            "source": hit.source.value,
+            "score": hit.score,
+        }
+        for hit in result.hits
+    ],
+    "missing_paths": list(result.missing_paths),
+    "truncated": result.truncated,
+}))
+`);
+}
+
+function fileMapSnapshot() {
+  return pythonJsonSnapshot('FileMap', String.raw`
+import json
+from collections import Counter
+from meridian_core.filemap import FileArea, make_default_map
+
+fm = make_default_map()
+entries = fm.all_entries()
+areas = Counter(entry.area for entry in entries)
+focus_areas = (
+    FileArea.FILE_MAP,
+    "Architecture memory",
+    "Echo memory",
+    "Atlas retrieval",
+    FileArea.WORKFLOW_DISPATCH,
+    FileArea.GOAL_RUNTIME,
+    FileArea.PROVIDER_BALANCE,
+)
+focus_entries = [
+    entry for entry in entries
+    if entry.area in focus_areas or "echo" in entry.path.lower() or "atlas" in entry.path.lower()
+][:10]
+print(json.dumps({
+    "ok": True,
+    "source": "meridian_core.filemap",
+    "version": "v2-filemap-runtime-2026-06-07",
+    "harness": "FileMap / Charon",
+    "summary": "Display-safe FileMap registry sample using relative repository paths only.",
+    "display_only": True,
+    "mutation_authorized": False,
+    "entry_count": len(entries),
+    "with_tests_count": len(fm.with_tests()),
+    "area_counts": [
+        {"area": area, "count": count}
+        for area, count in sorted(areas.items())
+    ],
+    "focus_entries": [
+        {
+            "path": entry.path,
+            "area": entry.area,
+            "purpose": entry.purpose,
+            "related_tests": list(entry.related_tests),
+            "notes": entry.notes,
+        }
+        for entry in focus_entries
+    ],
+}))
+`);
+}
+
 function parseGitWorktrees(stdout) {
   const records = [];
   let current = null;
@@ -995,6 +1171,39 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && req.url === BRIDGE_ROUTES.workflowDispatchStatus) {
     const snapshot = await workflowDispatchStatusSnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.echoMemory) {
+    const snapshot = await echoMemorySnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.atlasRetrieval) {
+    const snapshot = await atlasRetrievalSnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.fileMap) {
+    const snapshot = await fileMapSnapshot();
     sendJson(res, snapshot.ok ? 200 : 500, {
       service: 'meridian-model-bridge',
       version: BRIDGE_VERSION,
