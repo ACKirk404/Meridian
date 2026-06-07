@@ -2,20 +2,24 @@
 
 The Meridian UI is the Electron app. That desktop app is the product surface:
 the thing to run, demo, test, document, and build against. When someone says
-"the Meridian UI," they mean the Electron app.
+"the Meridian UI," they mean the Electron app, not a generated preview file or
+some unrelated browser page.
 
 Root `index.html` is the current renderer source inside that Electron app.
 Electron loads it into the desktop window to draw the visible interface. Edits
-to `index.html` are app UI work because that file currently renders the app.
-That file is not obsolete, detached, merely historical, or disposable. It is
-also not the product identity, not a standalone browser demo target, and not a
-separate product target. The Electron app is the Meridian UI; `index.html` is
-the app's current renderer source.
+to `index.html` are edits to the Electron app's UI because that file currently
+renders the app. It is part of the app today. That file is not obsolete,
+detached, merely historical, disposable, or independent from the app. It is also
+not a standalone browser demo target and not a separate product target. The
+Electron app is the Meridian UI; `index.html` is the app's current renderer
+source.
 
 Documentation rule: say "the Electron app is the Meridian UI." Say
 "`index.html` is the current renderer source inside that app." Do not write that
-`index.html` is a separate Meridian UI, and do not imply that `index.html` is
-unrelated to the Electron app or that edits to it are outside app UI work.
+`index.html` is a separate Meridian UI. Do not write that `index.html` is "not
+the UI" without immediately explaining that it is the active renderer source for
+the Electron app. Do not imply that `index.html` is unrelated to the Electron
+app or that edits to it are outside app UI work.
 
 This Electron app is the UI Scott has been building and using. It owns the visible Meridian cockpit: the harness dock, Prime panel, user/session panel, Spark center, right-panel modes, model harness views, local bridge status, and backend-sourced Prime/Relay/Compass/Vulcan runtime logic surfaces.
 

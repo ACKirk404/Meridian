@@ -1280,9 +1280,9 @@ def make_default_map() -> FileMap:
         FileMapEntry(
             path="index.html",
             area=FileArea.BIFROST,
-            purpose="Renderer internals inside the Meridian Electron app: loaded by Electron to draw the harness dock, Prime panel, user/session panel, Spark center, right-panel modes, model bridge status, and backend-sourced Prime/Relay/Compass/Vulcan logic surfaces.",
+            purpose="Active renderer source inside the Meridian Electron app: loaded by Electron to draw the harness dock, Prime panel, user/session panel, Spark center, right-panel modes, model bridge status, and backend-sourced Prime/Relay/Compass/Vulcan logic surfaces.",
             related_tests=["tests/test_relay_logic_snapshot.py", "tests/test_bifrost_cockpit.py", "tests/test_bifrost_preview.py"],
-            notes="This file is not the Meridian UI, not the UI identity, and not a separate app. Electron loads it via electron/main.js; do not replace the Electron app with bifrost/preview.html for demos/startup.",
+            notes="Edits to this file are edits to the Electron app's visible UI because Electron currently renders it inside the desktop app. It is part of the app today, not obsolete, detached, historical-only, independent, the launch command, or a separate app. Electron loads it via electron/main.js; do not replace the Electron app with bifrost/preview.html for demos/startup.",
         ),
         FileMapEntry(
             path="scripts/meridian-model-bridge.js",

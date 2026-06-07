@@ -278,13 +278,14 @@ def test_ui_authority_doc_names_electron_app_as_meridian_ui(ui_authority_source)
 def test_ui_authority_doc_calls_index_html_renderer_internals(ui_authority_source):
     assert "renderer" in ui_authority_source
     assert "`index.html`" in ui_authority_source
-    assert "not the product identity" in ui_authority_source
     # Tightened anchors: Electron must load root index.html, and index.html
     # must be locked as current renderer source rather than a separate UI target.
     assert "Electron loads" in ui_authority_source
     assert "Root `index.html` is the current renderer source inside that Electron app" in ui_authority_source
-    assert "Edits\nto `index.html` are app UI work" in ui_authority_source
-    assert "do not imply that `index.html` is\nunrelated to the Electron app" in ui_authority_source
+    assert "Edits\nto `index.html` are edits to the Electron app's UI" in ui_authority_source
+    assert "It is part of the app today" in ui_authority_source
+    assert "not obsolete,\ndetached, merely historical, disposable, or independent from the app" in ui_authority_source
+    assert "Do not imply that `index.html` is unrelated to the Electron\napp" in ui_authority_source
     assert "edits to it are outside app UI work" in ui_authority_source
     assert "loads root `index.html` as its renderer source" in ui_authority_source
 

@@ -2,12 +2,14 @@
 
 Current UI authority note: the Electron app is the Meridian UI. It is the app to
 run, demo, test as the product surface, document, and build against. Root
-`index.html` is renderer internals loaded by that Electron app; it is not the UI
-identity and not a separate UI target. `bifrost/preview.html` is generated
-backend/view-model proof output only. Any older Build 5 log text saying
-`npm start` regenerates preview HTML describes the original V1 shell behavior
-before commit `05a108f1` corrected startup to open the Electron app with the
-Meridian renderer.
+`index.html` is the active renderer source inside that Electron app. Edits to
+`index.html` are edits to the app's visible UI because Electron currently loads
+that file into the desktop window. It is part of the app today, not obsolete,
+detached, historical-only, independent, or a separate UI target.
+`bifrost/preview.html` is generated backend/view-model proof output only. Any
+older Build 5 log text saying `npm start` regenerates preview HTML describes the
+original V1 shell behavior before commit `05a108f1` corrected startup to open
+the Electron app with the Meridian renderer.
 
 ## Coordinator Override - Completed / Review-Cleared / Promoted
 
@@ -352,16 +354,15 @@ Electron cockpit authority review-cleared completion marker - 2026-06-07T12:24:0
 - Gap closed: the four authority statements in `docs/meridian-ui-authority.md`
   had no content-asserting test. Added four small content-guard tests in
   `tests/test_bifrost_preview.py` that assert the doc keeps stating the
-  Electron app is the Meridian UI, `index.html` is renderer internals loaded by
-  Electron and not a separate UI target, `bifrost/preview.html` is generated
-  backend/view-model proof output only, and `npm start` must not regenerate or
-  substitute another HTML file before launch.
+  Electron app is the Meridian UI, `index.html` is the active renderer source
+  inside that Electron app, edits to it are edits to the app's visible UI,
+  `bifrost/preview.html` is generated backend/view-model proof output only, and
+  `npm start` must not regenerate or substitute another HTML file before launch.
 - Codex Review B `019ea326-b7ab-7851-a5c3-b6cdeda703c7` passed the original
   candidate. Codex Review A `019ea326-9d07-7cd2-94d2-c153edde8906` found two
   content guards too loose. The finding was routed back to Opus; the worker
-  tightened the `index.html` guard with `"Electron loads"`,
-  `"not the Meridian UI as a separate thing"`, and
-  `"loads root `index.html` as renderer internals"`, and tightened the Bifrost
+  tightened the `index.html` guard with `"Electron loads"`, current renderer
+  source wording, and explicit app-UI edit wording, and tightened the Bifrost
   preview guard with `"backend sample/view-model data"` and
   `"Bifrost preview proof output"`. Codex Review A rerun passed.
 - Promotion scope: `tests/test_bifrost_preview.py`, this coordinator marker,

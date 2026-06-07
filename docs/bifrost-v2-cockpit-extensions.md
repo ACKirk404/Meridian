@@ -51,11 +51,11 @@ The V2 cockpit should have these regions:
 - Worker/session detail is inspectable through project drilldowns, not permanently visible as a card wall.
 - The cockpit must not reserve permanent top-nav space for Settings, Projects, Reset, Close, Cross Check, Backlog, Skills, Harness, or Balance. Prime can summon panels verbally or through focused controls.
 - The cockpit must be fully voice-enabled: voice input, voice output, wake/boot audio, mute controls, and visible listening/thinking/speaking state.
-- The Meridian UI is the Electron app. Root `index.html` is the current
-  renderer source inside that app, so edits to it are app UI work. It is not
-  obsolete or detached, and it is not the product identity, launch target, or
-  separate browser demo target. Deterministic Bifrost preview HTML exists only
-  for backend/view-model proof tests.
+- The Meridian UI is the Electron app. Root `index.html` is the active renderer
+  source inside that app, so edits to it are edits to the Electron app's visible
+  UI. It is part of the app today, not obsolete, detached, historical-only,
+  independent, or a separate browser demo target. Deterministic Bifrost preview
+  HTML exists only for backend/view-model proof tests.
 - Code reuse must preserve license/copyright notices. Do not import non-commercial Ethan Jarvis code unless licensing is resolved.
 
 ## Current Implementation Slice

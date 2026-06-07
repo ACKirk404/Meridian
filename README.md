@@ -10,10 +10,11 @@ The Meridian user interface is the Electron app. That is the app to run, demo,
 test, document, and build against.
 
 Root `index.html` is the current renderer source inside the Electron app. Edits
-to that file are edits to the app's visible UI because Electron loads it into
-the desktop window. It is not obsolete, detached, or merely historical. It also
-must not be treated as a standalone browser demo, a separate product target, or
-a replacement identity for the Electron app. `npm start` launches
+to that file are edits to the Electron app's visible UI because Electron loads
+it into the desktop window. It is part of the app today: not obsolete, detached,
+merely historical, or independent from the app. It also must not be treated as a
+standalone browser demo, a separate product target, or a replacement identity
+for the Electron app. `npm start` launches
 `electron/main.js`, which opens the Meridian Electron app with this renderer.
 Startup must not regenerate or substitute `bifrost/preview.html`.
 
