@@ -288,15 +288,48 @@ Completion marker - 2026-06-07T11:08:39-06:00:
   text, process/session controls, Electron behavior, or `index.html` edits were
   introduced by the promoted backend proof.
 
-## Coordinator Override - Active Now / Idle / Awaiting Next Assignment
+## Coordinator Override - Active Now / Opus Task Assigned
 
-Goal: hold Build 5 after Main promotion of `Bifrost + Prompt Payload
-Visibility`.
+Timestamp: 2026-06-07T11:11:13-06:00.
 
-Status: no executable backend task is currently assigned to Build 5. The next
-remaining Bifrost tracker items are `Bifrost + Electron Cockpit` and
-`Bifrost + Voice I/O Surface`; promote one of those as a fresh top Active Now
-block before dispatching an Opus worker.
+Goal: implement or verify the next Bifrost V2 backend/view-model slice:
+`Bifrost + Voice I/O Surface`.
+
+Worker requirement: implementation must run in a Polaris Build 5 Opus worker
+(`launch-chat`, tier `power`, `claude-opus-4-7`). Codex sessions may review only
+after a real worker candidate exists.
+
+Task: inspect current main and either prove the visible Voice I/O surface is
+already fully backend/view-model bound or implement the smallest deterministic
+backend/view-model/test slice for typed voice input/output state. The surface
+must cover microphone input, spoken Prime output, wake/boot audio status,
+mute/listening/thinking/speaking state, display-safe evidence refs, and
+non-executable behavior. Keep runtime speech plumbing out of scope unless it is
+already represented by reviewed backend data.
+
+Allowed likely files:
+
+- `bifrost/cockpit.py`
+- `bifrost/static/cockpit.css` only if render classes are needed
+- `tests/test_bifrost_cockpit.py`
+- this file only for the worker completion marker
+- `docs/v2-progress-tracker.md` only if the worker proves a no-op completion or
+  the slice is review-cleared after Codex Review A/B
+
+Do not edit `index.html`. Do not make live microphone/audio calls, provider
+calls, account probes, secrets reads, process/session controls, or Electron
+startup changes. Do not read all of this large queue file; use targeted `rg` and
+small line slices. Start from:
+
+- `rg -n "VoiceIO|voice_io|voice|microphone|listening|speaking|mute|wake|boot" bifrost/cockpit.py tests/test_bifrost_cockpit.py docs/bifrost-voice-command-contract.md`
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Required proof before Ready marker:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+- `git diff --check`
+- concise completion marker here with files changed, proof, and any remaining
+  risk.
 
 Prompt payload visibility launch attempt note - 2026-06-07T10:47:46-06:00:
 
