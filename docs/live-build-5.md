@@ -231,6 +231,20 @@ Main promotion:
 
 Instruction: do not execute lower stale Active Now / Repair Required blocks. Wait for a new coordinator-promoted backend task.
 
+Prompt payload visibility launch attempt note - 2026-06-07T10:47:46-06:00:
+
+- After Balance Button promotion, coordinator launched Opus worker
+  `chat_1780850774534` through Polaris `launch-chat`, tier `power`, for the
+  next tracker item: Bifrost + Prompt Payload Visibility backend/view-model
+  binding or verified no-op proof.
+- Result: no candidate. Diagnostics show the worker reached
+  `claude-opus-4-7` and hit a Claude rate-limit event before any allowed
+  backend/test/doc file changes. The isolated worker worktree contains only
+  Polaris-generated `.mcp.json` dirt.
+- Main remains clean/aligned after the attempt. Re-launch this task in the next
+  Opus availability window or promote a narrower coordinator-scoped active
+  block before dispatching another worker.
+
 ## Coordinator Override - Active Now / Repair Required
 
 Goal: bind reviewed backend prompt-payload and model metadata surfaces into a deterministic Bifrost backend view-model sample.
