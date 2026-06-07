@@ -49,6 +49,7 @@ _PROJECT_DIFFERENCE_RESULT_DICT_KEYS = (
     "blockers",
     "compass_question",
     "merge_authorized",
+    "execution_authorized",
 )
 _PROJECT_DIFFERENCE_PROFILE_KEYS = (
     "project_id",
@@ -73,6 +74,16 @@ _PROJECT_DIFFERENCE_REQUIRED_FIELDS = (
     "memory_pins",
     "blockers",
     "proof_expectations",
+)
+_PROJECT_DIFFERENCE_RAW_CONTEXT_SCAN_FIELDS = (
+    "mission_bearing",
+    "objectives",
+    "artifacts",
+    "memory_pins",
+    "blockers",
+    "proof_expectations",
+    "repo_refs",
+    "venture_refs",
 )
 _PROJECT_HANDOFF_REQUEST_KEYS = (
     "source_project_id",
@@ -710,6 +721,7 @@ class ProjectDifferenceEvaluation:
             "blockers": self.blockers,
             "compass_question": self.compass_question,
             "merge_authorized": False,
+            "execution_authorized": False,
         }
 
 
@@ -1577,12 +1589,47 @@ def evaluate_project_difference(
     *,
     evidence_refs: Iterable[str],
 ) -> ProjectDifferenceEvaluation:
-    """Evaluate whether two project-bearing summaries describe distinct work."""
+    """Evaluate whether two project-bearing summaries describe distinct work.
+
+    Distinguishes projects by mission/bearing, objectives, artifacts, memory
+    pins, blockers, proof expectations, and relationship refs. Same repo or
+    venture does NOT imply same project: ``shared_relationship_refs`` is
+    surfaced for review, but the difference decision depends on the bounded
+    bearing fields, not on overlapping repo/venture/session labels.
+
+    Uncertain or insufficient evidence surfaces as Compass questions/blockers
+    (never silently merged). Raw-context evidence_refs and any raw-context
+    payload smuggled through profile text/ref fields fail closed BEFORE the
+    comparison runs; the serialized result redacts raw-context evidence_refs
+    to the marker ``<redacted_raw_context>`` so no raw payload leaks.
+
+    The result always serializes ``execution_authorized=False``.
+    """
     normalized_evidence_refs = _normalize_optional_tuple(
         "evidence_refs",
         tuple(evidence_refs),
     )
     shared_relationship_refs = _shared_relationship_refs(left, right)
+
+    raw_context_blockers = _project_difference_raw_context_blockers(
+        left, right, normalized_evidence_refs
+    )
+    if raw_context_blockers:
+        return ProjectDifferenceEvaluation(
+            decision=ProjectDifferenceDecision.BLOCKED,
+            left_project_id=left.project_id,
+            right_project_id=right.project_id,
+            evidence_refs=_redact_raw_context_refs(normalized_evidence_refs),
+            shared_relationship_refs=shared_relationship_refs,
+            blockers=raw_context_blockers,
+            compass_question=(
+                "Compass cannot compare project bearings while raw prompt, "
+                "transcript, free-form context, or provider-response payload "
+                "is present in the difference inputs. Pass summarized refs "
+                "and retry."
+            ),
+        )
+
     blockers = _project_difference_blockers(left, right, normalized_evidence_refs)
     if blockers:
         return ProjectDifferenceEvaluation(
@@ -2298,6 +2345,30 @@ def _project_difference_blockers(
             value = getattr(profile, field)
             if value is None or value == ():
                 blockers.append(f"missing_{side_name}_{field}")
+    return tuple(blockers)
+
+
+def _project_difference_raw_context_blockers(
+    left: ProjectDifferenceProfile,
+    right: ProjectDifferenceProfile,
+    evidence_refs: tuple[str, ...],
+) -> tuple[str, ...]:
+    """Detect raw-context bleed across the difference inputs.
+
+    Mirrors the scope/bounds-layer pattern: if the difference evidence_refs or
+    any profile text/ref field carries a raw-prompt / raw-transcript /
+    free-form-context / provider-response / embedded-newline payload, the
+    runtime must fail closed BEFORE comparing the two profiles, and the
+    serialized result must not preserve the raw payload.
+    """
+    blockers: list[str] = []
+    if _has_raw_context_ref(evidence_refs):
+        blockers.append("raw_context_evidence_ref_blocked")
+    for side_name, profile in (("left", left), ("right", right)):
+        for field in _PROJECT_DIFFERENCE_RAW_CONTEXT_SCAN_FIELDS:
+            value = _difference_field_tuple(getattr(profile, field))
+            if _has_raw_context_ref(value):
+                blockers.append(f"raw_context_in_{side_name}_{field}_blocked")
     return tuple(blockers)
 
 

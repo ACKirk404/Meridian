@@ -669,7 +669,11 @@ class TestProjectDifferenceRuntime:
         assert "source_project" not in payload
         assert "target_project" not in payload
         assert "handoff" not in payload
-        assert "execution_authorized" not in payload
+        # execution_authorized is REQUIRED by the coordinator-promoted
+        # Compass Project Difference Runtime directive — always serialized as
+        # False to mirror scope/bounds/identity/handoff invariants.
+        assert payload["execution_authorized"] is False
+        assert payload["merge_authorized"] is False
 
 
 def _difference_fields(result: ProjectDifferenceEvaluation) -> set[str]:
@@ -2187,3 +2191,238 @@ class TestProjectScopeRawContextGuard:
         assert "<redacted_raw_context>" in encoded
         assert "secret payload" not in encoded
         assert "raw_prompt:secret" not in encoded
+
+
+class TestProjectDifferenceRawContextGuard:
+    """Coordinator-promoted: Project Difference Runtime must fail closed on raw context.
+
+    Mirrors the scope and bounds-layer block+redact pattern. evaluate_project_difference
+    rejects raw-context payload smuggled through evidence_refs OR any profile text/ref
+    field BEFORE comparing the two profiles, and the serialized result redacts
+    evidence_refs so the raw payload never appears in to_dict() output. Existing
+    same-repo/same-venture distinctness still holds (covered by the prior
+    TestProjectDifferenceRuntime tests).
+    """
+
+    @pytest.mark.parametrize(
+        "raw_ref",
+        (
+            "raw_prompt:full prompt text",
+            "raw_transcript:session log",
+            "free_form_context:scratch notes",
+            "transcript:full conversation",
+            "conversation:approval said in chat",
+            "provider_response:streamed body",
+            "raw_context:everything",
+            "line1\nline2 — embedded newline",
+        ),
+    )
+    def test_raw_context_in_evidence_refs_blocks_difference(self, raw_ref):
+        result = evaluate_project_difference(
+            _difference_profile(),
+            _other_difference_profile(),
+            evidence_refs=(raw_ref, "proof:safe-cmp"),
+        )
+        assert result.decision is ProjectDifferenceDecision.BLOCKED
+        assert "raw_context_evidence_ref_blocked" in result.blockers
+        # Raw ref redacted in serialized evidence_refs; safe ref preserved.
+        assert "<redacted_raw_context>" in result.evidence_refs
+        assert raw_ref not in result.evidence_refs
+        assert "proof:safe-cmp" in result.evidence_refs
+        assert result.to_dict()["execution_authorized"] is False
+        assert result.to_dict()["merge_authorized"] is False
+
+    @pytest.mark.parametrize(
+        "raw_ref",
+        (
+            "raw_prompt:full prompt text",
+            "raw_transcript:session log",
+            "free_form_context:scratch notes",
+            "transcript:full conversation",
+            "conversation:approval said in chat",
+            "provider_response:streamed body",
+        ),
+    )
+    def test_raw_context_serialization_does_not_leak_payload(self, raw_ref):
+        result = evaluate_project_difference(
+            _difference_profile(),
+            _other_difference_profile(),
+            evidence_refs=(raw_ref, "proof:safe-cmp"),
+        )
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert raw_ref not in encoded
+        assert "<redacted_raw_context>" in encoded
+
+    def test_raw_context_in_left_mission_bearing_blocks(self):
+        result = evaluate_project_difference(
+            _difference_profile(mission_bearing="raw_prompt:secret left bearing"),
+            _other_difference_profile(),
+            evidence_refs=("proof:difference",),
+        )
+        assert result.decision is ProjectDifferenceDecision.BLOCKED
+        assert "raw_context_in_left_mission_bearing_blocked" in result.blockers
+        # Raw text from mission_bearing must NOT appear in serialized payload.
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert "raw_prompt:secret left bearing" not in encoded
+
+    def test_raw_context_in_right_mission_bearing_blocks(self):
+        result = evaluate_project_difference(
+            _difference_profile(),
+            _other_difference_profile(mission_bearing="transcript:secret right bearing"),
+            evidence_refs=("proof:difference",),
+        )
+        assert result.decision is ProjectDifferenceDecision.BLOCKED
+        assert "raw_context_in_right_mission_bearing_blocked" in result.blockers
+
+    @pytest.mark.parametrize(
+        "field",
+        (
+            "objectives",
+            "artifacts",
+            "memory_pins",
+            "blockers",
+            "proof_expectations",
+            "repo_refs",
+            "venture_refs",
+        ),
+    )
+    def test_raw_context_in_left_profile_tuple_field_blocks(self, field):
+        overrides = {field: ("raw_prompt:smuggled payload",)}
+        result = evaluate_project_difference(
+            _difference_profile(**overrides),
+            _other_difference_profile(),
+            evidence_refs=("proof:difference",),
+        )
+        assert result.decision is ProjectDifferenceDecision.BLOCKED
+        assert f"raw_context_in_left_{field}_blocked" in result.blockers
+        encoded = json.dumps(result.to_dict(), sort_keys=True)
+        assert "smuggled payload" not in encoded
+
+    @pytest.mark.parametrize(
+        "field",
+        (
+            "objectives",
+            "artifacts",
+            "memory_pins",
+            "blockers",
+            "proof_expectations",
+            "repo_refs",
+            "venture_refs",
+        ),
+    )
+    def test_raw_context_in_right_profile_tuple_field_blocks(self, field):
+        overrides = {field: ("transcript:smuggled payload",)}
+        result = evaluate_project_difference(
+            _difference_profile(),
+            _other_difference_profile(**overrides),
+            evidence_refs=("proof:difference",),
+        )
+        assert result.decision is ProjectDifferenceDecision.BLOCKED
+        assert f"raw_context_in_right_{field}_blocked" in result.blockers
+
+    def test_raw_context_guard_runs_before_required_field_blockers(self):
+        """Raw-context guard precedes missing-field blockers so raw payload cannot
+        sneak past via a profile that is also incomplete.
+        """
+        result = evaluate_project_difference(
+            _difference_profile(
+                mission_bearing="raw_prompt:secret",
+                objectives=(),  # also incomplete
+            ),
+            _other_difference_profile(),
+            evidence_refs=("proof:difference",),
+        )
+        assert result.decision is ProjectDifferenceDecision.BLOCKED
+        # Raw-context blockers fire; missing-field blockers do NOT appear in
+        # this result because the guard short-circuited before that check.
+        assert "raw_context_in_left_mission_bearing_blocked" in result.blockers
+        assert "missing_left_objectives" not in result.blockers
+
+    def test_multiple_raw_context_sites_aggregate_into_blockers(self):
+        result = evaluate_project_difference(
+            _difference_profile(mission_bearing="raw_prompt:left secret"),
+            _other_difference_profile(objectives=("transcript:right secret",)),
+            evidence_refs=("free_form_context:evidence secret",),
+        )
+        assert result.decision is ProjectDifferenceDecision.BLOCKED
+        assert "raw_context_evidence_ref_blocked" in result.blockers
+        assert "raw_context_in_left_mission_bearing_blocked" in result.blockers
+        assert "raw_context_in_right_objectives_blocked" in result.blockers
+
+    def test_safe_inputs_still_distinguish_after_guard_added(self):
+        """Regression: the new guard must not over-trigger on legitimate inputs."""
+        result = evaluate_project_difference(
+            _difference_profile(),
+            _other_difference_profile(),
+            evidence_refs=("proof:safe-cmp",),
+        )
+        assert result.decision is ProjectDifferenceDecision.DISTINCT
+        assert "mission_bearing" in _difference_fields(result)
+        assert result.to_dict()["execution_authorized"] is False
+        assert result.to_dict()["merge_authorized"] is False
+
+    def test_safe_inputs_same_profile_still_collapse_after_guard_added(self):
+        """Regression: SAME_PROJECT path still reachable when bearings match."""
+        result = evaluate_project_difference(
+            _difference_profile(),
+            _difference_profile(),
+            evidence_refs=("proof:same",),
+        )
+        assert result.decision is ProjectDifferenceDecision.SAME_PROJECT
+        assert result.to_dict()["execution_authorized"] is False
+
+    def test_shared_repo_does_not_imply_same_project_under_raw_guard(self):
+        """Regression: same-repo/different-bearing still returns DISTINCT after the
+        raw-context guard is added (no silent merge on shared envelope).
+        """
+        result = evaluate_project_difference(
+            _difference_profile(),
+            _other_difference_profile(venture_refs=("venture:Other",)),
+            evidence_refs=("proof:same-repo-different-bearing",),
+        )
+        assert result.decision is ProjectDifferenceDecision.DISTINCT
+        assert result.shared_relationship_refs == (
+            "repo:C:/Users/scott/Code/Meridian-Worktrees/build-4-aegis",
+        )
+
+    def test_shared_venture_does_not_imply_same_project_under_raw_guard(self):
+        result = evaluate_project_difference(
+            _difference_profile(repo_refs=("repo:other",)),
+            _other_difference_profile(repo_refs=("repo:another",)),
+            evidence_refs=("proof:same-venture-different-bearing",),
+        )
+        assert result.decision is ProjectDifferenceDecision.DISTINCT
+        assert result.shared_relationship_refs == ("venture:Meridian",)
+
+    def test_raw_context_blocked_result_serializes_stably(self):
+        result = evaluate_project_difference(
+            _difference_profile(),
+            _other_difference_profile(),
+            evidence_refs=("raw_prompt:secret",),
+        )
+        assert tuple(result.to_dict().keys()) == project_difference_result_dict_keys()
+
+    def test_execution_never_authorized_across_difference_branches(self):
+        distinct = evaluate_project_difference(
+            _difference_profile(),
+            _other_difference_profile(),
+            evidence_refs=("proof:cmp",),
+        ).to_dict()
+        same = evaluate_project_difference(
+            _difference_profile(),
+            _difference_profile(),
+            evidence_refs=("proof:cmp",),
+        ).to_dict()
+        raw_blocked = evaluate_project_difference(
+            _difference_profile(),
+            _other_difference_profile(),
+            evidence_refs=("raw_prompt:secret",),
+        ).to_dict()
+        missing_blocked = evaluate_project_difference(
+            _difference_profile(project_id=None),
+            _other_difference_profile(),
+            evidence_refs=("proof:cmp",),
+        ).to_dict()
+        for payload in (distinct, same, raw_blocked, missing_blocked):
+            assert payload["execution_authorized"] is False
+            assert payload["merge_authorized"] is False
