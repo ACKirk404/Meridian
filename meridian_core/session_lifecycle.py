@@ -453,15 +453,22 @@ class SessionLiveStateEvidence:
     timestamp: datetime
 
     def to_dict(self) -> dict[str, Any]:
-        """Serialize live state evidence to JSON-safe display-safe metadata."""
+        """Serialize live state evidence to JSON-safe display-safe metadata.
+
+        Raw filesystem paths and raw blocker text are redacted to bounded
+        display-safe forms. Downstream advisory consumers (Beacon/Prime)
+        receive presence indicators and bounded labels only.
+        """
         return {
             "evidence_id": self.evidence_id,
             "session_id": self.session_id,
             "session_name": self.session_name,
             "project_name": self.project_name,
-            "project_path": self.project_path,
+            "project_path_present": self.project_path is not None,
+            "project_path_label": "<project_path>" if self.project_path else "none",
             "assigned_queue_file": self.assigned_queue_file,
-            "worktree_path": self.worktree_path,
+            "worktree_path_present": bool(self.worktree_path),
+            "worktree_path_label": "<worktree_path>" if self.worktree_path else "none",
             "branch_name": self.branch_name,
             "model_provider": self.model_provider,
             "model_name": self.model_name,
@@ -472,7 +479,11 @@ class SessionLiveStateEvidence:
             "last_queue_write_at": self.last_queue_write_at.isoformat(),
             "last_prompt_sent_at": self.last_prompt_sent_at.isoformat(),
             "proof_state": self.proof_state.value,
-            "blocker_summary": self.blocker_summary,
+            "blocker_present": self.blocker_summary is not None,
+            "blocker_summary_label": "<blocker_summary>" if self.blocker_summary else "none",
+            "blocker_summary_length": (
+                len(self.blocker_summary) if self.blocker_summary else 0
+            ),
             "evidence_refs": list(self.evidence_refs),
             "timestamp": self.timestamp.isoformat(),
         }

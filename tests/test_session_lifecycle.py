@@ -2061,7 +2061,10 @@ class TestSessionLiveStateEvidence:
         serialized = evidence.to_dict()
 
         assert evidence.blocker_summary is None
-        assert serialized["blocker_summary"] is None
+        assert serialized["blocker_present"] is False
+        assert serialized["blocker_summary_label"] == "none"
+        assert serialized["blocker_summary_length"] == 0
+        assert "blocker_summary" not in serialized
         assert any("blocker_summary=none" in ref for ref in evidence.evidence_refs)
 
     def test_live_state_evidence_with_blocker(self, session_state):
@@ -2089,6 +2092,132 @@ class TestSessionLiveStateEvidence:
 
         assert evidence.project_path is None
         assert any("project.path_safe=none" in ref for ref in evidence.evidence_refs)
+
+    def test_to_dict_does_not_leak_raw_project_path(self, session_state):
+        """Regression: to_dict() must not serialize raw project_path."""
+        sensitive_path = "/home/scott/secret-project/internal"
+        sensitive_state = SessionLifecycleState(
+            **{**session_state.__dict__, "project_path": sensitive_path}
+        )
+        timestamp = datetime(2026, 6, 2, 10, 35, tzinfo=timezone.utc)
+
+        evidence = build_session_live_state_evidence(sensitive_state, timestamp=timestamp)
+        serialized = evidence.to_dict()
+
+        # Raw key must not appear in serialized dict
+        assert "project_path" not in serialized
+        # Raw value must not appear anywhere in serialized dict values
+        for key, value in serialized.items():
+            if isinstance(value, str):
+                assert sensitive_path not in value, (
+                    f"Raw project_path leaked in serialized['{key}']"
+                )
+            elif isinstance(value, list):
+                for item in value:
+                    if isinstance(item, str):
+                        assert sensitive_path not in item, (
+                            f"Raw project_path leaked in serialized['{key}'] list"
+                        )
+        # Presence/label must be bounded and safe
+        assert serialized["project_path_present"] is True
+        assert serialized["project_path_label"] == "<project_path>"
+
+    def test_to_dict_does_not_leak_raw_worktree_path(self, session_state):
+        """Regression: to_dict() must not serialize raw worktree_path."""
+        sensitive_worktree = "C:\\Users\\scott\\Code\\Meridian-Worktrees\\secret-build"
+        sensitive_state = SessionLifecycleState(
+            **{**session_state.__dict__, "worktree_path": sensitive_worktree}
+        )
+        timestamp = datetime(2026, 6, 2, 10, 35, tzinfo=timezone.utc)
+
+        evidence = build_session_live_state_evidence(sensitive_state, timestamp=timestamp)
+        serialized = evidence.to_dict()
+
+        # Raw key must not appear in serialized dict
+        assert "worktree_path" not in serialized
+        # Raw value must not appear anywhere in serialized dict values
+        for key, value in serialized.items():
+            if isinstance(value, str):
+                assert sensitive_worktree not in value, (
+                    f"Raw worktree_path leaked in serialized['{key}']"
+                )
+            elif isinstance(value, list):
+                for item in value:
+                    if isinstance(item, str):
+                        assert sensitive_worktree not in item, (
+                            f"Raw worktree_path leaked in serialized['{key}'] list"
+                        )
+        # Presence/label must be bounded and safe
+        assert serialized["worktree_path_present"] is True
+        assert serialized["worktree_path_label"] == "<worktree_path>"
+
+    def test_to_dict_does_not_leak_raw_blocker_summary(self, session_state):
+        """Regression: to_dict() must not serialize raw blocker_summary text."""
+        sensitive_blocker = (
+            "SECRET_BLOCKER_TEXT: credential rotation failed at /etc/secrets/key.pem"
+        )
+        sensitive_state = SessionLifecycleState(
+            **{**session_state.__dict__, "blocker_summary": sensitive_blocker}
+        )
+        timestamp = datetime(2026, 6, 2, 10, 35, tzinfo=timezone.utc)
+
+        evidence = build_session_live_state_evidence(sensitive_state, timestamp=timestamp)
+        serialized = evidence.to_dict()
+
+        # Raw key must not appear in serialized dict
+        assert "blocker_summary" not in serialized
+        # Raw value must not appear anywhere in serialized dict values
+        for key, value in serialized.items():
+            if isinstance(value, str):
+                assert sensitive_blocker not in value, (
+                    f"Raw blocker_summary leaked in serialized['{key}']"
+                )
+                assert "SECRET_BLOCKER_TEXT" not in value, (
+                    f"Raw blocker token leaked in serialized['{key}']"
+                )
+                assert "/etc/secrets/key.pem" not in value, (
+                    f"Raw blocker secret path leaked in serialized['{key}']"
+                )
+            elif isinstance(value, list):
+                for item in value:
+                    if isinstance(item, str):
+                        assert sensitive_blocker not in item, (
+                            f"Raw blocker_summary leaked in serialized['{key}'] list"
+                        )
+                        assert "SECRET_BLOCKER_TEXT" not in item, (
+                            f"Raw blocker token leaked in serialized['{key}'] list"
+                        )
+        # Presence and length must be bounded and safe
+        assert serialized["blocker_present"] is True
+        assert serialized["blocker_summary_label"] == "<blocker_summary>"
+        assert serialized["blocker_summary_length"] == len(sensitive_blocker)
+
+    def test_to_dict_preserves_useful_bounded_labels(self, session_state):
+        """Regression: to_dict() output preserves useful bounded labels for advisory consumers."""
+        timestamp = datetime(2026, 6, 2, 10, 35, tzinfo=timezone.utc)
+
+        evidence = build_session_live_state_evidence(session_state, timestamp=timestamp)
+        serialized = evidence.to_dict()
+
+        # Useful non-sensitive identifiers must remain
+        assert serialized["evidence_id"] == evidence.evidence_id
+        assert serialized["session_id"] == session_state.session_id
+        assert serialized["session_name"] == session_state.session_name
+        assert serialized["project_name"] == session_state.project_name
+        assert serialized["assigned_queue_file"] == session_state.assigned_queue_file
+        assert serialized["branch_name"] == session_state.branch_name
+        assert serialized["model_provider"] == session_state.model_provider
+        assert serialized["model_name"] == session_state.model_name
+        assert serialized["status"] == "running"
+        assert serialized["proof_state"] == "command_staged"
+        # Bounded presence/label fields must surface the path/blocker existence
+        assert "project_path_present" in serialized
+        assert "project_path_label" in serialized
+        assert "worktree_path_present" in serialized
+        assert "worktree_path_label" in serialized
+        assert "blocker_present" in serialized
+        assert "blocker_summary_label" in serialized
+        assert "blocker_summary_length" in serialized
 
 
 class TestSessionLiveControlPermissionGate:
