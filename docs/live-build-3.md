@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Repair Required / Active Task
+## Completed / Promoted To Main
 
 Goal: repair backend restart FileMap docs mirror gap found by Codex Reviews B.
 
@@ -36,9 +36,11 @@ Proof:
 - Concrete inspected path list.
 
 Completion:
-- Commit only this slice on the assigned branch.
-- Mark this block `Completed / Ready For Codex Review` with commit hash, files changed, tests run, and concrete evidence.
-- Next Candidate: repeat FileMap audit after Build 1/2/4 backend branches land or are repaired.
+- Runtime FileMap registration promoted on main in `eb4e7f03f` (`audit: Register missing backend files in FileMap and _REQUIRED_PATHS`), changing `meridian_core/filemap.py` and `tests/test_filemap.py`.
+- Human docs mirror promoted on main in `078456f83` (`docs: mirror backend restart wave FileMap entries`), changing `docs/FileMap.md`.
+- `docs/FileMap.md` now contains the backend restart wave mirror block for the runtime FileMap / `_REQUIRED_PATHS` registrations from commit `ee9ef8a76`.
+- Proof on promoted main: `python -m pytest tests/test_filemap.py -q` -> 47 passed; `git diff --check` -> clean during promotion.
+- Next Candidate: Build 3 idle until the coordinator promotes a new FileMap audit after fresh Build 1/2/4/5 backend changes land.
 
 ## Completed / Ready For Codex Review
 
