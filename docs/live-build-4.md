@@ -8,7 +8,7 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now / Repair Required
+## Coordinator Override - Completed / Promoted To Main
 
 Goal: repair Codex review finding on Compass bounds request-level raw-context serialization.
 
@@ -35,9 +35,13 @@ Proof:
 - `git diff --check`
 
 Completion:
-- Commit only this focused repair on the assigned Build 4 branch.
-- Mark this block `Completed / Ready For Codex Review` with commit hash, files changed, tests run, and concrete before/after evidence.
-- Next Candidate: Codex Reviews B re-review of the focused bounds request-level redaction repair before coordinator promotion to `main`.
+- Build 4 repair commit: `cd04049a2` on `origin/codex/build-4-bounds-request-redact-20260606`.
+- Codex review/promoted main commit: `3cfb2ca4c` (`fix: block Compass bounds raw request fields`).
+- Files changed: `meridian_core/compass.py`, `tests/test_compass.py`.
+- Proof on clean integration worktree before promotion: `python -m pytest tests/test_compass.py -q` -> 328 passed; `git diff --check` -> clean.
+- Exact reproducers after fix: request `evidence_refs`, `request_ref`, and `ambiguity_reason` raw payloads no longer appear in serialized output; safe request labels and safe ambiguity reasons still pass through.
+- Main promotion: fast-forward push `5948a1fab..3cfb2ca4c`.
+- Next Candidate: Build 4 idle until the coordinator promotes a new Compass backend task.
 
 ## Coordinator Override - Completed / Ready For Codex Review
 
