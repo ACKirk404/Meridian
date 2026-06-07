@@ -331,6 +331,35 @@ Required proof before Ready marker:
 - concise completion marker here with files changed, proof, and any remaining
   risk.
 
+Voice I/O surface review-cleared completion marker - 2026-06-07T11:31:00-06:00:
+
+- Opus worker `chat_1780852385348` (`launch-chat`, tier `power`,
+  `claude-opus-4-7`) verified the current Voice I/O surface as an existing
+  backend/view-model no-op proof and added
+  `test_voice_io_surface_covers_required_dimension_matrix` in
+  `tests/test_bifrost_cockpit.py`.
+- The test renders `sample_cockpit_view_model()` through `render_cockpit_html()`,
+  scopes assertions to the `voice-strip`, and proves microphone input, spoken
+  Prime output, wake/boot audio status, mute/listening/thinking/speaking state,
+  display-safe status/intent refs, and non-executable voice controls.
+- Codex Review A `019ea31a-5a0b-7c13-9301-fd9bada9ce0d` passed the original
+  candidate. Codex Review B `019ea31a-75f7-76b2-8d0a-eed4f8791a63` found the
+  aggregate `aria-disabled` count too weak. The finding was routed back to the
+  Opus worker, which repaired the test to assert `aria-disabled="true"` inside
+  each expected voice control button slice (`input-status`, `read-aloud-status`,
+  and `mute-status`). Both Codex Review A and B reruns passed after repair.
+- Promotion scope: `tests/test_bifrost_cockpit.py` plus this coordinator marker
+  and `docs/v2-progress-tracker.md`. The worker-local `.mcp.json` and worker
+  completion marker were not promoted as implementation changes.
+- Proof: worker and review reruns reported
+  `python -m pytest tests/test_bifrost_cockpit.py -q` -> 385 passed and
+  `git diff --check -- tests/test_bifrost_cockpit.py` clean. Main promotion
+  reran the cockpit/FileMap/preview guard set before commit.
+- No live microphone/audio calls, provider calls, account probing, secrets, raw
+  prompt/provider-response text, process/session controls, Electron startup
+  changes, or `index.html` edits were introduced. Runtime speech plumbing
+  remains out of scope.
+
 Prompt payload visibility launch attempt note - 2026-06-07T10:47:46-06:00:
 
 - After Balance Button promotion, coordinator launched Opus worker

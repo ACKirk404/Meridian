@@ -2792,6 +2792,71 @@ def test_voice_no_provider_labels_in_voice_states():
         assert label not in doc.split("voice-strip")[1].split("</div>")[0] if "voice-strip" in doc else True
 
 
+def test_voice_io_surface_covers_required_dimension_matrix():
+    vm = sample_cockpit_view_model()
+    vm.voice = VoiceIOState(
+        listening=True,
+        thinking=True,
+        speaking=True,
+        muted=False,
+        blocked=False,
+        boot_status="wake-armed",
+        input_mode="microphone",
+        output_mode="speaker",
+        permission_state="available",
+        status_call="command channel ready",
+        last_intent_ref="voice-intent:panel-focus",
+    )
+    doc = render_cockpit_html(vm)
+    start = doc.index('class="voice-strip"')
+    end = doc.index('<div class="hud-stage"', start)
+    voice_markup = doc[start:end]
+
+    # microphone input
+    assert "mic armed" in voice_markup
+    assert "input: microphone" in voice_markup
+    assert 'data-voice-control="input-status"' in voice_markup
+
+    # spoken Prime output
+    assert "speaker active" in voice_markup
+    assert "output: speaker" in voice_markup
+    assert 'data-voice-control="read-aloud-status"' in voice_markup
+
+    # wake/boot audio status
+    assert "boot: wake-armed" in voice_markup
+
+    # mute/listening/thinking/speaking state
+    assert 'data-muted="false"' in voice_markup
+    assert 'data-voice-control="mute-status"' in voice_markup
+    assert "voice-listening" in voice_markup
+    assert "voice-thinking" in voice_markup
+    assert "voice-speaking" in voice_markup
+
+    # display-safe evidence refs
+    assert "status: command channel ready" in voice_markup
+    assert "intent: voice-intent:panel-focus" in voice_markup
+
+    # non-executable behavior: every voice control carries aria-disabled
+    # and no executable data-action hook is wired into the voice strip
+    for hook in ("data-action=\"voice\"", "data-action=\"read-aloud\"",
+                 "data-action=\"mute\"", "data-action=\"unmute\""):
+        assert hook not in voice_markup
+    for control in (
+        'data-voice-control="input-status"',
+        'data-voice-control="read-aloud-status"',
+        'data-voice-control="mute-status"',
+    ):
+        assert control in voice_markup, f"missing voice control: {control}"
+        attr_index = voice_markup.index(control)
+        button_start = voice_markup.rfind("<button", 0, attr_index)
+        button_end = voice_markup.index("</button>", attr_index)
+        assert button_start != -1, f"voice control not inside a button: {control}"
+        button_markup = voice_markup[button_start:button_end]
+        assert 'aria-disabled="true"' in button_markup, (
+            f"voice control {control} is missing aria-disabled=\"true\""
+        )
+
+
 # Session Lifecycle
 
 
