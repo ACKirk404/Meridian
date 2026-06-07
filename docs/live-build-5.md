@@ -32,11 +32,44 @@ Next Opus worker instruction: use one worker at a time, start with targeted
 implementation slice small enough to finish before rate limiting. Do not route
 Codex review until a worker has real backend/test changes plus proof output.
 
+## Coordinator Update - Cockpit Render Evidence Cleared / Tracker Promoted
+
+Timestamp: 2026-06-07T08:58:42-06:00.
+
+Coordinator launched one additional focused Polaris Build 5 Opus worker:
+
+- `chat_1780843883112` - Bifrost Cockpit Render proof focused test.
+
+Result: no implementation candidate. The session reached `claude-opus-4-7` but
+hit a rate-limit event and exited with only Polaris-generated `.mcp.json` dirt.
+No backend/test files changed in that worker worktree.
+
+Coordinator then ran current-main evidence review for the remaining
+`Bifrost + Cockpit Render` tracker item. Direct proof:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q` -> `383 passed in 0.66s`.
+- `render_cockpit_html()` wires provider balance, model capabilities, model
+  validation envelopes, visible prompt payload meter, prompt payload,
+  dispatch hardening, PromptPacket proof, Relay/Aegis policy handoff, and
+  reviewed backend evidence through the static render path.
+- Targeted tests cover sample rendering, backend-bound sample rendering,
+  provenance/evidence refs, escaping, unsafe-marker redaction, determinism, and
+  no execution controls for the new V2 fields.
+- Codex Review C returned no findings and stated the tracker item can be marked
+  built. A second independent Codex review was launched for the same evidence;
+  it inspected current-main render/test coverage and produced no blocking
+  finding before coordinator promotion.
+
+Tracker movement: `docs/v2-progress-tracker.md` now marks
+`Bifrost + Cockpit Render` built/review-cleared from existing current-main
+evidence. This is not credited as new Opus implementation; it is a coordinator
+promotion of already-promoted backend render/test evidence after Codex review.
+
 ## Completion Marker - Completed / Promoted To Main
 
 Timestamp: 2026-06-07T07:12:48-06:00.
 
-Goal: implemented the next Bifrost V2 cockpit extension as a deterministic browser-first backend/view-model rendering slice for already-reviewed backend state.
+Goal: implemented the next Bifrost V2 cockpit extension as a deterministic backend/view-model rendering slice for already-reviewed backend state.
 
 Implementation commit on clean promotion branch: `9a14e73eb` (`feat(bifrost): add reviewed backend evidence cockpit slice`). Repair commit: `6400e80bd` (`fix(bifrost): redact reviewed backend raw-context prefixes`). Main promotion merge: `151de3b40`. Original Build 5 worker commit before clean cherry-pick: `65ff7445a`.
 

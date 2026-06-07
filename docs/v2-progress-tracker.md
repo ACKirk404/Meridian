@@ -19,9 +19,9 @@
 | Aegis Harness | 2 | 0 | 0 | 0 | 2 | 100% |
 | Compass Harness | 4 | 0 | 1 | 0 | 5 | 80% clear + 20% baseline |
 | Session Lifecycle Harness | 6 | 0 | 1 | 0 | 7 | 86% clear + 14% baseline |
-| Bifrost Harness | 2 | 0 | 2 | 5 | 9 | 22% clear + 22% baseline |
+| Bifrost Harness | 3 | 0 | 2 | 4 | 9 | 33% clear + 22% baseline |
 | Federation Harness | 1 | 0 | 0 | 0 | 1 | 100% |
-| **Total V2** | **30** | **0** | **9** | **5** | **44** | **68% Clear + 20% Baseline** |
+| **Total V2** | **31** | **0** | **9** | **4** | **44** | **70% Clear + 20% Baseline** |
 
 ## Built and Review-Cleared V2 Capabilities
 
@@ -81,6 +81,7 @@
 
 - [x] **Bifrost + FileMap Integration:** active Bifrost V2 cockpit direction docs (`docs/bifrost-v2-cockpit-extensions.md`, `docs/jarvis-ui-source-assessment.md`) registered in runtime FileMap, `docs/FileMap.md`, and required-path coverage - built in `d496472`; review cleared by Reviews B on 2026-05-31.
 - [x] **Bifrost + Reviewed Backend Evidence / JARVIS-Source V2 Extension Slice:** `ReviewedBackendEvidenceView`, `reviewed_backend_evidence_view_from_summary()`, backend-bound sample wiring, and inert cockpit HTML/CSS rendering display Prime next action, Echo memory-hit summary, Atlas retrieval-hit summary, Session Lifecycle preview, Aegis policy result, Relay/model metadata, evidence refs, and warnings as escaped static markup only. Built in `9a14e73eb`, repaired in `6400e80bd`, review-cleared by Codex Review A/B, and promoted on main in `151de3b40` with `tests/test_bifrost_cockpit.py` passing at 383 tests.
+- [x] **Bifrost + Cockpit Render:** static render tests and HTML escaping tests cover new V2 view-model fields through `render_cockpit_html()`, including provider balance, prompt payload visibility, visible payload meter, model capability metadata, model validation envelopes, dispatch hardening, PromptPacket proof, Relay/Aegis policy handoff, reviewed backend evidence, backend-bound sample wiring, provenance/evidence refs, redaction, and no-execution-control guardrails. Cleared from current-main evidence by Codex Review C/D on 2026-06-07 with `python -m pytest tests/test_bifrost_cockpit.py -q` passing at 383 tests.
 
 ## Built But Awaiting Review
 
@@ -147,7 +148,6 @@
 - [ ] **Bifrost + Balance Button:** Polaris-style provider balance and usage surface for Claude, OpenAI, DeepSeek, and aggregator/local adapters; must show provider health, remaining credit where available, token usage, estimated spend, and cost pressure warnings for Prime routing.
 - [ ] **Bifrost + Prompt Payload Visibility:** surface Relay prompt payload size, budget pressure, and growth/flat status next to model dispatch and queue-poll events so Scott and Prime can see prompt drag in real time.
 - [ ] **Bifrost + Voice I/O Surface:** visible microphone input, spoken Prime output, NASA-style boot/status audio state, mute controls, and listening/thinking/speaking indicators; runtime speech plumbing may follow the initial surface.
-- [ ] **Bifrost + Cockpit Render:** static render tests and HTML escaping tests for new V2 view-model fields.
 ## Review Gates for V2
 
 - Every V2 domain slice must include unit tests and pass before marked built.
