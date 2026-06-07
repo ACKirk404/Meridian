@@ -8,6 +8,81 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Coordinator Override - Active Now
+
+Timestamp: 2026-06-07T17:55:00-06:00.
+
+Goal: implement the first pure per-harness Workflow Sub-Agent adapter for
+Atlas retrieval, building on the reviewed Workflow Dispatch domain slice.
+
+Worker requirement: implementation must run in a Polaris Build 1 Opus worker
+(`launch-chat`, tier `power`, `claude-opus-4-7`). Codex sessions may review only
+after a real worker candidate exists.
+
+Source of authority:
+
+- `docs/workflow-subagent-harness-contract.md`
+- `docs/workflow-subagent-usage-checklist.md`
+- `docs/workflows-subagent-harness-architecture.md`
+- `docs/atlas-retrieval-contract.md`
+- promoted `meridian_core/workflow_dispatch.py`
+- promoted `meridian_core/atlas.py`
+
+Task: add the smallest deterministic, dependency-free Atlas workflow adapter
+module and focused tests. This is the first per-harness workflow consumer
+slice. It must not change the generic Workflow Dispatch module.
+
+Implement only pure/local adapter behavior:
+
+- new `meridian_core/workflow_atlas.py` with frozen typed adapter records as
+  needed for Atlas workflow requests and outputs;
+- a helper that builds a valid `WorkflowWorkOrder` for
+  `WorkflowHarness.ATLAS` from an existing `AtlasQuery` and bounded request
+  metadata;
+- a pure handler factory or handler helper that accepts injected
+  `filemap_entries` and optional injected Echo store, calls existing
+  `meridian_core.atlas.query`, and returns a `WorkflowResultSummary` with
+  typed Atlas output records, or a typed `WorkflowErrorSummary` /
+  `WorkflowResteerRequest` when inputs are invalid or missing;
+- conversion that preserves Atlas source attribution, ranking order,
+  `missing_paths`, and `truncated` status without exposing raw file bodies,
+  raw search dumps, worker transcripts, branch/worktree text, credentials, or
+  free-text plans;
+- tests proving dispatch integration with `dispatch_work_order` using a fake
+  Atlas handler, result-shape validation, tier proof behavior, invalid-input
+  failure behavior, display-safety rejection, and that no heartbeat history or
+  raw retrieval bodies enter Prime-visible results.
+
+Keep this slice pure/local. No live workflow execution, no process/session
+control, no model calls, no network, no filesystem reads or writes beyond this
+worker's allowed files, no branch/worktree movement, no Echo durable writes,
+no FileMap durable writes, no UI/Electron/Bifrost behavior, no generated
+artifacts, no provider/account calls, and no FileMap registration in this
+slice.
+
+Allowed files only:
+
+- `meridian_core/workflow_atlas.py`
+- `tests/test_workflow_atlas.py`
+- `docs/live-build-1.md`
+
+Do not edit `meridian_core/workflow_dispatch.py`, `tests/test_workflow_dispatch.py`,
+`meridian_core/atlas.py`, `tests/test_atlas.py`, Workflow contract docs,
+FileMap surfaces, Provider Balance files, Goal Runtime files,
+Bifrost/Electron/UI files, generated artifacts, package files, other live-build
+queues, review logs, or runtime code outside this new adapter module.
+
+Required proof before Ready marker:
+
+- `python -m pytest tests/test_workflow_atlas.py tests/test_workflow_dispatch.py tests/test_atlas.py -q`
+- `git diff --check -- meridian_core/workflow_atlas.py tests/test_workflow_atlas.py docs/live-build-1.md`
+- path-scope proof limited to the three allowed files
+- completion marker in this section with files changed, tests, proof, and
+  remaining risk
+
+Stop after implementation and marker. Do not promote to main, do not push to
+main, do not move branches/worktrees, and do not touch shared main.
+
 ## Coordinator Override - Completed / Review-Cleared / Promoted To Main
 
 Timestamp: 2026-06-07T16:20:00-06:00.
