@@ -10,6 +10,7 @@ from meridian_core.model_adapter import (
     AdapterRegistry,
     DEEPSEEK_DIRECT_ENDPOINT,
     DEEPSEEK_DIRECT_MODEL,
+    DeepSeekValidationDisposition,
     DeepSeekValidationLevel,
     DeepSeekValidationState,
     EnvConfiguredModelAdapter,
@@ -22,6 +23,7 @@ from meridian_core.model_adapter import (
     ModelAdapterConfigError,
     ModelHarnessMetadata,
     ModelRouteMetadataBinding,
+    bind_deepseek_validation_disposition,
     bind_model_route_metadata,
     deepseek_candidate_metadata_preset,
     deepseek_candidate_route_presets,
@@ -900,3 +902,273 @@ class TestDeepSeekValidationState:
             default_state.can_receive_prompt_payloads
             == fast_state.can_receive_prompt_payloads
         )
+
+
+class TestDeepSeekValidationDisposition:
+    def test_disposition_from_metadata_only_preset_blocks_transport(self) -> None:
+        metadata = deepseek_candidate_metadata_preset("default_quality")
+        disposition = bind_deepseek_validation_disposition(metadata)
+        assert disposition is not None
+        assert disposition.validation_level == "level-0:metadata-only"
+        assert disposition.direct_dispatch_id == "deepseek-chat"
+        assert disposition.variant_labels == ("deepseek-v4-pro",)
+        assert disposition.transport_cleared is False
+        assert disposition.validation_evidence_ref == (
+            "deepseek-validation:level-0:metadata-only"
+        )
+        assert disposition.direct_endpoint_evidence_ref == (
+            "deepseek-direct-endpoint:"
+            "https://api.deepseek.com/v1/chat/completions"
+        )
+        assert disposition.external_review_evidence_ref == (
+            "external-review:deepseek:deepseek-chat:pending"
+        )
+
+    def test_disposition_fast_lane_carries_correct_variant_label(self) -> None:
+        metadata = deepseek_candidate_metadata_preset("fast")
+        disposition = bind_deepseek_validation_disposition(metadata)
+        assert disposition is not None
+        assert disposition.variant_labels == ("deepseek-v4-flash",)
+        assert disposition.direct_dispatch_id == "deepseek-chat"
+
+    def test_disposition_carries_blocked_authority_tags(self) -> None:
+        metadata = deepseek_candidate_metadata_preset("fast")
+        disposition = bind_deepseek_validation_disposition(metadata)
+        assert disposition is not None
+        assert "review_clearance" in disposition.blocked_authority_tags
+        assert "branch_movement" in disposition.blocked_authority_tags
+        assert "relay_aegis_bypass" in disposition.blocked_authority_tags
+        assert "autonomous_coding" in disposition.blocked_authority_tags
+        assert "aggregator_authority" in disposition.blocked_authority_tags
+
+    def test_disposition_never_grants_autonomous_authority(self) -> None:
+        metadata = deepseek_candidate_metadata_preset("default_quality")
+        disposition = bind_deepseek_validation_disposition(metadata)
+        assert disposition is not None
+        assert disposition.autonomous_implementation_authorized is False
+        assert disposition.review_clearing_authorized is False
+        assert disposition.branch_movement_authorized is False
+        assert disposition.live_coding_authority_authorized is False
+        assert disposition.relay_bypass_authorized is False
+        assert disposition.serialization_only is True
+
+    def test_disposition_rejects_autonomous_authority_at_construction(self) -> None:
+        with pytest.raises(ModelAdapterConfigError, match="autonomous authority"):
+            DeepSeekValidationDisposition(
+                validation_level="level-0:metadata-only",
+                direct_dispatch_id="deepseek-chat",
+                variant_labels=("deepseek-v4-pro",),
+                transport_cleared=False,
+                blocked_authority_tags=(),
+                validation_evidence_ref="deepseek-validation:level-0:metadata-only",
+                autonomous_implementation_authorized=True,
+            )
+
+    def test_disposition_rejects_review_clearing_authority(self) -> None:
+        with pytest.raises(ModelAdapterConfigError, match="autonomous authority"):
+            DeepSeekValidationDisposition(
+                validation_level="level-0:metadata-only",
+                direct_dispatch_id="deepseek-chat",
+                variant_labels=("deepseek-v4-pro",),
+                transport_cleared=False,
+                blocked_authority_tags=(),
+                validation_evidence_ref="deepseek-validation:level-0:metadata-only",
+                review_clearing_authorized=True,
+            )
+
+    def test_disposition_rejects_branch_movement_authority(self) -> None:
+        with pytest.raises(ModelAdapterConfigError, match="autonomous authority"):
+            DeepSeekValidationDisposition(
+                validation_level="level-0:metadata-only",
+                direct_dispatch_id="deepseek-chat",
+                variant_labels=("deepseek-v4-pro",),
+                transport_cleared=False,
+                blocked_authority_tags=(),
+                validation_evidence_ref="deepseek-validation:level-0:metadata-only",
+                branch_movement_authorized=True,
+            )
+
+    def test_disposition_rejects_live_coding_authority(self) -> None:
+        with pytest.raises(ModelAdapterConfigError, match="autonomous authority"):
+            DeepSeekValidationDisposition(
+                validation_level="level-0:metadata-only",
+                direct_dispatch_id="deepseek-chat",
+                variant_labels=("deepseek-v4-pro",),
+                transport_cleared=False,
+                blocked_authority_tags=(),
+                validation_evidence_ref="deepseek-validation:level-0:metadata-only",
+                live_coding_authority_authorized=True,
+            )
+
+    def test_disposition_rejects_relay_bypass_authority(self) -> None:
+        with pytest.raises(ModelAdapterConfigError, match="autonomous authority"):
+            DeepSeekValidationDisposition(
+                validation_level="level-0:metadata-only",
+                direct_dispatch_id="deepseek-chat",
+                variant_labels=("deepseek-v4-pro",),
+                transport_cleared=False,
+                blocked_authority_tags=(),
+                validation_evidence_ref="deepseek-validation:level-0:metadata-only",
+                relay_bypass_authorized=True,
+            )
+
+    def test_disposition_rejects_non_deepseek_dispatch_id(self) -> None:
+        with pytest.raises(ModelAdapterConfigError, match="deepseek-chat"):
+            DeepSeekValidationDisposition(
+                validation_level="level-0:metadata-only",
+                direct_dispatch_id="claude-opus",
+                variant_labels=("claude-opus-4",),
+                transport_cleared=False,
+                blocked_authority_tags=(),
+                validation_evidence_ref="deepseek-validation:level-0:metadata-only",
+            )
+
+    def test_disposition_rejects_variant_label_masquerading_as_dispatch_model(self) -> None:
+        with pytest.raises(ModelAdapterConfigError, match="masquerade"):
+            DeepSeekValidationDisposition(
+                validation_level="level-0:metadata-only",
+                direct_dispatch_id="deepseek-chat",
+                variant_labels=("deepseek-chat",),
+                transport_cleared=False,
+                blocked_authority_tags=(),
+                validation_evidence_ref="deepseek-validation:level-0:metadata-only",
+            )
+
+    def test_disposition_rejects_non_serialization_only(self) -> None:
+        with pytest.raises(ModelAdapterConfigError, match="serialization-only"):
+            DeepSeekValidationDisposition(
+                validation_level="level-0:metadata-only",
+                direct_dispatch_id="deepseek-chat",
+                variant_labels=("deepseek-v4-pro",),
+                transport_cleared=False,
+                blocked_authority_tags=(),
+                validation_evidence_ref="deepseek-validation:level-0:metadata-only",
+                serialization_only=False,
+            )
+
+    def test_bind_returns_none_when_metadata_missing(self) -> None:
+        assert bind_deepseek_validation_disposition(None) is None
+
+    def test_bind_returns_none_for_non_deepseek_provider(self) -> None:
+        metadata = ModelHarnessMetadata(
+            provider_name="anthropic",
+            model_name="claude-opus",
+            capability_tier="primary",
+            context_budget=200000,
+            prompt_payload_budget=150000,
+            trust_state="trusted",
+            requires_external_review=False,
+        )
+        assert bind_deepseek_validation_disposition(metadata) is None
+
+    def test_bind_returns_none_for_deepseek_without_candidate_state(self) -> None:
+        metadata = ModelHarnessMetadata(
+            provider_name="deepseek",
+            model_name="deepseek-chat",
+            capability_tier="standard",
+            context_budget=65536,
+            prompt_payload_budget=57344,
+            trust_state="candidate",
+            requires_external_review=True,
+        )
+        assert bind_deepseek_validation_disposition(metadata) is None
+
+    def test_bind_returns_none_for_non_direct_deepseek_model(self) -> None:
+        metadata = ModelHarnessMetadata(
+            provider_name="deepseek",
+            model_name="openrouter-deepseek",
+            capability_tier="standard",
+            context_budget=65536,
+            prompt_payload_budget=57344,
+            trust_state="candidate",
+            requires_external_review=True,
+            deepseek_candidate_state={
+                "validation_evidence_ref": "deepseek-validation:level-0:metadata-only",
+                "variant_label": "deepseek-v4-pro",
+            },
+        )
+        assert bind_deepseek_validation_disposition(metadata) is None
+
+    def test_disposition_to_dict_is_stable(self) -> None:
+        metadata = deepseek_candidate_metadata_preset("fast")
+        disposition = bind_deepseek_validation_disposition(metadata)
+        assert disposition is not None
+        rendered = disposition.to_dict()
+        assert tuple(rendered.keys()) == (
+            "validation_level",
+            "direct_dispatch_id",
+            "variant_labels",
+            "transport_cleared",
+            "blocked_authority_tags",
+            "validation_evidence_ref",
+            "direct_endpoint_evidence_ref",
+            "external_review_evidence_ref",
+            "autonomous_implementation_authorized",
+            "review_clearing_authorized",
+            "branch_movement_authorized",
+            "live_coding_authority_authorized",
+            "relay_bypass_authorized",
+            "serialization_only",
+        )
+        assert rendered["direct_dispatch_id"] == "deepseek-chat"
+        assert rendered["transport_cleared"] is False
+        assert rendered["autonomous_implementation_authorized"] is False
+
+    def test_disposition_is_frozen(self) -> None:
+        metadata = deepseek_candidate_metadata_preset("fast")
+        disposition = bind_deepseek_validation_disposition(metadata)
+        assert disposition is not None
+        with pytest.raises(FrozenInstanceError):
+            disposition.transport_cleared = True  # type: ignore[misc]
+
+    def test_validation_cleared_validation_ref_marks_transport_cleared(self) -> None:
+        metadata = ModelHarnessMetadata(
+            provider_name="deepseek",
+            model_name="deepseek-chat",
+            capability_tier="candidate-quality",
+            context_budget=65536,
+            prompt_payload_budget=57344,
+            trust_state="validation_cleared",
+            requires_external_review=False,
+            deepseek_candidate_state={
+                "validation_evidence_ref": "deepseek-validation:level-1:validation-cleared",
+                "variant_label": "deepseek-v4-pro",
+                "blocked_authorities": "review_clearance,branch_movement,autonomous_coding",
+                "direct_endpoint_evidence_ref": (
+                    "deepseek-direct-endpoint:"
+                    "https://api.deepseek.com/v1/chat/completions"
+                ),
+                "external_review_evidence_ref": (
+                    "external-review:deepseek:deepseek-chat:passed"
+                ),
+            },
+        )
+        disposition = bind_deepseek_validation_disposition(metadata)
+        assert disposition is not None
+        assert disposition.validation_level == "level-1:validation-cleared"
+        assert disposition.transport_cleared is True
+        assert disposition.autonomous_implementation_authorized is False
+        assert disposition.review_clearing_authorized is False
+        assert disposition.branch_movement_authorized is False
+        assert disposition.live_coding_authority_authorized is False
+        assert disposition.relay_bypass_authorized is False
+        assert disposition.serialization_only is True
+
+    def test_unknown_validation_ref_marks_transport_blocked(self) -> None:
+        metadata = ModelHarnessMetadata(
+            provider_name="deepseek",
+            model_name="deepseek-chat",
+            capability_tier="candidate-quality",
+            context_budget=65536,
+            prompt_payload_budget=57344,
+            trust_state="candidate",
+            requires_external_review=True,
+            deepseek_candidate_state={
+                "validation_evidence_ref": "deepseek-validation:level-99:unknown",
+                "variant_label": "deepseek-v4-pro",
+            },
+        )
+        disposition = bind_deepseek_validation_disposition(metadata)
+        assert disposition is not None
+        assert disposition.validation_level == "level-unknown"
+        assert disposition.transport_cleared is False

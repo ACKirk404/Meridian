@@ -25,10 +25,12 @@ from .aegis import (
 from .cognition_policy import evaluate_cognition_policy
 from .model_adapter import (
     AdapterRegistry,
+    DeepSeekValidationDisposition,
     MissingAdapterError,
     ModelAdapter,
     ModelHarnessMetadata,
     ModelRouteMetadataBinding,
+    bind_deepseek_validation_disposition,
     bind_model_route_metadata,
 )
 from .prompt_payload_meter import PromptPayloadSnapshot
@@ -313,6 +315,7 @@ class RelayDispatchMetadataEnvelope:
     retry_requires_fresh_metadata: bool = False
     transport_payload_kind: str = "metadata_only"
     serialization_only: bool = True
+    deepseek_validation_disposition: DeepSeekValidationDisposition | None = None
 
     def to_dict(self) -> dict[str, object]:
         """Return stable display-safe metadata for future provider transport handoff."""
@@ -364,6 +367,11 @@ class RelayDispatchMetadataEnvelope:
             "retry_requires_fresh_metadata": self.retry_requires_fresh_metadata,
             "transport_payload_kind": self.transport_payload_kind,
             "serialization_only": self.serialization_only,
+            "deepseek_validation_disposition": (
+                self.deepseek_validation_disposition.to_dict()
+                if self.deepseek_validation_disposition is not None
+                else None
+            ),
         }
 
 
@@ -2530,6 +2538,9 @@ def _build_dispatch_metadata_envelope(
         fail_closed_tags=fail_closed_tags,
         metadata_transport_allowed=not fail_closed_advisory,
         retry_requires_fresh_metadata=fail_closed_advisory,
+        deepseek_validation_disposition=bind_deepseek_validation_disposition(
+            adapter_metadata
+        ),
     )
 
 

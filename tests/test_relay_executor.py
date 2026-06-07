@@ -2155,6 +2155,7 @@ class TestRelayDispatchMetadataEnvelope:
             "retry_requires_fresh_metadata",
             "transport_payload_kind",
             "serialization_only",
+            "deepseek_validation_disposition",
         )
         assert _PROMPT not in rendered
         assert "raw response" not in rendered
@@ -4250,5 +4251,162 @@ class TestRelayAegisPromptPacketHandoffSummary:
         dict1 = evidence.to_dict()
         dict2 = evidence.to_dict()
         assert dict1 == dict2
-        # Verify order preservation (Python 3.7+ guarantees dict insertion order)
         assert list(dict1.keys()) == list(dict2.keys())
+
+
+class TestRelayDispatchMetadataEnvelopeDeepSeekDisposition:
+    """Relay dispatch metadata envelope binds bounded DeepSeek validation-state disposition."""
+
+    def test_envelope_binds_deepseek_validation_disposition_for_deepseek_adapter(self) -> None:
+        plan = _make_plan(1)
+        adapter = FakeModelAdapter(
+            "response",
+            metadata=deepseek_candidate_metadata_preset("fast"),
+        )
+        registry = AdapterRegistry().register_model(
+            plan.lanes[0].preferred_model,
+            adapter,
+        )
+
+        summary = execute_relay_plan_with_registry(plan, registry)
+
+        envelope = summary.results[0].dispatch_metadata_envelope
+        assert envelope is not None
+        disposition = envelope.deepseek_validation_disposition
+        assert disposition is not None
+        assert disposition.validation_level == "level-0:metadata-only"
+        assert disposition.direct_dispatch_id == "deepseek-chat"
+        assert disposition.variant_labels == ("deepseek-v4-flash",)
+        assert disposition.transport_cleared is False
+        assert disposition.validation_evidence_ref == (
+            "deepseek-validation:level-0:metadata-only"
+        )
+        assert disposition.direct_endpoint_evidence_ref == (
+            "deepseek-direct-endpoint:"
+            "https://api.deepseek.com/v1/chat/completions"
+        )
+        assert disposition.external_review_evidence_ref == (
+            "external-review:deepseek:deepseek-chat:pending"
+        )
+
+    def test_envelope_disposition_never_grants_autonomous_authority(self) -> None:
+        plan = _make_plan(1)
+        adapter = FakeModelAdapter(
+            "response",
+            metadata=deepseek_candidate_metadata_preset("default_quality"),
+        )
+        registry = AdapterRegistry().register_model(
+            plan.lanes[0].preferred_model,
+            adapter,
+        )
+
+        summary = execute_relay_plan_with_registry(plan, registry)
+
+        envelope = summary.results[0].dispatch_metadata_envelope
+        assert envelope is not None
+        disposition = envelope.deepseek_validation_disposition
+        assert disposition is not None
+        assert disposition.autonomous_implementation_authorized is False
+        assert disposition.review_clearing_authorized is False
+        assert disposition.branch_movement_authorized is False
+        assert disposition.live_coding_authority_authorized is False
+        assert disposition.relay_bypass_authorized is False
+        assert disposition.serialization_only is True
+
+    def test_envelope_disposition_carries_blocked_authority_tags(self) -> None:
+        plan = _make_plan(1)
+        adapter = FakeModelAdapter(
+            "response",
+            metadata=deepseek_candidate_metadata_preset("fast"),
+        )
+        registry = AdapterRegistry().register_model(
+            plan.lanes[0].preferred_model,
+            adapter,
+        )
+
+        summary = execute_relay_plan_with_registry(plan, registry)
+
+        envelope = summary.results[0].dispatch_metadata_envelope
+        assert envelope is not None
+        disposition = envelope.deepseek_validation_disposition
+        assert disposition is not None
+        assert "review_clearance" in disposition.blocked_authority_tags
+        assert "branch_movement" in disposition.blocked_authority_tags
+        assert "relay_aegis_bypass" in disposition.blocked_authority_tags
+        assert "autonomous_coding" in disposition.blocked_authority_tags
+        assert "aggregator_authority" in disposition.blocked_authority_tags
+
+    def test_envelope_disposition_absent_when_no_adapter_metadata(self) -> None:
+        plan = _make_plan(2)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("response"),
+        )
+
+        envelope = summary.results[0].dispatch_metadata_envelope
+        assert envelope is not None
+        assert envelope.deepseek_validation_disposition is None
+
+    def test_envelope_disposition_absent_for_non_deepseek_adapter(self) -> None:
+        plan = _make_plan(1)
+        non_deepseek_metadata = ModelHarnessMetadata(
+            provider_name="anthropic",
+            model_name="claude-opus",
+            capability_tier="primary",
+            context_budget=200000,
+            prompt_payload_budget=150000,
+            trust_state="trusted",
+            requires_external_review=False,
+            supports_completion_tokens=True,
+            supports_latency_ms=True,
+            supports_payload_snapshot=True,
+            supports_response_hash=True,
+            tokenizer_family="anthropic",
+            max_output_tokens=8192,
+        )
+        adapter = FakeModelAdapter("response", metadata=non_deepseek_metadata)
+        registry = AdapterRegistry().register_model(
+            plan.lanes[0].preferred_model,
+            adapter,
+        )
+
+        summary = execute_relay_plan_with_registry(plan, registry)
+
+        envelope = summary.results[0].dispatch_metadata_envelope
+        assert envelope is not None
+        assert envelope.deepseek_validation_disposition is None
+
+    def test_envelope_disposition_serializes_to_dict(self) -> None:
+        plan = _make_plan(1)
+        adapter = FakeModelAdapter(
+            "response",
+            metadata=deepseek_candidate_metadata_preset("fast"),
+        )
+        registry = AdapterRegistry().register_model(
+            plan.lanes[0].preferred_model,
+            adapter,
+        )
+
+        summary = execute_relay_plan_with_registry(plan, registry)
+
+        envelope = summary.results[0].dispatch_metadata_envelope
+        assert envelope is not None
+        rendered = envelope.to_dict()
+        disposition_dict = rendered["deepseek_validation_disposition"]
+        assert isinstance(disposition_dict, dict)
+        assert disposition_dict["direct_dispatch_id"] == "deepseek-chat"
+        assert disposition_dict["variant_labels"] == ("deepseek-v4-flash",)
+        assert disposition_dict["transport_cleared"] is False
+        assert disposition_dict["autonomous_implementation_authorized"] is False
+        assert disposition_dict["serialization_only"] is True
+
+    def test_envelope_disposition_dict_is_none_when_disposition_absent(self) -> None:
+        plan = _make_plan(2)
+        summary = execute_relay_dispatch_plan(
+            plan,
+            _constant_model_call("response"),
+        )
+
+        envelope = summary.results[0].dispatch_metadata_envelope
+        assert envelope is not None
+        assert envelope.to_dict()["deepseek_validation_disposition"] is None

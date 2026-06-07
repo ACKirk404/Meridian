@@ -117,6 +117,137 @@ def deepseek_validation_state_from_preset(preset: ModelCandidateRoutePreset) -> 
 
 
 @dataclass(frozen=True)
+class DeepSeekValidationDisposition:
+    """Bounded Relay-facing disposition for DeepSeek validation-state metadata.
+
+    Exposes validation level, direct dispatch id, variant labels, transport-cleared
+    state, blocked-authority tags, and evidence refs as bounded metadata only.
+
+    All autonomous authority bits are hard-coded False at this slice: this
+    disposition never grants autonomous implementation, review-clearing,
+    branch/worktree movement, live coding authority, or unsafe Relay bypass.
+    Validation-cleared transport state is represented as transport metadata only.
+    """
+
+    validation_level: str
+    direct_dispatch_id: str
+    variant_labels: tuple[str, ...]
+    transport_cleared: bool
+    blocked_authority_tags: tuple[str, ...]
+    validation_evidence_ref: str
+    direct_endpoint_evidence_ref: str | None = None
+    external_review_evidence_ref: str | None = None
+    autonomous_implementation_authorized: bool = False
+    review_clearing_authorized: bool = False
+    branch_movement_authorized: bool = False
+    live_coding_authority_authorized: bool = False
+    relay_bypass_authorized: bool = False
+    serialization_only: bool = True
+
+    def __post_init__(self) -> None:
+        if self.direct_dispatch_id != DEEPSEEK_DIRECT_MODEL:
+            raise ModelAdapterConfigError(
+                "DeepSeek disposition direct_dispatch_id must be deepseek-chat"
+            )
+        for label in self.variant_labels:
+            if label == self.direct_dispatch_id:
+                raise ModelAdapterConfigError(
+                    "DeepSeek variant labels must not masquerade as the dispatch model"
+                )
+        if (
+            self.autonomous_implementation_authorized
+            or self.review_clearing_authorized
+            or self.branch_movement_authorized
+            or self.live_coding_authority_authorized
+            or self.relay_bypass_authorized
+        ):
+            raise ModelAdapterConfigError(
+                "DeepSeek disposition must not grant autonomous authority at this slice"
+            )
+        if not self.serialization_only:
+            raise ModelAdapterConfigError(
+                "DeepSeek disposition is serialization-only"
+            )
+
+    def to_dict(self) -> dict[str, object]:
+        """Return display-safe disposition for Relay envelope handoff."""
+        return {
+            "validation_level": self.validation_level,
+            "direct_dispatch_id": self.direct_dispatch_id,
+            "variant_labels": self.variant_labels,
+            "transport_cleared": self.transport_cleared,
+            "blocked_authority_tags": self.blocked_authority_tags,
+            "validation_evidence_ref": self.validation_evidence_ref,
+            "direct_endpoint_evidence_ref": self.direct_endpoint_evidence_ref,
+            "external_review_evidence_ref": self.external_review_evidence_ref,
+            "autonomous_implementation_authorized": self.autonomous_implementation_authorized,
+            "review_clearing_authorized": self.review_clearing_authorized,
+            "branch_movement_authorized": self.branch_movement_authorized,
+            "live_coding_authority_authorized": self.live_coding_authority_authorized,
+            "relay_bypass_authorized": self.relay_bypass_authorized,
+            "serialization_only": self.serialization_only,
+        }
+
+
+def bind_deepseek_validation_disposition(
+    adapter_metadata: "ModelHarnessMetadata | None",
+) -> DeepSeekValidationDisposition | None:
+    """Bind reviewed DeepSeek validation-state into a bounded Relay disposition.
+
+    Returns None when metadata is missing, not DeepSeek direct dispatch, or
+    carries no candidate validation state. Returns a serialization-only
+    disposition otherwise. Never grants autonomous authority.
+    """
+    if adapter_metadata is None:
+        return None
+    if adapter_metadata.provider_name != "deepseek":
+        return None
+    if adapter_metadata.model_name != DEEPSEEK_DIRECT_MODEL:
+        return None
+    candidate_state = adapter_metadata.deepseek_candidate_state
+    if candidate_state is None:
+        return None
+    validation_ref = candidate_state.get("validation_evidence_ref", "") or ""
+    if not validation_ref:
+        return None
+
+    if validation_ref.startswith("deepseek-validation:level-0"):
+        validation_level = "level-0:metadata-only"
+        transport_cleared = False
+    elif validation_ref.startswith("deepseek-validation:level-1"):
+        validation_level = "level-1:validation-cleared"
+        transport_cleared = True
+    else:
+        validation_level = "level-unknown"
+        transport_cleared = False
+
+    blocked_authority_tags = tuple(
+        tag.strip()
+        for tag in (candidate_state.get("blocked_authorities") or "").split(",")
+        if tag.strip()
+    )
+    variant_label = (candidate_state.get("variant_label") or "").strip()
+    variant_labels = (variant_label,) if variant_label else ()
+    direct_endpoint_ref = (
+        candidate_state.get("direct_endpoint_evidence_ref") or ""
+    ).strip() or None
+    external_review_ref = (
+        candidate_state.get("external_review_evidence_ref") or ""
+    ).strip() or None
+
+    return DeepSeekValidationDisposition(
+        validation_level=validation_level,
+        direct_dispatch_id=DEEPSEEK_DIRECT_MODEL,
+        variant_labels=variant_labels,
+        transport_cleared=transport_cleared,
+        blocked_authority_tags=blocked_authority_tags,
+        validation_evidence_ref=validation_ref,
+        direct_endpoint_evidence_ref=direct_endpoint_ref,
+        external_review_evidence_ref=external_review_ref,
+    )
+
+
+@dataclass(frozen=True)
 class ModelHarnessMetadata:
     """Provider-neutral Model Harness metadata for capability and budget tracking."""
 
