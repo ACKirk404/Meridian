@@ -792,13 +792,14 @@ def select_next_action_from_live_state_evidence(
 ) -> PrimeNextAction:
     """Convert a Session live-state advisory projection into a safe Prime action.
 
-    The projection's display-safe fields are mapped to Prime evidence; the
-    derived human_gate_required flag and advisory_blockers govern whether
-    Prime can advise live-state observation, advise recovery, or must pause.
+    The projection's display-safe fields are mapped to Prime evidence.
 
-    Advisory-only: the resulting PrimeNextAction never executes restart,
-    resteer, archive, or any session control. Live recovery still requires
-    a separate command plan.
+    Fail-closed advisory contract: every non-None projection produces a
+    ``PAUSE_AND_WAIT`` action with ``human_gate_required=True``. This holds
+    even on healthy sessions with no condition-specific advisory blockers,
+    because the projection is advisory-only by contract — Prime must never
+    receive an executable live-state action from this surface. Live
+    recovery still requires a separate command plan.
     """
     if projection is None:
         return make_prime_next_action(
@@ -821,38 +822,32 @@ def select_next_action_from_live_state_evidence(
             f"live_state.blocker_present={projection.blocker_present}",
             f"live_state.human_gate_required={projection.human_gate_required}",
             f"live_state.is_executable_now={projection.is_executable_now}",
+            "live_state.advisory_only=True",
         ]
     )
 
-    blockers = list(projection.advisory_blockers)
+    blockers = list(projection.advisory_blockers) or [
+        "advisory_only.requires_human_gate"
+    ]
     target_lane = projection.session_id
 
-    if projection.human_gate_required or blockers:
-        return make_prime_next_action(
-            action_type=PrimeActionType.PAUSE_AND_WAIT,
-            confidence=PrimeActionConfidence.HIGH,
-            risk_tier=PrimeActionRiskTier.HIGH,
-            source=PrimeActionSource.SESSION_STATE,
-            target_harness="Session Lifecycle",
-            target_lane=target_lane,
-            rationale=(
-                "Live-state advisory projection requires human gate before "
-                "any session recovery is advised."
-            ),
-            evidence=evidence,
-            human_gate_required=True,
-            blockers=blockers or ["live-state advisory requires human gate"],
-        )
-
+    # Fail-closed: always pause and require a human gate, regardless of
+    # whether condition-specific blockers (BLOCKED/STALE/health/proof) are
+    # present. The healthy path is still advisory-only by contract.
     return make_prime_next_action(
-        action_type=PrimeActionType.POLL_SESSION,
-        confidence=PrimeActionConfidence.MEDIUM,
-        risk_tier=PrimeActionRiskTier.SAFE,
+        action_type=PrimeActionType.PAUSE_AND_WAIT,
+        confidence=PrimeActionConfidence.HIGH,
+        risk_tier=PrimeActionRiskTier.HIGH,
         source=PrimeActionSource.SESSION_STATE,
         target_harness="Session Lifecycle",
         target_lane=target_lane,
-        rationale="Live-state advisory projection is healthy; continue watching.",
+        rationale=(
+            "Live-state advisory projection is advisory-only; human gate "
+            "required before any session recovery is advised."
+        ),
         evidence=evidence,
+        human_gate_required=True,
+        blockers=blockers,
     )
 
 

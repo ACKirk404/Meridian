@@ -2265,8 +2265,15 @@ class TestSessionLiveStateAdvisoryProjection:
         )
         return build_session_live_state_evidence(session, timestamp=now)
 
-    def test_projection_from_healthy_evidence_is_executable(self, healthy_evidence):
-        """A healthy live-state evidence projects to an executable advisory."""
+    def test_projection_from_healthy_evidence_is_advisory_only(self, healthy_evidence):
+        """Fail-closed: a healthy live-state evidence still projects as advisory-only.
+
+        Even with no condition-specific blockers (BLOCKED status, STALE health,
+        missing proof, present blocker_summary), the projection must keep
+        human_gate_required=True and is_executable_now=False, and must always
+        carry the universal advisory_only.requires_human_gate blocker so Prime
+        and Beacon never receive an executable live-state action.
+        """
         timestamp = datetime(2026, 6, 7, 12, 5, tzinfo=timezone.utc)
 
         projection = build_session_live_state_advisory_projection(
@@ -2278,9 +2285,15 @@ class TestSessionLiveStateAdvisoryProjection:
         assert projection.status == SessionStatus.RUNNING
         assert projection.health_state == HealthState.HEALTHY
         assert projection.blocker_present is False
-        assert projection.advisory_blockers == ()
-        assert projection.human_gate_required is False
-        assert projection.is_executable_now is True
+        # Fail-closed invariants on healthy path
+        assert projection.human_gate_required is True
+        assert projection.is_executable_now is False
+        assert "advisory_only.requires_human_gate" in projection.advisory_blockers
+        # No condition-specific blockers on a healthy session
+        assert "session.blocker_present" not in projection.advisory_blockers
+        assert "session.status=running" not in projection.advisory_blockers
+        assert "session.health=healthy" not in projection.advisory_blockers
+        assert "session.proof.missing" not in projection.advisory_blockers
         assert projection.timestamp == timestamp
 
     def test_projection_blocked_session_requires_human_gate(self, healthy_evidence):
@@ -2297,6 +2310,8 @@ class TestSessionLiveStateAdvisoryProjection:
         assert projection.blocker_present is True
         assert projection.human_gate_required is True
         assert projection.is_executable_now is False
+        # Universal advisory blocker plus condition-specific blockers
+        assert "advisory_only.requires_human_gate" in projection.advisory_blockers
         assert "session.blocker_present" in projection.advisory_blockers
         assert "session.status=blocked" in projection.advisory_blockers
 
@@ -2388,21 +2403,71 @@ class TestSessionLiveStateAdvisoryProjection:
         assert serialized["status"] == "running"
         assert serialized["health_state"] == "healthy"
         assert serialized["proof_state"] == "command_staged"
-        assert serialized["human_gate_required"] is False
-        assert serialized["is_executable_now"] is True
+        # Fail-closed invariants surface in serialized output too
+        assert serialized["human_gate_required"] is True
+        assert serialized["is_executable_now"] is False
+        assert "advisory_only.requires_human_gate" in serialized["advisory_blockers"]
         assert isinstance(serialized["evidence_refs"], list)
 
     def test_projection_evidence_refs_include_projection_metadata(self, healthy_evidence):
-        """Projection refs include both inherited evidence refs and projection-specific refs."""
+        """Projection refs include inherited evidence refs and projection-specific refs.
+
+        On the healthy path, projection refs must reflect the fail-closed
+        contract: human_gate_required=True, is_executable_now=False, and the
+        advisory_only=True marker.
+        """
         projection = build_session_live_state_advisory_projection(healthy_evidence)
 
         # Inherited from evidence
         assert any("session.id=session-projection" in ref for ref in projection.evidence_refs)
-        # New projection refs
+        # Projection-specific refs reflect fail-closed contract
         assert any("projection.id=session-projection:" in ref for ref in projection.evidence_refs)
         assert any("projection.blocker_present=False" in ref for ref in projection.evidence_refs)
-        assert any("projection.human_gate_required=False" in ref for ref in projection.evidence_refs)
-        assert any("projection.is_executable_now=True" in ref for ref in projection.evidence_refs)
+        assert any("projection.human_gate_required=True" in ref for ref in projection.evidence_refs)
+        assert any("projection.is_executable_now=False" in ref for ref in projection.evidence_refs)
+        assert "projection.advisory_only=True" in projection.evidence_refs
+        # Universal advisory blocker surfaces in refs
+        assert "projection.blocker=advisory_only.requires_human_gate" in projection.evidence_refs
+
+    def test_projection_fail_closed_across_all_input_states(self, healthy_evidence):
+        """Regression: every input state yields an advisory-only projection.
+
+        Cycle through healthy + all blocked statuses + degraded/stale/failed
+        health + missing proof + present blocker_summary. In every case
+        human_gate_required must be True, is_executable_now must be False,
+        and the universal advisory_only.requires_human_gate blocker must be
+        present.
+        """
+        input_variants = [
+            {},  # healthy baseline
+            {"status": SessionStatus.BLOCKED},
+            {"status": SessionStatus.REVIEW_GATED},
+            {"status": SessionStatus.STALE},
+            {"status": SessionStatus.CAPACITY_LIMITED},
+            {"status": SessionStatus.ARCHIVED},
+            {"health_state": HealthState.DEGRADED},
+            {"health_state": HealthState.STALE},
+            {"health_state": HealthState.FAILED},
+            {"proof_state": ProofState.NO_PROOF},
+            {"blocker_summary": "Waiting for review approval"},
+        ]
+        for variant in input_variants:
+            evidence = SessionLiveStateEvidence(
+                **{**healthy_evidence.__dict__, **variant}
+            )
+            projection = build_session_live_state_advisory_projection(evidence)
+
+            assert projection.human_gate_required is True, (
+                f"Fail-closed violated for variant {variant}: "
+                f"human_gate_required={projection.human_gate_required}"
+            )
+            assert projection.is_executable_now is False, (
+                f"Fail-closed violated for variant {variant}: "
+                f"is_executable_now={projection.is_executable_now}"
+            )
+            assert "advisory_only.requires_human_gate" in projection.advisory_blockers, (
+                f"Universal advisory blocker missing for variant {variant}"
+            )
 
 
 class TestSessionLiveControlPermissionGate:

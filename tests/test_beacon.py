@@ -730,7 +730,13 @@ class TestLiveStateAdvisoryEvidence:
             permission_context=permission_context,
         )
 
-    def test_healthy_projection_becomes_alive_beacon_evidence(self) -> None:
+    def test_healthy_projection_is_advisory_only_beacon_evidence(self) -> None:
+        """Fail-closed: a healthy projection still produces non-executable Beacon evidence.
+
+        Beacon advisory must inherit human_gate_required=True from the
+        projection and carry the universal advisory_only.requires_human_gate
+        blocker even on healthy sessions.
+        """
         now = datetime(2026, 6, 7, 12, 0, tzinfo=timezone.utc)
         session = self._make_session(now=now)
         evidence = build_session_live_state_evidence(session, timestamp=now)
@@ -740,11 +746,16 @@ class TestLiveStateAdvisoryEvidence:
 
         assert advisory.harness_id == "build-2-live-state"
         assert advisory.advisory_type == "live_state_running"
-        assert advisory.human_gate_required is False
-        assert advisory.blockers == ()
+        # Fail-closed: human gate always required, even on healthy path.
+        assert advisory.human_gate_required is True
+        assert "advisory_only.requires_human_gate" in advisory.blockers
+        # No condition-specific blockers on healthy session
+        assert "session.blocker_present" not in advisory.blockers
+        assert "session.status=running" not in advisory.blockers
         assert any("live_state.session_id=build-2-live-state" in item for item in advisory.evidence)
         assert any("live_state.status=running" in item for item in advisory.evidence)
-        assert any("live_state.is_executable_now=True" in item for item in advisory.evidence)
+        assert any("live_state.is_executable_now=False" in item for item in advisory.evidence)
+        assert "live_state.advisory_only=True" in advisory.evidence
 
     def test_blocked_projection_surfaces_advisory_blockers(self) -> None:
         now = datetime(2026, 6, 7, 12, 0, tzinfo=timezone.utc)

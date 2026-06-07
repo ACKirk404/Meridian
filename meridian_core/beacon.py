@@ -296,6 +296,11 @@ def live_state_advisory_evidence(
     raw paths and raw blocker text, so the Beacon evidence carries only
     bounded labels and presence indicators. This is advisory-only — no
     session control, no process inspection, no model calls.
+
+    Fail-closed advisory contract: ``human_gate_required`` is forced True
+    and the Beacon advisory always carries the universal advisory blocker
+    ``advisory_only.requires_human_gate`` inherited from the projection,
+    so no downstream consumer can read this evidence as executable.
     """
     evidence = list(projection.evidence_refs)
     evidence.extend(
@@ -309,6 +314,7 @@ def live_state_advisory_evidence(
             f"live_state.project_path_present={projection.project_path_present}",
             f"live_state.worktree_path_present={projection.worktree_path_present}",
             f"live_state.is_executable_now={projection.is_executable_now}",
+            "live_state.advisory_only=True",
         ]
     )
 
@@ -317,7 +323,9 @@ def live_state_advisory_evidence(
         advisory_type=f"live_state_{projection.status.value}",
         evidence=tuple(evidence),
         blockers=projection.advisory_blockers,
-        human_gate_required=projection.human_gate_required,
+        # Fail-closed: never report executable state for a live-state advisory,
+        # independent of any future projection-field drift.
+        human_gate_required=True,
         generated_at=_as_utc(now or datetime.now(timezone.utc)),
     )
 

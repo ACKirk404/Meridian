@@ -501,6 +501,13 @@ class SessionLiveStateAdvisoryProjection:
     Consumed by Prime/Beacon/session recovery view models. Advisory-only:
     no session spawning/stopping/archiving, process inspection, model
     calls, UI runtime edits, branch movement, or shared-main writes.
+
+    Fail-closed advisory contract: ``human_gate_required`` is True and
+    ``is_executable_now`` is False on every path, including healthy
+    sessions with no condition-specific blockers. ``advisory_blockers``
+    always includes ``advisory_only.requires_human_gate`` so that Prime
+    and Beacon never receive an executable live-state action from this
+    projection.
     """
 
     projection_id: str
@@ -1948,7 +1955,12 @@ def build_session_live_state_advisory_projection(
         len(evidence.blocker_summary) if evidence.blocker_summary else 0
     )
 
-    advisory_blockers: list[str] = []
+    # Fail-closed advisory boundary: this projection is advisory-only by
+    # contract. Every path — including healthy/no-blocker — must surface a
+    # human gate so downstream Prime/Beacon consumers never receive an
+    # executable live-state action from this projection. Condition-specific
+    # blockers are appended on top of the universal advisory blocker.
+    advisory_blockers: list[str] = ["advisory_only.requires_human_gate"]
     if blocker_present:
         advisory_blockers.append("session.blocker_present")
     if evidence.status in _LIVE_STATE_BLOCKED_STATUSES:
@@ -1959,8 +1971,9 @@ def build_session_live_state_advisory_projection(
         advisory_blockers.append("session.proof.missing")
 
     deduped_blockers = tuple(dict.fromkeys(advisory_blockers))
-    human_gate_required = bool(deduped_blockers)
-    is_executable_now = not human_gate_required
+    # Fail-closed invariants: never executable from this projection.
+    human_gate_required = True
+    is_executable_now = False
 
     projection_refs = list(evidence.evidence_refs)
     projection_refs.extend(
@@ -1969,6 +1982,7 @@ def build_session_live_state_advisory_projection(
             f"projection.blocker_present={blocker_present}",
             f"projection.human_gate_required={human_gate_required}",
             f"projection.is_executable_now={is_executable_now}",
+            "projection.advisory_only=True",
         ]
     )
     projection_refs.extend(

@@ -1428,7 +1428,13 @@ class TestLiveStateEvidenceAdvisorySelection:
         assert action.confidence == PrimeActionConfidence.FALLBACK
         assert action.target_harness == "Session Lifecycle"
 
-    def test_healthy_projection_becomes_poll_session(self):
+    def test_healthy_projection_still_pauses_with_human_gate(self):
+        """Fail-closed: a healthy projection still produces PAUSE_AND_WAIT.
+
+        Even with no condition-specific blockers, Prime must never receive an
+        executable POLL_SESSION action from the live-state projection. The
+        live-state advisory surface is advisory-only by contract.
+        """
         now = datetime(2026, 6, 7, 12, 0, tzinfo=timezone.utc)
         session = self._make_session(now=now)
         evidence = build_session_live_state_evidence(session, timestamp=now)
@@ -1436,13 +1442,20 @@ class TestLiveStateEvidenceAdvisorySelection:
 
         action = select_next_action_from_live_state_evidence(projection)
 
-        assert action.action_type == PrimeActionType.POLL_SESSION
-        assert action.confidence == PrimeActionConfidence.MEDIUM
-        assert action.risk_tier == PrimeActionRiskTier.SAFE
+        # Fail-closed: always PAUSE_AND_WAIT with human gate on healthy path too.
+        assert action.action_type == PrimeActionType.PAUSE_AND_WAIT
+        assert action.confidence == PrimeActionConfidence.HIGH
+        assert action.risk_tier == PrimeActionRiskTier.HIGH
         assert action.target_lane == "prime-live-state"
-        assert action.human_gate_required is False
-        assert action.is_blocked() is False
+        assert action.human_gate_required is True
+        assert action.is_blocked() is True
+        assert action.is_executable() is False
+        assert "advisory_only.requires_human_gate" in action.blockers
+        # No condition-specific blockers on healthy session
+        assert "session.blocker_present" not in action.blockers
+        assert "session.status=running" not in action.blockers
         assert any("live_state.status=running" in item for item in action.evidence)
+        assert "live_state.advisory_only=True" in action.evidence
 
     def test_blocked_projection_pauses_with_human_gate(self):
         now = datetime(2026, 6, 7, 12, 0, tzinfo=timezone.utc)
@@ -1461,6 +1474,9 @@ class TestLiveStateEvidenceAdvisorySelection:
         assert action.risk_tier == PrimeActionRiskTier.HIGH
         assert action.target_lane == "prime-live-state"
         assert action.human_gate_required is True
+        assert action.is_executable() is False
+        # Universal advisory blocker plus condition-specific blockers
+        assert "advisory_only.requires_human_gate" in action.blockers
         assert "session.blocker_present" in action.blockers
         assert "session.status=blocked" in action.blockers
 
