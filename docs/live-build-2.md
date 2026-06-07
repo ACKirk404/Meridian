@@ -8,7 +8,17 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower `Archived` or `Stale prior task` sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now / Opus Task Assigned
+## Coordinator Override - Completed / Review-Cleared / Promoted To Main
+
+Coordinator reconciliation: 2026-06-07T13:10:00-06:00.
+
+Status: no executable backend task is currently assigned to Build 2. The V3
+Goal Runtime contract below was built by Opus, repaired after Codex Review A/B,
+review-cleared, and promoted to `origin/main` in `c728ad56e` (`docs(build-2):
+add v3 goal runtime contract`). Do not re-run this historical task unless a new
+coordinator task is assigned above this block.
+
+## Coordinator Override - Historical Promoted Candidate / Opus Task Assigned
 
 Timestamp: 2026-06-07T12:23:00-06:00.
 

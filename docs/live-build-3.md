@@ -8,7 +8,17 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Active Task / Opus Task Assigned
+## Completed / Review-Cleared / Promoted To Main
+
+Coordinator reconciliation: 2026-06-07T13:10:00-06:00.
+
+Status: no executable backend task is currently assigned to Build 3. The V3
+FileMap audit below was built by Opus, review-cleared by Codex Review A/B, and
+promoted to `origin/main` in `75edb31c5` (`filemap: register v3 intake and goal
+docs`). Do not re-run this historical task unless a new coordinator task is
+assigned above this block.
+
+## Historical Promoted Task / Opus Task Assigned
 
 Timestamp: 2026-06-07T12:58:00-06:00.
 
