@@ -2578,6 +2578,16 @@ def build_v2_command_plan_preview_proof(
     requirement, executability (False), human/review gate state, and
     rollback/recovery note (bounded) before any execution.
 
+    Plan-binding contract: command-target / proof fields are derived from
+    the audited ``SessionCommandPlan`` where the plan has explicit fields
+    (``queue_file_affected``, ``worktree_path_affected``, ``branch_affected``,
+    ``cadence_gate_status``, ``permission_state``). The current session
+    snapshot is used only for the session display label (``session_name``)
+    and as a fallback for ``permission_state`` when the plan does not carry
+    one. A plan targeting a different queue/worktree/branch than the
+    current session must therefore render a faithful preview of the
+    plan's affected resources, never the session's.
+
     Display-safety: raw filesystem paths, raw reason text, raw rollback
     text, raw worker chat, raw prompt text, provider responses, and
     credentials never appear in the serialized output.
@@ -2602,13 +2612,25 @@ def build_v2_command_plan_preview_proof(
     )
     rollback_present = bool(rollback_text)
 
-    worktree_present = bool(session.worktree_path)
+    # Plan-affected resources (NOT session snapshot). The plan was audited
+    # before this proof was rendered; the session may have drifted since.
+    plan_queue_file = command_plan.queue_file_affected
+    plan_worktree_path = command_plan.worktree_path_affected
+    plan_branch = command_plan.branch_affected
+    plan_cadence_state = command_plan.cadence_gate_status
+    plan_permission_state = (
+        command_plan.permission_state
+        if command_plan.permission_state is not None
+        else session.permission_context.branch_permission_state
+    )
+
+    worktree_present = bool(plan_worktree_path)
     aegis_result = aegis_gate_result or command_plan.aegis_gate_result or "pending"
 
     advisory_blockers: list[str] = [
         "v2_command_plan_preview.advisory_only.requires_human_gate"
     ]
-    if session.review_cadence_state == ReviewCadenceState.REVIEW_GATED:
+    if plan_cadence_state == ReviewCadenceState.REVIEW_GATED:
         advisory_blockers.append("review.cadence_gated")
     if command_plan.cadence_gate_required:
         advisory_blockers.append("review.cadence_gate_required")
@@ -2628,20 +2650,19 @@ def build_v2_command_plan_preview_proof(
         f"->{command_plan.expected_state_transition[1].value}",
         f"v2_preview.reason_present={reason_present}",
         f"v2_preview.reason_length={len(reason_text)}",
-        f"v2_preview.assigned_queue_file={session.assigned_queue_file}",
+        f"v2_preview.assigned_queue_file={plan_queue_file}",
         f"v2_preview.worktree_path_present={worktree_present}",
-        f"v2_preview.branch_name={session.branch_name}",
+        f"v2_preview.branch_name={plan_branch}",
         f"v2_preview.aegis_gate_result={aegis_result}",
         f"v2_preview.aegis_gate_status={aegis_gate_status}",
         f"v2_preview.proof_requirement={command_plan.proof_requirement.value}",
         "v2_preview.is_executable_now=False",
         "v2_preview.human_gate_required=True",
         f"v2_preview.human_gate_state={human_gate_state}",
-        f"v2_preview.review_cadence_state={session.review_cadence_state.value}",
+        f"v2_preview.review_cadence_state={plan_cadence_state.value}",
         f"v2_preview.rollback_present={rollback_present}",
         f"v2_preview.rollback_length={len(rollback_text)}",
-        f"v2_preview.permission_state="
-        f"{session.permission_context.branch_permission_state.value}",
+        f"v2_preview.permission_state={plan_permission_state.value}",
         "v2_preview.advisory_only=True",
     ]
     evidence_refs.extend(
@@ -2658,10 +2679,11 @@ def build_v2_command_plan_preview_proof(
         reason_label="<reason>" if reason_present else "none",
         reason_length=len(reason_text),
         expected_state_transition=command_plan.expected_state_transition,
-        assigned_queue_file=session.assigned_queue_file,
+        # Plan-affected fields (NOT session snapshot)
+        assigned_queue_file=plan_queue_file,
         worktree_path_present=worktree_present,
         worktree_path_label="<worktree_path>" if worktree_present else "none",
-        branch_name=session.branch_name,
+        branch_name=plan_branch,
         aegis_gate_result=aegis_result,
         aegis_gate_status=aegis_gate_status,
         proof_requirement=command_plan.proof_requirement,
@@ -2669,13 +2691,13 @@ def build_v2_command_plan_preview_proof(
         is_executable_now=False,
         human_gate_required=True,
         human_gate_state=human_gate_state,
-        review_cadence_state=session.review_cadence_state,
+        review_cadence_state=plan_cadence_state,
         rollback_or_recovery_note_present=rollback_present,
         rollback_or_recovery_note_label=(
             "<rollback_or_recovery_note>" if rollback_present else "none"
         ),
         rollback_or_recovery_note_length=len(rollback_text),
-        permission_state=session.permission_context.branch_permission_state,
+        permission_state=plan_permission_state,
         advisory_blockers=deduped_blockers,
         evidence_refs=tuple(evidence_refs),
         timestamp=observed_at,

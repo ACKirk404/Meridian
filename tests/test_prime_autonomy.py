@@ -1674,3 +1674,41 @@ class TestV2CommandPlanPreviewSelection:
                 assert sensitive not in blocker, (
                     f"V2 preview Prime advisory leaked '{sensitive}' in blockers: {blocker}"
                 )
+
+    def test_prime_advisory_uses_plan_affected_when_session_disagrees(self):
+        """Regression for Codex Review A: Prime evidence reflects plan-affected fields.
+
+        When the SessionCommandPlan targets a different queue/branch than
+        the current session, the PrimeNextAction's evidence must surface
+        the plan's values — not the session's — so that Prime evaluates
+        the plan as audited.
+        """
+        now = datetime(2026, 6, 7, 12, 0, tzinfo=timezone.utc)
+        session = self._make_session(now=now)
+        plan = self._make_plan(session)
+        divergent_plan = SessionCommandPlan(
+            **{
+                **plan.__dict__,
+                "queue_file_affected": "docs/plan-different-queue.md",
+                "branch_affected": "codex/plan-different-branch-20260607",
+            }
+        )
+        proof = build_v2_command_plan_preview_proof(session, divergent_plan, timestamp=now)
+
+        action = select_next_action_from_v2_command_plan_preview(proof)
+
+        # Plan values surface in evidence
+        assert any(
+            "v2_preview.assigned_queue_file=docs/plan-different-queue.md" in item
+            for item in action.evidence
+        )
+        assert any(
+            "v2_preview.branch_name=codex/plan-different-branch-20260607" in item
+            for item in action.evidence
+        )
+        # Session values never surface
+        assert not any(session.assigned_queue_file in item for item in action.evidence)
+        assert not any(session.branch_name in item for item in action.evidence)
+        # Fail-closed contract intact
+        assert action.human_gate_required is True
+        assert action.is_executable() is False

@@ -4068,14 +4068,15 @@ class TestV2CommandPlanPreviewProof:
             in proof.advisory_blockers
         )
 
-    def test_proof_review_gated_session_adds_cadence_blocker(self, session, command_plan):
-        gated_session = SessionLifecycleState(
+    def test_proof_review_gated_plan_adds_cadence_blocker(self, session, command_plan):
+        """Cadence-gate blocker derives from the plan's cadence_gate_status, not the session."""
+        gated_plan = SessionCommandPlan(
             **{
-                **session.__dict__,
-                "review_cadence_state": ReviewCadenceState.REVIEW_GATED,
+                **command_plan.__dict__,
+                "cadence_gate_status": ReviewCadenceState.REVIEW_GATED,
             }
         )
-        proof = build_v2_command_plan_preview_proof(gated_session, command_plan)
+        proof = build_v2_command_plan_preview_proof(session, gated_plan)
 
         assert "review.cadence_gated" in proof.advisory_blockers
         assert proof.review_cadence_state == ReviewCadenceState.REVIEW_GATED
@@ -4169,13 +4170,21 @@ class TestV2CommandPlanPreviewProof:
         assert serialized["human_gate_required"] is True
 
     def test_proof_handles_no_worktree_no_reason_no_rollback(self, session, command_plan):
-        """Bounded fields collapse to 'none' / 0 length when source is empty."""
-        empty_session = SessionLifecycleState(**{**session.__dict__, "worktree_path": ""})
+        """Bounded fields collapse to 'none' / 0 length when source is empty.
+
+        worktree presence/label derives from the plan's worktree_path_affected,
+        not the session.
+        """
         empty_plan = SessionCommandPlan(
-            **{**command_plan.__dict__, "reason": "", "rollback_or_recovery_note": None}
+            **{
+                **command_plan.__dict__,
+                "reason": "",
+                "rollback_or_recovery_note": None,
+                "worktree_path_affected": "",
+            }
         )
 
-        proof = build_v2_command_plan_preview_proof(empty_session, empty_plan)
+        proof = build_v2_command_plan_preview_proof(session, empty_plan)
 
         assert proof.worktree_path_present is False
         assert proof.worktree_path_label == "none"
@@ -4188,3 +4197,91 @@ class TestV2CommandPlanPreviewProof:
         # Fail-closed invariants still hold
         assert proof.is_executable_now is False
         assert proof.human_gate_required is True
+
+    def test_proof_derives_plan_affected_fields_when_session_disagrees(
+        self, session, command_plan
+    ):
+        """Regression for Codex Review A: preview uses plan-affected fields.
+
+        Builds a session and a plan that deliberately disagree on every
+        plan-bound field (queue, worktree, branch, cadence, permission
+        state). The preview proof must reflect the plan's values, not the
+        session's, because the plan is the audited artifact.
+        """
+        # Plan targets different resources than current session snapshot.
+        divergent_plan = SessionCommandPlan(
+            **{
+                **command_plan.__dict__,
+                "queue_file_affected": "docs/plan-different-queue.md",
+                "worktree_path_affected": "/worktree/plan-different-worktree",
+                "branch_affected": "codex/plan-different-branch-20260607",
+                "cadence_gate_status": ReviewCadenceState.REVIEW_GATED,
+                "permission_state": PermissionState.LOCKED_BY_DEFAULT,
+            }
+        )
+
+        proof = build_v2_command_plan_preview_proof(session, divergent_plan)
+
+        # All plan-bound fields come from the plan, not the session
+        assert proof.assigned_queue_file == "docs/plan-different-queue.md"
+        assert proof.assigned_queue_file != session.assigned_queue_file
+        assert proof.branch_name == "codex/plan-different-branch-20260607"
+        assert proof.branch_name != session.branch_name
+        assert proof.worktree_path_present is True
+        assert proof.worktree_path_label == "<worktree_path>"
+        assert proof.review_cadence_state == ReviewCadenceState.REVIEW_GATED
+        assert proof.review_cadence_state != session.review_cadence_state
+        assert proof.permission_state == PermissionState.LOCKED_BY_DEFAULT
+        assert (
+            proof.permission_state
+            != session.permission_context.branch_permission_state
+        )
+
+        # Evidence refs reflect plan values too
+        assert (
+            "v2_preview.assigned_queue_file=docs/plan-different-queue.md"
+            in proof.evidence_refs
+        )
+        assert (
+            "v2_preview.branch_name=codex/plan-different-branch-20260607"
+            in proof.evidence_refs
+        )
+        assert (
+            "v2_preview.review_cadence_state=review_gated" in proof.evidence_refs
+        )
+        assert (
+            "v2_preview.permission_state=locked_by_default" in proof.evidence_refs
+        )
+        # Session values must not surface anywhere in evidence
+        assert not any(
+            session.assigned_queue_file in ref for ref in proof.evidence_refs
+        )
+        assert not any(
+            session.branch_name in ref for ref in proof.evidence_refs
+        )
+
+        # Plan-derived cadence gate produces the cadence-gated blocker
+        assert "review.cadence_gated" in proof.advisory_blockers
+        # Fail-closed invariants still hold
+        assert proof.is_executable_now is False
+        assert proof.human_gate_required is True
+
+    def test_proof_permission_state_falls_back_to_session_when_plan_unset(
+        self, session, command_plan
+    ):
+        """When the plan does not carry a permission_state, fall back to session context.
+
+        This preserves backward compatibility with plans that haven't yet
+        populated their permission advisory fields, without re-introducing
+        a session-derived drift bug for plans that have.
+        """
+        plan_without_permission = SessionCommandPlan(
+            **{**command_plan.__dict__, "permission_state": None}
+        )
+
+        proof = build_v2_command_plan_preview_proof(session, plan_without_permission)
+
+        assert (
+            proof.permission_state
+            == session.permission_context.branch_permission_state
+        )
