@@ -45,10 +45,19 @@ from bifrost.cockpit import (
     VoiceIOState,
     _render_proof_state,
     _e,
+    model_capability_metadata_view_from_summary,
+    prompt_payload_view_from_evidence,
     render_cockpit_html,
     relay_aegis_policy_handoff_from_summary,
     sample_cockpit_view_model,
     view_model_from_snapshot,
+    visible_prompt_payload_meter_view_from_evidence,
+)
+from meridian_core.relay_executor import (
+    RelayModelCapabilityLaneSummary,
+    RelayModelCapabilityMetadataSummary,
+    RelayPromptPayloadEvidence,
+    RelayPromptPayloadMeterEvidence,
 )
 from meridian_core.cockpit_state import (
     CockpitStatus,
@@ -4317,3 +4326,462 @@ def test_stale_session_recovery_actions_absent_for_live_target():
     assert "Next prompt target: Live" in doc
     assert 'class="stale-recovery-actions"' not in doc
     assert "data-recovery-action" not in doc
+
+
+# Backend / view-model binding adapters (Build 5H)
+
+
+def test_prompt_payload_view_from_evidence_maps_identity_and_route_fields():
+    evidence = RelayPromptPayloadEvidence(
+        prompt_source="relay",
+        selected_provider="claude",
+        selected_model="claude-sonnet-4-20250514",
+        capability_tier="tier2",
+        route_class="direct",
+        route_kind="direct",
+        trust_state="trusted",
+        external_review_status="not_required",
+        model_metadata_ref="adapter:claude",
+        external_review_evidence_ref="review:claude-cleared",
+        estimated_prompt_tokens=920,
+        prompt_budget_tokens=4000,
+        model_context_window_tokens=200000,
+        budget_percent=23.0,
+        budget_status="ok",
+        delta_tokens=0,
+        delta_percent=0.0,
+        growth_state="flat",
+        prompt_payload_snapshot_hash="payload-snapshot:claude-dispatch",
+    )
+
+    view = prompt_payload_view_from_evidence(evidence)
+
+    assert view.provider_id == "claude"
+    assert view.model_name == "claude-sonnet-4-20250514"
+    assert view.trust_state == "trusted"
+    assert view.route_class == "direct"
+    assert view.route_kind == "direct"
+    assert view.source == "relay"
+    assert view.estimated_tokens == 920
+    assert view.prompt_budget_tokens == 4000
+    assert view.context_budget_tokens == 200000
+    assert view.budget_percent == 23.0
+    assert view.growth_state == "flat"
+    assert view.watch_state == "ok"
+    assert view.evidence_ref == "payload-snapshot:claude-dispatch"
+    assert view.telemetry_ref == "adapter:claude"
+    assert view.adapter_metadata_ref == "review:claude-cleared"
+    assert view.warnings == []
+
+
+def test_prompt_payload_view_from_evidence_preserves_growth_and_drag_warnings():
+    evidence = RelayPromptPayloadEvidence(
+        prompt_source="relay",
+        selected_provider="deepseek",
+        selected_model="deepseek-chat",
+        route_class="direct",
+        route_kind="direct",
+        trust_state="candidate",
+        requires_external_review=True,
+        external_review_status="pending",
+        estimated_prompt_tokens=3100,
+        prompt_budget_tokens=5000,
+        model_context_window_tokens=256000,
+        budget_percent=62.0,
+        budget_status="watch",
+        delta_tokens=240,
+        delta_percent=6.0,
+        growth_state="unexpected_growth",
+        prompt_drag_tags=("q_mode_prompt_drag_degraded", "unexpected_growth_delta"),
+        telemetry_error_tags=("response_payload_hash_pending",),
+    )
+
+    view = prompt_payload_view_from_evidence(evidence)
+
+    assert view.provider_id == "deepseek"
+    assert view.trust_state == "candidate"
+    assert view.watch_state == "watch"
+    assert view.growth_state == "unexpected_growth"
+    assert view.delta_tokens == 240
+    assert view.delta_percent == 6.0
+    assert "q_mode_prompt_drag_degraded" in view.warnings
+    assert "unexpected_growth_delta" in view.warnings
+    assert "response_payload_hash_pending" in view.warnings
+
+
+def test_prompt_payload_view_from_evidence_defaults_safe_on_minimal_record():
+    evidence = RelayPromptPayloadEvidence()
+
+    view = prompt_payload_view_from_evidence(evidence)
+
+    assert view.provider_id == ""
+    assert view.model_name == ""
+    assert view.trust_state == "unknown"
+    assert view.estimated_tokens == 0
+    assert view.prompt_budget_tokens == 0
+    assert view.budget_percent == 0.0
+    assert view.delta_tokens == 0
+    assert view.growth_state == "unknown"
+    assert view.watch_state == "unknown"
+    assert view.size_label.startswith("(") and view.size_label.endswith(")")
+    assert view.warnings == []
+
+
+def test_prompt_payload_view_is_renderable_in_cockpit():
+    vm = sample_cockpit_view_model()
+    vm.prompt_payload = prompt_payload_view_from_evidence(
+        RelayPromptPayloadEvidence(
+            prompt_source="relay",
+            selected_provider="claude",
+            selected_model="claude-sonnet-4-20250514",
+            route_class="direct",
+            route_kind="direct",
+            trust_state="trusted",
+            estimated_prompt_tokens=900,
+            prompt_budget_tokens=4000,
+            budget_percent=22.5,
+            budget_status="ok",
+            growth_state="flat",
+        )
+    )
+    doc = render_cockpit_html(vm)
+    assert "claude-sonnet-4-20250514" in doc
+    assert "Meridian" in doc
+
+
+def test_visible_prompt_payload_meter_view_from_evidence_preserves_order_and_fields():
+    items = (
+        RelayPromptPayloadMeterEvidence(
+            meter_evidence_id="payload-meter:claude-under-1k",
+            selected_provider="claude",
+            exact_model_id="claude-sonnet-4-20250514",
+            provider_route_kind="direct",
+            trust_state="trusted",
+            display_label="under 1k",
+            estimated_prompt_tokens=900,
+            prompt_budget_tokens=4000,
+            budget_percent=22.5,
+            payload_status="ok",
+            growth_delta_tokens=0,
+            growth_delta_percent=0.0,
+            q_mode=False,
+            growth_state="flat",
+            payload_evidence_ref="payload-snapshot:claude-dispatch",
+            model_metadata_ref="adapter:claude",
+        ),
+        RelayPromptPayloadMeterEvidence(
+            meter_evidence_id="payload-meter:deepseek-12-4k",
+            selected_provider="deepseek",
+            exact_model_id="deepseek-chat",
+            provider_route_kind="direct",
+            trust_state="candidate",
+            display_label="12.4k",
+            estimated_prompt_tokens=3100,
+            prompt_budget_tokens=5000,
+            budget_percent=62.0,
+            payload_status="degraded",
+            growth_delta_tokens=240,
+            growth_delta_percent=6.0,
+            q_mode=True,
+            growth_state="unexpected_growth",
+            prompt_drag_tags=("q_mode_prompt_drag_degraded",),
+            warning_tags=("unexpected_growth_delta",),
+            payload_evidence_ref="payload-snapshot:deepseek-qmode",
+        ),
+    )
+
+    view = visible_prompt_payload_meter_view_from_evidence(
+        items,
+        source="relay-meter-evidence",
+    )
+
+    assert view.source == "relay-meter-evidence"
+    assert len(view.items) == 2
+
+    first, second = view.items
+    assert first.meter_id == "payload-meter:claude-under-1k"
+    assert first.provider_id == "claude"
+    assert first.model_id == "claude-sonnet-4-20250514"
+    assert first.route_kind == "direct"
+    assert first.prompt_label == "under 1k"
+    assert first.payload_status == "ok"
+    assert first.budget_percent == 22.5
+    assert first.q_mode_prompt_drag_state == "ok"
+    assert first.provider_balance_ref == "provider-balance:claude"
+    assert first.payload_evidence_ref == "payload-snapshot:claude-dispatch"
+    assert first.telemetry_ref == "adapter:claude"
+
+    assert second.meter_id == "payload-meter:deepseek-12-4k"
+    assert second.payload_status == "degraded"
+    assert second.q_mode_prompt_drag_state == "degraded"
+    assert second.growth_delta_tokens == 240
+    assert second.warning_tags == ["unexpected_growth_delta"]
+
+
+def test_visible_prompt_payload_meter_view_handles_blocked_qmode_state():
+    items = (
+        RelayPromptPayloadMeterEvidence(
+            meter_evidence_id="payload-meter:openrouter-blocked",
+            selected_provider="openrouter",
+            exact_model_id="deepseek-chat",
+            provider_route_kind="aggregator",
+            display_label="over budget",
+            estimated_prompt_tokens=5200,
+            prompt_budget_tokens=1800,
+            budget_percent=101.5,
+            payload_status="blocked",
+            growth_delta_tokens=720,
+            growth_delta_percent=18.0,
+            q_mode=True,
+            growth_state="blocked",
+            warning_tags=("route_mismatch_warning",),
+            blocker_tags=(
+                "q_mode_payload_over_budget",
+                "aggregator_prompt_drag_blocked",
+            ),
+        ),
+    )
+
+    view = visible_prompt_payload_meter_view_from_evidence(items)
+
+    assert len(view.items) == 1
+    item = view.items[0]
+    assert item.q_mode_prompt_drag_state == "blocked"
+    assert item.payload_status == "blocked"
+    assert item.budget_percent == 101.5
+    assert "q_mode_payload_over_budget" in item.blocker_tags
+    assert "aggregator_prompt_drag_blocked" in item.blocker_tags
+
+
+def test_visible_prompt_payload_meter_view_empty_evidence_yields_empty_view():
+    view = visible_prompt_payload_meter_view_from_evidence(())
+    assert view.items == []
+    assert view.source == "relay-visible-prompt-payload-meter"
+
+
+def test_visible_prompt_payload_meter_view_is_renderable_in_cockpit():
+    vm = sample_cockpit_view_model()
+    vm.visible_prompt_payload_meter = visible_prompt_payload_meter_view_from_evidence(
+        (
+            RelayPromptPayloadMeterEvidence(
+                meter_evidence_id="payload-meter:claude-dispatch",
+                selected_provider="claude",
+                exact_model_id="claude-sonnet-4-20250514",
+                provider_route_kind="direct",
+                display_label="under 1k",
+                budget_percent=22.5,
+                payload_status="ok",
+            ),
+        ),
+        source="relay-meter-evidence",
+    )
+    doc = render_cockpit_html(vm)
+    assert "payload-meter:claude-dispatch" in doc
+    assert "under 1k" in doc
+
+
+def test_model_capability_metadata_view_from_summary_maps_provider_identity_and_route():
+    summary = RelayModelCapabilityMetadataSummary(
+        lanes=(
+            RelayModelCapabilityLaneSummary(
+                lane_id="claude",
+                selected_provider="claude",
+                exact_model_id="claude-sonnet-4-20250514",
+                capability_tier="tier2",
+                provider_route_kind="direct",
+                trust_state="trusted",
+                context_window_tokens=200000,
+                prompt_payload_budget_tokens=4000,
+                prompt_payload_status="within_budget",
+                estimated_prompt_tokens=920,
+                prompt_budget_percent=23.0,
+                growth_state="flat",
+                requires_external_review=False,
+                external_review_status="not_required",
+                model_metadata_ref="adapter:claude",
+                payload_evidence_ref="payload-snapshot:claude-dispatch",
+            ),
+            RelayModelCapabilityLaneSummary(
+                lane_id="deepseek",
+                selected_provider="deepseek",
+                exact_model_id="deepseek-chat",
+                capability_tier="tier3",
+                provider_route_kind="direct",
+                trust_state="candidate",
+                context_window_tokens=256000,
+                prompt_payload_budget_tokens=5000,
+                prompt_payload_status="watch",
+                growth_state="unexpected_growth",
+                requires_external_review=True,
+                external_review_status="pending",
+                model_metadata_ref="adapter:deepseek",
+                external_review_evidence_ref="review:deepseek-pending",
+                payload_evidence_ref="payload-snapshot:deepseek-qmode",
+            ),
+        ),
+    )
+
+    view = model_capability_metadata_view_from_summary(
+        summary,
+        selected_model_id="claude-sonnet-4-20250514",
+        metadata_source="model-harness-relay-summary",
+    )
+
+    assert view.selected_model_id == "claude-sonnet-4-20250514"
+    assert view.metadata_source == "model-harness-relay-summary"
+    assert len(view.items) == 2
+
+    claude_item = view.items[0]
+    assert claude_item.provider_id == "claude"
+    assert claude_item.exact_model_id == "claude-sonnet-4-20250514"
+    assert claude_item.route_kind == "direct"
+    assert claude_item.trust_state == "trusted"
+    assert claude_item.candidate_trust_state == "trusted"
+    assert claude_item.context_window_tokens == 200000
+    assert claude_item.external_review_required is False
+    assert claude_item.external_review_status == "not_required"
+    assert claude_item.prompt_budget_status == "within_budget"
+    assert claude_item.prompt_growth_state == "flat"
+    assert "adapter:claude" in claude_item.evidence_refs
+    assert "payload-snapshot:claude-dispatch" in claude_item.evidence_refs
+
+    deepseek_item = view.items[1]
+    assert deepseek_item.provider_id == "deepseek"
+    assert deepseek_item.trust_state == "candidate"
+    assert deepseek_item.candidate_trust_state == "candidate"
+    assert deepseek_item.external_review_required is True
+    assert deepseek_item.external_review_status == "pending"
+    assert deepseek_item.proof_strength == "weak"
+    assert deepseek_item.prompt_budget_status == "watch"
+    assert deepseek_item.prompt_growth_state == "unexpected_growth"
+    assert "adapter:deepseek" in deepseek_item.evidence_refs
+    assert "review:deepseek-pending" in deepseek_item.evidence_refs
+
+
+def test_model_capability_metadata_view_promotes_external_review_cleared_to_strong():
+    summary = RelayModelCapabilityMetadataSummary(
+        lanes=(
+            RelayModelCapabilityLaneSummary(
+                lane_id="deepseek-reviewed",
+                selected_provider="deepseek",
+                exact_model_id="deepseek-chat",
+                provider_route_kind="direct",
+                trust_state="trusted",
+                requires_external_review=True,
+                external_review_status="passed",
+                model_metadata_ref="adapter:deepseek",
+                external_review_evidence_ref="review:codex-b",
+            ),
+        ),
+    )
+
+    view = model_capability_metadata_view_from_summary(summary)
+
+    assert len(view.items) == 1
+    item = view.items[0]
+    assert item.external_review_required is True
+    assert item.external_review_status == "passed"
+    assert item.candidate_trust_state == "external_review_cleared"
+    assert item.proof_strength == "strong"
+
+
+def test_model_capability_metadata_view_surfaces_missing_metadata_as_blocked_authorities():
+    summary = RelayModelCapabilityMetadataSummary(
+        lanes=(
+            RelayModelCapabilityLaneSummary(
+                lane_id="aggregator",
+                selected_provider="openrouter",
+                exact_model_id="deepseek-chat",
+                provider_route_kind="aggregator",
+                trust_state="degraded",
+                requires_external_review=True,
+                external_review_status="pending",
+                telemetry_error_tags=("aggregator_route_capped",),
+            ),
+        ),
+        missing_metadata_tags=("payload_snapshot_missing", "model_metadata_ref_missing"),
+    )
+
+    view = model_capability_metadata_view_from_summary(summary)
+
+    assert len(view.items) == 1
+    item = view.items[0]
+    assert item.candidate_trust_state == "candidate"
+    assert "payload_snapshot_missing" in item.blocked_authorities
+    assert "model_metadata_ref_missing" in item.blocked_authorities
+    assert "aggregator_route_capped" in item.blocked_authorities
+
+
+def test_model_capability_metadata_view_empty_summary_yields_empty_view():
+    view = model_capability_metadata_view_from_summary(
+        RelayModelCapabilityMetadataSummary(),
+    )
+
+    assert view.items == []
+    assert view.metadata_source == "model-harness-relay-summary"
+    assert view.selected_model_id == ""
+
+
+def test_model_capability_metadata_view_is_renderable_in_cockpit():
+    vm = sample_cockpit_view_model()
+    vm.model_capabilities = model_capability_metadata_view_from_summary(
+        RelayModelCapabilityMetadataSummary(
+            lanes=(
+                RelayModelCapabilityLaneSummary(
+                    lane_id="claude",
+                    selected_provider="claude",
+                    exact_model_id="claude-sonnet-4-20250514",
+                    provider_route_kind="direct",
+                    trust_state="trusted",
+                    context_window_tokens=200000,
+                ),
+            ),
+        ),
+        selected_model_id="claude-sonnet-4-20250514",
+    )
+    doc = render_cockpit_html(vm)
+    assert "claude-sonnet-4-20250514" in doc
+    assert "model-harness-relay-summary" in doc
+
+
+def test_backend_binding_adapters_have_no_filesystem_or_network_side_effects():
+    """Adapters must be pure projections of in-memory backend dataclasses."""
+    evidence = RelayPromptPayloadEvidence(
+        prompt_source="relay",
+        selected_provider="claude",
+        selected_model="claude-sonnet-4-20250514",
+        route_class="direct",
+        route_kind="direct",
+        trust_state="trusted",
+        estimated_prompt_tokens=900,
+        prompt_budget_tokens=4000,
+        budget_percent=22.5,
+    )
+    meter_evidence = RelayPromptPayloadMeterEvidence(
+        meter_evidence_id="payload-meter:claude",
+        selected_provider="claude",
+        exact_model_id="claude-sonnet-4-20250514",
+        display_label="under 1k",
+    )
+    summary = RelayModelCapabilityMetadataSummary(
+        lanes=(
+            RelayModelCapabilityLaneSummary(
+                lane_id="claude",
+                selected_provider="claude",
+                exact_model_id="claude-sonnet-4-20250514",
+                provider_route_kind="direct",
+                trust_state="trusted",
+            ),
+        ),
+    )
+
+    a1 = prompt_payload_view_from_evidence(evidence)
+    a2 = prompt_payload_view_from_evidence(evidence)
+    b1 = visible_prompt_payload_meter_view_from_evidence((meter_evidence,))
+    b2 = visible_prompt_payload_meter_view_from_evidence((meter_evidence,))
+    c1 = model_capability_metadata_view_from_summary(summary)
+    c2 = model_capability_metadata_view_from_summary(summary)
+
+    assert a1 == a2
+    assert b1 == b2
+    assert c1 == c2

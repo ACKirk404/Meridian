@@ -13,10 +13,16 @@ from __future__ import annotations
 import html
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Mapping
+from typing import TYPE_CHECKING, Iterable, Mapping
 
 if TYPE_CHECKING:
     from meridian_core.cockpit_state import PrimeCockpitSnapshot
+    from meridian_core.relay_executor import (
+        RelayModelCapabilityLaneSummary,
+        RelayModelCapabilityMetadataSummary,
+        RelayPromptPayloadEvidence,
+        RelayPromptPayloadMeterEvidence,
+    )
 
 _CSS_PATH = Path(__file__).parent / "static" / "cockpit.css"
 
@@ -2252,6 +2258,247 @@ def _handoff_summary_list(summary: Mapping[str, object], *keys: str) -> list[str
     if isinstance(value, (list, tuple)):
         return [_safe_handoff_value(item) for item in value]
     return [_safe_handoff_value(value)]
+
+
+def _backend_str(value: object, default: str = "") -> str:
+    if value is None:
+        return default
+    text = str(value)
+    return _safe_handoff_value(text) if text else default
+
+
+def _backend_int(value: object, default: int = 0) -> int:
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _backend_float(value: object, default: float = 0.0) -> float:
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _backend_tag_list(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, (list, tuple, set)):
+        return [_safe_handoff_value(item) for item in value]
+    if isinstance(value, str):
+        return [_safe_handoff_value(value)] if value else []
+    return [_safe_handoff_value(value)]
+
+
+def prompt_payload_view_from_evidence(
+    evidence: "RelayPromptPayloadEvidence",
+) -> PromptPayloadView:
+    """Bind reviewed Relay prompt-payload evidence into a Bifrost PromptPayloadView.
+
+    Deterministic, side-effect-free, and display-safe. Accepts a frozen
+    RelayPromptPayloadEvidence dataclass (constructed and reviewed in backend
+    code) and projects its provider/model identity, route, trust, budget,
+    growth, and evidence reference fields into the view shape consumed by the
+    cockpit renderer. No live calls, no transport, no raw prompt text.
+    """
+    estimated_tokens = _backend_int(evidence.estimated_prompt_tokens)
+    chars = estimated_tokens * 4  # conservative tokens→chars heuristic for label
+    if chars < 1000 and estimated_tokens > 0:
+        size_label = "(under 1k)"
+    elif estimated_tokens == 0:
+        size_label = "(under 1k)"
+    elif chars % 1000 == 0:
+        size_label = f"({chars // 1000}k)"
+    else:
+        size_label = f"({chars / 1000:.1f}k)"
+
+    drag_tags = _backend_tag_list(getattr(evidence, "prompt_drag_tags", ()))
+    telemetry_tags = _backend_tag_list(getattr(evidence, "telemetry_error_tags", ()))
+    warnings: list[str] = []
+    for tag in drag_tags + telemetry_tags:
+        if tag and tag not in warnings:
+            warnings.append(tag)
+
+    return PromptPayloadView(
+        size_label=size_label,
+        estimated_tokens=estimated_tokens,
+        prompt_budget_tokens=_backend_int(evidence.prompt_budget_tokens),
+        context_budget_tokens=_backend_int(evidence.model_context_window_tokens),
+        budget_percent=_backend_float(evidence.budget_percent),
+        delta_tokens=_backend_int(evidence.delta_tokens),
+        delta_percent=_backend_float(evidence.delta_percent),
+        growth_state=_backend_str(evidence.growth_state, default="flat"),
+        watch_state=_backend_str(evidence.budget_status, default="ok"),
+        source=_backend_str(evidence.prompt_source, default="relay"),
+        provider_id=_backend_str(evidence.selected_provider),
+        model_name=_backend_str(evidence.selected_model),
+        trust_state=_backend_str(evidence.trust_state, default="unknown"),
+        route_class=_backend_str(evidence.route_class),
+        route_kind=_backend_str(evidence.route_kind),
+        evidence_ref=_backend_str(evidence.prompt_payload_snapshot_hash),
+        telemetry_ref=_backend_str(getattr(evidence, "model_metadata_ref", None)),
+        adapter_metadata_ref=_backend_str(
+            getattr(evidence, "external_review_evidence_ref", None)
+        ),
+        warnings=warnings,
+    )
+
+
+def visible_prompt_payload_meter_view_from_evidence(
+    items: Iterable["RelayPromptPayloadMeterEvidence"],
+    *,
+    source: str = "relay-visible-prompt-payload-meter",
+) -> VisiblePromptPayloadMeterView:
+    """Bind reviewed Relay payload meter evidence into a VisiblePromptPayloadMeterView.
+
+    Each RelayPromptPayloadMeterEvidence record is a display-safe per-lane
+    meter snapshot; this adapter maps each one to a VisiblePromptPayloadMeterItem
+    preserving deterministic ordering. No live calls.
+    """
+    meter_items: list[VisiblePromptPayloadMeterItem] = []
+    for ev in items:
+        q_mode = bool(getattr(ev, "q_mode", False))
+        growth_state = _backend_str(getattr(ev, "growth_state", "unknown"), default="unknown")
+        if q_mode and growth_state in ("degraded", "blocked"):
+            drag_state = growth_state
+        elif q_mode and growth_state == "unexpected_growth":
+            drag_state = "degraded"
+        elif q_mode:
+            drag_state = "flat"
+        else:
+            drag_state = "ok"
+
+        meter_items.append(
+            VisiblePromptPayloadMeterItem(
+                meter_id=_backend_str(ev.meter_evidence_id, default="meter:unknown"),
+                provider_id=_backend_str(ev.selected_provider),
+                model_id=_backend_str(ev.exact_model_id),
+                route_kind=_backend_str(ev.provider_route_kind, default="unknown"),
+                prompt_label=_backend_str(ev.display_label, default="(unknown)"),
+                payload_status=_backend_str(ev.payload_status, default="unknown"),
+                budget_percent=_backend_float(ev.budget_percent),
+                growth_delta_tokens=_backend_int(ev.growth_delta_tokens),
+                growth_delta_percent=_backend_float(ev.growth_delta_percent),
+                q_mode_prompt_drag_state=drag_state,
+                provider_balance_ref=(
+                    f"provider-balance:{_backend_str(ev.selected_provider)}"
+                    if ev.selected_provider
+                    else ""
+                ),
+                payload_evidence_ref=_backend_str(getattr(ev, "payload_evidence_ref", None)),
+                telemetry_ref=_backend_str(getattr(ev, "model_metadata_ref", None)),
+                warning_tags=_backend_tag_list(getattr(ev, "warning_tags", ())),
+                blocker_tags=_backend_tag_list(getattr(ev, "blocker_tags", ())),
+            )
+        )
+
+    return VisiblePromptPayloadMeterView(
+        items=meter_items,
+        source=_backend_str(source, default="relay-visible-prompt-payload-meter"),
+    )
+
+
+def model_capability_metadata_view_from_summary(
+    summary: "RelayModelCapabilityMetadataSummary",
+    *,
+    selected_model_id: str = "",
+    metadata_source: str = "model-harness-relay-summary",
+) -> ModelCapabilityMetadataView:
+    """Bind reviewed Model Harness capability summary into a ModelCapabilityMetadataView.
+
+    Maps each per-lane RelayModelCapabilityLaneSummary into a ModelCapabilityItem
+    preserving deterministic per-lane ordering. The optional selected_model_id
+    surfaces the currently-active model id for the cockpit selection state.
+    No live calls or transport.
+    """
+    lanes: Iterable["RelayModelCapabilityLaneSummary"] = getattr(summary, "lanes", ())
+    missing_tags = _backend_tag_list(getattr(summary, "missing_metadata_tags", ()))
+
+    items: list[ModelCapabilityItem] = []
+    for lane in lanes:
+        external_required = bool(getattr(lane, "requires_external_review", False))
+        external_status = _backend_str(
+            getattr(lane, "external_review_status", "not_required"),
+            default="not_required",
+        )
+        if external_required and external_status == "passed":
+            candidate_trust_state = "external_review_cleared"
+            proof_strength = "strong"
+        elif external_required and external_status in ("pending", "required"):
+            candidate_trust_state = "candidate"
+            proof_strength = "weak"
+        elif external_required:
+            candidate_trust_state = "validation_blocked"
+            proof_strength = "weak"
+        else:
+            candidate_trust_state = "trusted"
+            proof_strength = "standard"
+
+        payload_status = _backend_str(
+            getattr(lane, "prompt_payload_status", "unknown"),
+            default="unknown",
+        )
+        blocked_authorities: list[str] = []
+        if missing_tags:
+            for tag in missing_tags:
+                if tag and tag not in blocked_authorities:
+                    blocked_authorities.append(tag)
+        telemetry_tags = _backend_tag_list(
+            getattr(lane, "telemetry_error_tags", ())
+        )
+        for tag in telemetry_tags:
+            if tag and tag not in blocked_authorities:
+                blocked_authorities.append(tag)
+
+        evidence_refs: list[str] = []
+        for ref in (
+            getattr(lane, "model_metadata_ref", None),
+            getattr(lane, "external_review_evidence_ref", None),
+            getattr(lane, "payload_evidence_ref", None),
+        ):
+            text = _backend_str(ref)
+            if text and text not in evidence_refs:
+                evidence_refs.append(text)
+
+        items.append(
+            ModelCapabilityItem(
+                provider_id=_backend_str(lane.selected_provider),
+                exact_model_id=_backend_str(lane.exact_model_id),
+                route_kind=_backend_str(lane.provider_route_kind, default="unknown"),
+                trust_state=_backend_str(lane.trust_state, default="unknown"),
+                candidate_trust_state=candidate_trust_state,
+                context_window_tokens=_backend_int(lane.context_window_tokens),
+                cost_posture="unknown",
+                latency_tier="unknown",
+                tokenizer_family="unknown",
+                supports_streaming=False,
+                q_mode_flat=False,
+                external_review_required=external_required,
+                external_review_status=external_status,
+                proof_strength=proof_strength,
+                blocked_authorities=blocked_authorities,
+                allowed_task_hints=[],
+                blocked_task_hints=[],
+                prompt_budget_status=payload_status,
+                prompt_growth_state=_backend_str(
+                    getattr(lane, "growth_state", "unknown"),
+                    default="unknown",
+                ),
+                prompt_delta_tokens=0,
+                evidence_refs=evidence_refs,
+            )
+        )
+
+    return ModelCapabilityMetadataView(
+        items=items,
+        selected_model_id=_backend_str(selected_model_id),
+        metadata_source=_backend_str(metadata_source, default="model-harness-relay-summary"),
+    )
 
 
 def relay_aegis_policy_handoff_from_summary(
