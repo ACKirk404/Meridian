@@ -8,6 +8,47 @@ proof output only. Any older Build 5 log text saying `npm start` regenerates
 preview HTML describes the original V1 shell behavior before commit `05a108f1`
 corrected startup to open the Electron app with the Meridian renderer.
 
+## Coordinator Override - Active Now / Opus Task Assigned
+
+Timestamp: 2026-06-07T09:00:00-06:00.
+
+Goal: implement the next remaining Bifrost V2 backend/view-model slice:
+`Bifrost + Balance Button`.
+
+Worker requirement: implementation must run in a Polaris Build 5 Opus worker
+(`launch-chat`, tier `power`, `claude-opus-4-7`). Codex sessions may review only
+after a real worker candidate exists.
+
+Task: add or complete the deterministic backend/view-model proof for provider
+balance and usage state suitable for the Meridian Electron app surface. The
+rendered proof must cover Claude, OpenAI, DeepSeek, aggregator, and local
+adapter families where applicable; provider health; remaining credit labels
+where available; token usage; estimated spend; quota/credit status; and cost
+pressure warnings for Prime routing. Keep it static/sample-data and
+backend-evidence-bound only.
+
+Allowed likely files:
+
+- `bifrost/cockpit.py`
+- `bifrost/static/cockpit.css` only if render classes are needed
+- `tests/test_bifrost_cockpit.py`
+- this file only for the worker completion marker
+
+Do not edit `index.html`. Do not make live provider calls, probe accounts, read
+secrets, inspect live processes, spawn sessions, or add Electron-only behavior.
+Do not read all of this large queue file; use targeted `rg` and small line
+slices. Start from:
+
+- `rg -n "ProviderBalance|provider_balance|balance_view_from_summary|render_provider_balance" bifrost/cockpit.py tests/test_bifrost_cockpit.py`
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+
+Required proof before Ready marker:
+
+- `python -m pytest tests/test_bifrost_cockpit.py -q`
+- `git diff --check`
+- concise completion marker here with files changed, proof, and any remaining
+  risk.
+
 ## Coordinator Update - Opus Worker Relaunch Attempt / No Candidate
 
 Timestamp: 2026-06-07T08:49:01-06:00.
