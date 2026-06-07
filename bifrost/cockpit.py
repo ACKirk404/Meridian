@@ -125,6 +125,7 @@ class ProviderBalanceView:
     selected_provider: str = ""
     routing_owner: str = "unknown"
     policy_state: str = "ok"
+    evidence_refs: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -1794,6 +1795,19 @@ def _render_provider_balance(balance: ProviderBalanceView) -> str:
             f"</div>"
         )
 
+    view_evidence_block = ""
+    if balance.evidence_refs:
+        view_evidence_chips = "".join(
+            f'<span class="provider-balance-evidence-chip">{_e(ref)}</span>'
+            for ref in balance.evidence_refs
+        )
+        view_evidence_block = (
+            '<div class="provider-balance-evidence-refs" aria-label="Provider Balance Provenance">'
+            '<span class="provider-balance-evidence-label">Provenance:</span>'
+            f"{view_evidence_chips}"
+            "</div>"
+        )
+
     return (
         '<section class="provider-balance" aria-label="Provider Balance">'
         '<div class="provider-header-main">'
@@ -1805,6 +1819,7 @@ def _render_provider_balance(balance: ProviderBalanceView) -> str:
         '<div class="provider-items">'
         + "".join(provider_items)
         + "</div>"
+        + view_evidence_block
         + "</section>"
     )
 
@@ -2563,14 +2578,22 @@ def provider_balance_view_from_summary(
     Deterministic, side-effect-free, display-only. Accepts a Mapping with optional
     keys: `providers` (list/tuple of per-provider mappings — identity, health,
     route, trust, token usage, cost pressure, remaining credit, evidence_refs,
-    notes), `selected_provider`, `routing_owner`, `policy_state`. Each per-
-    provider mapping is projected via `_provider_balance_item_from_mapping`,
-    which reuses `_safe_handoff_value` for string redaction. No live account
+    notes), `selected_provider`, `routing_owner`, `policy_state`, and
+    summary-level `evidence_refs` / `evidence` / `evidence_ids` keys carrying
+    view-level provenance refs (signing chain, snapshot proof, attestation
+    refs, etc.). Each per-provider mapping is projected via
+    `_provider_balance_item_from_mapping`, which reuses `_safe_handoff_value`
+    for string redaction. Summary-level evidence refs route through
+    `_handoff_summary_list` so the same redaction applies. No live account
     calls, no provider probing, no raw transport payloads.
 
     Non-Mapping entries inside `providers` are skipped silently rather than
     raising — the surface is display-only and must remain renderable when a
     backend feed is partially populated.
+
+    NOTE: This is the pure projection — it returns a fresh view derived only
+    from `summary`. For partial-snapshot merging that preserves base providers
+    not mentioned in the summary, use `merge_provider_balance_summary_into_view`.
     """
     raw_providers = _handoff_summary_value(summary, "providers", default=())
     providers: list[ProviderBalanceItem] = []
@@ -2590,6 +2613,105 @@ def provider_balance_view_from_summary(
         policy_state=_safe_handoff_value(_handoff_summary_value(
             summary, "policy_state", default="ok",
         )),
+        evidence_refs=_handoff_summary_list(
+            summary, "evidence_refs", "evidence", "evidence_ids",
+        ),
+    )
+
+
+def merge_provider_balance_summary_into_view(
+    base: ProviderBalanceView,
+    summary: Mapping[str, object],
+) -> ProviderBalanceView:
+    """Merge a partial backend provider balance summary into an existing view.
+
+    Semantics:
+    - For each per-provider mapping in `summary['providers']`, project it via
+      `_provider_balance_item_from_mapping` and **replace** the matching
+      provider in `base.providers` by `provider_id`. If no match exists, the
+      projected item is **appended** after all preserved base providers,
+      preserving deterministic order: preserved-base-providers (in base order)
+      then newly-appended providers (in summary order).
+    - Providers present in `base.providers` but NOT mentioned in the summary
+      are **preserved unchanged** — this fixes the Codex Review B finding that
+      a valid but partial backend snapshot would erase absent providers.
+    - View-level fields (`selected_provider`, `routing_owner`, `policy_state`,
+      `evidence_refs`) override the base **only** when the summary explicitly
+      provides a non-empty value. Empty / omitted summary fields preserve the
+      base value.
+    - Non-Mapping entries inside `providers` are silently skipped (display-only
+      surface must remain renderable on partial feeds).
+
+    Returns a new `ProviderBalanceView`; the input `base` is not mutated.
+    Deterministic, side-effect-free, no live calls.
+    """
+    raw_providers = _handoff_summary_value(summary, "providers", default=())
+    incoming_items: list[ProviderBalanceItem] = []
+    if isinstance(raw_providers, (list, tuple)):
+        for raw in raw_providers:
+            if isinstance(raw, Mapping):
+                incoming_items.append(_provider_balance_item_from_mapping(raw))
+
+    incoming_by_id: dict[str, ProviderBalanceItem] = {}
+    for item in incoming_items:
+        if item.provider_id and item.provider_id not in incoming_by_id:
+            incoming_by_id[item.provider_id] = item
+
+    merged_providers: list[ProviderBalanceItem] = []
+    matched_ids: set[str] = set()
+    seen_base_ids: set[str] = set()
+    for base_item in base.providers:
+        if base_item.provider_id and base_item.provider_id in incoming_by_id:
+            merged_providers.append(incoming_by_id[base_item.provider_id])
+            matched_ids.add(base_item.provider_id)
+        else:
+            merged_providers.append(base_item)
+        if base_item.provider_id:
+            seen_base_ids.add(base_item.provider_id)
+
+    # Append summary providers that did not match any base provider,
+    # preserving summary order. Items without provider_id are also appended.
+    for item in incoming_items:
+        if not item.provider_id:
+            merged_providers.append(item)
+            continue
+        if item.provider_id in matched_ids:
+            continue
+        if item.provider_id in seen_base_ids:
+            continue
+        merged_providers.append(item)
+        matched_ids.add(item.provider_id)
+
+    # View-level field overrides — only when summary explicitly provides a
+    # non-empty value. Preserve base otherwise.
+    selected_provider = base.selected_provider
+    raw_selected = summary.get("selected_provider") if isinstance(summary, Mapping) else None
+    if raw_selected:
+        selected_provider = _safe_handoff_value(raw_selected)
+
+    routing_owner = base.routing_owner
+    raw_routing = summary.get("routing_owner") if isinstance(summary, Mapping) else None
+    if raw_routing:
+        routing_owner = _safe_handoff_value(raw_routing)
+
+    policy_state = base.policy_state
+    raw_policy = summary.get("policy_state") if isinstance(summary, Mapping) else None
+    if raw_policy:
+        policy_state = _safe_handoff_value(raw_policy)
+
+    evidence_refs = list(base.evidence_refs)
+    incoming_view_evidence = _handoff_summary_list(
+        summary, "evidence_refs", "evidence", "evidence_ids",
+    )
+    if incoming_view_evidence:
+        evidence_refs = incoming_view_evidence
+
+    return ProviderBalanceView(
+        providers=merged_providers,
+        selected_provider=selected_provider,
+        routing_owner=routing_owner,
+        policy_state=policy_state,
+        evidence_refs=evidence_refs,
     )
 
 
@@ -2628,7 +2750,13 @@ def cockpit_view_model_with_backend_bindings(
             metadata_source=model_capability_metadata_source,
         )
     if provider_balance_summary is not None:
-        base.provider_balance = provider_balance_view_from_summary(provider_balance_summary)
+        # Merge partial backend snapshots into the existing base.provider_balance
+        # instead of replacing wholesale. Providers in base not mentioned in the
+        # summary are preserved; mentioned providers are updated deterministically;
+        # view-level fields override only when the summary explicitly supplies them.
+        base.provider_balance = merge_provider_balance_summary_into_view(
+            base.provider_balance, provider_balance_summary,
+        )
     return base
 
 
@@ -2759,6 +2887,11 @@ def sample_backend_bound_cockpit_view_model() -> "CockpitViewModel":
             "selected_provider": "claude",
             "routing_owner": "Relay",
             "policy_state": "warning",
+            "evidence_refs": (
+                "snapshot:relay-provider-balance-2026-06-07",
+                "attestation:aegis-route-tier",
+                "signing-chain:relay-handoff",
+            ),
             "providers": (
                 {
                     "provider_id": "claude",

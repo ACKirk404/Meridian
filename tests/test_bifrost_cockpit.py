@@ -46,6 +46,7 @@ from bifrost.cockpit import (
     _render_proof_state,
     _e,
     cockpit_view_model_with_backend_bindings,
+    merge_provider_balance_summary_into_view,
     model_capability_metadata_view_from_summary,
     prompt_payload_view_from_evidence,
     provider_balance_view_from_summary,
@@ -5205,6 +5206,10 @@ def test_sample_backend_bound_cockpit_preserves_existing_surfaces_from_base_view
     # base sample_cockpit_view_model.
     assert "mic armed" in bound_doc  # voice listening state from base sample
     assert "Command channel open." in bound_doc  # prime message from base sample
+    # Codex Review B repair: the provider balance merge preserves providers
+    # absent from the backend summary. The base sample contributes an OpenAI
+    # row that the backend summary does not mention; it must still render.
+    assert "OpenAI" in bound_doc
     # Bound surfaces still render correctly after wiring.
     assert "Visible Prompt Payload Meter" in bound_doc
     assert "Model Harness Capability Metadata" in bound_doc
@@ -5487,9 +5492,14 @@ def test_sample_backend_bound_cockpit_view_model_binds_provider_balance_from_sum
     assert vm.provider_balance.selected_provider == "claude"
     assert vm.provider_balance.routing_owner == "Relay"
     assert vm.provider_balance.policy_state == "warning"
-    assert len(vm.provider_balance.providers) == 4
-
+    # Codex Review B repair: partial backend snapshot merges into the existing
+    # base sample (which has 5 providers), preserving providers not mentioned
+    # in the summary. The summary supplies 4 lanes (claude/deepseek/openrouter/
+    # local), so the base's OpenAI provider is preserved alongside the 4
+    # backend-updated lanes — total 5.
+    assert len(vm.provider_balance.providers) == 5
     by_id = {p.provider_id: p for p in vm.provider_balance.providers}
+    assert "openai" in by_id  # preserved from base sample, not in backend summary
     claude = by_id["claude"]
     deepseek = by_id["deepseek"]
     openrouter = by_id["openrouter"]
@@ -5618,3 +5628,401 @@ def test_provider_balance_evidence_refs_absent_when_empty():
     assert "Claude" in doc
     assert 'aria-label="Provider Balance Evidence Refs"' not in doc
     assert "provider-evidence-chip" not in doc
+
+
+# Codex Review B repair: partial provider snapshot merge + view-level
+# provenance (evidence_refs) at the ProviderBalanceView level.
+
+
+def _populated_base_balance():
+    """A typical populated base ProviderBalanceView for merge tests."""
+    return ProviderBalanceView(
+        providers=[
+            ProviderBalanceItem(
+                provider_id="claude",
+                display_name="Claude",
+                model_name="claude-sonnet-4-20250514",
+                trust_state="trusted",
+                health="ok",
+                route_kind="direct",
+                cost_pressure="low",
+                evidence_refs=["base:claude"],
+            ),
+            ProviderBalanceItem(
+                provider_id="openai",
+                display_name="OpenAI",
+                model_name="gpt-4o",
+                trust_state="trusted",
+                health="ok",
+                route_kind="direct",
+                cost_pressure="medium",
+                evidence_refs=["base:openai"],
+            ),
+            ProviderBalanceItem(
+                provider_id="deepseek",
+                display_name="DeepSeek",
+                model_name="deepseek-chat",
+                trust_state="candidate",
+                health="degraded",
+                route_kind="direct",
+                cost_pressure="high",
+                evidence_refs=["base:deepseek"],
+            ),
+        ],
+        selected_provider="claude",
+        routing_owner="Relay",
+        policy_state="ok",
+        evidence_refs=["base:provenance"],
+    )
+
+
+def test_merge_provider_balance_summary_preserves_unmentioned_base_providers():
+    """Partial summary must not erase base providers absent from the snapshot."""
+    base = _populated_base_balance()
+    merged = merge_provider_balance_summary_into_view(
+        base,
+        {
+            "providers": (
+                {
+                    "provider_id": "claude",
+                    "display_name": "Claude",
+                    "model_name": "claude-sonnet-4-20250514",
+                    "trust_state": "trusted",
+                    "health": "ok",
+                    "cost_pressure": "low",
+                    "current_prompt_tokens": 1500,
+                    "evidence_refs": ("backend:claude-updated",),
+                },
+            ),
+        },
+    )
+    by_id = {p.provider_id: p for p in merged.providers}
+    # All three base providers still present
+    assert set(by_id.keys()) == {"claude", "openai", "deepseek"}
+    # Claude was updated by the summary
+    assert by_id["claude"].current_prompt_tokens == 1500
+    assert by_id["claude"].evidence_refs == ["backend:claude-updated"]
+    # OpenAI and DeepSeek preserved exactly (object identity since base is reused)
+    assert by_id["openai"].evidence_refs == ["base:openai"]
+    assert by_id["deepseek"].evidence_refs == ["base:deepseek"]
+    assert by_id["openai"].display_name == "OpenAI"
+    assert by_id["deepseek"].cost_pressure == "high"
+
+
+def test_merge_provider_balance_summary_updates_mentioned_providers_deterministically():
+    base = _populated_base_balance()
+    summary = {
+        "providers": (
+            {
+                "provider_id": "deepseek",
+                "display_name": "DeepSeek",
+                "model_name": "deepseek-chat",
+                "trust_state": "candidate",
+                "health": "ok",  # backend says healthy now
+                "cost_pressure": "low",  # cost dropped
+                "evidence_refs": ("backend:deepseek-refreshed",),
+            },
+        ),
+    }
+    merged_a = merge_provider_balance_summary_into_view(base, summary)
+    merged_b = merge_provider_balance_summary_into_view(base, summary)
+    by_id_a = {p.provider_id: p for p in merged_a.providers}
+    by_id_b = {p.provider_id: p for p in merged_b.providers}
+    # Deepseek now reflects backend state, not base state
+    assert by_id_a["deepseek"].health == "ok"
+    assert by_id_a["deepseek"].cost_pressure == "low"
+    assert by_id_a["deepseek"].evidence_refs == ["backend:deepseek-refreshed"]
+    # Determinism across repeated calls
+    assert merged_a == merged_b
+
+
+def test_merge_provider_balance_summary_appends_new_providers_after_existing():
+    base = _populated_base_balance()
+    merged = merge_provider_balance_summary_into_view(
+        base,
+        {
+            "providers": (
+                {
+                    "provider_id": "openrouter",
+                    "display_name": "OpenRouter",
+                    "model_name": "deepseek-chat",
+                    "trust_state": "aggregator",
+                    "health": "degraded",
+                    "route_kind": "aggregator",
+                },
+                {
+                    "provider_id": "local",
+                    "display_name": "Local",
+                    "model_name": "local-deterministic",
+                    "trust_state": "local",
+                    "health": "offline",
+                    "route_kind": "local",
+                },
+            ),
+        },
+    )
+    # Order: preserved base providers (claude, openai, deepseek) then new ones
+    # (openrouter, local) in summary order.
+    assert [p.provider_id for p in merged.providers] == [
+        "claude", "openai", "deepseek", "openrouter", "local",
+    ]
+
+
+def test_merge_provider_balance_summary_preserves_view_level_fields_when_summary_omits():
+    base = _populated_base_balance()
+    merged = merge_provider_balance_summary_into_view(
+        base,
+        {"providers": ()},  # no view-level fields supplied
+    )
+    assert merged.selected_provider == "claude"
+    assert merged.routing_owner == "Relay"
+    assert merged.policy_state == "ok"
+    assert merged.evidence_refs == ["base:provenance"]
+
+
+def test_merge_provider_balance_summary_overrides_view_level_fields_when_summary_provides():
+    base = _populated_base_balance()
+    merged = merge_provider_balance_summary_into_view(
+        base,
+        {
+            "selected_provider": "deepseek",
+            "routing_owner": "Aegis",
+            "policy_state": "warning",
+            "evidence_refs": ("backend:snapshot-fresh", "backend:attestation"),
+        },
+    )
+    assert merged.selected_provider == "deepseek"
+    assert merged.routing_owner == "Aegis"
+    assert merged.policy_state == "warning"
+    assert merged.evidence_refs == ["backend:snapshot-fresh", "backend:attestation"]
+
+
+def test_merge_provider_balance_summary_view_level_evidence_refs_preserved_on_empty_list():
+    """Empty evidence_refs in summary preserves base provenance (not a clear signal)."""
+    base = _populated_base_balance()
+    merged = merge_provider_balance_summary_into_view(
+        base,
+        {"evidence_refs": ()},
+    )
+    assert merged.evidence_refs == ["base:provenance"]
+
+
+def test_merge_provider_balance_summary_skips_non_mapping_provider_entries():
+    base = _populated_base_balance()
+    merged = merge_provider_balance_summary_into_view(
+        base,
+        {
+            "providers": (
+                "not-a-mapping",
+                None,
+                42,
+                {
+                    "provider_id": "claude",
+                    "display_name": "Claude",
+                    "model_name": "claude-sonnet-4-20250514",
+                    "trust_state": "trusted",
+                    "health": "ok",
+                    "evidence_refs": ("backend:claude",),
+                },
+            ),
+        },
+    )
+    # Only the valid mapping was applied — the others were skipped silently.
+    by_id = {p.provider_id: p for p in merged.providers}
+    assert by_id["claude"].evidence_refs == ["backend:claude"]
+    # OpenAI and DeepSeek still preserved
+    assert "openai" in by_id
+    assert "deepseek" in by_id
+
+
+def test_merge_provider_balance_summary_does_not_mutate_base():
+    base = _populated_base_balance()
+    base_provider_ids_before = [p.provider_id for p in base.providers]
+    base_claude_evidence_before = list(base.providers[0].evidence_refs)
+    base_view_evidence_before = list(base.evidence_refs)
+    base_selected_before = base.selected_provider
+
+    _ = merge_provider_balance_summary_into_view(
+        base,
+        {
+            "selected_provider": "deepseek",
+            "evidence_refs": ("backend:snapshot",),
+            "providers": (
+                {
+                    "provider_id": "claude",
+                    "display_name": "Claude",
+                    "model_name": "claude-sonnet-4-20250514",
+                    "trust_state": "trusted",
+                    "health": "ok",
+                    "evidence_refs": ("backend:claude-updated",),
+                },
+            ),
+        },
+    )
+
+    assert [p.provider_id for p in base.providers] == base_provider_ids_before
+    assert base.providers[0].evidence_refs == base_claude_evidence_before
+    assert base.evidence_refs == base_view_evidence_before
+    assert base.selected_provider == base_selected_before
+
+
+def test_provider_balance_view_from_summary_projects_view_level_evidence_refs():
+    view = provider_balance_view_from_summary({
+        "evidence_refs": ("snapshot:relay", "attestation:aegis"),
+    })
+    assert view.evidence_refs == ["snapshot:relay", "attestation:aegis"]
+
+
+def test_provider_balance_view_from_summary_view_level_evidence_alias_keys():
+    view = provider_balance_view_from_summary({
+        "evidence": ("alt-snapshot",),
+    })
+    assert view.evidence_refs == ["alt-snapshot"]
+    view2 = provider_balance_view_from_summary({
+        "evidence_ids": ("ids-snapshot",),
+    })
+    assert view2.evidence_refs == ["ids-snapshot"]
+
+
+def test_provider_balance_view_level_evidence_refs_render_safely_escaped():
+    base = CockpitViewModel(project="Test", bearing="test")
+    base.provider_balance = ProviderBalanceView(
+        providers=[
+            ProviderBalanceItem(
+                provider_id="claude",
+                display_name="Claude",
+                model_name="claude-sonnet-4-20250514",
+                trust_state="trusted",
+                health="ok",
+            ),
+        ],
+        evidence_refs=["snapshot:relay-2026", "<script>alert(1)</script>"],
+    )
+    doc = render_cockpit_html(base)
+    assert 'aria-label="Provider Balance Provenance"' in doc
+    assert '<span class="provider-balance-evidence-chip">snapshot:relay-2026</span>' in doc
+    # HTML escaping must apply to the raw script payload — no unescaped tag.
+    assert "<script>alert(1)</script>" not in doc
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in doc
+
+
+def test_provider_balance_view_level_evidence_refs_redacts_unsafe_markers():
+    view = provider_balance_view_from_summary({
+        "evidence_refs": (
+            "snapshot:safe",
+            "raw_prompt:SECRET",
+            "model_payload:SECRET",
+            "api_key:SECRET",
+        ),
+    })
+    # The redactor folds unsafe markers to the sentinel.
+    assert "snapshot:safe" in view.evidence_refs
+    assert "raw_prompt:SECRET" not in view.evidence_refs
+    assert "model_payload:SECRET" not in view.evidence_refs
+    assert "api_key:SECRET" not in view.evidence_refs
+    assert view.evidence_refs.count("unsafe_metadata_redacted") == 3
+
+
+def test_provider_balance_view_level_evidence_block_absent_when_empty():
+    base = CockpitViewModel(project="Test", bearing="test")
+    base.provider_balance = ProviderBalanceView(
+        providers=[
+            ProviderBalanceItem(
+                provider_id="claude",
+                display_name="Claude",
+                model_name="claude-sonnet-4-20250514",
+                trust_state="trusted",
+                health="ok",
+            ),
+        ],
+    )
+    doc = render_cockpit_html(base)
+    assert 'aria-label="Provider Balance Provenance"' not in doc
+    assert "provider-balance-evidence-chip" not in doc
+    assert "Provenance:" not in doc
+
+
+def test_cockpit_view_model_with_backend_bindings_partial_summary_preserves_base_providers():
+    base = CockpitViewModel(project="Test", bearing="partial-merge")
+    base.provider_balance = _populated_base_balance()
+    bound = cockpit_view_model_with_backend_bindings(
+        base,
+        provider_balance_summary={
+            "selected_provider": "deepseek",
+            "evidence_refs": ("backend:snapshot",),
+            "providers": (
+                {
+                    "provider_id": "deepseek",
+                    "display_name": "DeepSeek",
+                    "model_name": "deepseek-chat",
+                    "trust_state": "candidate",
+                    "health": "ok",
+                    "cost_pressure": "low",
+                    "evidence_refs": ("backend:deepseek-fresh",),
+                },
+            ),
+        },
+    )
+    by_id = {p.provider_id: p for p in bound.provider_balance.providers}
+    # Claude and OpenAI preserved (not in summary); DeepSeek updated from backend
+    assert "claude" in by_id
+    assert "openai" in by_id
+    assert by_id["deepseek"].health == "ok"
+    assert by_id["deepseek"].cost_pressure == "low"
+    assert by_id["deepseek"].evidence_refs == ["backend:deepseek-fresh"]
+    # View-level fields override only when summary provides; routing_owner /
+    # policy_state preserved from base because the summary omits them.
+    assert bound.provider_balance.selected_provider == "deepseek"
+    assert bound.provider_balance.routing_owner == "Relay"
+    assert bound.provider_balance.policy_state == "ok"
+    assert bound.provider_balance.evidence_refs == ["backend:snapshot"]
+
+
+def test_cockpit_view_model_with_backend_bindings_provider_balance_optional_preserves_base():
+    """Regression: omitting provider_balance_summary leaves base untouched."""
+    base = CockpitViewModel(project="Test", bearing="no-summary")
+    base.provider_balance = _populated_base_balance()
+    snapshot_before = base.provider_balance
+    bound = cockpit_view_model_with_backend_bindings(base)
+    assert bound.provider_balance is snapshot_before
+    assert [p.provider_id for p in bound.provider_balance.providers] == [
+        "claude", "openai", "deepseek",
+    ]
+    assert bound.provider_balance.evidence_refs == ["base:provenance"]
+
+
+def test_sample_backend_bound_cockpit_renders_view_level_provider_balance_provenance():
+    doc = render_cockpit_html(sample_backend_bound_cockpit_view_model())
+    # The sample binder supplies view-level evidence_refs at the summary level.
+    assert 'aria-label="Provider Balance Provenance"' in doc
+    assert '<span class="provider-balance-evidence-chip">snapshot:relay-provider-balance-2026-06-07</span>' in doc
+    assert '<span class="provider-balance-evidence-chip">attestation:aegis-route-tier</span>' in doc
+    assert '<span class="provider-balance-evidence-chip">signing-chain:relay-handoff</span>' in doc
+
+
+def test_merge_provider_balance_summary_is_deterministic():
+    base = _populated_base_balance()
+    summary = {
+        "selected_provider": "deepseek",
+        "evidence_refs": ("backend:snapshot",),
+        "providers": (
+            {
+                "provider_id": "deepseek",
+                "display_name": "DeepSeek",
+                "model_name": "deepseek-chat",
+                "trust_state": "candidate",
+                "health": "degraded",
+            },
+            {
+                "provider_id": "openrouter",
+                "display_name": "OpenRouter",
+                "model_name": "deepseek-chat",
+                "trust_state": "aggregator",
+                "health": "degraded",
+            },
+        ),
+    }
+    a = merge_provider_balance_summary_into_view(base, summary)
+    b = merge_provider_balance_summary_into_view(base, summary)
+    assert a == b
+    assert [p.provider_id for p in a.providers] == [p.provider_id for p in b.providers]
