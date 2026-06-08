@@ -6229,6 +6229,25 @@ body {
       logicNode.innerHTML = renderWorkflowDispatchStatusSnapshot({ ok: false, error: error.message });
     }
   };
+  const loadSparkBacklog = async () => {
+    const reviewNode = rightWorkspace?.querySelector('[data-backlog-review-console]');
+    const runtimeNode = rightWorkspace?.querySelector('[data-backlog-goal-runtime]');
+    const workflowNode = rightWorkspace?.querySelector('[data-backlog-workflow-dispatch-status]');
+    try {
+      const [reviewResponse, runtimeResponse, workflowResponse] = await Promise.all([
+        reviewNode ? fetch(bridgeUrl('review-console'), { cache: 'no-store' }) : Promise.resolve(null),
+        runtimeNode ? fetch(bridgeUrl('goal-runtime'), { cache: 'no-store' }) : Promise.resolve(null),
+        workflowNode ? fetch(bridgeUrl('workflow-dispatch-status'), { cache: 'no-store' }) : Promise.resolve(null),
+      ]);
+      if (reviewNode && reviewResponse) reviewNode.innerHTML = renderReviewConsoleSnapshot(await reviewResponse.json());
+      if (runtimeNode && runtimeResponse) runtimeNode.innerHTML = renderGoalRuntimeSnapshot(await runtimeResponse.json());
+      if (workflowNode && workflowResponse) workflowNode.innerHTML = renderWorkflowDispatchStatusSnapshot(await workflowResponse.json());
+    } catch (error) {
+      if (reviewNode) reviewNode.innerHTML = renderReviewConsoleSnapshot({ ok: false, error: error.message });
+      if (runtimeNode) runtimeNode.innerHTML = renderGoalRuntimeSnapshot({ ok: false, error: error.message });
+      if (workflowNode) workflowNode.innerHTML = renderWorkflowDispatchStatusSnapshot({ ok: false, error: error.message });
+    }
+  };
   const loadEchoMemory = async () => {
     const logicNode = rightWorkspace?.querySelector('[data-echo-memory]');
     if (!logicNode) return;
@@ -8680,6 +8699,45 @@ body {
       return false;
     }
   };
+  const renderSparkBacklog = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Backlog tasks">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Backlog Tasks</div>
+            <div class="relay-models-status">Display-only</div>
+          </div>
+          <div class="relay-models-body">
+            ${relaySection('Backlog boundary', relayList([
+              'Backlog shows typed task posture from Review Console, Goal Runtime, and Workflow Dispatch snapshots.',
+              'No fake backlog items are created; empty or missing backend queues render as empty or unavailable state.',
+              'This surface does not create tasks, assign workers, mutate queues, start routines, send prompts, recover raw result bodies, or ingest raw worker session history.',
+              'Orchestrator intake stays limited to compact typed session state, small worker summaries, and evidence refs.',
+            ]), true)}
+            <div data-backlog-review-console>${relaySection('Backlog review source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-backlog-goal-runtime>${relaySection('Backlog runtime source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-backlog-workflow-dispatch-status>${relaySection('Backlog workflow source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadSparkBacklog();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
   const renderProviderBalance = () => {
     if (!rightWindow || !rightWorkspace) return false;
     try {
@@ -9266,9 +9324,11 @@ body {
         ? renderSparkModels()
         : (actionLabel === 'Crosscheck'
           ? renderSparkCrosscheck()
+          : (actionLabel === 'Backlog'
+            ? renderSparkBacklog()
           : (actionLabel === 'Routines'
             ? renderGoalRuntime()
-            : (actionLabel === 'Archive' ? renderSessionCloseArchiveProof() : renderSparkSurface(actionLabel || 'Spark')))));
+            : (actionLabel === 'Archive' ? renderSessionCloseArchiveProof() : renderSparkSurface(actionLabel || 'Spark'))))));
     if (!rendered) return;
     screen.classList.add('sessions-visible');
     setRightPanelAuthority('spark', actionLabel || 'Spark', { persist });
