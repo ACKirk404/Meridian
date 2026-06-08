@@ -218,6 +218,22 @@ def test_index_generic_harness_surface_frames_logic_updates_without_project_cont
     assert "bridgeUrl('message')" not in surface
 
 
+def test_index_generic_harness_surface_shows_absent_real_state_without_fake_health():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    start = doc.index("const renderHarnessSurface = (button) =>")
+    end = doc.index("const renderRelayModels = () =>", start)
+    surface = doc[start:end]
+
+    assert "Harness state summary" in surface
+    assert "real backend state unavailable" in surface
+    assert "no fake health value shown" in surface
+    assert "healthy" not in surface.lower()
+    assert "degraded" not in surface.lower()
+    assert "latency" not in surface.lower()
+    assert "uptime" not in surface.lower()
+    assert "method: 'POST'" not in surface
+
+
 def test_index_harness_title_toggles_model_icons():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert '<button class="harness-dock-title" type="button"' in doc
@@ -2067,6 +2083,8 @@ def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wi
     assert "Generic planned harness surfaces render an explicit Unsupported action guard" in doc
     assert "| HMS8 | Logic update framing | Harness mode language frames work as updating/adding harness logic. | wired |" in doc
     assert "Generic planned harness surfaces render a Logic update framing section" in doc
+    assert "| HMS9 | Harness state summary | Shows concise harness status once real state exists. | wired |" in doc
+    assert "Generic planned harness surfaces render a Harness state summary" in doc
     assert "const renderRightPanelSurface = ({ title, status, sections, surfaceClass = '' }) =>" in index
     assert "const renderHarnessSurface = (button) =>" in index
     assert "const renderSparkSurface = (label) =>" in index

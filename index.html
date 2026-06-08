@@ -8158,6 +8158,11 @@ body {
           ['allowed language', 'add or refine harness logic after backend review'],
           ['boundary', 'not arbitrary project/session control'],
         ]), true),
+        relaySection('Harness state summary', relayGrid([
+          ['selected harness', harness],
+          ['state summary', 'real backend state unavailable'],
+          ['health posture', 'no fake health value shown'],
+        ]), true),
       ],
     });
   };
