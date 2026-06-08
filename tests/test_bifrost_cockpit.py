@@ -586,6 +586,33 @@ def test_vulcan_logic_snapshot_documents_session_lifecycle_harness():
     assert "Portfolio Boundary" not in titles
 
 
+def test_beacon_liveness_snapshot_is_display_safe_backend_contract():
+    import json
+
+    from meridian_core.beacon_liveness_snapshot import beacon_liveness_snapshot
+
+    snapshot = beacon_liveness_snapshot()
+    heartbeat = snapshot["heartbeats"][0]
+    serialized = json.dumps(snapshot)
+
+    assert snapshot["source"] == "meridian_core.beacon_liveness_snapshot.beacon_liveness_snapshot"
+    assert snapshot["display_only"] is True
+    assert snapshot["mutation_authorized"] is False
+    assert snapshot["execution_controls_visible"] is False
+    assert snapshot["raw_worker_chat_visible"] is False
+    assert snapshot["raw_filesystem_paths_visible"] is False
+    assert snapshot["observation_mode"] == "contract_sample:no_live_sentinels_configured"
+    assert heartbeat["harness_id"] == "beacon-ui-contract"
+    assert heartbeat["current_work_label"] == "<sentinel_path>"
+    assert heartbeat["blockers"] == ["missing sentinel"]
+    assert "live_state" in snapshot["advisory_families"]
+    assert "recovery_readiness" in snapshot["advisory_families"]
+    assert "no_raw_sentinel_paths" in snapshot["guardrails"]
+    assert "runtime-sentinel" not in serialized
+    assert "C:\\Users" not in serialized
+    assert "Code\\Meridian" not in serialized
+
+
 def test_index_projects_selector_is_compass_context_not_user_routing():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "projectOptions = ['Bifrost', 'Meridian', 'Spark']" in doc
@@ -624,6 +651,19 @@ def test_index_vulcan_harness_uses_backend_logic_snapshot():
     assert "Beacon advisory evidence" in doc
     assert "execution controls visible" in doc
     assert "raw worker chat visible" in doc
+    assert "raw filesystem paths visible" in doc
+
+
+def test_index_beacon_harness_uses_backend_liveness_snapshot():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Beacon Liveness" in doc
+    assert "data-beacon-liveness" in doc
+    assert "bridgeUrl('beacon-liveness')" in doc
+    assert "renderBeaconLivenessSnapshot" in doc
+    assert "renderBeaconLiveness" in doc
+    assert "Heartbeat observations" in doc
+    assert "Advisory families" in doc
+    assert "Beacon guardrails" in doc
     assert "raw filesystem paths visible" in doc
 
 
@@ -786,6 +826,7 @@ def test_index_relay_refresh_reloads_logic_snapshot():
     assert "loadPrimeLogic();" in body
     assert "loadCompassLogic();" in body
     assert "loadVulcanLogic();" in body
+    assert "loadBeaconLiveness();" in body
 
 
 def test_bridge_exposes_prime_logic_route_and_capability():
@@ -820,6 +861,15 @@ def test_bridge_exposes_relay_evidence_route():
     assert '"deepseek_transport_authority"' in doc
     assert '"provider_call_authorized": True' not in doc
     assert '"body":' not in doc
+
+
+def test_bridge_exposes_beacon_liveness_route():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    assert "beaconLivenessSnapshot: true" in doc
+    assert "beaconLiveness: '/bridge/beacon-liveness'" in doc
+    assert "function beaconLivenessSnapshot()" in doc
+    assert "meridian_core.beacon_liveness_snapshot" in doc
+    assert "req.method === 'GET' && req.url === BRIDGE_ROUTES.beaconLiveness" in doc
 
 
 def test_bridge_exposes_reviewed_display_only_capability_routes():

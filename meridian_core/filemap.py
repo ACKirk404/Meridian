@@ -302,6 +302,13 @@ def make_default_map() -> FileMap:
             notes="V0 Beacon slice only; process supervision and restart/resteer actions belong to later Prime runtime.",
         ),
         FileMapEntry(
+            path="meridian_core/beacon_liveness_snapshot.py",
+            area=FileArea.BEACON,
+            purpose="Display-safe backend snapshot for the Electron Beacon Liveness panel.",
+            related_tests=["tests/test_bifrost_cockpit.py", "tests/test_beacon.py"],
+            notes="Bifrost consumes this through /bridge/beacon-liveness; no raw sentinel paths, process inspection, or session controls.",
+        ),
+        FileMapEntry(
             path="tests/test_beacon.py",
             area=FileArea.BEACON,
             purpose="Test suite for meridian_core/beacon.py: covers file-backed liveness checks, heartbeat conversion, and Beacon freshness behavior.",

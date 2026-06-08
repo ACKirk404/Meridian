@@ -4888,6 +4888,52 @@ body {
       ...capabilitySections.map(renderCompassCapabilitySection),
     ].join('');
   };
+  const renderBeaconLivenessSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Beacon liveness source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Beacon liveness snapshot unavailable'],
+      ]), true);
+    }
+    const heartbeats = Array.isArray(snapshot.heartbeats) ? snapshot.heartbeats : [];
+    const advisoryFamilies = Array.isArray(snapshot.advisory_families) ? snapshot.advisory_families : [];
+    const guardrails = Array.isArray(snapshot.guardrails) ? snapshot.guardrails : [];
+    const mutationAllowed = Boolean(snapshot.mutation_authorized);
+    const executionControlsVisible = Boolean(snapshot.execution_controls_visible);
+    const rawWorkerChatVisible = Boolean(snapshot.raw_worker_chat_visible);
+    const rawFilesystemPathsVisible = Boolean(snapshot.raw_filesystem_paths_visible);
+    return [
+      relaySection('Beacon liveness source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Beacon / Liveness'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', mutationAllowed ? 'yes' : 'no'],
+        ['execution controls visible', executionControlsVisible ? 'yes' : 'no'],
+        ['observation mode', snapshot.observation_mode || 'unknown'],
+      ]), true),
+      relaySection('Beacon summary', relaySummary(snapshot.summary || ''), true),
+      relaySection('Heartbeat observations', heartbeats.length
+        ? heartbeats.map((heartbeat) => relayGrid([
+          ['harness', heartbeat.harness_id || 'unknown'],
+          ['status', relayText(heartbeat.status)],
+          ['current work', heartbeat.current_work_label || 'none'],
+          ['current work present', heartbeat.current_work_present ? 'yes' : 'no'],
+          ['last event', heartbeat.last_event || 'unknown'],
+          ['blockers', relayJoin(heartbeat.blockers)],
+          ['updated', heartbeat.updated_at || 'unknown'],
+        ])).join('')
+        : relayGrid([['status', 'no heartbeat observations reported']]), true),
+      relaySection('Advisory families', relayList(advisoryFamilies), true),
+      relaySection('Beacon guardrails', [
+        relayGrid([
+          ['raw worker chat visible', rawWorkerChatVisible ? 'yes' : 'no'],
+          ['raw filesystem paths visible', rawFilesystemPathsVisible ? 'yes' : 'no'],
+        ]),
+        relayList(guardrails),
+      ].join(''), false),
+    ].join('');
+  };
   const renderPrimeDecisionSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
       return relaySection('Prime logic source', relayGrid([
@@ -5608,6 +5654,17 @@ body {
       logicNode.innerHTML = renderVulcanLogicSnapshot(snapshot);
     } catch (error) {
       logicNode.innerHTML = renderVulcanLogicSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadBeaconLiveness = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-beacon-liveness]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('beacon-liveness'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderBeaconLivenessSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderBeaconLivenessSnapshot({ ok: false, error: error.message });
     }
   };
   const loadPrimeLogic = async () => {
@@ -7704,6 +7761,37 @@ body {
       return false;
     }
   };
+  const renderBeaconLiveness = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Beacon liveness">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Beacon Liveness</div>
+            <div class="relay-models-status">Display-only</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-beacon-liveness>${relaySection('Beacon liveness source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadBeaconLiveness();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
   const renderProviderBalance = () => {
     if (!rightWindow || !rightWorkspace) return false;
     try {
@@ -7970,6 +8058,7 @@ body {
     if (rightWorkspace?.querySelector('[data-prime-logic]')) loadPrimeLogic();
     if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
     if (rightWorkspace?.querySelector('[data-vulcan-logic]')) loadVulcanLogic();
+    if (rightWorkspace?.querySelector('[data-beacon-liveness]')) loadBeaconLiveness();
     if (rightWorkspace?.querySelector('[data-provider-balance]')) loadProviderBalance();
     if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
     if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
@@ -8188,6 +8277,8 @@ body {
       rendered = renderPrimeLogic();
     } else if (button.dataset.harness === 'Relay') {
       rendered = renderRelayModels();
+    } else if (button.dataset.harness === 'Beacon') {
+      rendered = renderBeaconLiveness();
     } else if (button.dataset.harness === 'Compass') {
       rendered = renderCompassProjectLogic();
     } else if (button.dataset.harness === 'Session Lifecycle') {

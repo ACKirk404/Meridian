@@ -23,6 +23,7 @@ const BRIDGE_CAPABILITIES = {
   primeRuntimeSnapshot: true,
   compassLogicSnapshot: true,
   vulcanLogicSnapshot: true,
+  beaconLivenessSnapshot: true,
   providerBalanceSnapshot: true,
   goalRuntimeSnapshot: true,
   workflowDispatchStatusSnapshot: true,
@@ -42,6 +43,7 @@ const BRIDGE_ROUTES = Object.freeze({
   primeLogic: '/bridge/prime-logic',
   compassLogic: '/bridge/compass-logic',
   vulcanLogic: '/bridge/vulcan-logic',
+  beaconLiveness: '/bridge/beacon-liveness',
   providerBalance: '/bridge/provider-balance',
   goalRuntime: '/bridge/goal-runtime',
   workflowDispatchStatus: '/bridge/workflow-dispatch-status',
@@ -99,7 +101,7 @@ if (process.argv.includes('--self-test')) {
   rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
   const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot && BRIDGE_CAPABILITIES.voiceIoSnapshot;
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.beaconLivenessSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot && BRIDGE_CAPABILITIES.voiceIoSnapshot;
   const sampleSession = sessionTargetFromWorktree({
     path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
     branch: 'refs/heads/worktree-build-5-bifrost',
@@ -668,6 +670,34 @@ function vulcanLogicSnapshot() {
         resolve({ ok: true, snapshot: JSON.parse(stdout) });
       } catch (error) {
         resolve({ ok: false, error: `Vulcan logic snapshot returned invalid JSON: ${error.message}` });
+      }
+    });
+  });
+}
+
+function beaconLivenessSnapshot() {
+  return new Promise((resolve) => {
+    const child = spawn('python', ['-m', 'meridian_core.beacon_liveness_snapshot'], {
+      cwd: DEFAULT_CWD,
+      shell: process.platform === 'win32',
+      windowsHide: true,
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString(); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+    child.on('error', (error) => {
+      resolve({ ok: false, error: error.message });
+    });
+    child.on('close', (code) => {
+      if (code !== 0) {
+        resolve({ ok: false, error: stderr.trim() || `Beacon liveness snapshot exited with code ${code}` });
+        return;
+      }
+      try {
+        resolve({ ok: true, snapshot: JSON.parse(stdout) });
+      } catch (error) {
+        resolve({ ok: false, error: `Beacon liveness snapshot returned invalid JSON: ${error.message}` });
       }
     });
   });
@@ -1553,6 +1583,18 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && req.url === BRIDGE_ROUTES.vulcanLogic) {
     const result = await vulcanLogicSnapshot();
+    sendJson(res, result.ok ? 200 : 500, {
+      ok: result.ok,
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...(result.ok ? { ...result.snapshot } : { error: result.error }),
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.beaconLiveness) {
+    const result = await beaconLivenessSnapshot();
     sendJson(res, result.ok ? 200 : 500, {
       ok: result.ok,
       service: 'meridian-model-bridge',
