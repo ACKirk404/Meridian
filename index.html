@@ -8620,6 +8620,13 @@ body {
           ['action status', 'unsupported until reviewed backend wiring exists'],
           ['result', 'display-only; action stays blocked'],
         ]), true),
+        relaySection('Harness item action scope', relayGrid([
+          ['selected harness', harness],
+          ['selected logic item', 'Harness logic'],
+          ['action target', 'selected harness logic item only'],
+          ['execution state', 'blocked until reviewed backend action exists'],
+          ['session routing', 'no User Session or Prime prompt route is used'],
+        ]), true),
         relaySection('Logic update framing', relayGrid([
           ['work frame', 'review or update harness logic items'],
           ['allowed language', 'add or refine harness logic after backend review'],

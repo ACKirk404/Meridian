@@ -200,6 +200,12 @@ def test_index_generic_harness_surface_blocks_unsupported_actions_without_backen
     assert "selected harness" in surface
     assert "unsupported until reviewed backend wiring exists" in surface
     assert "display-only; action stays blocked" in surface
+    assert "Harness item action scope" in surface
+    assert "selected logic item" in surface
+    assert "Harness logic" in surface
+    assert "selected harness logic item only" in surface
+    assert "blocked until reviewed backend action exists" in surface
+    assert "no User Session or Prime prompt route is used" in surface
     assert "method: 'POST'" not in surface
     assert "bridgeUrl('message')" not in surface
     assert "bridgeUrl('restart')" not in surface
@@ -247,6 +253,7 @@ def test_index_generic_harness_surface_blocks_cross_harness_leakage():
     assert "Harness isolation boundary" in surface
     assert "active harness" in surface
     assert "selected harness only" in surface
+    assert "selected harness logic item only" in surface
     assert "blocked; no silent reroute to another harness" in surface
     assert "setRightPanelAuthority('harness', button.dataset.harness || 'Harness', { persist })" in doc
     assert "method: 'POST'" not in surface
@@ -2520,11 +2527,12 @@ def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wi
         row = doc[doc.index(f"| {row_id} |"):].splitlines()[0]
         assert "| wired |" in row
     assert "| SK2 | Toggle session panels | Switches the right panel between User Session, Settings, and harness-scoped surfaces. | wired |" in doc
+    assert "`SUR1`-`SUR13` pin switching, persistence, layout, close, stale-target, settings-action behavior, and display-only harness item action scoping" in doc
     for row_id in ("SUR1", "SUR2", "SUR3", "SUR4", "SUR5", "SUR6", "SUR7", "SUR8", "SUR10", "SUR11", "SUR12", "SUR13"):
         row = doc[doc.index(f"| {row_id} |"):].splitlines()[0]
         assert "| wired |" in row
-    assert "| SUR9 | Harness item actions | Harness mode actions apply only to selected harness logic items. | planned |" in doc
-    assert "`SUR9` remains a separate harness item action follow-up" in doc
+    assert "| SUR9 | Harness item actions | Harness mode actions apply only to selected harness logic items. | wired |" in doc
+    assert "Generic harness surfaces render a Harness item action scope section naming the selected harness, selected logic item, action target, blocked execution state, and no User Session or Prime prompt route" in doc
     assert "| HMS7 | Unsupported action guard | If harness logic action is not supported yet, action is blocked with readable warning. | wired |" in doc
     assert "Generic planned harness surfaces render an explicit Unsupported action guard" in doc
     assert "| HMS8 | Logic update framing | Harness mode language frames work as updating/adding harness logic. | wired |" in doc
@@ -2539,6 +2547,8 @@ def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wi
     assert "Click opens Source-Git through the generic display-only harness surface" in doc
     assert "| HN17 | Vision / Browser | Opens/focuses browser/vision surface. | wired |" in doc
     assert "Click opens Vision-Browser through the generic display-only harness surface" in doc
+    assert "| HMS6 | Harness-specific actions | Right-panel actions target selected harness logic item. | wired |" in doc
+    assert "Generic harness surfaces expose display-only action metadata naming the selected harness and `Harness logic` item" in doc
     assert "| HMS15 | No cross-harness leakage | Logic item edits/actions for one harness do not silently route to another harness. | wired |" in doc
     assert "Generic planned harness surfaces render a Harness isolation boundary" in doc
     assert "| HMS12 | Harness permission boundary | High-risk harness actions require explicit approval. | wired |" in doc
