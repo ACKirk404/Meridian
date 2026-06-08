@@ -8,21 +8,32 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Paused / End-Of-Day WIP / Not Review-Ready
+## Coordinator Override - Active Now / Atlas Workflow Adapter Restart
 
-Timestamp: 2026-06-07T17:55:00-06:00.
+Timestamp: 2026-06-08T00:00:00-06:00.
 
-Status: paused for end-of-day wrap on 2026-06-07. This block is not
-executable while paused. Main closed the live Build 1 Atlas adapter workers
-before promotion because no worker produced a committed Ready marker or Codex
-Review A/B clearance. One worker candidate had uncommitted local files only
-(`meridian_core/workflow_atlas.py`, `tests/test_workflow_atlas.py`) in
-`C:/Users/scott/AppData/Local/Temp/polaris-wt/build1-atlas-workflow-adapter-20260607-1755`
-and coordinator proof passed with `python -m pytest
-tests/test_workflow_atlas.py tests/test_workflow_dispatch.py tests/test_atlas.py
--q` -> 275 passed, but the candidate remained unpromoted because it was not
-worker-committed, not marked Ready, and not reviewed. Resume by assigning a
-fresh Opus worker or explicitly reactivating this task at the top of the file.
+Status: restarted from current clean `origin/main` after coordinator health
+repair `a0c36ae6` (`relay: restore model-routing summary contract`) restored
+full-suite proof on shared main. This block is executable again for a fresh
+Build 1 Opus worker only. Do not silently promote the paused 2026-06-07
+candidate; treat it as reference material unless the coordinator explicitly
+authorizes a salvage/rebuild plan.
+
+Restart evidence:
+
+- Shared main is clean/aligned after `a0c36ae6`.
+- `python -m pytest -q` -> 3260 passed.
+- `python -m pytest tests/test_prime_runtime.py tests/test_relay_logic_snapshot.py -q` -> 29 passed.
+- `python -m pytest tests/test_bifrost_cockpit.py -q` -> 453 passed.
+- `node --check scripts/meridian-model-bridge.js` -> passed.
+- `node scripts/meridian-model-bridge.js --self-test` -> passed.
+- Prior paused Atlas adapter candidate remains unpromoted in
+  `C:/Users/scott/AppData/Local/Temp/polaris-wt/build1-atlas-workflow-adapter-20260607-1755`
+  with untracked `meridian_core/workflow_atlas.py` and
+  `tests/test_workflow_atlas.py`; coordinator proof there still passes
+  `python -m pytest tests/test_workflow_atlas.py tests/test_workflow_dispatch.py tests/test_atlas.py -q`
+  -> 275 passed. It was not worker-committed, not marked Ready, and not
+  Codex-reviewed, so it is not promoted truth.
 
 Goal: implement the first pure per-harness Workflow Sub-Agent adapter for
 Atlas retrieval, building on the reviewed Workflow Dispatch domain slice.
