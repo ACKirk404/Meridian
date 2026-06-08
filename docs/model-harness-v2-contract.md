@@ -50,6 +50,124 @@ Prime/Orchestrator may request an intent, role, risk tier, proof posture, or hum
 
 ---
 
+## GOAL / Intent Per Call
+
+The Model Harness taxonomy includes **GOAL / Intent**, but this is not the same thing as Prime-level user intent analysis.
+
+Prime-level intent answers: "What is Scott asking Meridian to do, why, for which project, and with what risk/proof posture?"
+
+Model Harness per-call intent answers: "Given Prime's already-decided task, what is this single model call supposed to accomplish, and what constraints must Relay enforce while building and dispatching the prompt packet?"
+
+Per-call intent is therefore a bounded dispatch field, not an orchestrator brain. It should be attached to Relay/Model Harness evidence as structured context for routing, payload construction, policy checks, telemetry, and later audit.
+
+### Ownership Split
+
+| Question | Owner |
+|---|---|
+| What did the user ask for? | Prime / Orchestrator |
+| Which project/scope does it belong to? | Compass, consumed by Prime |
+| Is this risky, proof-gated, or human-gated? | Aegis/Security, consumed by Prime and Relay |
+| Should a model call happen? | Prime, via Relay request |
+| What is this specific model call trying to do? | Relay + Model Harness per-call `goal` / `intent` |
+| Which provider/model, payload, budget, fallback, and transport gate apply? | Relay + Model Harness |
+| How is the result shown to Scott? | Bifrost |
+
+### Per-Call Intent Shape
+
+This contract does not require new backend names. If a future runtime object promotes this field, it should map to existing Relay/Model Harness records rather than creating taxonomy-derived classes directly.
+
+A per-call intent record should be able to express:
+
+- `requested_by`: source of the call request, usually `prime`.
+- `prime_intent_ref`: stable ref to the Prime decision or interaction request.
+- `project_ref`: Compass project/scope ref when applicable.
+- `action_type`: Aegis/Prime action type such as `PLAN`, `BUILD`, `REPAIR`, `VERIFY`, or `EXPLAIN`.
+- `call_goal`: concise objective for this one call.
+- `expected_output_shape`: expected response form such as patch summary, finding list, score, classification, or explanation.
+- `risk_tier`: Aegis risk tier at dispatch.
+- `proof_requirement`: proof/evidence expectation for the call.
+- `disallowed_outputs`: things the model must not return, such as raw secrets, raw prompt text, or unsupported branch actions.
+- `payload_budget_ref`: PromptPacket/PromptBudgetPlan ref.
+- `evidence_refs`: upstream refs from Prime, Compass, Aegis, Relay, or prior proof records.
+
+### Examples
+
+**Example 1: Repair request**
+
+Prime-level intent:
+
+```text
+Scott wants the V2 checklist language corrected so model-call mechanics stay out of Prime.
+Project: Meridian.
+Risk: docs/runtime planning, low mutation risk.
+Needed action: repair docs and verify doc-sensitive tests.
+```
+
+Per-call GOAL / Intent:
+
+```text
+call_goal: "Identify remaining checklist language that assigns provider routing, prompt payload, fallback, or transport authority to Prime."
+action_type: VERIFY
+expected_output_shape: "finding list with file refs and suggested owner correction"
+risk_tier: 1
+proof_requirement: "cite matching lines; no file writes in this call"
+payload_budget_ref: "relay-prompt-budget:doc-scan"
+```
+
+Relay/Model Harness may then choose a verification-capable route, build a compact prompt packet containing only the relevant doc excerpts, enforce the budget, attach prompt payload evidence, and return a display-safe result. Prime decides what to do with the findings afterward.
+
+**Example 2: Provider route decision**
+
+Prime-level intent:
+
+```text
+Run a bounded verification pass before promoting a Relay/Model Harness change.
+```
+
+Per-call GOAL / Intent:
+
+```text
+call_goal: "Check whether this change violates DeepSeek transport gates or model-call ownership boundaries."
+action_type: VERIFY
+expected_output_shape: "pass/fail with blockers and evidence refs"
+risk_tier: 2
+proof_requirement: "Aegis policy evidence required before dispatch"
+disallowed_outputs: "no branch movement, no live provider transport unless validation gate allows it"
+```
+
+Relay/Model Harness owns whether Claude, OpenAI, DeepSeek, or a fake/local adapter can serve that request. Prime does not select by marketing name or transport path; it submits the governed request and receives evidence.
+
+**Example 3: Sentiment/content analysis**
+
+Prime-level intent:
+
+```text
+Scott wants to understand whether user feedback indicates confusion, frustration, urgency, or approval.
+```
+
+Per-call GOAL / Intent:
+
+```text
+call_goal: "Classify the provided feedback snippets by sentiment and extract actionable product concerns."
+action_type: EXPLAIN
+expected_output_shape: "sentiment labels, confidence, and product-action notes"
+risk_tier: 1
+proof_requirement: "quote-free summary; preserve private data boundaries"
+disallowed_outputs: "no psychological diagnosis, no durable memory write"
+```
+
+Here, Prime owns why the analysis matters and what decision it supports. Model Harness owns only the call mechanics for producing the bounded classification/explanation.
+
+### Anti-Patterns
+
+- Do not use per-call `goal` as a replacement for Prime's user intent analysis.
+- Do not let UI labels such as `GOAL / Intent` create new backend route names without the taxonomy normalization pass.
+- Do not let Bifrost infer model-call intent from transcript text when Relay can expose structured evidence.
+- Do not store raw prompt or raw provider response bodies as the intent record.
+- Do not use per-call intent to bypass Aegis policy, DeepSeek validation gates, or Relay dispatch evidence.
+
+---
+
 ## Domain Shape
 
 The runtime metadata surface lives alongside the existing `model_adapter.py` types. It introduces frozen dataclasses that adapters instantiate once at registration time and never mutate.

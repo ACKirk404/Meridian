@@ -5143,6 +5143,52 @@ body {
       relaySection('Review guardrails', relayList(guardrails), false),
     ].join('');
   };
+  const renderBacklogReviewSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Backlog candidate source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Review Console snapshot unavailable'],
+        ['active project', activeProjectContext()],
+      ]), true);
+    }
+    const queue = snapshot.queue || {};
+    const items = Array.isArray(queue.items) ? queue.items : [];
+    const activeProject = activeProjectContext();
+    const rawItemContentVisible = Boolean(snapshot.raw_item_content_visible);
+    const mutationAllowed = Boolean(snapshot.mutation_authorized);
+    return [
+      relaySection('Backlog candidate source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['active project', activeProject],
+        ['project scope', 'active Compass project display frame'],
+        ['pending candidates', queue.pending_count ?? items.length],
+        ['mutation authorized', mutationAllowed ? 'yes' : 'no'],
+        ['raw item content visible', rawItemContentVisible ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Backlog candidate list', items.length
+        ? items.map((item) => relayGrid([
+          ['project', activeProject],
+          ['sequence', item.sequence ?? 'unknown'],
+          ['id', item.id || 'unknown'],
+          ['type', relayText(item.item_type)],
+          ['severity', relayText(item.severity)],
+          ['title', item.title || 'unknown'],
+          ['state', relayText(item.status)],
+          ['requires response', item.requires_response ? 'yes' : 'no'],
+          ['suggested actions', relayJoin(item.suggested_actions)],
+        ])).join('')
+        : relayGrid([
+          ['project', activeProject],
+          ['status', 'no pending backlog candidates reported by the current Review Console snapshot'],
+        ]), true),
+      relaySection('Backlog list boundary', relayList([
+        'Backlog candidate rows are derived from the Review Console queue snapshot only.',
+        'The active project is the current Compass project display frame; no hidden cross-project merge or fake item fill is performed.',
+        'Create, approve, deny, defer, convert, archive, owner assignment, and priority mutation remain unavailable until a reviewed backlog backend exists.',
+      ]), false),
+    ].join('');
+  };
   const renderFederationHorizonSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
       return relaySection('Federation horizon source', relayGrid([
@@ -6239,11 +6285,11 @@ body {
         runtimeNode ? fetch(bridgeUrl('goal-runtime'), { cache: 'no-store' }) : Promise.resolve(null),
         workflowNode ? fetch(bridgeUrl('workflow-dispatch-status'), { cache: 'no-store' }) : Promise.resolve(null),
       ]);
-      if (reviewNode && reviewResponse) reviewNode.innerHTML = renderReviewConsoleSnapshot(await reviewResponse.json());
+      if (reviewNode && reviewResponse) reviewNode.innerHTML = renderBacklogReviewSnapshot(await reviewResponse.json());
       if (runtimeNode && runtimeResponse) runtimeNode.innerHTML = renderGoalRuntimeSnapshot(await runtimeResponse.json());
       if (workflowNode && workflowResponse) workflowNode.innerHTML = renderWorkflowDispatchStatusSnapshot(await workflowResponse.json());
     } catch (error) {
-      if (reviewNode) reviewNode.innerHTML = renderReviewConsoleSnapshot({ ok: false, error: error.message });
+      if (reviewNode) reviewNode.innerHTML = renderBacklogReviewSnapshot({ ok: false, error: error.message });
       if (runtimeNode) runtimeNode.innerHTML = renderGoalRuntimeSnapshot({ ok: false, error: error.message });
       if (workflowNode) workflowNode.innerHTML = renderWorkflowDispatchStatusSnapshot({ ok: false, error: error.message });
     }
@@ -8714,6 +8760,7 @@ body {
           <div class="relay-models-body">
             ${relaySection('Backlog boundary', relayList([
               'Backlog shows typed task posture from Review Console, Goal Runtime, and Workflow Dispatch snapshots.',
+              'Backlog candidate list rows are real Review Console queue items displayed in the active Compass project frame.',
               'No fake backlog items are created; empty or missing backend queues render as empty or unavailable state.',
               'This surface does not create tasks, assign workers, mutate queues, start routines, send prompts, recover raw result bodies, or ingest raw worker session history.',
               'Orchestrator intake stays limited to compact typed session state, small worker summaries, and evidence refs.',

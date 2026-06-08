@@ -550,11 +550,16 @@ def test_index_spark_backlog_uses_typed_task_posture_without_fake_items_or_mutat
     assert "Backlog Tasks" in doc
     assert "const renderSparkBacklog = () =>" in doc
     assert "const loadSparkBacklog = async () =>" in doc
+    assert "const renderBacklogReviewSnapshot = (snapshot) =>" in doc
     assert "renderSparkBacklog()" in doc
     assert "Backlog shows typed task posture from Review Console, Goal Runtime, and Workflow Dispatch snapshots." in doc
+    assert "Backlog candidate list rows are real Review Console queue items displayed in the active Compass project frame." in doc
     assert "No fake backlog items are created; empty or missing backend queues render as empty or unavailable state." in doc
     assert "does not create tasks, assign workers, mutate queues, start routines, send prompts, recover raw result bodies, or ingest raw worker session history" in doc
     assert "Orchestrator intake stays limited to compact typed session state, small worker summaries, and evidence refs." in doc
+    assert "Backlog candidate rows are derived from the Review Console queue snapshot only." in doc
+    assert "The active project is the current Compass project display frame; no hidden cross-project merge or fake item fill is performed." in doc
+    assert "Create, approve, deny, defer, convert, archive, owner assignment, and priority mutation remain unavailable until a reviewed backlog backend exists." in doc
     assert "data-backlog-review-console" in doc
     assert "data-backlog-goal-runtime" in doc
     assert "data-backlog-workflow-dispatch-status" in doc
@@ -563,9 +568,15 @@ def test_index_spark_backlog_uses_typed_task_posture_without_fake_items_or_mutat
     assert "bridgeUrl('workflow-dispatch-status')" in doc
     backlog_loader = doc[doc.index("const loadSparkBacklog = async () =>"):doc.index("const loadEchoMemory", doc.index("const loadSparkBacklog = async () =>"))]
     assert "Promise.all" in backlog_loader
-    assert "renderReviewConsoleSnapshot" in backlog_loader
+    assert "renderBacklogReviewSnapshot" in backlog_loader
     assert "renderGoalRuntimeSnapshot" in backlog_loader
     assert "renderWorkflowDispatchStatusSnapshot" in backlog_loader
+    backlog_review = doc[doc.index("const renderBacklogReviewSnapshot"):doc.index("const renderFederationHorizonSnapshot")]
+    assert "activeProjectContext()" in backlog_review
+    assert "Backlog candidate list" in backlog_review
+    assert "no pending backlog candidates reported by the current Review Console snapshot" in backlog_review
+    for field in ("project", "sequence", "id", "type", "severity", "title", "state", "requires response", "suggested actions"):
+        assert f"['{field}'" in backlog_review
     backlog_surface = doc[doc.index("const renderSparkBacklog"):doc.index("const renderProviderBalance")]
     assert "fetch(" not in backlog_surface
     assert "bridgeUrl('backlog')" not in backlog_surface
@@ -2195,6 +2206,10 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "Spark Backlog opens a display-only Backlog Tasks surface backed by `/bridge/review-console`, `/bridge/goal-runtime`, and `/bridge/workflow-dispatch-status`" in doc
     assert "renders empty/unavailable state rather than fake backlog items" in doc
     assert "does not create tasks, assign workers, mutate queues, start routines, send prompts, recover raw result bodies, or ingest raw worker session history" in doc
+    assert "| BAK1 | Backlog list | Shows queued ideas/tasks/objectives for the active project. | wired |" in doc
+    assert "Spark Backlog renders a Backlog candidate list from real `/bridge/review-console` queue items in the active Compass project display frame" in doc
+    assert "empty snapshots render an explicit empty state and no fake items" in doc
+    assert "no fake items, create/approve/deny/defer/convert/archive controls, owner assignment, priority mutation, prompt send, result recovery, or queue mutation are exposed" in doc
     assert "| XCK0 | Review/proof state | Shows current Review Console and Aegis proof posture without running a new check. | wired |" in doc
     assert "| XCK2 | Review findings | Shows current findings with severity, owner, and status. | partial |" in doc
     assert "owner attribution remains deferred and raw item content stays hidden" in doc

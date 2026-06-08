@@ -184,6 +184,7 @@ First wave deliverable:
 
 - Add model capability metadata and prompt-drag telemetry fields.
 - Let Relay know a route's intended risk tier, context budget, and adapter capability needs.
+- Define Model Harness per-call GOAL / Intent as a dispatch-scoped objective, not Prime-level user intent analysis: Prime supplies the task intent/risk/proof refs, while Relay + Model Harness attach the one-call goal, expected output shape, payload budget ref, disallowed outputs, and evidence refs.
 - Keep provider-neutral HTTP transport as the stable base.
 - Treat **Claude, OpenAI, and DeepSeek** as first-class primary providers in the Model Harness, not optional one-off integrations.
 - Add a DeepSeek direct-API adapter target using the existing reviewed backend identity and metadata labels so Relay + Model Harness can route high-volume work away from Claude when capacity or cost requires it.
@@ -211,6 +212,7 @@ First wave deliverable:
 - Tests that DeepSeek starts below autonomous coding trust and cannot receive implementation, review-clearing, or branch/worktree authority until validation metadata records the required proof level.
 - Tests that Balance surface data is derived from structured usage/provider telemetry rather than scraped card text.
 - Tests that Prime consumes Relay/Model Harness source refs for routing, prompt payload, provider balance, and transport-gate state rather than duplicating those fields as orchestrator-owned decisions.
+- Tests or doc proofs that per-call GOAL / Intent remains bounded to a single Relay dispatch and cannot replace Prime-level user intent analysis.
 
 **Out-of-scope guardrails:**
 
