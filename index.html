@@ -8190,6 +8190,11 @@ body {
           ['state summary', 'real backend state unavailable'],
           ['health posture', 'no fake health value shown'],
         ]), true),
+        relaySection('Harness isolation boundary', relayGrid([
+          ['active harness', harness],
+          ['routing scope', 'selected harness only'],
+          ['cross-harness routing', 'blocked; no silent reroute to another harness'],
+        ]), true),
         ...(capabilityBoundary ? [relaySection('Planned capability boundary', relayGrid([
           ['capability', capabilityBoundary[0]],
           ['execution state', 'not wired to reviewed backend execution yet'],

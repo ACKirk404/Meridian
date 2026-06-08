@@ -238,6 +238,22 @@ def test_index_generic_harness_surface_shows_absent_real_state_without_fake_heal
     assert "method: 'POST'" not in surface
 
 
+def test_index_generic_harness_surface_blocks_cross_harness_leakage():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    start = doc.index("const renderHarnessSurface = (button) =>")
+    end = doc.index("const renderRelayModels = () =>", start)
+    surface = doc[start:end]
+
+    assert "Harness isolation boundary" in surface
+    assert "active harness" in surface
+    assert "selected harness only" in surface
+    assert "blocked; no silent reroute to another harness" in surface
+    assert "setRightPanelAuthority('harness', button.dataset.harness || 'Harness', { persist })" in doc
+    assert "method: 'POST'" not in surface
+    assert "bridgeUrl('message')" not in surface
+    assert "bridgeUrl('call-result')" not in surface
+
+
 def test_index_harness_title_toggles_model_icons():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert '<button class="harness-dock-title" type="button"' in doc
@@ -2200,6 +2216,8 @@ def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wi
     assert "Click opens Source-Git through the generic display-only harness surface" in doc
     assert "| HN17 | Vision / Browser | Opens/focuses browser/vision surface. | wired |" in doc
     assert "Click opens Vision-Browser through the generic display-only harness surface" in doc
+    assert "| HMS15 | No cross-harness leakage | Logic item edits/actions for one harness do not silently route to another harness. | wired |" in doc
+    assert "Generic planned harness surfaces render a Harness isolation boundary" in doc
     assert "const renderRightPanelSurface = ({ title, status, sections, surfaceClass = '' }) =>" in index
     assert "const renderHarnessSurface = (button) =>" in index
     assert "const renderSparkSurface = (label) =>" in index

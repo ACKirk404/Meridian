@@ -531,7 +531,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 | HMS12 | Harness permission boundary | High-risk harness actions require explicit approval. | planned | Source/Git/Release actions cannot run silently. |
 | HMS13 | Harness mode close | Closing Harness mode returns to previous valid right-panel mode. | wired | Spark Close returns Harness mode to User mode without losing User Session state. |
 | HMS14 | Harness edit preservation | Unsaved harness-mode item edits are preserved per harness where useful. | planned | Switch harness away/back; edits remain or warning is shown. |
-| HMS15 | No cross-harness leakage | Logic item edits/actions for one harness do not silently route to another harness. | planned | Active harness and logic item are explicit before action. |
+| HMS15 | No cross-harness leakage | Logic item edits/actions for one harness do not silently route to another harness. | wired | Generic planned harness surfaces render a Harness isolation boundary naming the active harness, scoping routing to the selected harness only, and blocking silent reroutes to another harness; no POST, `/bridge/message`, result-recovery path, or executable harness action is exposed. |
 
 ### Bridge / Backend Features
 
