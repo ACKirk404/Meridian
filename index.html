@@ -8155,6 +8155,12 @@ body {
   const renderHarnessSurface = (button) => {
     const harness = button?.dataset.harness || 'Harness';
     const title = button?.dataset.sessionTitle || harness;
+    const plannedCapabilityBoundaries = {
+      Tool: ['tool execution', 'no fake tool execution or provider/tool call is exposed'],
+      Git: ['source control', 'no branch movement, commit, push, reset, or file mutation is exposed'],
+      Browser: ['browser/vision', 'no fake browser state, page control, screenshot, or remote navigation is exposed'],
+    };
+    const capabilityBoundary = plannedCapabilityBoundaries[harness];
     return renderRightPanelSurface({
       title,
       status: button?.dataset.status || 'planned',
@@ -8184,6 +8190,11 @@ body {
           ['state summary', 'real backend state unavailable'],
           ['health posture', 'no fake health value shown'],
         ]), true),
+        ...(capabilityBoundary ? [relaySection('Planned capability boundary', relayGrid([
+          ['capability', capabilityBoundary[0]],
+          ['execution state', 'not wired to reviewed backend execution yet'],
+          ['visible guard', capabilityBoundary[1]],
+        ]), true)] : []),
       ],
     });
   };

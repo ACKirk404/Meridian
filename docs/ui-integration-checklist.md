@@ -471,9 +471,9 @@ Harness buttons switch the right panel into Harness mode. They are not merely la
 | HN12 | Workflow | Opens/focuses workflow/sub-agent surface. | wired | Click opens Workflow Dispatch Status from `/bridge/workflow-dispatch-status`; status is display-only and does not execute sub-agent work. |
 | HN13 | Federation | Opens/focuses federation/network surface. | wired | Click opens Federation Horizon with backend-sourced planning-only boundaries; no fake network state or remote execution controls. |
 | HN14 | Echo | Opens/focuses memory surface. | wired | Click opens Echo Memory from `/bridge/echo-memory`; records are display-safe and memory mutation/recall bodies are not exposed. |
-| HN15 | Ratchet / Tool | Opens/focuses tool execution surface. | planned | Until wired, no fake tool execution. |
-| HN16 | Source / Git | Opens/focuses git/source-control surface. | planned | Until wired, no branch movement from UI. |
-| HN17 | Vision / Browser | Opens/focuses browser/vision surface. | planned | Until wired, no fake browser state. |
+| HN15 | Ratchet / Tool | Opens/focuses tool execution surface. | wired | Click opens Ratchet-Tools through the generic display-only harness surface with a planned capability boundary; no fake tool execution, provider/tool call, POST, `/bridge/message`, or result-recovery path is exposed. |
+| HN16 | Source / Git | Opens/focuses git/source-control surface. | wired | Click opens Source-Git through the generic display-only harness surface with a planned capability boundary; no branch movement, commit, push, reset, file mutation, POST, `/bridge/message`, or result-recovery path is exposed. |
+| HN17 | Vision / Browser | Opens/focuses browser/vision surface. | wired | Click opens Vision-Browser through the generic display-only harness surface with a planned capability boundary; no fake browser state, page control, screenshot, remote navigation, POST, `/bridge/message`, or result-recovery path is exposed. |
 | HN18 | Autonomy / Release | Opens/focuses display-only release/autonomy posture from Prime autonomy. | wired | `/bridge/prime-autonomy` renders a safe snapshot with release/deployment execution, credentials/account probing, raw prompts/responses/evidence bodies, raw worker chat, PIDs, and filesystem paths all blocked. |
 
 ### Compass And Vulcan Backend Readiness

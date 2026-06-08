@@ -331,8 +331,29 @@ def test_index_security_harness_identity_is_display_only_until_backend_exists():
     assert "no hidden backend mutation is available from this panel" in surface
     assert "method: 'POST'" not in surface
     assert "bridgeUrl('message')" not in surface
-    assert "branch" not in surface.lower()
+    assert "Security:" not in surface
     assert "guardrail action" not in surface.lower()
+
+
+def test_index_planned_tool_git_browser_harnesses_are_display_only_until_backends_exist():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    start = doc.index("const renderHarnessSurface = (button) =>")
+    end = doc.index("const renderRelayModels = () =>", start)
+    surface = doc[start:end]
+
+    assert 'data-harness="Tool" data-status="planned" data-session-title="Ratchet-Tools"' in doc
+    assert '<span class="harness-label">Ratchet</span><span class="harness-sub-label">Tools</span>' in doc
+    assert 'data-harness="Git" data-status="planned" data-session-title="Source-Git"' in doc
+    assert '<span class="harness-label">Source</span><span class="harness-sub-label">Git</span>' in doc
+    assert 'data-harness="Browser" data-status="planned" data-session-title="Vision-Browser"' in doc
+    assert '<span class="harness-label">Vision</span><span class="harness-sub-label">Browser</span>' in doc
+    assert "Planned capability boundary" in surface
+    assert "no fake tool execution or provider/tool call is exposed" in surface
+    assert "no branch movement, commit, push, reset, or file mutation is exposed" in surface
+    assert "no fake browser state, page control, screenshot, or remote navigation is exposed" in surface
+    assert "method: 'POST'" not in surface
+    assert "bridgeUrl('message')" not in surface
+    assert "bridgeUrl('call-result')" not in surface
 
 
 def test_index_speech_mode_icon_is_display_only():
@@ -2166,6 +2187,12 @@ def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wi
     assert "Generic planned harness surfaces render a Harness state summary" in doc
     assert "| HN5 | Security | Reserved TBD harness identity; replaces generic TBD. | wired |" in doc
     assert "Security is the planned reserved harness identity with `Security-Guardrails`" in doc
+    assert "| HN15 | Ratchet / Tool | Opens/focuses tool execution surface. | wired |" in doc
+    assert "Click opens Ratchet-Tools through the generic display-only harness surface" in doc
+    assert "| HN16 | Source / Git | Opens/focuses git/source-control surface. | wired |" in doc
+    assert "Click opens Source-Git through the generic display-only harness surface" in doc
+    assert "| HN17 | Vision / Browser | Opens/focuses browser/vision surface. | wired |" in doc
+    assert "Click opens Vision-Browser through the generic display-only harness surface" in doc
     assert "const renderRightPanelSurface = ({ title, status, sections, surfaceClass = '' }) =>" in index
     assert "const renderHarnessSurface = (button) =>" in index
     assert "const renderSparkSurface = (label) =>" in index
