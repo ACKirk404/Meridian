@@ -133,7 +133,7 @@ The right panel needs a Sessions dropdown when it is in User Session mode. Prime
 | SK10 | Archive | Opens reloadable session archive and preserves context for future session revival. | partial | Spark Archive opens Session Close Archive Proof from `/bridge/session-close-archive-proof`; it is display-only and must not close, delete, replay, or expose raw prompt/worker chat. |
 | SK11 | Reset | Confirms, clears session-window prompts/transcripts, then hard reloads UI. | wired | `RST-*` subitems are wired: reset clears visible local prompt/transcript state, asks `/bridge/restart`, and does not close live sessions or claim memory deletion. |
 | SK12 | Reload | Hard reloads UI/cache without clearing session-window state. | wired | `RLD-*` subitems are wired: reload refreshes the UI/cache while preserving session target and visible prompt/transcript state. |
-| SK13 | Routines | Opens current runtime/goal status until a routine automation backend exists. | partial | Spark Routines opens backend-sourced Goal Runtime status, not runnable automation; no fake routine execution or self-approval. |
+| SK13 | Routines | Opens current runtime continuity status until a routine automation backend exists. | wired | Spark Routines opens backend-sourced Goal Runtime plus Workflow Dispatch Status; it is display-only typed state and does not run automation, mutate schedulers, paste raw logs/transcripts/details, or self-approve. |
 | SK14 | Balance | Opens balance/provider/routing view. | wired | Spark Balance opens Provider Balance from `/bridge/provider-balance` with display-safe provider/routing posture and no raw prompt/response/evidence bodies. |
 
 ### Spark Surface Subitems
@@ -350,7 +350,7 @@ The Routines icon owns recurring or repeatable work patterns. It should make rou
 
 | ID | Routine Item | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
-| ROU0 | Goal runtime status | Shows current continuation/goal runtime posture until routine automation exists. | wired | Spark Routines opens `/bridge/goal-runtime` as display-only status; no routine execution, scheduler mutation, or self-approval is authorized. |
+| ROU0 | Runtime continuity status | Shows current continuation/goal runtime and workflow dispatch posture until routine automation exists. | wired | Spark Routines opens `/bridge/goal-runtime` and `/bridge/workflow-dispatch-status` as display-only typed state; no routine execution, scheduler mutation, raw artifact/log/transcript/detail paste, raw worker history replay, or self-approval is authorized. |
 | ROU1 | Routine list | Shows configured routines for active project/system. | planned | List is real or empty; no fake routines. |
 | ROU2 | Create routine | Creates a new repeatable workflow or monitor with explicit scope. | planned | Routine has name, scope, cadence/trigger, and owner. |
 | ROU3 | Enable/disable routine | Toggles routine active state. | planned | Disabled routine does not run. |

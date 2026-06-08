@@ -8403,13 +8403,19 @@ body {
       rightWindow.classList.add('is-panel-surface');
       rightWorkspace.removeAttribute('aria-hidden');
       rightWorkspace.insertAdjacentHTML('beforeend', `
-        <div class="relay-models-surface" role="region" aria-label="Goal runtime">
+        <div class="relay-models-surface" role="region" aria-label="Runtime continuity">
           <div class="relay-models-header">
-            <div class="relay-models-title">Goal Runtime</div>
-            <div class="relay-models-status">Continuation policy</div>
+            <div class="relay-models-title">Runtime Continuity</div>
+            <div class="relay-models-status">Typed state</div>
           </div>
           <div class="relay-models-body">
+            ${relaySection('Runtime continuity boundary', relayList([
+              'Routines shows compact typed goal/runtime state and workflow dispatch status without starting automation.',
+              'Worker session transcript is stored, not replayed; worker summaries stay small and checkpoint-updated.',
+              'Session state packets and evidence refs are surfaced as typed state; raw artifacts, logs, transcripts, worker history, and raw detail are not pasted.',
+            ]), true)}
             <div data-goal-runtime>${relaySection('Goal runtime source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-workflow-dispatch-status>${relaySection('Workflow dispatch source', relayGrid([['status', 'loading backend snapshot']]))}</div>
           </div>
         </div>
       `);
@@ -8421,6 +8427,7 @@ body {
         localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
       }, true);
       loadGoalRuntime();
+      loadWorkflowDispatchStatus();
       return true;
     } catch {
       restoreUserPanel({ warning: 'surface unavailable; User Session restored' });

@@ -979,7 +979,7 @@ def test_index_prime_harness_uses_backend_runtime_snapshot():
 def test_index_spark_and_workflow_surfaces_use_bridge_snapshots():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "Provider Balance" in doc
-    assert "Goal Runtime" in doc
+    assert "Runtime Continuity" in doc
     assert "Checkpoint discipline advisory" in doc
     assert "Voice I/O source" in doc
     assert "data-voice-io" in doc
@@ -1002,6 +1002,35 @@ def test_index_spark_and_workflow_surfaces_use_bridge_snapshots():
     assert "renderWorkflowDispatchStatus()" in doc
     assert "success_summary" in doc
     assert "status_policy" in doc
+
+
+def test_index_routines_surface_combines_goal_and_workflow_typed_state():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert 'aria-label="Routines"' in doc
+    assert "Runtime Continuity" in doc
+    assert "const renderGoalRuntime = () =>" in doc
+    assert "Routines shows compact typed goal/runtime state and workflow dispatch status without starting automation." in doc
+    assert "Worker session transcript is stored, not replayed" in doc
+    assert "worker summaries stay small and checkpoint-updated" in doc
+    assert "Session state packets and evidence refs are surfaced as typed state" in doc
+    assert "raw artifacts, logs, transcripts, worker history, and raw detail are not pasted" in doc
+    assert "data-goal-runtime" in doc
+    assert "data-workflow-dispatch-status" in doc
+    assert "loadGoalRuntime();" in doc
+    assert "loadWorkflowDispatchStatus();" in doc
+    assert "bridgeUrl('goal-runtime')" in doc
+    assert "bridgeUrl('workflow-dispatch-status')" in doc
+    assert "renderWorkflowDispatchStatus()" in doc
+    routines_start = doc.index("const renderGoalRuntime = () =>")
+    routines_end = doc.index("const renderWorkflowDispatchStatus = () =>", routines_start)
+    routines_surface = doc[routines_start:routines_end]
+    assert "fetch(" not in routines_surface
+    assert "bridgeUrl('message')" not in routines_surface
+    assert "method: 'POST'" not in routines_surface
+    assert "scheduler" not in routines_surface.lower()
+    assert "run-now" not in routines_surface
+    assert "raw_artifacts_visible ? 'yes'" not in routines_surface
+    assert "raw worker session history" not in routines_surface
 
 
 def test_index_bifrost_harness_uses_voice_io_snapshot():
@@ -1419,9 +1448,11 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "| BAL1 | Provider health | Shows whether each configured provider/backend is reachable. | wired |" in doc
     assert "/bridge/provider-balance" in doc
     assert "account/credential probing unavailable" in doc
-    assert "| ROU0 | Goal runtime status | Shows current continuation/goal runtime posture until routine automation exists. | wired |" in doc
+    assert "| SK13 | Routines | Opens current runtime continuity status until a routine automation backend exists. | wired |" in doc
+    assert "| ROU0 | Runtime continuity status | Shows current continuation/goal runtime and workflow dispatch posture until routine automation exists. | wired |" in doc
     assert "/bridge/goal-runtime" in doc
-    assert "no routine execution, scheduler mutation, or self-approval is authorized" in doc
+    assert "/bridge/workflow-dispatch-status" in doc
+    assert "no routine execution, scheduler mutation, raw artifact/log/transcript/detail paste, raw worker history replay, or self-approval is authorized" in doc
     assert "| ARC0 | Close/archive proof snapshot | Shows current session-close/archive proof posture before any live archive controls exist. | wired |" in doc
     assert "/bridge/session-close-archive-proof" in doc
     assert "no live control, raw prompt, raw worker chat, replay, reload, run-again, or deletion is authorized" in doc
