@@ -48,7 +48,7 @@ Use this as the working UI checklist. Every visible icon, selector, session cont
 | ID | Control / Feature | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
 | SP1 | Prime panel | User types directly to Prime/orchestrator. | partial | Send prompt from left panel; response appears below prompt in left panel. |
-| SP2 | Right interaction panel | Shows either User Session prompt UI, Settings configuration items, or Harness logic items. | partial | Active mode changes panel title, layout, and interaction model. |
+| SP2 | Right interaction panel | Shows either User Session prompt UI, Settings configuration items, or Harness logic items. | wired | User Session shows prompt/response controls; Settings and Harness activate full-panel surfaces through the shared right-panel authority path, hide prompt controls, and render backend-backed/status-only sections without sending prompts. |
 | SP3 | Prime prompt input | Two-line scrollable prompt input. Enter sends; Shift+Enter newline. | wired | Type three lines; Enter sends and clears. |
 | SP4 | User Session prompt input | Same prompt behavior as Prime panel, but only in User Session mode. | wired | In User Session mode, type three lines; Enter sends and clears. |
 | SP5 | Prime response window | Displays Prime/model output below Prime prompt. | partial | Prompt text remains yellow; response text appears below it. |
@@ -124,7 +124,7 @@ The right panel needs a Sessions dropdown when it is in User Session mode. Prime
 | ID | Icon / Feature | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
 | SK1 | Spark center image | Visual voice/core of Prime and entry point for right-panel surface focus. | partial | Track `SPK-*` subitems before changing Spark focus behavior. |
-| SK2 | Toggle session panels | Switches the right panel between User Session, Settings, and harness-scoped surfaces. | partial | Track `SUR-*` subitems before changing panel toggle behavior. |
+| SK2 | Toggle session panels | Switches the right panel between User Session, Settings, and harness-scoped surfaces. | wired | `SUR1`-`SUR8` and `SUR10`-`SUR13` pin the switching, persistence, layout, close, stale-target, and settings-action behavior; `SUR9` remains a separate harness item action follow-up and does not block the toggle surface itself. |
 | SK3 | Settings | Opens settings surface for UI/model/project/session options. | wired | Opens a Settings/Spark display-only surface with backend-sourced Voice I/O status from `/bridge/voice-io`; no microphone capture, speech output, read-aloud, mute mutation, raw prompt/response, raw worker history, worker chat, or settings mutation is authorized until an explicit settings backend exists. |
 | SK4 | Filter | Controls how much data is included in a session prompt/context stream. | planned | Track `FIL-*` subitems before wiring the surface. |
 | SK5 | Models | Opens model readiness and recent-call metadata surface. | wired | Spark Models opens Models Readiness from `/bridge/models` plus metadata-only `/bridge/recent-calls`; it does not enable Auto routing, mutate settings, or render prompt/response bodies. |

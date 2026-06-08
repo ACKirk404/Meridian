@@ -1812,6 +1812,24 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "raw detail is fetched on demand only" in doc
 
 
+def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wired():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    index = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "| SP2 | Right interaction panel | Shows either User Session prompt UI, Settings configuration items, or Harness logic items. | wired |" in doc
+    assert "| SK2 | Toggle session panels | Switches the right panel between User Session, Settings, and harness-scoped surfaces. | wired |" in doc
+    for row_id in ("SUR1", "SUR2", "SUR3", "SUR4", "SUR5", "SUR6", "SUR7", "SUR8", "SUR10", "SUR11", "SUR12", "SUR13"):
+        row = doc[doc.index(f"| {row_id} |"):].splitlines()[0]
+        assert "| wired |" in row
+    assert "| SUR9 | Harness item actions | Harness mode actions apply only to selected harness logic items. | planned |" in doc
+    assert "`SUR9` remains a separate harness item action follow-up" in doc
+    assert "const renderRightPanelSurface = ({ title, status, sections, surfaceClass = '' }) =>" in index
+    assert "const renderHarnessSurface = (button) =>" in index
+    assert "const renderSparkSurface = (label) =>" in index
+    assert "setRightPanelAuthority('harness', button.dataset.harness || 'Harness', { persist })" in index
+    assert "setRightPanelAuthority('spark', actionLabel || 'Spark', { persist })" in index
+    assert ".session-window-right.is-panel-surface .session-prompt-input" in index
+
+
 def test_model_harness_taxonomy_stays_ui_strategy_until_promoted():
     doc = (ROOT / "docs" / "model-harness-v2-contract.md").read_text(encoding="utf-8")
     assert "## Future Taxonomy Promotion Gate" in doc
