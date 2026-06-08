@@ -534,6 +534,32 @@ def test_index_spark_models_surface_uses_metadata_only_bridge_snapshots():
     assert "provider secrets" not in models_surface
 
 
+def test_index_spark_models_lists_planned_role_mappings_without_auto_routing():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    models_surface = doc[
+        doc.index("const renderSparkModelsSnapshot = (snapshot) =>"):
+        doc.index("const renderModelHarnessBackendBindingSnapshot")
+    ]
+
+    assert "const roleMappings = [" in models_surface
+    assert "Role mapping" in models_surface
+    for role in (
+        "orchestrator",
+        "builder",
+        "reviewer",
+        "verifier",
+        "researcher",
+        "release operator",
+    ):
+        assert role in models_surface
+    assert "routing not wired" in models_surface
+    assert "auto routing', 'disabled until Relay owns the decision'" in models_surface
+    assert "manual selector still owns prompt sends" in models_surface
+    assert "method: 'POST'" not in models_surface
+    assert "bridgeUrl('message')" not in models_surface
+    assert "bridgeUrl('call-result')" not in models_surface
+
+
 def test_index_model_selector_defaults_to_codex_and_keeps_auto_disabled():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert '<select class="session-model-select" aria-label="Models">' in doc
@@ -2161,6 +2187,8 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "| BAL9 | Provider comparison | Compares backend cost/availability/trust for Prime visibility. | wired |" in doc
     assert "Spark Balance renders a Provider comparison frame backed by `/bridge/provider-balance`" in doc
     assert "| MOD7 | Capability metadata | Shows backend strengths, limits, steering mode, context limits, and supported tools. | wired |" in doc
+    assert "| MOD4 | Per-role mapping | Lists planned roles such as orchestrator, builder, reviewer, verifier, researcher, and release operator. | wired |" in doc
+    assert "Spark Models renders display-only Role mapping entries" in doc
     assert "| MOD8 | Trust state | Shows candidate/trusted/restricted/degraded state for each backend. | wired |" in doc
     assert "| MOD9 | Prompt payload impact | Shows prompt size/budget pressure for recent dispatches. | wired |" in doc
     assert "Model Harness aspect buttons open display-only surfaces bound to `/bridge/models`, `/bridge/relay-evidence`, `/bridge/provider-balance`, `/bridge/aegis-logic`, and `/bridge/relay-logic`" in doc

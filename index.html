@@ -5925,6 +5925,14 @@ body {
     const models = Array.isArray(snapshot.models) ? snapshot.models : [];
     const recentCalls = Array.isArray(snapshot.recentCalls) ? snapshot.recentCalls.slice(0, 6) : [];
     const capabilities = snapshot.capabilities || {};
+    const roleMappings = [
+      ['orchestrator', 'Prime intent and coordination; routing not wired'],
+      ['builder', 'implementation lane; routing not wired'],
+      ['reviewer', 'review and repair lane; routing not wired'],
+      ['verifier', 'proof and acceptance lane; routing not wired'],
+      ['researcher', 'research and evidence lane; routing not wired'],
+      ['release operator', 'release posture lane; routing not wired'],
+    ];
     return [
       relaySection('Models bridge source', relayGrid([
         ['service', snapshot.service || 'meridian-model-bridge'],
@@ -5943,6 +5951,10 @@ body {
           ['setup guidance', model.installed ? 'ready for manual prompt sends' : (model.setupHint || 'Install and sign in before use')],
         ])).join('')
         : relayGrid([['status', 'no model backends reported']]), true),
+      relaySection('Role mapping', roleMappings.map(([role, mapping]) => relayGrid([
+        ['role', role],
+        ['mapping', mapping],
+      ])).join(''), true),
       relaySection('Public setup boundary', relayList([
         'Public builds use your locally installed Codex and Claude/Max CLIs or configured provider credentials.',
         'Missing CLIs or missing login state are shown as setup guidance from /bridge/models; this panel does not install software, sign in, read secrets, or probe accounts.',
