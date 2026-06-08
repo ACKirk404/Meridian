@@ -78,7 +78,7 @@ Use this as the working UI checklist. Every visible icon, selector, session cont
 |---|---|---|---|---|
 | SEL1 | Model selector | Manual model selection. Defaults to Codex. Auto stays disabled until Prime/Relay logic exists. | partial | Served page has Codex selected and Auto disabled. |
 | SEL2 | Projects selector | Selects active project context for Prime and project-scoped UI state. | wired | Projects selector writes Compass project context, persists `meridian.session.project`, and does not retarget User Sessions. |
-| SEL3 | User Sessions selector | Selects from all open live sessions when the right panel is in User Session mode. | partial | Dropdown is populated from `/bridge/user-sessions`; selection routes User prompt with the selected session target id/cwd. |
+| SEL3 | User Sessions selector | Selects from all open live sessions when the right panel is in User Session mode. | wired | Dropdown is populated from `/bridge/user-sessions`, filters to bridge-confirmed routable targets, persists only reported live targets, marks stale selections unavailable, and routes User prompts with the selected session target id/cwd only after the target is confirmed. |
 
 ### Projects Selector Subitems
 

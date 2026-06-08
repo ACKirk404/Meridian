@@ -684,10 +684,42 @@ def test_index_user_session_mode_names_target_and_preserves_storage():
     assert "User Session:" in doc
     assert "window.meridianRefreshUserSessionTarget = () =>" in doc
     assert "meridian.user-session.target.v1" in doc
+    assert "const loadUserSessions = async () =>" in doc
+    assert "bridgeUrl('user-sessions')" in doc
+    assert "userSessions = Array.isArray(result.sessions) ? result.sessions.filter((session) => session.routable) : []" in doc
+    assert "const selected = selectedUserSession();" in doc
+    assert "selected ? `User Session: ${selected.sessionName}` : 'User Session'" in doc
+    assert "if (!selected && localStorage.getItem(userSessionTargetKey)) return 'selected session unavailable';" in doc
+    assert "if (!selected) return 'select live session';" in doc
+    assert "option.textContent = userSessionsLoadFailed ? 'Sessions unavailable' : 'No live sessions';" in doc
+    assert "option.textContent = 'No live sessions for active project';" in doc
+    assert "option.textContent = 'Selected session unavailable';" in doc
     assert "const firstLiveTarget = userSessions[0]" in doc
     assert "userSessionSelect.value = firstLiveTarget.sessionId" in doc
     assert "localStorage.setItem(userSessionTargetKey, userSessionSelect.value)" in doc
     assert "Select a live User Session target before sending" in doc
+    assert "const targetSession = sessionChannel(input) === 'user' ? selectedUserSession() : null;" in doc
+    assert "if (sessionChannel(input) === 'user' && !targetSession)" in doc
+    assert "cwd: targetSession?.cwd || 'C:\\\\Users\\\\user\\\\Code\\\\Meridian'" in doc
+    assert "sessionTargetId: targetSession?.sessionId || ''" in doc
+    assert "sessionTargetId: result.sessionTarget?.sessionId || targetSession?.sessionId || ''" in doc
+
+
+def test_bridge_revalidates_user_session_target_before_user_prompt_send():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    assert "userSessions: '/bridge/user-sessions'" in doc
+    assert "function userSessionTargets()" in doc
+    assert "function sessionTargetFromWorktree(record)" in doc
+    assert "if (!/\\/Meridian-Worktrees\\//i.test(normalized)) return null;" in doc
+    assert "routable: true" in doc
+    assert "async function sessionTargetById(sessionId)" in doc
+    assert "return snapshot.sessions.find((session) => session.sessionId === sessionId && session.routable) || null;" in doc
+    assert "if (req.method === 'GET' && req.url === BRIDGE_ROUTES.userSessions)" in doc
+    assert "const sessionTargetId = String(body.sessionTargetId || '')" in doc
+    assert "if (channel === 'user')" in doc
+    assert "sessionTarget = sessionTargetId ? await sessionTargetById(sessionTargetId) : null;" in doc
+    assert "sendJson(res, 409, { ok: false, text: '', error: 'Select a live User Session target before sending.', setupRequired: false }, req);" in doc
+    assert "cwd = sessionTarget.cwd;" in doc
 
 
 def test_compass_logic_snapshot_documents_project_context_harness():
