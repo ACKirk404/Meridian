@@ -1406,6 +1406,7 @@ def test_index_projects_selector_is_compass_context_not_user_routing():
     assert "setStatus(input, `Compass project ${activeProjectContext()}`)" in doc
     assert "projectContext" in doc
     assert "renderUserSessionSelect();" in doc
+    assert "refreshProjectScopedSurfaces();" in doc
     assert "group.label = `${activeProject} (active project)`" in doc
     assert "option.textContent = 'No live sessions for active project'" in doc
     assert "localStorage.setItem(userSessionTargetKey, projectSelect.value" not in doc
@@ -1426,9 +1427,30 @@ def test_index_project_switch_guard_preserves_prompt_drafts_without_session_reta
     assert "lastProjectValue = projectSelect.value || 'Meridian';" in guard
     assert "renderUserSessionSelect();" in guard
     assert "updatePrimeProjectStatus();" in guard
+    assert "refreshProjectScopedSurfaces();" in guard
     assert "localStorage.removeItem" not in guard
     assert "localStorage.setItem(userSessionTargetKey" not in guard
     assert "bridgeUrl('message')" not in guard
+
+
+def test_index_project_switch_refreshes_project_scoped_surfaces_together():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "const refreshProjectScopedSurfaces = () =>" in doc
+    refresh = doc[
+        doc.index("const refreshProjectScopedSurfaces = () =>"):
+        doc.index("const refreshRelayPanel = () =>", doc.index("const refreshProjectScopedSurfaces = () =>"))
+    ]
+    assert "if (rightWorkspace?.querySelector('[data-review-console]')) loadReviewConsole();" in refresh
+    assert "if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();" in refresh
+    assert "if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();" in refresh
+    assert "if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();" in refresh
+    assert "if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();" in refresh
+    assert "if (rightWorkspace?.querySelector('[data-spark-models]')) loadSparkModels();" in refresh
+    assert "if (rightWorkspace?.querySelector('[data-spark-skills]'))" in refresh
+    assert "renderSparkSkillsRegistry(sparkSkillsRegistrySnapshot, query)" in refresh
+    assert "loadSparkSkills();" in refresh
+    assert "bridgeUrl('message')" not in refresh
+    assert "method: 'POST'" not in refresh
 
 
 def test_bridge_preserves_project_context_in_message_results_and_metadata():
@@ -2328,6 +2350,8 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "Top speech icon carries `data-capture-state` and a capture title" in doc
     assert "Voice I/O renders a backend-sourced Voice privacy indicator from `/bridge/voice-io`" in doc
     assert "fail-closed posture" in doc
+    assert "| PRJ6 | Project-scoped surfaces | Updates project-scoped backlog, review, progress, and session lists. | wired |" in doc
+    assert "Project selector changes refresh Compass context, the grouped User Sessions list, Review Console/Crosscheck, Goal Runtime, Workflow Dispatch Status, Spark Backlog, Spark Models, and project-scoped Skills pin/search state" in doc
     assert "| PRJ10 | Project metadata | Shows or links working directory, repo, branch, and project status when that surface exists. | wired |" in doc
     assert "Compass renders Project metadata handoff from `/bridge/compass-logic`" in doc
     assert "Vulcan live-state evidence and FileMap relative-path registry" in doc

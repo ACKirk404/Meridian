@@ -4093,6 +4093,7 @@ body {
       updateProjectContextAuthority();
       renderUserSessionSelect();
       updatePrimeProjectStatus();
+      refreshProjectScopedSurfaces();
     });
   } else {
     updateProjectContextAuthority();
@@ -9362,6 +9363,20 @@ body {
     clearRightPanelSurface();
     setRightPanelAuthority('user', 'User', { persist, warning });
     window.meridianRefreshUserSessionTarget?.();
+  };
+  const refreshProjectScopedSurfaces = () => {
+    if (rightWorkspace?.querySelector('[data-review-console]')) loadReviewConsole();
+    if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
+    if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
+    if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
+    if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();
+    if (rightWorkspace?.querySelector('[data-spark-models]')) loadSparkModels();
+    if (rightWorkspace?.querySelector('[data-spark-skills]')) {
+      const logicNode = rightWorkspace.querySelector('[data-spark-skills]');
+      const query = logicNode?.querySelector('[data-spark-skills-search]')?.value || '';
+      logicNode.innerHTML = renderSparkSkillsRegistry(sparkSkillsRegistrySnapshot, query);
+      loadSparkSkills();
+    }
   };
   const refreshRelayPanel = () => {
     if (rightWorkspace?.querySelector('.relay-models-surface')) renderRelayBridgeStatus();
