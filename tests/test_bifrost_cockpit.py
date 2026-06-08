@@ -371,9 +371,29 @@ def test_index_planned_tool_git_browser_harnesses_are_display_only_until_backend
     assert "no fake tool execution or provider/tool call is exposed" in surface
     assert "no branch movement, commit, push, reset, or file mutation is exposed" in surface
     assert "no fake browser state, page control, screenshot, or remote navigation is exposed" in surface
+    assert "explicit approval and reviewed backend wiring required before execution" in surface
     assert "method: 'POST'" not in surface
     assert "bridgeUrl('message')" not in surface
     assert "bridgeUrl('call-result')" not in surface
+
+
+def test_index_harness_permission_boundary_blocks_high_risk_actions_until_approved():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    start = doc.index("const renderHarnessSurface = (button) =>")
+    end = doc.index("const renderRelayModels = () =>", start)
+    surface = doc[start:end]
+
+    assert "permission boundary" in surface
+    assert "explicit approval and reviewed backend wiring required before execution" in surface
+    assert "Git: ['source control', 'no branch movement, commit, push, reset, or file mutation is exposed']" in surface
+    assert "Tool: ['tool execution', 'no fake tool execution or provider/tool call is exposed']" in surface
+    assert "Browser: ['browser/vision', 'no fake browser state, page control, screenshot, or remote navigation is exposed']" in surface
+    assert "release execution authorized" in doc
+    assert "release controls visible" in doc
+    assert "bridgeUrl('prime-autonomy')" in doc
+    assert "release-now" not in doc
+    assert "method: 'POST'" not in surface
+    assert "bridgeUrl('message')" not in surface
 
 
 def test_index_speech_mode_icon_is_display_only():
@@ -2241,6 +2261,8 @@ def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wi
     assert "Click opens Vision-Browser through the generic display-only harness surface" in doc
     assert "| HMS15 | No cross-harness leakage | Logic item edits/actions for one harness do not silently route to another harness. | wired |" in doc
     assert "Generic planned harness surfaces render a Harness isolation boundary" in doc
+    assert "| HMS12 | Harness permission boundary | High-risk harness actions require explicit approval. | wired |" in doc
+    assert "Planned Tool/Git/Browser harness surfaces render a permission boundary" in doc
     assert "const renderRightPanelSurface = ({ title, status, sections, surfaceClass = '' }) =>" in index
     assert "const renderHarnessSurface = (button) =>" in index
     assert "const renderSparkSurface = (label) =>" in index
