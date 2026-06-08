@@ -568,6 +568,30 @@ provider_result = evaluate_provider_result_validation_advisory(
         external_review_state="not_required",
     )
 )
+per_call_intent = {
+    "requested_by": "Prime / Relay",
+    "prime_intent_ref": "prime-intent:display-safe-demo",
+    "project_ref": "project:Meridian",
+    "action_type": "relay_evidence_advisory",
+    "call_goal": "Display Relay prompt-packet, payload-meter, and provider-result advisory posture for the selected model harness aspect.",
+    "expected_output_shape": "compact advisory snapshot with policy decisions, blockers, warnings, and evidence refs",
+    "risk_tier": 2,
+    "proof_requirement": "prompt packet proof metadata plus Relay/Aegis evidence refs",
+    "disallowed_outputs": [
+        "raw prompt text",
+        "raw provider response bodies",
+        "provider credential or account details",
+        "branch movement or file mutation instructions",
+    ],
+    "payload_budget_ref": "budget:tier2:default",
+    "evidence_refs": [
+        "packet:packet-relay-001",
+        "budget:budget-tier2-default",
+        "payload:snapshot-001",
+        "result:relay-dispatch-001",
+    ],
+    "authority_boundary": "display_only; no provider call, route mutation, prompt assembly, raw response recovery, or Auto routing",
+}
 print(json.dumps({
     "ok": True,
     "source": "meridian_core.aegis",
@@ -582,6 +606,7 @@ print(json.dumps({
     "prompt_packet": serialize_prompt_packet_policy_result(prompt_packet_result),
     "prompt_payload_meter": serialize_prompt_payload_meter_policy_result(payload_meter_result),
     "provider_result": serialize_provider_result_validation_policy_result(provider_result),
+    "per_call_intent": per_call_intent,
     "deepseek_validation_disposition": (
         None if deepseek_disposition is None else deepseek_disposition.to_dict()
     ),

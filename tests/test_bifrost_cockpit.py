@@ -1029,6 +1029,9 @@ def test_index_model_harness_detail_surface_backend_binds_existing_snapshots():
     assert "No provider call, Auto enablement, settings mutation, route mutation, or prompt payload assembly is authorized here." in doc
     assert "No prompt text, response text, recovered result body, raw provider output, raw evidence body, or worker chat is rendered." in doc
     assert "The aspect surface reads existing GET-only bridge snapshots and never posts to message, restart, or result-recovery paths." in doc
+    assert "Goal aspect per-call intent" in doc
+    assert "snapshots.relayEvidence?.per_call_intent ? '/bridge/relay-evidence per_call_intent' : 'not exposed by Relay'" in doc
+    assert "backend-owned dispatch scope; not inferred from transcript text and not a provider route" in doc
     assert "renderSparkModelsSnapshot(snapshots.models" in doc
     assert "renderRelayEvidenceSnapshot(snapshots.relayEvidence" in doc
     assert "renderProviderBalanceSnapshot(snapshots.providerBalance" in doc
@@ -1978,6 +1981,14 @@ def test_index_relay_harness_renders_backend_logic_snapshot_contract():
     assert "data-relay-evidence" in doc
     assert "bridgeUrl('relay-evidence')" in doc
     assert "Prompt packet proof advisory" in doc
+    assert "Per-call GOAL / Intent" in doc
+    assert "const callIntent = snapshot.per_call_intent || {}" in doc
+    assert "callIntent.call_goal || 'not exposed by Relay'" in doc
+    assert "callIntent.expected_output_shape || 'not exposed'" in doc
+    assert "callIntent.proof_requirement || 'not exposed'" in doc
+    assert "callIntent.payload_budget_ref || 'not exposed'" in doc
+    assert "relayJoin(callIntent.disallowed_outputs)" in doc
+    assert "relayJoin(callIntent.evidence_refs)" in doc
     assert "Prompt payload meter advisory" in doc
     assert "Provider result validation advisory" in doc
     assert "DeepSeek validation disposition" in doc
@@ -2035,6 +2046,16 @@ def test_bridge_exposes_relay_evidence_route():
     assert '"raw_prompt_visible": False' in doc
     assert '"raw_provider_response_visible": False' in doc
     assert '"provider_call_authorized": False' in doc
+    assert '"per_call_intent": per_call_intent' in doc
+    assert '"requested_by": "Prime / Relay"' in doc
+    assert '"prime_intent_ref": "prime-intent:display-safe-demo"' in doc
+    assert '"action_type": "relay_evidence_advisory"' in doc
+    assert '"call_goal": "Display Relay prompt-packet, payload-meter, and provider-result advisory posture for the selected model harness aspect."' in doc
+    assert '"expected_output_shape": "compact advisory snapshot with policy decisions, blockers, warnings, and evidence refs"' in doc
+    assert '"risk_tier": 2' in doc
+    assert '"proof_requirement": "prompt packet proof metadata plus Relay/Aegis evidence refs"' in doc
+    assert '"payload_budget_ref": "budget:tier2:default"' in doc
+    assert '"authority_boundary": "display_only; no provider call, route mutation, prompt assembly, raw response recovery, or Auto routing"' in doc
     assert '"deepseek_validation_disposition"' in doc
     assert '"deepseek_transport_authority"' in doc
     assert '"provider_call_authorized": True' not in doc
@@ -2366,6 +2387,8 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "Spark Models renders display-only Role mapping entries" in doc
     assert "| MOD8 | Trust state | Shows candidate/trusted/restricted/degraded state for each backend. | wired |" in doc
     assert "| MOD9 | Prompt payload impact | Shows prompt size/budget pressure for recent dispatches. | wired |" in doc
+    assert "| MOD9A | Per-call GOAL / Intent | Shows the dispatch-scoped goal for a model call when Relay exposes it. | wired |" in doc
+    assert "Relay evidence exposes backend-owned `per_call_intent`" in doc
     assert "Model Harness aspect buttons open display-only surfaces bound to `/bridge/models`, `/bridge/relay-evidence`, `/bridge/provider-balance`, `/bridge/aegis-logic`, and `/bridge/relay-logic`" in doc
     assert "no provider call, Auto enablement, route mutation, prompt payload assembly, POST, `/bridge/message`, `/bridge/call-result`, raw prompt/response/provider output/evidence body, or worker chat is authorized" in doc
     assert "account/credential probing unavailable" in doc

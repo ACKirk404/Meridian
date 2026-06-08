@@ -5435,6 +5435,7 @@ body {
     const deepseekDisposition = snapshot.deepseek_validation_disposition || {};
     const deepseekAuthority = snapshot.deepseek_transport_authority || {};
     const deepseekProof = deepseekAuthority.proof || {};
+    const callIntent = snapshot.per_call_intent || {};
     const mutationAllowed = Boolean(snapshot.mutation_authorized);
     return [
       relaySection('Relay evidence source', relayGrid([
@@ -5446,6 +5447,20 @@ body {
         ['raw prompt visible', snapshot.raw_prompt_visible ? 'yes' : 'no'],
         ['raw provider response visible', snapshot.raw_provider_response_visible ? 'yes' : 'no'],
         ['provider call authorized', snapshot.provider_call_authorized ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Per-call GOAL / Intent', relayGrid([
+        ['requested by', relayText(callIntent.requested_by)],
+        ['Prime intent ref', callIntent.prime_intent_ref || 'not exposed'],
+        ['project ref', callIntent.project_ref || 'not exposed'],
+        ['action type', relayText(callIntent.action_type)],
+        ['call goal', callIntent.call_goal || 'not exposed by Relay'],
+        ['expected output shape', callIntent.expected_output_shape || 'not exposed'],
+        ['risk tier', callIntent.risk_tier ?? 'unknown'],
+        ['proof requirement', callIntent.proof_requirement || 'not exposed'],
+        ['disallowed outputs', relayJoin(callIntent.disallowed_outputs)],
+        ['payload budget ref', callIntent.payload_budget_ref || 'not exposed'],
+        ['evidence refs', relayJoin(callIntent.evidence_refs)],
+        ['authority boundary', callIntent.authority_boundary || 'display-only; no provider call or route mutation'],
       ]), true),
       relaySection('Prompt packet proof advisory', relayGrid([
         ['decision', relayText(packet.decision)],
@@ -6216,6 +6231,17 @@ body {
       ['relay dispatch source', snapshots.relayLogic?.ok ? 'relay logic snapshot' : 'offline'],
       ['mutation policy', 'display-only; no provider calls or settings writes'],
     ]), true),
+    snapshots.aspect === 'Goal' ? relaySection('Goal aspect per-call intent', relayGrid([
+      ['intent source', snapshots.relayEvidence?.per_call_intent ? '/bridge/relay-evidence per_call_intent' : 'not exposed by Relay'],
+      ['call goal', snapshots.relayEvidence?.per_call_intent?.call_goal || 'not exposed'],
+      ['action type', relayText(snapshots.relayEvidence?.per_call_intent?.action_type)],
+      ['expected output shape', snapshots.relayEvidence?.per_call_intent?.expected_output_shape || 'not exposed'],
+      ['risk tier', snapshots.relayEvidence?.per_call_intent?.risk_tier ?? 'unknown'],
+      ['proof requirement', snapshots.relayEvidence?.per_call_intent?.proof_requirement || 'not exposed'],
+      ['payload budget ref', snapshots.relayEvidence?.per_call_intent?.payload_budget_ref || 'not exposed'],
+      ['evidence refs', relayJoin(snapshots.relayEvidence?.per_call_intent?.evidence_refs)],
+      ['intent boundary', 'backend-owned dispatch scope; not inferred from transcript text and not a provider route'],
+    ]), true) : '',
     relaySection('Backend binding safety', relayList([
       'No provider call, Auto enablement, settings mutation, route mutation, or prompt payload assembly is authorized here.',
       'No prompt text, response text, recovered result body, raw provider output, raw evidence body, or worker chat is rendered.',
