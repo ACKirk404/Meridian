@@ -4986,6 +4986,9 @@ body {
     const packet = snapshot.prompt_packet || {};
     const meter = snapshot.prompt_payload_meter || {};
     const provider = snapshot.provider_result || {};
+    const deepseekDisposition = snapshot.deepseek_validation_disposition || {};
+    const deepseekAuthority = snapshot.deepseek_transport_authority || {};
+    const deepseekProof = deepseekAuthority.proof || {};
     const mutationAllowed = Boolean(snapshot.mutation_authorized);
     return [
       relaySection('Relay evidence source', relayGrid([
@@ -5028,6 +5031,30 @@ body {
         ['warnings', relayJoin(provider.warnings)],
         ['bifrost advisory', relayText(provider.bifrost_advisory)],
       ]), false),
+      relaySection('DeepSeek validation disposition', relayGrid([
+        ['validation level', relayText(deepseekDisposition.validation_level)],
+        ['dispatch id', deepseekDisposition.direct_dispatch_id || 'none'],
+        ['variants', relayJoin(deepseekDisposition.variant_labels)],
+        ['transport cleared', deepseekDisposition.transport_cleared ? 'yes' : 'no'],
+        ['validation ref', deepseekDisposition.validation_evidence_ref || 'none'],
+        ['blocked authority tags', relayJoin(deepseekDisposition.blocked_authority_tags)],
+        ['review clearing authorized', deepseekDisposition.review_clearing_authorized ? 'yes' : 'no'],
+        ['branch movement authorized', deepseekDisposition.branch_movement_authorized ? 'yes' : 'no'],
+        ['live coding authority', deepseekDisposition.live_coding_authority_authorized ? 'yes' : 'no'],
+        ['relay bypass authorized', deepseekDisposition.relay_bypass_authorized ? 'yes' : 'no'],
+      ]), true),
+      relaySection('DeepSeek transport authority', relayGrid([
+        ['status', relayText(deepseekAuthority.status)],
+        ['dispatch id', deepseekAuthority.direct_dispatch_id || 'none'],
+        ['transport authorized', deepseekAuthority.transport_authorized ? 'yes' : 'no'],
+        ['proof state', relayText(deepseekProof.proof_state)],
+        ['proof refs', relayJoin(deepseekProof.proof_evidence_refs)],
+        ['review ref', deepseekProof.review_evidence_ref || 'none'],
+        ['human gate satisfied', deepseekProof.human_gate_satisfied ? 'yes' : 'no'],
+        ['prime authority satisfied', deepseekProof.prime_authority_satisfied ? 'yes' : 'no'],
+        ['blocker tags', relayJoin(deepseekAuthority.blocker_tags)],
+        ['blocked authority tags', relayJoin(deepseekAuthority.blocked_authority_tags)],
+      ]), true),
     ].join('');
   };
   const renderProviderBalanceSnapshot = (snapshot) => {

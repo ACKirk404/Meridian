@@ -487,6 +487,15 @@ from meridian_core.aegis import (
     serialize_prompt_payload_meter_policy_result,
     serialize_provider_result_validation_policy_result,
 )
+from meridian_core.model_adapter import (
+    bind_deepseek_transport_authority,
+    bind_deepseek_validation_disposition,
+    deepseek_candidate_metadata_preset,
+)
+
+deepseek_metadata = deepseek_candidate_metadata_preset("fast")
+deepseek_disposition = bind_deepseek_validation_disposition(deepseek_metadata)
+deepseek_transport_authority = bind_deepseek_transport_authority(deepseek_metadata)
 
 prompt_packet_result = evaluate_prompt_packet_proof_policy(
     PromptPacketProofMetadata(
@@ -565,6 +574,12 @@ print(json.dumps({
     "prompt_packet": serialize_prompt_packet_policy_result(prompt_packet_result),
     "prompt_payload_meter": serialize_prompt_payload_meter_policy_result(payload_meter_result),
     "provider_result": serialize_provider_result_validation_policy_result(provider_result),
+    "deepseek_validation_disposition": (
+        None if deepseek_disposition is None else deepseek_disposition.to_dict()
+    ),
+    "deepseek_transport_authority": (
+        None if deepseek_transport_authority is None else deepseek_transport_authority.to_dict()
+    ),
 }))
 `);
 }

@@ -730,6 +730,13 @@ def test_index_relay_harness_renders_backend_logic_snapshot_contract():
     assert "Prompt packet proof advisory" in doc
     assert "Prompt payload meter advisory" in doc
     assert "Provider result validation advisory" in doc
+    assert "DeepSeek validation disposition" in doc
+    assert "DeepSeek transport authority" in doc
+    assert "transport authorized" in doc
+    assert "review clearing authorized" in doc
+    assert "branch movement authorized" in doc
+    assert "live coding authority" in doc
+    assert "relay bypass authorized" in doc
     assert "raw provider response visible" in doc
     assert "Fallback blocker logic" in doc
     assert "Proof and telemetry logic" in doc
@@ -765,6 +772,9 @@ def test_bridge_exposes_relay_evidence_route():
     assert "PromptPacketProofMetadata" in doc
     assert "PromptPayloadMeterInput" in doc
     assert "ProviderResultValidationInput" in doc
+    assert "deepseek_candidate_metadata_preset" in doc
+    assert "bind_deepseek_validation_disposition" in doc
+    assert "bind_deepseek_transport_authority" in doc
     assert "evaluate_prompt_packet_proof_policy" in doc
     assert "evaluate_prompt_payload_meter_advisory" in doc
     assert "evaluate_provider_result_validation_advisory" in doc
@@ -773,6 +783,8 @@ def test_bridge_exposes_relay_evidence_route():
     assert '"raw_prompt_visible": False' in doc
     assert '"raw_provider_response_visible": False' in doc
     assert '"provider_call_authorized": False' in doc
+    assert '"deepseek_validation_disposition"' in doc
+    assert '"deepseek_transport_authority"' in doc
     assert '"provider_call_authorized": True' not in doc
     assert '"body":' not in doc
 
