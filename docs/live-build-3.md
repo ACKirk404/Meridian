@@ -8,6 +8,69 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
+## Active Task - Atlas Workflow Adapter FileMap Registration
+
+Timestamp: 2026-06-08T17:30:00-06:00.
+
+Goal: register the newly promoted Atlas Workflow Adapter backend slice in all
+FileMap surfaces.
+
+Worker requirement: implementation must run in a Polaris Build 3 worker from
+current `origin/main`. Codex sessions may review only after a real worker
+candidate exists.
+
+Source of authority:
+
+- Promoted main commit `7ba931bac` (`workflow: add atlas adapter`).
+- `docs/live-build-1.md` Atlas adapter repair/promotion provenance.
+- Existing FileMap registration pattern for Workflow Dispatch and Atlas.
+
+Task: register `meridian_core/workflow_atlas.py` and
+`tests/test_workflow_atlas.py` in all three FileMap surfaces. Keep this as a
+registration-only slice; do not change Atlas adapter implementation, Atlas
+adapter tests, Workflow Dispatch implementation/tests, Atlas retrieval
+implementation/tests, Bifrost/Electron/UI files, generated artifacts, package
+files, worker queues outside this file, or runtime behavior.
+
+Allowed files only:
+
+- `meridian_core/filemap.py`
+- `docs/FileMap.md`
+- `tests/test_filemap.py`
+- `docs/live-build-3.md`
+
+Expected registration content:
+
+- Place the new entries near the existing Workflow Dispatch and Atlas
+  registrations, following the current FileMap style.
+- Identify ownership as Atlas Workflow Adapter / Workflow Sub-Agent Harness,
+  with Prime coordination issuing work orders and Atlas retrieval providing the
+  promoted query surface.
+- Describe the module as a pure deterministic adapter that builds Atlas
+  `WorkflowWorkOrder`s, decodes typed inputs back into `AtlasQuery`, filters
+  FileMap candidates through promoted workflow path scope, fails closed on
+  out-of-scope FileMap/DOC result paths, preserves Echo `echo://` refs,
+  preserves Atlas result shape, avoids private Workflow Dispatch helpers, and
+  performs no live workflow execution, process/session control, model calls,
+  network calls, UI/Electron/Bifrost behavior, Echo/FileMap durable writes,
+  provider/account calls, branch/worktree movement, or FileMap
+  self-registration.
+- Register the focused test file as the 63-test proof suite for the adapter,
+  including Review A/B regressions for required-path scope, display safety,
+  sidecar-query avoidance, empty-query success, Echo preservation, and
+  non-required FileMap/DOC path-scope leakage.
+
+Required proof before Ready marker:
+
+- `python -m pytest tests/test_filemap.py tests/test_workflow_atlas.py -q`
+- `git diff --check -- meridian_core/filemap.py docs/FileMap.md tests/test_filemap.py docs/live-build-3.md`
+- path-scope proof limited to the four allowed files
+- completion marker in this section with files changed, proof, and remaining
+  risk
+
+Stop after implementation and marker. Do not promote to main, do not push to
+main, do not move branches/worktrees, and do not touch shared main.
+
 ## Completed / Review-Cleared / Promoted To Main - Workflow Dispatch FileMap Registration
 
 Timestamp: 2026-06-07T17:15:00-06:00.
