@@ -4984,6 +4984,54 @@ body {
       relaySection('Review guardrails', relayList(guardrails), false),
     ].join('');
   };
+  const renderFederationHorizonSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Federation horizon source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Federation horizon snapshot unavailable'],
+      ]), true);
+    }
+    const owner = snapshot.owner || {};
+    const mutationAllowed = Boolean(snapshot.mutation_authorized);
+    const runtimeAuthorized = Boolean(snapshot.runtime_authorized);
+    const networkAuthorized = Boolean(snapshot.network_protocol_authorized);
+    const remoteExecutionAuthorized = Boolean(snapshot.remote_execution_authorized);
+    const sharedStateAuthorized = Boolean(snapshot.shared_state_authorized);
+    return [
+      relaySection('Federation horizon source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Federation / Horizon'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['planning only', snapshot.planning_only ? 'yes' : 'no'],
+        ['runtime authorized', runtimeAuthorized ? 'yes' : 'no'],
+        ['mutation authorized', mutationAllowed ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Federation summary', relaySummary(snapshot.summary || ''), true),
+      relaySection('Ownership and gate', relayGrid([
+        ['owner', owner.harness_owner || 'Federation Harness'],
+        ['supervisor', owner.supervising_intelligence || 'Prime'],
+        ['safety gate', owner.safety_gate || 'Aegis'],
+        ['UI surface', owner.ui_surface || 'Bifrost harness panel'],
+      ]), true),
+      relaySection('Discovery and permission boundary', [
+        relayGrid([
+          ['network protocol authorized', networkAuthorized ? 'yes' : 'no'],
+          ['remote execution authorized', remoteExecutionAuthorized ? 'yes' : 'no'],
+          ['shared state authorized', sharedStateAuthorized ? 'yes' : 'no'],
+          ['raw memory visible', snapshot.raw_memory_visible ? 'yes' : 'no'],
+          ['raw queue visible', snapshot.raw_queue_visible ? 'yes' : 'no'],
+          ['raw worker chat visible', snapshot.raw_worker_chat_visible ? 'yes' : 'no'],
+          ['raw filesystem paths visible', snapshot.raw_filesystem_paths_visible ? 'yes' : 'no'],
+        ]),
+        relayList(snapshot.permission_boundaries || []),
+      ].join(''), true),
+      relaySection('Safe discovery fields', relayList(snapshot.safe_discovery_fields || []), true),
+      relaySection('Typed handoff packets', relayList(snapshot.handoff_packet_types || []), true),
+      relaySection('Panel implications', relayList(snapshot.panel_implications || []), false),
+      relaySection('Out of V2 scope', relayList(snapshot.out_of_v2_scope || []), false),
+    ].join('');
+  };
   const renderPrimeDecisionSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
       return relaySection('Prime logic source', relayGrid([
@@ -5726,6 +5774,17 @@ body {
       logicNode.innerHTML = renderReviewConsoleSnapshot(snapshot);
     } catch (error) {
       logicNode.innerHTML = renderReviewConsoleSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadFederationHorizon = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-federation-horizon]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('federation-horizon'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderFederationHorizonSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderFederationHorizonSnapshot({ ok: false, error: error.message });
     }
   };
   const loadPrimeLogic = async () => {
@@ -7884,6 +7943,37 @@ body {
       return false;
     }
   };
+  const renderFederationHorizon = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Federation horizon">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Federation Horizon</div>
+            <div class="relay-models-status">Planning-only</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-federation-horizon>${relaySection('Federation horizon source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadFederationHorizon();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
   const renderProviderBalance = () => {
     if (!rightWindow || !rightWorkspace) return false;
     try {
@@ -8152,6 +8242,7 @@ body {
     if (rightWorkspace?.querySelector('[data-vulcan-logic]')) loadVulcanLogic();
     if (rightWorkspace?.querySelector('[data-beacon-liveness]')) loadBeaconLiveness();
     if (rightWorkspace?.querySelector('[data-review-console]')) loadReviewConsole();
+    if (rightWorkspace?.querySelector('[data-federation-horizon]')) loadFederationHorizon();
     if (rightWorkspace?.querySelector('[data-provider-balance]')) loadProviderBalance();
     if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
     if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
@@ -8374,6 +8465,8 @@ body {
       rendered = renderBeaconLiveness();
     } else if (button.dataset.harness === 'Codex Reviews') {
       rendered = renderReviewConsole();
+    } else if (button.dataset.harness === 'Federation') {
+      rendered = renderFederationHorizon();
     } else if (button.dataset.harness === 'Compass') {
       rendered = renderCompassProjectLogic();
     } else if (button.dataset.harness === 'Session Lifecycle') {

@@ -641,6 +641,29 @@ def test_review_console_snapshot_is_display_safe_backend_contract():
     assert "no_approval_buttons" in snapshot["guardrails"]
 
 
+def test_federation_horizon_snapshot_is_planning_only_contract():
+    from meridian_core.federation_horizon_snapshot import federation_horizon_snapshot
+
+    snapshot = federation_horizon_snapshot()
+
+    assert snapshot["source"] == "docs/federation-harness-horizon.md"
+    assert snapshot["display_only"] is True
+    assert snapshot["planning_only"] is True
+    assert snapshot["runtime_authorized"] is False
+    assert snapshot["mutation_authorized"] is False
+    assert snapshot["network_protocol_authorized"] is False
+    assert snapshot["remote_execution_authorized"] is False
+    assert snapshot["shared_state_authorized"] is False
+    assert snapshot["raw_memory_visible"] is False
+    assert snapshot["raw_queue_visible"] is False
+    assert snapshot["raw_worker_chat_visible"] is False
+    assert snapshot["raw_filesystem_paths_visible"] is False
+    assert "user-approved project alias" in snapshot["safe_discovery_fields"]
+    assert "no cross-Meridian action without explicit consent" in snapshot["permission_boundaries"]
+    assert "ProofPacket" in snapshot["handoff_packet_types"]
+    assert "network protocol" in snapshot["out_of_v2_scope"]
+
+
 def test_index_projects_selector_is_compass_context_not_user_routing():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "projectOptions = ['Bifrost', 'Meridian', 'Spark']" in doc
@@ -707,6 +730,21 @@ def test_index_review_harness_uses_backend_console_snapshot():
     assert "Review guardrails" in doc
     assert "response authorized" in doc
     assert "raw item content visible" in doc
+
+
+def test_index_federation_harness_uses_backend_horizon_snapshot():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Federation Horizon" in doc
+    assert "data-federation-horizon" in doc
+    assert "bridgeUrl('federation-horizon')" in doc
+    assert "renderFederationHorizonSnapshot" in doc
+    assert "renderFederationHorizon" in doc
+    assert "Discovery and permission boundary" in doc
+    assert "Safe discovery fields" in doc
+    assert "Typed handoff packets" in doc
+    assert "Out of V2 scope" in doc
+    assert "runtime authorized" in doc
+    assert "remote execution authorized" in doc
 
 
 def test_index_prime_harness_uses_backend_runtime_snapshot():
@@ -869,6 +907,7 @@ def test_index_relay_refresh_reloads_logic_snapshot():
     assert "loadCompassLogic();" in body
     assert "loadVulcanLogic();" in body
     assert "loadBeaconLiveness();" in body
+    assert "loadFederationHorizon();" in body
 
 
 def test_bridge_exposes_prime_logic_route_and_capability():
@@ -921,6 +960,15 @@ def test_bridge_exposes_review_console_route():
     assert "function reviewConsoleSnapshot()" in doc
     assert "meridian_core.review_console_snapshot" in doc
     assert "req.method === 'GET' && req.url === BRIDGE_ROUTES.reviewConsole" in doc
+
+
+def test_bridge_exposes_federation_horizon_route():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    assert "federationHorizonSnapshot: true" in doc
+    assert "federationHorizon: '/bridge/federation-horizon'" in doc
+    assert "function federationHorizonSnapshot()" in doc
+    assert "meridian_core.federation_horizon_snapshot" in doc
+    assert "req.method === 'GET' && req.url === BRIDGE_ROUTES.federationHorizon" in doc
 
 
 def test_bridge_exposes_reviewed_display_only_capability_routes():

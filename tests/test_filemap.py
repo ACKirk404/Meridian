@@ -114,6 +114,7 @@ _REQUIRED_PATHS = [
     "docs/v1-bifrost-cockpit-implementation-brief.md",
     "docs/v2-detailed-build-plan.md",
     "docs/v2-horizon-plan.md",
+    "meridian_core/federation_horizon_snapshot.py",
     "docs/v3-parking-lot.md",
     "docs/v3-intake-resolution.md",
     "docs/v3-goal-runtime-contract.md",

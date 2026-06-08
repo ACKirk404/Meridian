@@ -980,6 +980,13 @@ def make_default_map() -> FileMap:
             related_tests=[],
             notes="Planning only; V2 architecture entry point for later V3 federation runtime.",
         ),
+        FileMapEntry(
+            path="meridian_core/federation_horizon_snapshot.py",
+            area=FileArea.ARCHITECTURE,
+            purpose="Display-safe backend snapshot for the Electron Federation Horizon panel.",
+            related_tests=["tests/test_bifrost_cockpit.py"],
+            notes="Bifrost consumes this through /bridge/federation-horizon; planning-only, no network protocol, remote execution, or shared state.",
+        ),
 
         FileMapEntry(
             path="docs/prime-orchestration-harness-prototype.md",

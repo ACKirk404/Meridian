@@ -25,6 +25,7 @@ const BRIDGE_CAPABILITIES = {
   vulcanLogicSnapshot: true,
   beaconLivenessSnapshot: true,
   reviewConsoleSnapshot: true,
+  federationHorizonSnapshot: true,
   providerBalanceSnapshot: true,
   goalRuntimeSnapshot: true,
   workflowDispatchStatusSnapshot: true,
@@ -46,6 +47,7 @@ const BRIDGE_ROUTES = Object.freeze({
   vulcanLogic: '/bridge/vulcan-logic',
   beaconLiveness: '/bridge/beacon-liveness',
   reviewConsole: '/bridge/review-console',
+  federationHorizon: '/bridge/federation-horizon',
   providerBalance: '/bridge/provider-balance',
   goalRuntime: '/bridge/goal-runtime',
   workflowDispatchStatus: '/bridge/workflow-dispatch-status',
@@ -103,7 +105,7 @@ if (process.argv.includes('--self-test')) {
   rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
   const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.beaconLivenessSnapshot && BRIDGE_CAPABILITIES.reviewConsoleSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot && BRIDGE_CAPABILITIES.voiceIoSnapshot;
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.beaconLivenessSnapshot && BRIDGE_CAPABILITIES.reviewConsoleSnapshot && BRIDGE_CAPABILITIES.federationHorizonSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot && BRIDGE_CAPABILITIES.voiceIoSnapshot;
   const sampleSession = sessionTargetFromWorktree({
     path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
     branch: 'refs/heads/worktree-build-5-bifrost',
@@ -728,6 +730,34 @@ function reviewConsoleSnapshot() {
         resolve({ ok: true, snapshot: JSON.parse(stdout) });
       } catch (error) {
         resolve({ ok: false, error: `Review Console snapshot returned invalid JSON: ${error.message}` });
+      }
+    });
+  });
+}
+
+function federationHorizonSnapshot() {
+  return new Promise((resolve) => {
+    const child = spawn('python', ['-m', 'meridian_core.federation_horizon_snapshot'], {
+      cwd: DEFAULT_CWD,
+      shell: process.platform === 'win32',
+      windowsHide: true,
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString(); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+    child.on('error', (error) => {
+      resolve({ ok: false, error: error.message });
+    });
+    child.on('close', (code) => {
+      if (code !== 0) {
+        resolve({ ok: false, error: stderr.trim() || `Federation horizon snapshot exited with code ${code}` });
+        return;
+      }
+      try {
+        resolve({ ok: true, snapshot: JSON.parse(stdout) });
+      } catch (error) {
+        resolve({ ok: false, error: `Federation horizon snapshot returned invalid JSON: ${error.message}` });
       }
     });
   });
@@ -1637,6 +1667,18 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && req.url === BRIDGE_ROUTES.reviewConsole) {
     const result = await reviewConsoleSnapshot();
+    sendJson(res, result.ok ? 200 : 500, {
+      ok: result.ok,
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...(result.ok ? { ...result.snapshot } : { error: result.error }),
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.federationHorizon) {
+    const result = await federationHorizonSnapshot();
     sendJson(res, result.ok ? 200 : 500, {
       ok: result.ok,
       service: 'meridian-model-bridge',
