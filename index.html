@@ -8202,6 +8202,47 @@ body {
       return false;
     }
   };
+  const renderSparkCrosscheck = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Crosscheck review">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Crosscheck Review</div>
+            <div class="relay-models-status">Display-only</div>
+          </div>
+          <div class="relay-models-body">
+            ${relaySection('Crosscheck boundary', relayList([
+              'Aggregates Review Console queue state and Aegis proof posture without starting a review run.',
+              'No queue mutation, response application, provider execution, raw item content, raw evidence bodies, prompt text, response text, raw worker session history, or worker chat is exposed.',
+              'Orchestrator intake is limited to compact typed review/proof state from the bridge snapshots.',
+              'Worker session transcript is stored, not replayed; worker summary is small and checkpoint-updated; session state packet is always available to Orchestrator.',
+              'Evidence refs are links/ids, not pasted logs; raw detail is fetched only on demand.',
+              'Findings are visible as safe metadata until an explicit crosscheck execution backend exists.',
+            ]), true)}
+            <div data-review-console>${relaySection('Review Console source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-aegis-logic>${relaySection('Aegis logic source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadReviewConsole();
+      loadAegisLogic();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
   const renderProviderBalance = () => {
     if (!rightWindow || !rightWorkspace) return false;
     try {
@@ -8769,9 +8810,11 @@ body {
       ? renderProviderBalance()
       : (actionLabel === 'Models'
         ? renderSparkModels()
-        : (actionLabel === 'Routines'
-          ? renderGoalRuntime()
-          : (actionLabel === 'Archive' ? renderSessionCloseArchiveProof() : renderSparkSurface(actionLabel || 'Spark'))));
+        : (actionLabel === 'Crosscheck'
+          ? renderSparkCrosscheck()
+          : (actionLabel === 'Routines'
+            ? renderGoalRuntime()
+            : (actionLabel === 'Archive' ? renderSessionCloseArchiveProof() : renderSparkSurface(actionLabel || 'Spark')))));
     if (!rendered) return;
     screen.classList.add('sessions-visible');
     setRightPanelAuthority('spark', actionLabel || 'Spark', { persist });

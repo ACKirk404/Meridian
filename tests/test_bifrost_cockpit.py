@@ -259,7 +259,7 @@ def test_index_planned_spark_surfaces_do_not_fetch_fake_backends():
     assert "const renderSparkSurface = (label) =>" in doc
     assert "selectedLabel === 'Settings' ? 'voice I/O status wired' : 'not wired yet'" in doc
     assert "unsupported until backend wiring exists" in doc
-    for label in ("Filter", "Backlog", "Skills", "Crosscheck"):
+    for label in ("Filter", "Backlog", "Skills"):
         assert f'aria-label="{label}"' in doc
     for route in (
         "filter",
@@ -270,6 +270,41 @@ def test_index_planned_spark_surfaces_do_not_fetch_fake_backends():
         "settings",
     ):
         assert f"bridgeUrl('{route}')" not in doc
+
+
+def test_index_spark_crosscheck_aggregates_typed_review_and_aegis_state():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert 'aria-label="Crosscheck"' in doc
+    assert "Crosscheck Review" in doc
+    assert "const renderSparkCrosscheck = () =>" in doc
+    assert "renderSparkCrosscheck()" in doc
+    assert "Aggregates Review Console queue state and Aegis proof posture without starting a review run." in doc
+    assert "Orchestrator intake is limited to compact typed review/proof state from the bridge snapshots." in doc
+    assert "Worker session transcript is stored, not replayed" in doc
+    assert "worker summary is small and checkpoint-updated" in doc
+    assert "session state packet is always available to Orchestrator" in doc
+    assert "Evidence refs are links/ids, not pasted logs" in doc
+    assert "raw detail is fetched only on demand" in doc
+    assert "raw worker session history" in doc
+    assert "data-review-console" in doc
+    assert "data-aegis-logic" in doc
+    assert "loadReviewConsole();" in doc
+    assert "loadAegisLogic();" in doc
+    assert "bridgeUrl('review-console')" in doc
+    assert "bridgeUrl('aegis-logic')" in doc
+    assert "raw item content visible" in doc
+    assert "raw evidence body visible" in doc
+    crosscheck_surface = doc[doc.index("const renderSparkCrosscheck"):doc.index("const renderProviderBalance")]
+    assert "fetch(" not in crosscheck_surface
+    assert "bridgeUrl('message')" not in crosscheck_surface
+    assert "bridgeUrl('restart')" not in crosscheck_surface
+    assert "call-result" not in crosscheck_surface
+    assert "method: 'POST'" not in crosscheck_surface
+    assert "<button" not in crosscheck_surface
+    assert "<form" not in crosscheck_surface
+    assert "apply_console_response" not in crosscheck_surface
+    assert "enqueue_to_review_console" not in crosscheck_surface
+    assert "provider_call_authorized" not in crosscheck_surface
 
 
 def test_index_spark_models_surface_uses_metadata_only_bridge_snapshots():
@@ -1286,6 +1321,16 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "/bridge/models" in doc
     assert "/bridge/recent-calls" in doc
     assert "does not call `/bridge/call-result` or render recovered bodies" in doc
+    assert "| SK8 | Crosscheck | Opens display-only review/proof state from existing backend snapshots. | wired |" in doc
+    assert "/bridge/review-console" in doc
+    assert "/bridge/aegis-logic" in doc
+    assert "does not start a review run, apply responses, mutate queues, execute providers, or ingest raw worker session history" in doc
+    assert "| XCK0 | Review/proof state | Shows current Review Console and Aegis proof posture without running a new check. | wired |" in doc
+    assert "worker transcripts are stored, not replayed" in doc
+    assert "worker summaries stay small and update at checkpoints" in doc
+    assert "session state packets are always available" in doc
+    assert "evidence refs are links/ids rather than pasted logs" in doc
+    assert "raw detail is fetched only on demand" in doc
     assert "| BAL1 | Provider health | Shows whether each configured provider/backend is reachable. | wired |" in doc
     assert "/bridge/provider-balance" in doc
     assert "account/credential probing unavailable" in doc

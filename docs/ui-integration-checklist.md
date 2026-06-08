@@ -128,7 +128,7 @@ The right panel needs a Sessions dropdown when it is in User Session mode. Prime
 | SK5 | Models | Opens model readiness and recent-call metadata surface. | wired | Spark Models opens Models Readiness from `/bridge/models` plus metadata-only `/bridge/recent-calls`; it does not enable Auto routing, mutate settings, or render prompt/response bodies. |
 | SK6 | Backlog | Opens backlog/task surface. | planned | Until wired, it must not show fake backlog items. |
 | SK7 | Skills | Opens searchable skill/capability registry by model, project, and global scope. | planned | Track `SKL-*` subitems before wiring the surface. |
-| SK8 | Crosscheck | Starts or opens review/cross-check surface. | planned | Until wired, it must not claim review is complete. |
+| SK8 | Crosscheck | Opens display-only review/proof state from existing backend snapshots. | wired | Spark Crosscheck aggregates `/bridge/review-console` and `/bridge/aegis-logic`; it does not start a review run, apply responses, mutate queues, execute providers, or ingest raw worker session history. |
 | SK9 | Close | Closes targeted session/surface after forcing write-through and Obsidian capture when applicable. | partial | Transient surface close is wired; session close/write-through remains tracked in `CLS-*`. |
 | SK10 | Archive | Opens reloadable session archive and preserves context for future session revival. | partial | Spark Archive opens Session Close Archive Proof from `/bridge/session-close-archive-proof`; it is display-only and must not close, delete, replay, or expose raw prompt/worker chat. |
 | SK11 | Reset | Confirms, clears session-window prompts/transcripts, then hard reloads UI. | wired | `RST-*` subitems are wired: reset clears visible local prompt/transcript state, asks `/bridge/restart`, and does not close live sessions or claim memory deletion. |
@@ -326,11 +326,12 @@ The Backlog icon owns visible work intake, priority, and conversion into Prime-o
 
 ### Crosscheck Surface Subitems
 
-The Crosscheck icon owns review, proof, Aegis findings, and independent validation. It should surface issues before normal work continues.
+The Crosscheck icon owns review, proof, Aegis findings, and independent validation. It should surface issues before normal work continues. Orchestrator intake uses compact typed session state by default: worker transcripts are stored, not replayed; worker summaries stay small and update at checkpoints; session state packets are always available; evidence refs are links/ids rather than pasted logs; raw detail is fetched only on demand.
 
 | ID | Crosscheck Item | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
-| XCK1 | Run crosscheck | Starts a bounded review/check for current work or selected artifact. | planned | Crosscheck creates a review/proof event. |
+| XCK0 | Review/proof state | Shows current Review Console and Aegis proof posture without running a new check. | wired | Spark Crosscheck renders `/bridge/review-console` and `/bridge/aegis-logic` as display-only typed state with no raw item content, raw evidence bodies, raw prompt/response, raw worker chat, or raw worker session history. |
+| XCK1 | Run crosscheck | Starts a bounded review/check for current work or selected artifact. | planned | Crosscheck creates a review/proof event only after an explicit execution backend exists. |
 | XCK2 | Review findings | Shows current findings with severity, owner, and status. | planned | Findings are structured, not raw logs. |
 | XCK3 | Proof status | Shows pass/fail/waived proof state for active work. | planned | Proof state comes from Aegis/review data. |
 | XCK4 | Repair routing | Routes validated findings ahead of normal build work. | planned | Repair task points to target lane/owner. |
