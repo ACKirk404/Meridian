@@ -1,8 +1,8 @@
 # Live Build 1 Queue
 
-## Build 1 Ready Marker — 2026-06-08T17:14:02-06:00 (Atlas Workflow Adapter Review B path-scope repair)
+## Build 1 Completed Marker - 2026-06-08T17:24:00-06:00 (Atlas Workflow Adapter promoted)
 
-- Status: Ready for Codex Review A/B re-check after Review B FAIL repair.
+- Status: completed, Codex Review A/B re-check passed, promoted to `main`, and pushed to `origin/main` in `7ba931bac` (`workflow: add atlas adapter`).
 - Candidate worktree: `C:\Users\scott\AppData\Local\Temp\polaris-wt\chat_1780958955586`.
 - Base main for this candidate: `d98f52f16`.
 - Product files changed:
@@ -27,7 +27,8 @@
   - `python -m pytest tests/test_workflow_atlas.py tests/test_workflow_dispatch.py tests/test_atlas.py -q` -> 257 passed in 0.23s.
   - `git diff --check -- meridian_core/workflow_atlas.py tests/test_workflow_atlas.py docs/live-build-1.md` -> clean, with Git LF-to-CRLF normalization warning on `docs/live-build-1.md`.
   - `git status --porcelain -- meridian_core/workflow_atlas.py tests/test_workflow_atlas.py docs/live-build-1.md .mcp.json` -> ` M .mcp.json`, ` M docs/live-build-1.md`, `?? meridian_core/workflow_atlas.py`, `?? tests/test_workflow_atlas.py`.
-- Stop condition: route fresh Codex Review A/B re-check before promotion. Do not promote unless both reviews pass and coordinator re-runs proof on `main`.
+- Promotion proof on shared main: `python -m pytest tests/test_workflow_atlas.py tests/test_workflow_dispatch.py tests/test_atlas.py -q` -> 257 passed; full suite `python -m pytest -q` -> 3323 passed before commit; post-promotion Build 3 FileMap registration later landed in `4ee0599f4`.
+- Stop condition: historical proof only. Do not relaunch or re-promote this task unless a new coordinator task is assigned above this marker.
 
 ## Required First Command For Every New Task
 
@@ -37,14 +38,18 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Coordinator Override - Active Now` block in this file is executable. Lower completed, archived, or stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Coordinator Override - Active Now / Atlas Workflow Adapter Restart
+## No Active Task
+
+Build 1 has no active V2 backend task after the Atlas Workflow Adapter promotion (`7ba931bac`) and FileMap registration (`4ee0599f4`). Await coordinator assignment before launching another worker.
+
+## Coordinator Override - Completed / Review-Cleared / Promoted To Main / Atlas Workflow Adapter Restart
 
 Timestamp: 2026-06-08T00:00:00-06:00.
 
-Status: restarted from current clean `origin/main` after coordinator health
+Status: completed and promoted to `main` in `7ba931bac` after Codex Review A/B
+re-check passed. This block is historical proof only. It was restarted from current clean `origin/main` after coordinator health
 repair `a0c36ae6` (`relay: restore model-routing summary contract`) restored
-full-suite proof on shared main. This block is executable again for a fresh
-Build 1 Opus worker only. Do not silently promote the paused 2026-06-07
+full-suite proof on shared main. Do not silently promote the paused 2026-06-07
 candidate; treat it as reference material unless the coordinator explicitly
 authorizes a salvage/rebuild plan.
 
@@ -954,7 +959,7 @@ Completion:
   - Pure/local: no network calls, no credentials, no account probing, no live provider/model execution, no UI/Bifrost/FileMap edits, no shared-main write, no branch/worktree movement outside this assigned branch, no Polaris dependency. Branch pushed to `origin/codex/build-1-deepseek-live-validation-20260606`; no push to `main`.
 - Next Candidate: Codex Reviews A review of the DeepSeek validation-gate proof/transport-authority slice before any coordinator promotion to `main`.
 
-## Coordinator Override - Active Now / Idle / Awaiting Next Assignment
+## Coordinator Override - No Active Task / Idle / Awaiting Next Assignment
 
 Goal: hold Build 1 after Main promotion of the DeepSeek validation/advisory/export backend stack.
 
@@ -966,7 +971,7 @@ Main promotion:
 
 Instruction: do not execute lower stale Active Now blocks. Wait for a new coordinator-promoted backend task.
 
-## Coordinator Override - Active Now
+## Coordinator Override - Completed / Review-Cleared / Promoted To Main
 
 Goal: bind reviewed DeepSeek validation-state metadata into Relay disposition without enabling unsafe live autonomy.
 

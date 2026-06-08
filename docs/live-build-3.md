@@ -8,12 +8,21 @@ You must do all work inside your assigned unique worktree. You are not allowed t
 
 Only the first `Active Task` block in this file is executable. Lower archived/stale active-task sections are historical context only and must not be executed unless Prime/Codex promotes them back to the top of the file.
 
-## Active Task - Atlas Workflow Adapter FileMap Registration
+## No Active Task
+
+Build 3 has no active V2 FileMap registration task after the Atlas Workflow Adapter FileMap registration promotion (`4ee0599f4`). Await coordinator assignment before launching another worker.
+
+## Completed / Review-Cleared / Promoted To Main - Atlas Workflow Adapter FileMap Registration
 
 Timestamp: 2026-06-08T17:30:00-06:00.
 
 Goal: register the newly promoted Atlas Workflow Adapter backend slice in all
 FileMap surfaces.
+
+Coordinator status: completed, Codex Review A/B passed, promoted to `main`, and
+pushed to `origin/main` in `4ee0599f4` (`filemap: register atlas workflow
+adapter`). This block is historical proof only; do not relaunch or re-promote
+it unless a new coordinator task is assigned above this marker.
 
 Worker requirement: implementation must run in a Polaris Build 3 worker from
 current `origin/main`. Codex sessions may review only after a real worker
