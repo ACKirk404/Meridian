@@ -5794,7 +5794,7 @@ body {
       provenance: 'backend:filemap',
       setup: entry.related_tests?.length ? `tests: ${entry.related_tests.join(', ')}` : 'no related tests reported',
       permission: 'read-only metadata; relative paths only',
-      example: entry.path ? `Open ${entry.path} through FileMap or Atlas context.` : 'Open through FileMap or Atlas context.',
+      example: entry.path ? `Example: inspect ${entry.path} through FileMap or Atlas context.` : 'Example: inspect through FileMap or Atlas context.',
     }));
     const modelRows = models.map((model) => ({
       name: model.label || model.backend || 'unknown model backend',
@@ -5807,8 +5807,8 @@ body {
       setup: model.installed ? 'available' : 'setup required',
       permission: 'no install, login, account probe, Auto routing, or prompt send from Skills',
       example: model.installed
-        ? `Select ${model.label || model.backend || 'this backend'} in the manual model selector.`
-        : 'Complete CLI/provider setup outside this surface.',
+        ? `Example: select ${model.label || model.backend || 'this backend'} in the manual model selector before sending a typed prompt.`
+        : 'Example: complete CLI/provider setup outside this surface before use.',
     }));
     return [...fileMapRows, ...modelRows];
   };
@@ -5849,7 +5849,7 @@ body {
       relaySection('Skills registry boundary', relayList([
         'Skills uses reviewed FileMap and Models bridge snapshots as capability metadata; it does not call a fake skills backend.',
         'Search is UI-local over already loaded metadata and does not send prompts, mutate files, install skills, sign in, probe accounts, or enable Auto routing.',
-        'Registry rows expose description, scope, backend/provider, setup posture, permission boundary, provenance, and a non-executing usage path.',
+        'Registry rows expose description, scope, backend/provider, setup posture, permission boundary, provenance, and a non-executing usage example.',
       ]), true),
       relaySection('Skill capability results', visibleRows.length
         ? visibleRows.map((row) => relayGrid([
@@ -5860,7 +5860,7 @@ body {
           ['setup status', row.setup || 'unknown'],
           ['permission boundary', row.permission || 'unknown'],
           ['provenance', row.provenance || 'unknown'],
-          ['usage path', row.example || 'none'],
+          ['usage example', row.example || 'none'],
         ])).join('')
         : relayGrid([['status', 'no matching skills or capabilities in loaded metadata']]), true),
     ].join('');

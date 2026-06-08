@@ -606,11 +606,13 @@ def test_index_spark_skills_registry_searches_loaded_metadata_without_execution(
     assert "Search skills/capabilities" in doc
     assert "Skills uses reviewed FileMap and Models bridge snapshots as capability metadata; it does not call a fake skills backend." in doc
     assert "Search is UI-local over already loaded metadata and does not send prompts, mutate files, install skills, sign in, probe accounts, or enable Auto routing." in doc
-    assert "Registry rows expose description, scope, backend/provider, setup posture, permission boundary, provenance, and a non-executing usage path." in doc
+    assert "Registry rows expose description, scope, backend/provider, setup posture, permission boundary, provenance, and a non-executing usage example." in doc
     assert "backend:filemap" in doc
     assert "backend:models" in doc
     assert "permission boundary" in doc
-    assert "usage path" in doc
+    assert "usage example" in doc
+    assert "Example: inspect" in doc
+    assert "Example: select" in doc
     assert "logicNode.innerHTML = renderSparkSkillsRegistry(sparkSkillsRegistrySnapshot, target.value)" in doc
     assert "bridgeUrl('filemap')" in doc
     assert "bridgeUrl('models')" in doc
@@ -2259,6 +2261,8 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "| SKL2 | Global skills | Shows skills available across all projects. | wired |" in doc
     assert "| SKL4 | Model/backend skills | Shows which skills are available by Codex, Max/Claude, or other backend. | wired |" in doc
     assert "| SKL5 | Skill description | Explains what each skill does in user-readable language. | wired |" in doc
+    assert "| SKL7 | Usage example | Shows a short example command or prompt pattern. | wired |" in doc
+    assert "examples are display text only and do not execute, call providers, mutate files, send prompts, install tools, sign in, or enable Auto routing" in doc
     assert "| SKL8 | Permission boundary | Shows whether the skill reads files, writes files, uses network, or affects accounts. | wired |" in doc
     assert "| SKL9 | Install/setup status | Shows missing dependencies or login/setup requirements. | wired |" in doc
     assert "| SKL10 | Run/request path | Provides a clear path to invoke or request the skill when supported. | wired |" in doc
