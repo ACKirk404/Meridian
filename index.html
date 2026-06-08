@@ -5429,6 +5429,52 @@ body {
       ]), true),
     ].join('');
   };
+  const renderVoiceIoSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Voice I/O source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Voice I/O snapshot unavailable'],
+      ]), true);
+    }
+    const voice = snapshot.voice || {};
+    const controls = Array.isArray(snapshot.controls) ? snapshot.controls : [];
+    const mutationAllowed = Boolean(snapshot.mutation_authorized);
+    return [
+      relaySection('Voice I/O source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Bifrost / Spark'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', mutationAllowed ? 'yes' : 'no'],
+        ['microphone authorized', snapshot.microphone_authorized ? 'yes' : 'no'],
+        ['speech output authorized', snapshot.speech_output_authorized ? 'yes' : 'no'],
+        ['read aloud authorized', snapshot.read_aloud_authorized ? 'yes' : 'no'],
+        ['controls disabled', snapshot.controls_disabled ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Voice state', relayGrid([
+        ['listening', voice.listening ? 'yes' : 'no'],
+        ['dictating', voice.dictating ? 'yes' : 'no'],
+        ['thinking', voice.thinking ? 'yes' : 'no'],
+        ['speaking', voice.speaking ? 'yes' : 'no'],
+        ['muted', voice.muted ? 'yes' : 'no'],
+        ['blocked', voice.blocked ? 'yes' : 'no'],
+        ['boot', voice.boot_status || 'unknown'],
+        ['input', voice.input_mode || 'unknown'],
+        ['output', voice.output_mode || 'unknown'],
+        ['permission', voice.permission_state || 'unknown'],
+        ['status', voice.status_call || 'standing by'],
+        ['intent', voice.last_intent_ref || 'none'],
+      ]), true),
+      ...controls.map((control, index) => relaySection(
+        `Voice control ${index + 1}: ${control.id || 'unknown'}`,
+        relayGrid([
+          ['label', control.label || 'unknown'],
+          ['aria disabled', control.aria_disabled ? 'yes' : 'no'],
+        ]),
+        false,
+      )),
+    ].join('');
+  };
   const loadRelayLogic = async () => {
     const logicNode = rightWorkspace?.querySelector('[data-relay-logic]');
     if (!logicNode) return;
@@ -5571,6 +5617,17 @@ body {
       logicNode.innerHTML = renderSessionCloseArchiveProofSnapshot(snapshot);
     } catch (error) {
       logicNode.innerHTML = renderSessionCloseArchiveProofSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadVoiceIo = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-voice-io]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('voice-io'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderVoiceIoSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderVoiceIoSnapshot({ ok: false, error: error.message });
     }
   };
   const relayBridgeRows = (status, detail) => [
@@ -7384,22 +7441,29 @@ body {
     });
   };
   const renderSparkSurface = (label) => {
-    return renderRightPanelSurface({
+    const selectedLabel = label || 'Settings';
+    const sections = [
+      relaySection('Surface logic', relayGrid([
+        ['mode', 'Settings/Spark'],
+        ['selected surface', selectedLabel],
+        ['prompt window', 'hidden in this mode'],
+      ]), true),
+      relaySection('Backend link', relayGrid([
+        ['state', selectedLabel === 'Settings' ? 'voice I/O status wired' : 'not wired yet'],
+        ['mutation policy', 'blocked until an explicit settings backend exists'],
+        ['drift guard', 'visible controls must match backend settings before writes are enabled'],
+      ]), true),
+    ];
+    if (selectedLabel === 'Settings') {
+      sections.push(`<div data-voice-io>${relaySection('Voice I/O source', relayGrid([['status', 'loading backend snapshot']]))}</div>`);
+    }
+    const rendered = renderRightPanelSurface({
       title: `${label || 'Settings'} Surface`,
       status: 'planned',
-      sections: [
-        relaySection('Surface logic', relayGrid([
-          ['mode', 'Settings/Spark'],
-          ['selected surface', label || 'Settings'],
-          ['prompt window', 'hidden in this mode'],
-        ]), true),
-        relaySection('Backend link', relayGrid([
-          ['state', 'not wired yet'],
-          ['mutation policy', 'blocked until an explicit settings backend exists'],
-          ['drift guard', 'visible controls must match backend settings before writes are enabled'],
-        ]), true),
-      ],
+      sections,
     });
+    if (rendered && selectedLabel === 'Settings') loadVoiceIo();
+    return rendered;
   };
   const renderHarnessSurface = (button) => {
     const harness = button?.dataset.harness || 'Harness';
@@ -7824,6 +7888,7 @@ body {
     if (rightWorkspace?.querySelector('[data-filemap]')) loadFileMap();
     if (rightWorkspace?.querySelector('[data-aegis-logic]')) loadAegisLogic();
     if (rightWorkspace?.querySelector('[data-session-close-archive-proof]')) loadSessionCloseArchiveProof();
+    if (rightWorkspace?.querySelector('[data-voice-io]')) loadVoiceIo();
   };
   window.addEventListener('focus', refreshRelayPanel);
   document.addEventListener('visibilitychange', () => {

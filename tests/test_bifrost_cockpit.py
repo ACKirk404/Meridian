@@ -625,6 +625,13 @@ def test_index_spark_and_workflow_surfaces_use_bridge_snapshots():
     assert "Provider Balance" in doc
     assert "Goal Runtime" in doc
     assert "Checkpoint discipline advisory" in doc
+    assert "Voice I/O source" in doc
+    assert "data-voice-io" in doc
+    assert "bridgeUrl('voice-io')" in doc
+    assert "renderVoiceIoSnapshot" in doc
+    assert "voice I/O status wired" in doc
+    assert "microphone authorized" in doc
+    assert "controls disabled" in doc
     assert "execution authorized" in doc
     assert "self approval granted" in doc
     assert "Workflow Dispatch Status" in doc
@@ -879,6 +886,25 @@ def test_bridge_exposes_session_close_archive_proof_route():
     assert '"mutation_authorized": True' not in doc
     assert "raw_worker_chat = " not in doc
     assert "SECRET_RAW_PROMPT" not in doc
+
+
+def test_bridge_exposes_voice_io_route():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    assert "voiceIoSnapshot: true" in doc
+    assert "voiceIo: '/bridge/voice-io'" in doc
+    assert "function voiceIoSnapshot()" in doc
+    assert "req.method === 'GET' && req.url === BRIDGE_ROUTES.voiceIo" in doc
+    assert "bifrost.cockpit" in doc
+    assert "sample_cockpit_view_model" in doc
+    assert '"display_only": True' in doc
+    assert '"mutation_authorized": False' in doc
+    assert '"microphone_authorized": False' in doc
+    assert '"speech_output_authorized": False' in doc
+    assert '"read_aloud_authorized": False' in doc
+    assert '"controls_disabled": True' in doc
+    assert '"microphone_authorized": True' not in doc
+    assert '"speech_output_authorized": True' not in doc
+    assert '"read_aloud_authorized": True' not in doc
 
 
 def test_ui_checklist_defers_deep_compass_and_vulcan_items_to_backend_tracker():

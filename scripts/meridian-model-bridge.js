@@ -31,6 +31,7 @@ const BRIDGE_CAPABILITIES = {
   fileMapSnapshot: true,
   aegisLogicSnapshot: true,
   sessionCloseArchiveProofSnapshot: true,
+  voiceIoSnapshot: true,
   userSessionTargets: true,
 };
 const BRIDGE_ROUTES = Object.freeze({
@@ -49,6 +50,7 @@ const BRIDGE_ROUTES = Object.freeze({
   fileMap: '/bridge/filemap',
   aegisLogic: '/bridge/aegis-logic',
   sessionCloseArchiveProof: '/bridge/session-close-archive-proof',
+  voiceIo: '/bridge/voice-io',
   userSessions: '/bridge/user-sessions',
   recentCalls: '/bridge/recent-calls',
   callResult: '/bridge/call-result',
@@ -97,7 +99,7 @@ if (process.argv.includes('--self-test')) {
   rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
   const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot;
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot && BRIDGE_CAPABILITIES.voiceIoSnapshot;
   const sampleSession = sessionTargetFromWorktree({
     path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
     branch: 'refs/heads/worktree-build-5-bifrost',
@@ -1277,6 +1279,47 @@ print(json.dumps({
 `);
 }
 
+function voiceIoSnapshot() {
+  return pythonJsonSnapshot('Voice I/O', String.raw`
+import json
+from bifrost.cockpit import sample_cockpit_view_model
+
+voice = sample_cockpit_view_model().voice
+print(json.dumps({
+    "ok": True,
+    "source": "bifrost.cockpit.VoiceIOState",
+    "version": "bifrost-voice-io-display-2026-06-07",
+    "harness": "Bifrost / Spark",
+    "summary": "Display-safe Voice I/O state from the reviewed Bifrost view model.",
+    "display_only": True,
+    "mutation_authorized": False,
+    "microphone_authorized": False,
+    "speech_output_authorized": False,
+    "read_aloud_authorized": False,
+    "controls_disabled": True,
+    "voice": {
+        "listening": voice.listening,
+        "dictating": voice.dictating,
+        "thinking": voice.thinking,
+        "speaking": voice.speaking,
+        "muted": voice.muted,
+        "blocked": voice.blocked,
+        "boot_status": voice.boot_status,
+        "input_mode": voice.input_mode,
+        "output_mode": voice.output_mode,
+        "permission_state": voice.permission_state,
+        "status_call": voice.status_call,
+        "last_intent_ref": voice.last_intent_ref,
+    },
+    "controls": [
+        {"id": "input-status", "label": "Mic", "aria_disabled": True},
+        {"id": "read-aloud-status", "label": "Read", "aria_disabled": True},
+        {"id": "mute-status", "label": "Mute", "aria_disabled": True},
+    ],
+}))
+`);
+}
+
 function parseGitWorktrees(stdout) {
   const records = [];
   let current = null;
@@ -1584,6 +1627,17 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && req.url === BRIDGE_ROUTES.sessionCloseArchiveProof) {
     const snapshot = await sessionCloseArchiveProofSnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.voiceIo) {
+    const snapshot = await voiceIoSnapshot();
     sendJson(res, snapshot.ok ? 200 : 500, {
       service: 'meridian-model-bridge',
       version: BRIDGE_VERSION,
