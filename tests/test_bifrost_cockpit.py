@@ -167,6 +167,25 @@ def test_index_right_panel_mode_has_single_authority_and_recovery():
     assert "return false;" in doc
 
 
+def test_index_harness_mode_uses_full_panel_logic_surface_without_prompt_window():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert ".session-window-right.is-panel-surface .session-interface" in doc
+    assert ".session-window-right.is-panel-surface .session-prompt-input" in doc
+    assert ".session-window-right.is-panel-surface .session-response-output" in doc
+    assert "display: none;" in doc
+    assert "const renderRightPanelSurface = ({ title, status, sections, surfaceClass = '' }) =>" in doc
+    assert "rightWindow.classList.add('is-panel-surface')" in doc
+    assert "rightWorkspace.insertAdjacentHTML('beforeend', `" in doc
+    assert 'class="right-panel-surface${safeSurfaceClass}"' in doc
+    assert "const renderHarnessSurface = (button) =>" in doc
+    assert "relaySection('Harness logic'" in doc
+    assert "['surface mode', 'Harness']" in doc
+    assert "['prompt window', 'hidden in this mode']" in doc
+    assert "relaySection('Backend link'" in doc
+    assert "modelButton ? renderModelHarnessSurface(button) : renderHarnessSurface(button)" in doc
+    assert "setRightPanelAuthority('harness', button.dataset.harness || 'Harness', { persist })" in doc
+
+
 def test_index_harness_title_toggles_model_icons():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert '<button class="harness-dock-title" type="button"' in doc

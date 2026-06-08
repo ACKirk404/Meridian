@@ -171,7 +171,7 @@ Mode meanings:
 |---|---|---|---|---|
 | SUR1 | User Session mode | Right panel targets user review/decision work Prime has surfaced in a project-specific context. | wired | User mode title reads `User Session` / `User Session: <target>` and the routing target comes from the selected live session. |
 | SUR2 | Settings mode | Right panel uses full panel for Meridian configuration items, with no prompt window. | wired | Settings title replaces User session target, prompt UI is absent, `/bridge/voice-io` display state is rendered, and settings/voice mutations are visibly blocked. |
-| SUR3 | Harness mode | Right panel uses full panel for selected harness logic items, with no prompt window. | partial | Harness title replaces User session target and displays logic/backend-link sections. |
+| SUR3 | Harness mode | Right panel uses full panel for selected harness logic items, with no prompt window. | wired | Harness activation calls the shared right-panel surface path, hides the User prompt/response interface with `is-panel-surface`, and renders harness logic/backend-link sections with harness authority state. |
 | SUR4 | Immediate interaction switch | Switching surface immediately changes the right-panel interaction model. | wired | User Session shows prompt; Settings/Harness show item lists. |
 | SUR5 | Prior target memory | Each surface remembers its last selected target where applicable. | wired | Right-panel mode/selection and User Session target persist independently through storage keys. |
 | SUR6 | Surface-specific layout | Layout reflects active surface: prompt/response for User Session, full-panel items for Settings/Harness. | wired | User can tell what mode is active before interacting. |
@@ -519,7 +519,7 @@ Harness mode is for reviewing and updating harness logic items. It may expose di
 |---|---|---|---|---|
 | HMS1 | Enter harness mode | Clicking a harness button switches the right panel into Harness mode. | wired | Right panel title/target changes to selected harness. |
 | HMS2 | Preserve User Session mode | Previous User Session target is preserved when entering Harness mode. | wired | Return to User Session restores the prior `meridian.user-session.target.v1` target or shows the stale-target warning if the session disappeared. |
-| HMS3 | Harness logic list | Shows a full-panel list of logic items for the selected harness. | partial | Harness mode opens with logic/backend-link sections, not a prompt window or blank chat. |
+| HMS3 | Harness logic list | Shows a full-panel list of logic items for the selected harness. | wired | Harness mode opens a full right-panel surface with Harness logic and Backend link sections, not a prompt window or blank chat; model-harness aspect buttons render their own display-only logic sections and backend binding source. |
 | HMS4 | Prime review path | Prime reviews harness intent, risk, and proof needs before model interaction. | planned | Logic item has Prime review state before dispatch, without Prime-owned provider/payload fields. |
 | HMS5 | Relay-mediated model interaction | Model calls for harness logic go through Relay + Model Harness routing and payload construction. | planned | Dispatch metadata names Relay route/model target and Model Harness evidence refs. |
 | HMS6 | Harness-specific actions | Right-panel actions target selected harness logic item. | planned | Action metadata names selected harness and logic item. |
