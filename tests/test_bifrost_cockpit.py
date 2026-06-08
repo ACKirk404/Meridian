@@ -689,12 +689,19 @@ def test_index_relay_harness_renders_backend_logic_snapshot_contract():
     assert "const relayLogicUrl = 'http://127.0.0.1:8767/bridge/relay-logic';" in doc
     assert "fetch(relayLogicUrl, { cache: 'no-store' })" in doc
     assert "renderRelayLogicSnapshot(snapshot)" in doc
+    assert "renderRelayEvidenceSnapshot(snapshot)" in doc
     assert "renderRelayPrimeDirectives(snapshot)" in doc
     assert "capabilitySections.map(renderRelayCapabilitySection)" in doc
     assert "snapshot.routePrecedence" in doc
     assert "tier3.dispatch?.laneOrder" in doc
     assert "tier3.dispatch?.payloadPolicy" in doc
     assert "relayAuditRows(tier3)" in doc
+    assert "data-relay-evidence" in doc
+    assert "bridgeUrl('relay-evidence')" in doc
+    assert "Prompt packet proof advisory" in doc
+    assert "Prompt payload meter advisory" in doc
+    assert "Provider result validation advisory" in doc
+    assert "raw provider response visible" in doc
     assert "Fallback blocker logic" in doc
     assert "Proof and telemetry logic" in doc
 
@@ -718,6 +725,27 @@ def test_bridge_exposes_prime_logic_route_and_capability():
     assert "primeLogic: '/bridge/prime-logic'" in doc
     assert "meridian_core.prime_runtime" in doc
     assert "req.url === BRIDGE_ROUTES.primeLogic" in doc
+
+
+def test_bridge_exposes_relay_evidence_route():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    assert "relayEvidenceSnapshot: true" in doc
+    assert "relayEvidence: '/bridge/relay-evidence'" in doc
+    assert "function relayEvidenceSnapshot()" in doc
+    assert "req.method === 'GET' && req.url === BRIDGE_ROUTES.relayEvidence" in doc
+    assert "PromptPacketProofMetadata" in doc
+    assert "PromptPayloadMeterInput" in doc
+    assert "ProviderResultValidationInput" in doc
+    assert "evaluate_prompt_packet_proof_policy" in doc
+    assert "evaluate_prompt_payload_meter_advisory" in doc
+    assert "evaluate_provider_result_validation_advisory" in doc
+    assert '"display_only": True' in doc
+    assert '"mutation_authorized": False' in doc
+    assert '"raw_prompt_visible": False' in doc
+    assert '"raw_provider_response_visible": False' in doc
+    assert '"provider_call_authorized": False' in doc
+    assert '"provider_call_authorized": True' not in doc
+    assert '"body":' not in doc
 
 
 def test_bridge_exposes_reviewed_display_only_capability_routes():

@@ -4930,6 +4930,60 @@ body {
       ])),
     ].join('');
   };
+  const renderRelayEvidenceSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Relay evidence source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Relay evidence snapshot unavailable'],
+      ]), true);
+    }
+    const packet = snapshot.prompt_packet || {};
+    const meter = snapshot.prompt_payload_meter || {};
+    const provider = snapshot.provider_result || {};
+    const mutationAllowed = Boolean(snapshot.mutation_authorized);
+    return [
+      relaySection('Relay evidence source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Relay / Model Harness'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', mutationAllowed ? 'yes' : 'no'],
+        ['raw prompt visible', snapshot.raw_prompt_visible ? 'yes' : 'no'],
+        ['raw provider response visible', snapshot.raw_provider_response_visible ? 'yes' : 'no'],
+        ['provider call authorized', snapshot.provider_call_authorized ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Prompt packet proof advisory', relayGrid([
+        ['decision', relayText(packet.decision)],
+        ['severity', relayText(packet.severity)],
+        ['reason', packet.reason || 'none'],
+        ['evidence ids', relayJoin(packet.evidence_ids)],
+        ['missing fields', relayJoin(packet.missing_fields)],
+        ['blockers', relayJoin(packet.blockers)],
+        ['warnings', relayJoin(packet.warnings)],
+        ['demote to tier', packet.demote_to_tier ?? 'none'],
+      ]), true),
+      relaySection('Prompt payload meter advisory', relayGrid([
+        ['decision', relayText(meter.decision)],
+        ['label bucket', relayText(meter.label_bucket)],
+        ['payload status', relayText(meter.payload_status)],
+        ['budget percent', meter.budget_percent ?? 'unknown'],
+        ['growth delta tokens', meter.growth_delta_tokens ?? 'unknown'],
+        ['q-mode prompt drag', relayText(meter.q_mode_prompt_drag_state)],
+        ['route refs', relayJoin(meter.route_continuity_refs)],
+        ['bifrost advisory', relayText(meter.bifrost_advisory)],
+      ]), true),
+      relaySection('Provider result validation advisory', relayGrid([
+        ['decision', relayText(provider.decision)],
+        ['validation status', relayText(provider.validation_status)],
+        ['external review', relayText(provider.external_review_state)],
+        ['telemetry available', provider.telemetry_available ? 'yes' : 'no'],
+        ['evidence refs', relayJoin(provider.evidence_refs)],
+        ['blockers', relayJoin(provider.blockers)],
+        ['warnings', relayJoin(provider.warnings)],
+        ['bifrost advisory', relayText(provider.bifrost_advisory)],
+      ]), false),
+    ].join('');
+  };
   const renderProviderBalanceSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
       return relaySection('Provider balance source', relayGrid([
@@ -5339,6 +5393,17 @@ body {
       logicNode.innerHTML = renderRelayLogicSnapshot(snapshot);
     } catch (error) {
       logicNode.innerHTML = renderRelayLogicSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadRelayEvidence = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-relay-evidence]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('relay-evidence'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderRelayEvidenceSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderRelayEvidenceSnapshot({ ok: false, error: error.message });
     }
   };
   const loadCompassLogic = async () => {
@@ -7326,6 +7391,7 @@ body {
           <div class="relay-models-body">
             ${relaySection('Bridge route', '<div data-relay-bridge-status></div>', true)}
             <div data-relay-logic>${relaySection('Relay logic source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-relay-evidence>${relaySection('Relay evidence source', relayGrid([['status', 'loading backend snapshot']]))}</div>
           </div>
         </div>
       `);
@@ -7338,6 +7404,7 @@ body {
       }, true);
       renderRelayBridgeStatus();
       loadRelayLogic();
+      loadRelayEvidence();
       return true;
     } catch {
       restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
@@ -7699,6 +7766,7 @@ body {
   const refreshRelayPanel = () => {
     if (rightWorkspace?.querySelector('.relay-models-surface')) renderRelayBridgeStatus();
     if (rightWorkspace?.querySelector('[data-relay-logic]')) loadRelayLogic();
+    if (rightWorkspace?.querySelector('[data-relay-evidence]')) loadRelayEvidence();
     if (rightWorkspace?.querySelector('[data-prime-logic]')) loadPrimeLogic();
     if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
     if (rightWorkspace?.querySelector('[data-vulcan-logic]')) loadVulcanLogic();

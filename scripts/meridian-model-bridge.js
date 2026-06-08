@@ -19,6 +19,7 @@ const BRIDGE_CAPABILITIES = {
   samePortRestart: true,
   requestResultRecovery: true,
   relayLogicSnapshot: true,
+  relayEvidenceSnapshot: true,
   primeRuntimeSnapshot: true,
   compassLogicSnapshot: true,
   vulcanLogicSnapshot: true,
@@ -36,6 +37,7 @@ const BRIDGE_ROUTES = Object.freeze({
   health: '/bridge/health',
   models: '/bridge/models',
   relayLogic: '/bridge/relay-logic',
+  relayEvidence: '/bridge/relay-evidence',
   primeLogic: '/bridge/prime-logic',
   compassLogic: '/bridge/compass-logic',
   vulcanLogic: '/bridge/vulcan-logic',
@@ -95,7 +97,7 @@ if (process.argv.includes('--self-test')) {
   rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
   const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
   const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot;
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot;
   const sampleSession = sessionTargetFromWorktree({
     path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
     branch: 'refs/heads/worktree-build-5-bifrost',
@@ -467,6 +469,102 @@ function relayLogicSnapshot() {
       }
     });
   });
+}
+
+function relayEvidenceSnapshot() {
+  return pythonJsonSnapshot('Relay evidence', String.raw`
+import json
+from meridian_core.aegis import (
+    PromptPacketProofMetadata,
+    PromptPayloadMeterInput,
+    ProviderResultValidationInput,
+    evaluate_prompt_packet_proof_policy,
+    evaluate_prompt_payload_meter_advisory,
+    evaluate_provider_result_validation_advisory,
+    serialize_prompt_packet_policy_result,
+    serialize_prompt_payload_meter_policy_result,
+    serialize_provider_result_validation_policy_result,
+)
+
+prompt_packet_result = evaluate_prompt_packet_proof_policy(
+    PromptPacketProofMetadata(
+        packet_id="packet-relay-001",
+        packet_hash_status="present",
+        packet_hash="sha256:abc123",
+        prompt_tokens=512,
+        max_context_tokens=2048,
+        budget_ref="budget:tier2:default",
+        source_lineage={"direct_input": 512},
+        allowed_sources=("direct_input", "atlas_retrieval"),
+        aegis_evidence_ids=(
+            "packet:packet-relay-001",
+            "budget:budget-tier2-default",
+            "source:direct-input",
+        ),
+        risk_tier=2,
+        proof_requirement="artifact",
+        selected_model_id="gpt-4o-2026-06-01",
+        model_trust_state="trusted",
+        snapshot_requirement="not_required",
+        snapshot_status="not_required",
+        human_gate_required=False,
+        human_approval_present=False,
+        dual_lane_required=False,
+        dual_lane_proof_present=False,
+        demotion_target_tier=None,
+    )
+)
+payload_meter_result = evaluate_prompt_payload_meter_advisory(
+    PromptPayloadMeterInput(
+        label_bucket="under-1k",
+        budget_percent=24.5,
+        growth_delta_tokens=0,
+        payload_status="ok",
+        q_mode_prompt_drag_state="flat",
+        route_continuity_refs=(
+            "provider:deepseek",
+            "model:deepseek-chat",
+            "route:direct",
+        ),
+        blocker_tags=(),
+        warning_tags=(),
+        evidence_refs=(
+            "payload:snapshot-001",
+            "budget:prompt-meter-ok",
+            "proof:route-continuity",
+        ),
+    )
+)
+provider_result = evaluate_provider_result_validation_advisory(
+    ProviderResultValidationInput(
+        validation_status="valid",
+        warning_tags=(),
+        blocker_tags=(),
+        evidence_refs=(
+            "result:relay-dispatch-001",
+            "proof:direct-provider-route",
+            "budget:prompt-drag-ok",
+        ),
+        telemetry_available=True,
+        external_review_state="not_required",
+    )
+)
+print(json.dumps({
+    "ok": True,
+    "source": "meridian_core.aegis",
+    "version": "v2-relay-evidence-advisory-2026-06-07",
+    "harness": "Relay / Model Harness / Aegis",
+    "summary": "Display-safe prompt packet, payload meter, and provider-result advisory state.",
+    "display_only": True,
+    "mutation_authorized": False,
+    "raw_prompt_visible": False,
+    "raw_provider_response_visible": False,
+    "provider_call_authorized": False,
+    "prompt_packet": serialize_prompt_packet_policy_result(prompt_packet_result),
+    "prompt_payload_meter": serialize_prompt_payload_meter_policy_result(payload_meter_result),
+    "provider_result": serialize_provider_result_validation_policy_result(provider_result),
+}))
+`);
 }
 
 function compassLogicSnapshot() {
@@ -1352,6 +1450,17 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && req.url === BRIDGE_ROUTES.relayLogic) {
     const snapshot = await relayLogicSnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.relayEvidence) {
+    const snapshot = await relayEvidenceSnapshot();
     sendJson(res, snapshot.ok ? 200 : 500, {
       service: 'meridian-model-bridge',
       version: BRIDGE_VERSION,
