@@ -4934,6 +4934,56 @@ body {
       ].join(''), false),
     ].join('');
   };
+  const renderReviewConsoleSnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Review Console source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Review Console snapshot unavailable'],
+      ]), true);
+    }
+    const queue = snapshot.queue || {};
+    const items = Array.isArray(queue.items) ? queue.items : [];
+    const guardrails = Array.isArray(snapshot.guardrails) ? snapshot.guardrails : [];
+    const mutationAllowed = Boolean(snapshot.mutation_authorized);
+    const responseAuthorized = Boolean(snapshot.response_authorized);
+    const executionControlsVisible = Boolean(snapshot.execution_controls_visible);
+    const rawItemContentVisible = Boolean(snapshot.raw_item_content_visible);
+    const rawWorkerChatVisible = Boolean(snapshot.raw_worker_chat_visible);
+    return [
+      relaySection('Review Console source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Arbiter / Review Console'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', mutationAllowed ? 'yes' : 'no'],
+        ['response authorized', responseAuthorized ? 'yes' : 'no'],
+        ['execution controls visible', executionControlsVisible ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Review Console summary', relaySummary(snapshot.summary || ''), true),
+      relaySection('Queue status', relayGrid([
+        ['pending items', queue.pending_count ?? '0'],
+        ['pending gates', queue.pending_gate_count ?? '0'],
+        ['informational items', queue.informational_count ?? '0'],
+        ['raw item content visible', rawItemContentVisible ? 'yes' : 'no'],
+        ['raw worker chat visible', rawWorkerChatVisible ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Pending review items', items.length
+        ? items.map((item) => relayGrid([
+          ['id', item.id || 'unknown'],
+          ['type', relayText(item.item_type)],
+          ['severity', relayText(item.severity)],
+          ['title', item.title || 'unknown'],
+          ['content label', item.content_label || 'none'],
+          ['content length', item.content_length ?? '0'],
+          ['promptable', item.promptable ? 'yes' : 'no'],
+          ['requires response', item.requires_response ? 'yes' : 'no'],
+          ['suggested actions', relayJoin(item.suggested_actions)],
+          ['status', relayText(item.status)],
+        ])).join('')
+        : relayGrid([['status', 'no pending review items']]), false),
+      relaySection('Review guardrails', relayList(guardrails), false),
+    ].join('');
+  };
   const renderPrimeDecisionSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
       return relaySection('Prime logic source', relayGrid([
@@ -5665,6 +5715,17 @@ body {
       logicNode.innerHTML = renderBeaconLivenessSnapshot(snapshot);
     } catch (error) {
       logicNode.innerHTML = renderBeaconLivenessSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadReviewConsole = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-review-console]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('review-console'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.innerHTML = renderReviewConsoleSnapshot(snapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderReviewConsoleSnapshot({ ok: false, error: error.message });
     }
   };
   const loadPrimeLogic = async () => {
@@ -7792,6 +7853,37 @@ body {
       return false;
     }
   };
+  const renderReviewConsole = () => {
+    if (!rightWindow || !rightWorkspace) return false;
+    try {
+      clearRightPanelSurface();
+      rightWindow.classList.add('is-panel-surface');
+      rightWorkspace.removeAttribute('aria-hidden');
+      rightWorkspace.insertAdjacentHTML('beforeend', `
+        <div class="relay-models-surface" role="region" aria-label="Review Console">
+          <div class="relay-models-header">
+            <div class="relay-models-title">Review Console</div>
+            <div class="relay-models-status">Display-only</div>
+          </div>
+          <div class="relay-models-body">
+            <div data-review-console>${relaySection('Review Console source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+          </div>
+        </div>
+      `);
+      rightWorkspace.querySelector('.relay-models-surface')?.addEventListener('toggle', (event) => {
+        const section = event.target;
+        if (!(section instanceof HTMLDetailsElement) || !section.dataset.relaySection) return;
+        const state = relaySectionState();
+        state[section.dataset.relaySection] = section.open;
+        localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
+      }, true);
+      loadReviewConsole();
+      return true;
+    } catch {
+      restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
+      return false;
+    }
+  };
   const renderProviderBalance = () => {
     if (!rightWindow || !rightWorkspace) return false;
     try {
@@ -8059,6 +8151,7 @@ body {
     if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
     if (rightWorkspace?.querySelector('[data-vulcan-logic]')) loadVulcanLogic();
     if (rightWorkspace?.querySelector('[data-beacon-liveness]')) loadBeaconLiveness();
+    if (rightWorkspace?.querySelector('[data-review-console]')) loadReviewConsole();
     if (rightWorkspace?.querySelector('[data-provider-balance]')) loadProviderBalance();
     if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
     if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
@@ -8279,6 +8372,8 @@ body {
       rendered = renderRelayModels();
     } else if (button.dataset.harness === 'Beacon') {
       rendered = renderBeaconLiveness();
+    } else if (button.dataset.harness === 'Codex Reviews') {
+      rendered = renderReviewConsole();
     } else if (button.dataset.harness === 'Compass') {
       rendered = renderCompassProjectLogic();
     } else if (button.dataset.harness === 'Session Lifecycle') {

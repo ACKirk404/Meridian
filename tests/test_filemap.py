@@ -96,6 +96,7 @@ _REQUIRED_PATHS = [
     "docs/prime-planning-harness-answers.md",
     "docs/meridian-capabilities-architecture-map.md",
     "meridian_core/review_console.py",
+    "meridian_core/review_console_snapshot.py",
     "meridian_core/builds.py",
     "meridian_core/filemap.py",
     "tests/test_filemap.py",

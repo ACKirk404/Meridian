@@ -709,6 +709,13 @@ def make_default_map() -> FileMap:
             notes="Replaces 'non-orchestrator window' name.",
         ),
         FileMapEntry(
+            path="meridian_core/review_console_snapshot.py",
+            area=FileArea.REVIEW_CONSOLE,
+            purpose="Display-safe backend snapshot for the Electron Arbiter / Review Console panel.",
+            related_tests=["tests/test_bifrost_cockpit.py", "tests/test_review_console.py"],
+            notes="Bifrost consumes this through /bridge/review-console; no response route, approval buttons, or raw item content.",
+        ),
+        FileMapEntry(
             path="docs/review-console-surface-contract.md",
             area=FileArea.REVIEW_CONSOLE,
             purpose="Review Console surface contract: defines what belongs in the review surface, how Prime populates it, available disposition actions, and Bifrost/Beacon rendering expectations.",

@@ -613,6 +613,34 @@ def test_beacon_liveness_snapshot_is_display_safe_backend_contract():
     assert "Code\\Meridian" not in serialized
 
 
+def test_review_console_snapshot_is_display_safe_backend_contract():
+    import json
+
+    from meridian_core.review_console_snapshot import review_console_snapshot
+
+    snapshot = review_console_snapshot()
+    queue = snapshot["queue"]
+    gate = next(item for item in queue["items"] if item["requires_response"])
+    serialized = json.dumps(snapshot)
+
+    assert snapshot["source"] == "meridian_core.review_console_snapshot.review_console_snapshot"
+    assert snapshot["display_only"] is True
+    assert snapshot["mutation_authorized"] is False
+    assert snapshot["response_authorized"] is False
+    assert snapshot["execution_controls_visible"] is False
+    assert snapshot["raw_item_content_visible"] is False
+    assert snapshot["raw_worker_chat_visible"] is False
+    assert queue["pending_count"] == 4
+    assert queue["pending_gate_count"] == 1
+    assert queue["informational_count"] == 3
+    assert gate["item_type"] == "approval_gate"
+    assert gate["content_label"] == "<review_content>"
+    assert "approve" in gate["suggested_actions"]
+    assert "gate-ref:vulcan-live-control" not in serialized
+    assert "aegis-proof-ref:ui-cross-check" not in serialized
+    assert "no_approval_buttons" in snapshot["guardrails"]
+
+
 def test_index_projects_selector_is_compass_context_not_user_routing():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "projectOptions = ['Bifrost', 'Meridian', 'Spark']" in doc
@@ -665,6 +693,20 @@ def test_index_beacon_harness_uses_backend_liveness_snapshot():
     assert "Advisory families" in doc
     assert "Beacon guardrails" in doc
     assert "raw filesystem paths visible" in doc
+
+
+def test_index_review_harness_uses_backend_console_snapshot():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Review Console" in doc
+    assert "data-review-console" in doc
+    assert "bridgeUrl('review-console')" in doc
+    assert "renderReviewConsoleSnapshot" in doc
+    assert "renderReviewConsole" in doc
+    assert "Queue status" in doc
+    assert "Pending review items" in doc
+    assert "Review guardrails" in doc
+    assert "response authorized" in doc
+    assert "raw item content visible" in doc
 
 
 def test_index_prime_harness_uses_backend_runtime_snapshot():
@@ -870,6 +912,15 @@ def test_bridge_exposes_beacon_liveness_route():
     assert "function beaconLivenessSnapshot()" in doc
     assert "meridian_core.beacon_liveness_snapshot" in doc
     assert "req.method === 'GET' && req.url === BRIDGE_ROUTES.beaconLiveness" in doc
+
+
+def test_bridge_exposes_review_console_route():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    assert "reviewConsoleSnapshot: true" in doc
+    assert "reviewConsole: '/bridge/review-console'" in doc
+    assert "function reviewConsoleSnapshot()" in doc
+    assert "meridian_core.review_console_snapshot" in doc
+    assert "req.method === 'GET' && req.url === BRIDGE_ROUTES.reviewConsole" in doc
 
 
 def test_bridge_exposes_reviewed_display_only_capability_routes():
