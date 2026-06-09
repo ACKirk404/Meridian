@@ -3,12 +3,14 @@
 from meridian_core.compass_logic_snapshot import compass_logic_snapshot
 from meridian_core.prime_runtime import (
     PrimeAegisRiskInput,
+    PrimeBeaconLivenessInput,
     PrimeDecisionStatus,
     PrimeInteractionRequest,
     PrimeIntentKind,
     aegis_risk_from_aggregate,
     assemble_prime_runtime_context,
     audit_prime_decision,
+    beacon_liveness_from_snapshot,
     evaluate_prime_executability,
     make_prime_decision,
     resolve_prime_decision,
@@ -139,6 +141,99 @@ def test_prime_context_consumes_aegis_aggregate_gate_summary():
     assert payload["aegisRisk"]["highestSeverity"] == "info"
     assert payload["aegisRisk"]["blocking"] is False
     assert payload["sourceRefs"][-1]["source"] == "meridian_core.aegis.summarize_aggregate_route_gates"
+
+
+def test_prime_context_consumes_display_safe_beacon_liveness_snapshot():
+    beacon = beacon_liveness_from_snapshot(
+        {
+            "source": "meridian_core.beacon_liveness_snapshot.beacon_liveness_snapshot",
+            "observation_mode": "contract_sample:no_live_sentinels_configured",
+            "heartbeats": [
+                {
+                    "harness_id": "build-1",
+                    "status": "stale",
+                    "current_work_present": True,
+                    "current_work_label": "<sentinel_path>",
+                    "last_event": "liveness sentinel missing",
+                    "blockers": ["missing sentinel"],
+                    "updated_at": "2026-06-08T12:00:00+00:00",
+                }
+            ],
+            "advisory_families": ["runtime_state", "v2_command_plan_preview"],
+        }
+    )
+    context = assemble_prime_runtime_context(
+        compass_snapshot=compass_logic_snapshot(),
+        vulcan_snapshot=vulcan_logic_snapshot(),
+        relay_snapshot=relay_logic_snapshot(),
+        beacon_liveness=beacon,
+    )
+    payload = context.to_dict()
+
+    assert payload["beaconLiveness"] == {
+        "source": "meridian_core.beacon_liveness_snapshot.beacon_liveness_snapshot",
+        "observedHarnesses": ["build-1"],
+        "statuses": ["stale"],
+        "blockerCount": 1,
+        "currentWorkPresentCount": 1,
+        "observationMode": "contract_sample:no_live_sentinels_configured",
+        "advisoryFamilies": ["runtime_state", "v2_command_plan_preview"],
+        "updatedAtLatest": "2026-06-08T12:00:00+00:00",
+        "degraded": True,
+        "advisoryOnly": True,
+        "executionAuthorized": False,
+        "sessionControlAuthorized": False,
+        "rawFilesystemPathsVisible": False,
+    }
+    assert payload["sourceRefs"][-1] == {
+        "harness": "Beacon",
+        "source": "meridian_core.beacon_liveness_snapshot.beacon_liveness_snapshot",
+        "summary": "heartbeat and liveness posture",
+    }
+    rendered = str(payload)
+    assert "<sentinel_path>" not in rendered
+    assert "liveness sentinel missing" not in rendered
+
+
+def test_prime_beacon_liveness_blocks_live_control_without_authorizing_execution():
+    context = assemble_prime_runtime_context(
+        compass_snapshot=compass_logic_snapshot(),
+        vulcan_snapshot=vulcan_logic_snapshot(),
+        relay_snapshot=relay_logic_snapshot(),
+        beacon_liveness=PrimeBeaconLivenessInput(
+            source="beacon-test",
+            observed_harnesses=("build-2",),
+            statuses=("failed",),
+            blocker_count=1,
+        ),
+    )
+    gate = evaluate_prime_executability(context=context, owner_harness="Vulcan")
+
+    assert gate.status == PrimeDecisionStatus.BLOCKED
+    assert gate.to_dict()["executable"] is False
+    assert gate.blockers == (
+        "Beacon liveness advisory requires review before live control.",
+    )
+    assert context.beacon_liveness.to_dict()["executionAuthorized"] is False
+    assert context.beacon_liveness.to_dict()["sessionControlAuthorized"] is False
+
+
+def test_prime_beacon_liveness_does_not_block_read_only_prime_inspection():
+    context = assemble_prime_runtime_context(
+        compass_snapshot=compass_logic_snapshot(),
+        vulcan_snapshot=vulcan_logic_snapshot(),
+        relay_snapshot=relay_logic_snapshot(),
+        beacon_liveness=PrimeBeaconLivenessInput(
+            source="beacon-test",
+            observed_harnesses=("build-2",),
+            statuses=("stale",),
+            blocker_count=1,
+        ),
+    )
+    gate = evaluate_prime_executability(context=context, owner_harness="Prime")
+
+    assert gate.status == PrimeDecisionStatus.EXECUTABLE
+    assert gate.blockers == ()
 
 
 def test_prime_executability_needs_approval_when_aegis_blocks():
@@ -360,7 +455,13 @@ def test_prime_runtime_snapshot_is_backend_visible_contract():
     assert snapshot["decision"]["request"]["requestId"] == "prime-runtime-request-v1"
     assert snapshot["decision"]["driftAudit"]["status"] == "clean"
     assert snapshot["decision"]["context"]["sourceRefs"][0]["harness"] == "Compass"
+    assert snapshot["decision"]["context"]["sourceRefs"][-1]["harness"] == "Beacon"
     assert snapshot["decision"]["context"]["aegisRisk"]["aggregateAction"] == "route_allowed"
+    assert snapshot["decision"]["context"]["beaconLiveness"]["advisoryOnly"] is True
+    assert (
+        snapshot["decision"]["context"]["beaconLiveness"]["executionAuthorized"]
+        is False
+    )
     assert [item["name"] for item in snapshot["primeDirectives"]] == [
         "Logic, not rules",
         "Context precedes meaningful action",
@@ -376,5 +477,6 @@ def test_prime_runtime_snapshot_is_backend_visible_contract():
     assert "Logic Hierarchy" in titles
     assert "Aegis Binding" in titles
     assert "Executability Logic" in titles
+    assert "Beacon Binding" in titles
     assert "No Drift Audit" in titles
     assert "Proof Packet" in titles

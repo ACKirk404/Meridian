@@ -185,6 +185,58 @@ class PrimeAegisRiskInput:
 
 
 @dataclass(frozen=True)
+class PrimeBeaconLivenessInput:
+    """Display-safe Beacon liveness state Prime can consume as evidence.
+
+    Beacon remains advisory only here: Prime may read liveness posture, but
+    this input never authorizes process control, session control, branch
+    movement, or worktree movement.
+    """
+
+    source: str
+    observed_harnesses: tuple[str, ...]
+    statuses: tuple[str, ...]
+    blocker_count: int = 0
+    current_work_present_count: int = 0
+    observation_mode: str = "unknown"
+    advisory_families: tuple[str, ...] = ()
+    updated_at_latest: str = ""
+
+    def is_degraded(self) -> bool:
+        degraded = {"blocked", "failed", "stale"}
+        return bool(degraded.intersection(self.statuses)) or self.blocker_count > 0
+
+    def summary(self) -> str:
+        status_label = ", ".join(self.statuses) if self.statuses else "none"
+        return (
+            f"Beacon statuses={status_label}; harnesses={len(self.observed_harnesses)}; "
+            f"blockers={self.blocker_count}; advisory_only=True"
+        )
+
+    def blockers(self) -> tuple[str, ...]:
+        if not self.is_degraded():
+            return ()
+        return ("Beacon liveness advisory requires review before live control.",)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "source": self.source,
+            "observedHarnesses": list(self.observed_harnesses),
+            "statuses": list(self.statuses),
+            "blockerCount": self.blocker_count,
+            "currentWorkPresentCount": self.current_work_present_count,
+            "observationMode": self.observation_mode,
+            "advisoryFamilies": list(self.advisory_families),
+            "updatedAtLatest": self.updated_at_latest,
+            "degraded": self.is_degraded(),
+            "advisoryOnly": True,
+            "executionAuthorized": False,
+            "sessionControlAuthorized": False,
+            "rawFilesystemPathsVisible": False,
+        }
+
+
+@dataclass(frozen=True)
 class PrimeInteractionRequest:
     """Typed per-interaction request Prime resolves into a runtime decision."""
 
@@ -222,6 +274,7 @@ class PrimeRuntimeContext:
     relay_route_summary: str
     risk_summary: str
     aegis_risk: PrimeAegisRiskInput | None = None
+    beacon_liveness: PrimeBeaconLivenessInput | None = None
     source_refs: tuple[PrimeSourceRef, ...] = field(default_factory=tuple)
 
     def to_dict(self) -> dict[str, Any]:
@@ -232,6 +285,9 @@ class PrimeRuntimeContext:
             "relayRouteSummary": self.relay_route_summary,
             "riskSummary": self.risk_summary,
             "aegisRisk": self.aegis_risk.to_dict() if self.aegis_risk else None,
+            "beaconLiveness": (
+                self.beacon_liveness.to_dict() if self.beacon_liveness else None
+            ),
             "sourceRefs": [source.to_dict() for source in self.source_refs],
         }
 
@@ -291,6 +347,7 @@ def assemble_prime_runtime_context(
     vulcan_snapshot: Mapping[str, Any],
     relay_snapshot: Mapping[str, Any],
     aegis_risk: PrimeAegisRiskInput | None = None,
+    beacon_liveness: PrimeBeaconLivenessInput | None = None,
     project_id: str = "Meridian",
     risk_summary: str = "Aegis proof/risk gate unavailable; treat as safe read-only until wired.",
 ) -> PrimeRuntimeContext:
@@ -300,7 +357,18 @@ def assemble_prime_runtime_context(
     vulcan_source = str(vulcan_snapshot.get("source") or "unknown")
     relay_source = str(relay_snapshot.get("source") or "unknown")
     aegis_source = aegis_risk.source if aegis_risk else "pending"
+    beacon_source = beacon_liveness.source if beacon_liveness else "pending"
     final_risk_summary = aegis_risk.summary() if aegis_risk else risk_summary
+    source_refs = [
+        PrimeSourceRef("Compass", compass_source, "project bounds and scope"),
+        PrimeSourceRef("Vulcan", vulcan_source, "session lifecycle state"),
+        PrimeSourceRef("Relay", relay_source, "model route and access logic"),
+        PrimeSourceRef("Aegis", aegis_source, "proof/risk gate state"),
+    ]
+    if beacon_liveness is not None:
+        source_refs.append(
+            PrimeSourceRef("Beacon", beacon_source, "heartbeat and liveness posture")
+        )
 
     return PrimeRuntimeContext(
         project_id=project_id,
@@ -318,12 +386,54 @@ def assemble_prime_runtime_context(
         ),
         risk_summary=final_risk_summary,
         aegis_risk=aegis_risk,
-        source_refs=(
-            PrimeSourceRef("Compass", compass_source, "project bounds and scope"),
-            PrimeSourceRef("Vulcan", vulcan_source, "session lifecycle state"),
-            PrimeSourceRef("Relay", relay_source, "model route and access logic"),
-            PrimeSourceRef("Aegis", aegis_source, "proof/risk gate state"),
-        ),
+        beacon_liveness=beacon_liveness,
+        source_refs=tuple(source_refs),
+    )
+
+
+def beacon_liveness_from_snapshot(
+    snapshot: Mapping[str, Any],
+) -> PrimeBeaconLivenessInput:
+    """Convert a display-safe Beacon snapshot into Prime liveness evidence."""
+    heartbeats = snapshot.get("heartbeats")
+    safe_heartbeats = heartbeats if isinstance(heartbeats, list) else []
+    harnesses: list[str] = []
+    statuses: list[str] = []
+    blocker_count = 0
+    current_work_present_count = 0
+    latest = ""
+    for heartbeat in safe_heartbeats:
+        if not isinstance(heartbeat, Mapping):
+            continue
+        harness_id = heartbeat.get("harness_id")
+        status = heartbeat.get("status")
+        if isinstance(harness_id, str) and harness_id:
+            harnesses.append(harness_id)
+        if isinstance(status, str) and status:
+            statuses.append(status)
+        blockers = heartbeat.get("blockers")
+        if isinstance(blockers, list):
+            blocker_count += len(blockers)
+        if heartbeat.get("current_work_present") is True:
+            current_work_present_count += 1
+        updated_at = heartbeat.get("updated_at")
+        if isinstance(updated_at, str) and updated_at > latest:
+            latest = updated_at
+
+    advisory_families = snapshot.get("advisory_families")
+    return PrimeBeaconLivenessInput(
+        source=str(snapshot.get("source") or "unknown"),
+        observed_harnesses=tuple(harnesses),
+        statuses=tuple(statuses),
+        blocker_count=blocker_count,
+        current_work_present_count=current_work_present_count,
+        observation_mode=str(snapshot.get("observation_mode") or "unknown"),
+        advisory_families=tuple(
+            str(item) for item in advisory_families
+        )
+        if isinstance(advisory_families, list)
+        else (),
+        updated_at_latest=latest,
     )
 
 
@@ -435,6 +545,13 @@ def evaluate_prime_executability(
 
     if context.aegis_risk and context.aegis_risk.is_blocking():
         blockers.extend(context.aegis_risk.blockers())
+
+    if (
+        owner_harness == "Vulcan"
+        and context.beacon_liveness
+        and context.beacon_liveness.is_degraded()
+    ):
+        blockers.extend(context.beacon_liveness.blockers())
 
     if requires_approval or (context.aegis_risk and context.aegis_risk.requires_approval()):
         return PrimeExecutability(
@@ -611,6 +728,7 @@ def prime_runtime_snapshot() -> dict[str, Any]:
 
     from meridian_core.compass_logic_snapshot import compass_logic_snapshot
     from meridian_core.aegis import summarize_aggregate_route_gates
+    from meridian_core.beacon_liveness_snapshot import beacon_liveness_snapshot
     from meridian_core.relay_logic_snapshot import relay_logic_snapshot
     from meridian_core.vulcan_logic_snapshot import vulcan_logic_snapshot
 
@@ -619,6 +737,7 @@ def prime_runtime_snapshot() -> dict[str, Any]:
         vulcan_snapshot=vulcan_logic_snapshot(),
         relay_snapshot=relay_logic_snapshot(),
         aegis_risk=aegis_risk_from_aggregate(summarize_aggregate_route_gates([])),
+        beacon_liveness=beacon_liveness_from_snapshot(beacon_liveness_snapshot()),
     )
     request = PrimeInteractionRequest(
         request_id="prime-runtime-request-v1",
@@ -692,6 +811,17 @@ def prime_runtime_snapshot() -> dict[str, Any]:
                     {"key": "aggregate action", "value": context.aegis_risk.aggregate_action if context.aegis_risk else "unavailable"},
                     {"key": "highest severity", "value": context.aegis_risk.highest_severity if context.aegis_risk else "unavailable"},
                     {"key": "blocking", "value": "yes" if context.aegis_risk and context.aegis_risk.is_blocking() else "no"},
+                ],
+            },
+            {
+                "title": "Beacon Binding",
+                "summary": "Prime consumes Beacon liveness as advisory evidence without gaining live-control authority.",
+                "rows": [
+                    {"key": "source", "value": context.beacon_liveness.source if context.beacon_liveness else "unavailable"},
+                    {"key": "status", "value": ", ".join(context.beacon_liveness.statuses) if context.beacon_liveness else "unavailable"},
+                    {"key": "observed harnesses", "value": str(len(context.beacon_liveness.observed_harnesses)) if context.beacon_liveness else "0"},
+                    {"key": "blockers", "value": str(context.beacon_liveness.blocker_count) if context.beacon_liveness else "0"},
+                    {"key": "live control authorized", "value": "false"},
                 ],
             },
             {
