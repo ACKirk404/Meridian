@@ -2489,6 +2489,8 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "UI-local quiet mode backed by `meridian.quiet-mode.v1`" in doc
     assert "| SET11 | Focus mode | Collapses portfolio noise to the active project. | wired |" in doc
     assert "UI-local focus mode backed by `meridian.focus-mode.v1`" in doc
+    assert "| SET15 | Wake mode | Selects full wake, fast wake, or silent wake. | wired |" in doc
+    assert "UI-local wake mode backed by `meridian.wake-mode.v1`" in doc
     assert "| SET16 | Quick reply order | Chooses which prompt macro buttons appear and their order. | wired |" in doc
     assert "UI-local quick reply order backed by `meridian.quick-reply-order.v1`" in doc
     assert "| SET20 | Non-exposed harness internals | Confirms heartbeat thresholds, capability toggles, and cross-harness routing internals stay hidden unless explicitly promoted. | wired |" in doc
@@ -2838,6 +2840,43 @@ def test_index_settings_surface_controls_quick_reply_order_locally():
     assert "bridgeUrl('message')" not in quick_reply
     assert "bridgeUrl('call-result')" not in quick_reply
     assert "method: 'POST'" not in quick_reply
+
+
+def test_index_settings_surface_controls_wake_mode_locally():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    render_start = doc.rindex("const wakeModeKey = 'meridian.wake-mode.v1'")
+    render_end = doc.index("const filterToggle = (key, label, state) =>", render_start)
+    wake_mode = doc[render_start:render_end]
+    settings_start = doc.index("const renderSparkSurface = (label) =>")
+    settings_end = doc.index("const harnessDraftStorageKey", settings_start)
+    settings_surface = doc[settings_start:settings_end]
+    reload_start = doc.index("const cleanReloadMarker = () => {")
+    reload_end = doc.index("const orb = document.querySelector('.date-orb');", reload_start)
+    reload_marker = doc[reload_start:reload_end]
+    restore_start = doc.index("const restoreStoredRightPanel = () => {")
+    restore_end = doc.index("menu.addEventListener('pointerenter', openSpark);", restore_start)
+    restore_panel = doc[restore_start:restore_end]
+
+    assert "const wakeModeKey = 'meridian.wake-mode.v1'" in wake_mode
+    assert "wakeModeOptions = ['full wake', 'fast wake', 'silent wake']" in wake_mode
+    assert "readWakeMode" in wake_mode
+    assert "writeWakeMode" in wake_mode
+    assert "Wake mode" in wake_mode
+    assert "data-wake-mode" in wake_mode
+    assert "data-wake-mode-preview" in wake_mode
+    assert "restore User panel quietly" in wake_mode
+    assert "data-wake-mode-surface" in settings_surface
+    assert "initializeWakeModeSurface();" in settings_surface
+    assert "window.meridianReloadMarkerPresent = cleanReloadMarker();" in reload_marker
+    assert "if (readWakeMode() === 'silent wake')" in restore_panel
+    assert "restoreUserPanel({ persist: false });" in restore_panel
+    assert "if (readWakeMode() === 'full wake')" in restore_panel
+    assert "Wake complete: full wake restored the last visible panel." in restore_panel
+    assert "Wake complete: full wake restored the session interface." in restore_panel
+    assert "pushEntry(" in restore_panel
+    assert "bridgeUrl('message')" not in wake_mode
+    assert "bridgeUrl('call-result')" not in wake_mode
+    assert "method: 'POST'" not in wake_mode
 
 
 def test_index_voice_io_surface_shows_public_setup_guidance_without_voice_mutation():

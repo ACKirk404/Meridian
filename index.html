@@ -3935,11 +3935,12 @@ body {
 (() => {
   const cleanReloadMarker = () => {
     const url = new URL(window.location.href);
-    if (!url.searchParams.has('meridian_reload')) return;
+    if (!url.searchParams.has('meridian_reload')) return false;
     url.searchParams.delete('meridian_reload');
     window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+    return true;
   };
-  cleanReloadMarker();
+  window.meridianReloadMarkerPresent = cleanReloadMarker();
   const orb = document.querySelector('.date-orb');
   const month = document.querySelector('.date-orb-month');
   const day = document.querySelector('.date-orb-day');
@@ -4264,6 +4265,23 @@ body {
     } catch {
       return [...quickReplyDefaults];
     }
+  };
+  const wakeModeKey = 'meridian.wake-mode.v1';
+  const wakeModeOptions = ['full wake', 'fast wake', 'silent wake'];
+  const readWakeMode = () => {
+    try {
+      const stored = String(localStorage.getItem(wakeModeKey) || '').trim().toLowerCase();
+      return wakeModeOptions.includes(stored) ? stored : 'full wake';
+    } catch {
+      return 'full wake';
+    }
+  };
+  const writeWakeMode = (value) => {
+    const next = wakeModeOptions.includes(String(value || '').trim().toLowerCase())
+      ? String(value || '').trim().toLowerCase()
+      : 'full wake';
+    try { localStorage.setItem(wakeModeKey, next); } catch {}
+    return next;
   };
   const renderUserSessionSelect = () => {
     if (!userSessionSelect) return;
@@ -8769,6 +8787,23 @@ body {
     try { localStorage.setItem(quickReplyOrderKey, JSON.stringify(next)); } catch {}
     return next;
   };
+  const wakeModeKey = 'meridian.wake-mode.v1';
+  const wakeModeOptions = ['full wake', 'fast wake', 'silent wake'];
+  const readWakeMode = () => {
+    try {
+      const stored = String(localStorage.getItem(wakeModeKey) || '').trim().toLowerCase();
+      return wakeModeOptions.includes(stored) ? stored : 'full wake';
+    } catch {
+      return 'full wake';
+    }
+  };
+  const writeWakeMode = (value) => {
+    const next = wakeModeOptions.includes(String(value || '').trim().toLowerCase())
+      ? String(value || '').trim().toLowerCase()
+      : 'full wake';
+    try { localStorage.setItem(wakeModeKey, next); } catch {}
+    return next;
+  };
   const renderProjectFocusSnapshot = () => [
     relaySection('Project focus authority', relayGrid([
       ['active project', activeProjectContext()],
@@ -9145,6 +9180,49 @@ body {
     applyQuickReplyOrder();
     refresh();
   };
+  const renderWakeModePreview = (mode = readWakeMode()) => relayGrid([
+    ['wake mode', mode],
+    ['storage key', wakeModeKey],
+    ['startup panel restore', mode === 'silent wake' ? 'restore User panel quietly' : 'restore the last visible panel when available'],
+    ['wake transcript note', mode === 'full wake' ? 'Prime receives a local wake note on startup/reload' : 'no transcript wake note'],
+    ['audio stack', 'not active in V1; wake mode remains UI-local'],
+  ]);
+  const renderWakeModeSurface = () => {
+    const mode = readWakeMode();
+    return [
+      relaySection('Wake mode', `
+        <div class="relay-models-handoff" aria-label="Wake mode selector">
+          <label>Startup mode
+            <select data-wake-mode>
+              ${wakeModeOptions.map((option) => `<option value="${escapeHtml(option)}" ${mode === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+        <div data-wake-mode-preview>${renderWakeModePreview(mode)}</div>
+      `, true),
+      relaySection('Wake mode boundary', relayList([
+        'Wake mode is stored only in the local UI profile.',
+        'Full wake restores the prior visible panel and adds a local Prime wake note; fast wake restores the panel without adding transcript noise; silent wake restores the User panel quietly.',
+        'No microphone/audio control, backend wake route, scheduler mutation, prompt send, or session ownership change is invoked.',
+      ]), false),
+    ];
+  };
+  const initializeWakeModeSurface = () => {
+    const root = rightWorkspace?.querySelector('[data-wake-mode-surface]');
+    if (!root) return;
+    const refresh = (mode = readWakeMode()) => {
+      const preview = root.querySelector('[data-wake-mode-preview]');
+      if (preview) preview.innerHTML = renderWakeModePreview(mode);
+      const input = root.querySelector('[data-wake-mode]');
+      if (input) input.value = mode;
+    };
+    root.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!target?.matches?.('[data-wake-mode]')) return;
+      refresh(writeWakeMode(target.value));
+    });
+    refresh();
+  };
   const filterToggle = (key, label, state) => `
     <label class="relay-models-handoff">
       <input type="checkbox" data-filter-toggle="${key}" ${state[key] ? 'checked' : ''}>
@@ -9166,6 +9244,7 @@ body {
       ['progress warning default', state.progressWarning ? 'visible for new progress previews' : 'hidden from preview only'],
       ['progress error default', state.progressError ? 'visible for new progress previews' : 'hidden from preview only'],
       ['quiet mode', readQuietMode() ? 'enabled for routine surfaces' : 'disabled'],
+      ['wake mode', readWakeMode()],
       ['quick replies', readQuickReplyOrder().join(', ')],
       ['pinned progress items', readProgressState().pinned.length ? readProgressState().pinned.join(', ') : 'none'],
       ['muted progress items', readProgressState().muted.length ? readProgressState().muted.join(', ') : 'none'],
@@ -9265,6 +9344,7 @@ body {
       sections.push(`<div data-spark-models>${relaySection('Models bridge source', relayGrid([['status', 'loading backend snapshot']]))}</div>`);
       sections.push(`<div data-focus-mode-surface>${renderFocusModeSurface().join('')}</div>`);
       sections.push(`<div data-quiet-mode-surface>${renderQuietModeSurface().join('')}</div>`);
+      sections.push(`<div data-wake-mode-surface>${renderWakeModeSurface().join('')}</div>`);
       sections.push(`<div data-quick-reply-order-surface>${renderQuickReplyOrderSurface().join('')}</div>`);
       sections.push(`<div data-role-model-overrides-surface>${renderRoleModelOverridesSurface().join('')}</div>`);
       sections.push(`<div data-diagnostic-default-surface>${renderDiagnosticDefaultSurface().join('')}</div>`);
@@ -9284,6 +9364,7 @@ body {
       loadSparkModels();
       initializeFocusModeSurface();
       initializeQuietModeSurface();
+      initializeWakeModeSurface();
       initializeQuickReplyOrderSurface();
       initializeRoleModelOverridesSurface();
       initializeDiagnosticDefaultSurface();
@@ -10538,6 +10619,10 @@ body {
     });
   });
   const restoreStoredRightPanel = () => {
+    if (readWakeMode() === 'silent wake') {
+      restoreUserPanel({ persist: false });
+      return;
+    }
     const stored = readStoredRightPanel();
     if (stored.mode === 'harness') {
       const button = harnessButtons.find((item) => item.dataset.harness === stored.selection);
@@ -10555,6 +10640,21 @@ body {
     else restoreUserPanel({ persist: false });
   };
   restoreStoredRightPanel();
+  if (readWakeMode() === 'full wake') {
+    const input = primeWindow?.querySelector('.session-prompt-input');
+    if (input) {
+      const startupKind = window.meridianReloadMarkerPresent ? 'reload' : 'startup';
+      pushEntry(
+        input,
+        'setup',
+        startupKind === 'reload'
+          ? 'Wake complete: full wake restored the last visible panel.'
+          : 'Wake complete: full wake restored the session interface.',
+        'Wake',
+        { wakeMode: 'full wake', startupKind, audioStack: 'inactive', panelRestore: 'enabled' }
+      );
+    }
+  }
   menu.addEventListener('pointerenter', openSpark);
   document.addEventListener('pointermove', chooseVisibleSystem);
 })();
