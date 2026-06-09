@@ -8538,6 +8538,9 @@ body {
     workStatements: false,
     evidence: true,
     diagnostics: false,
+    progressInfo: true,
+    progressWarning: true,
+    progressError: true,
     verbosity: 'normal',
     scope: 'prime',
   };
@@ -8623,6 +8626,56 @@ body {
     });
     refresh();
   };
+  const renderProgressFilterDefaultsPreview = (state) => relayGrid([
+    ['info progress default', state.progressInfo ? 'visible in progress previews' : 'hidden in progress previews'],
+    ['warning progress default', state.progressWarning ? 'visible in progress previews' : 'hidden in progress previews'],
+    ['error progress default', state.progressError ? 'visible in progress previews' : 'hidden in progress previews'],
+    ['storage key', 'meridian.context-filter.v1'],
+    ['scope', 'UI-local progress/filter preview'],
+    ['source data', 'visibility only; progress source data is not deleted'],
+  ]);
+  const progressDefaultToggle = (key, label, state) => `
+    <label class="relay-models-handoff">
+      <input type="checkbox" data-progress-default-toggle="${key}" ${state[key] ? 'checked' : ''}>
+      <span>${label}</span>
+    </label>`;
+  const renderProgressFilterDefaultsSurface = () => {
+    const state = readContextFilterState();
+    return [
+      relaySection('Progress filter defaults', `
+        <div class="relay-models-handoff" aria-label="Progress severity defaults">
+          ${progressDefaultToggle('progressInfo', 'Info progress', state)}
+          ${progressDefaultToggle('progressWarning', 'Warning progress', state)}
+          ${progressDefaultToggle('progressError', 'Error/blocker progress', state)}
+        </div>
+        <div data-progress-default-preview>${renderProgressFilterDefaultsPreview(state)}</div>
+      `, true),
+      relaySection('Progress filter boundary', relayList([
+        'These defaults update only UI-local progress and context/filter previews.',
+        'Severity visibility can be changed without deleting progress, proof, session, or review source data.',
+        'No backend progress route, prompt send, result recovery, provider call, or settings mutation is invoked.',
+      ]), false),
+    ];
+  };
+  const initializeProgressFilterDefaultsSurface = () => {
+    const root = rightWorkspace?.querySelector('[data-progress-default-surface]');
+    if (!root) return;
+    const refresh = () => {
+      const preview = root.querySelector('[data-progress-default-preview]');
+      if (preview) preview.innerHTML = renderProgressFilterDefaultsPreview(readContextFilterState());
+    };
+    root.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!target?.matches?.('[data-progress-default-toggle]')) return;
+      const state = readContextFilterState();
+      state[target.dataset.progressDefaultToggle] = target.checked;
+      writeContextFilterState(state);
+      refresh();
+      const filterPreview = rightWorkspace?.querySelector('[data-filter-preview]');
+      if (filterPreview) filterPreview.innerHTML = renderContextFilterPreview(state);
+    });
+    refresh();
+  };
   const filterToggle = (key, label, state) => `
     <label class="relay-models-handoff">
       <input type="checkbox" data-filter-toggle="${key}" ${state[key] ? 'checked' : ''}>
@@ -8640,6 +8693,9 @@ body {
       ['work statements', state.workStatements ? 'included as compact work statements' : 'hidden from preview only'],
       ['proof/evidence', state.evidence ? 'included as evidence refs only' : 'hidden from preview only'],
       ['diagnostics', state.diagnostics ? 'included as structured diagnostic events' : 'hidden from preview only'],
+      ['progress info default', state.progressInfo ? 'visible for new progress previews' : 'hidden from preview only'],
+      ['progress warning default', state.progressWarning ? 'visible for new progress previews' : 'hidden from preview only'],
+      ['progress error default', state.progressError ? 'visible for new progress previews' : 'hidden from preview only'],
       ['send behavior', 'preview only; no prompt is sent or saved'],
       ['source data', 'filtering never deletes source session data'],
     ];
@@ -8734,6 +8790,7 @@ body {
       ]), true));
       sections.push(`<div data-spark-models>${relaySection('Models bridge source', relayGrid([['status', 'loading backend snapshot']]))}</div>`);
       sections.push(`<div data-diagnostic-default-surface>${renderDiagnosticDefaultSurface().join('')}</div>`);
+      sections.push(`<div data-progress-default-surface>${renderProgressFilterDefaultsSurface().join('')}</div>`);
     }
     if (filterSelected) {
       sections.push(`<div data-context-filter-surface>${renderContextFilterSurface().join('')}</div>`);
@@ -8747,6 +8804,7 @@ body {
       loadVoiceIo();
       loadSparkModels();
       initializeDiagnosticDefaultSurface();
+      initializeProgressFilterDefaultsSurface();
     }
     if (rendered && filterSelected) initializeContextFilterSurface();
     return rendered;

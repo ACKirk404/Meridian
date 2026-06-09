@@ -2471,6 +2471,9 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "| SET18 | Diagnostic log visibility | Controls whether per-session diagnostic event logs are visible by default. | wired |" in doc
     assert "UI-local diagnostic event visibility default backed by `meridian.context-filter.v1`" in doc
     assert "without deleting source session data and without calling a backend event-log route" in doc
+    assert "| SET7 | Progress filter defaults | Configures default filter/severity visibility for progress items. | wired |" in doc
+    assert "UI-local progress severity defaults backed by `meridian.context-filter.v1`" in doc
+    assert "without deleting progress source data or calling backend progress" in doc
     assert "| SET20 | Non-exposed harness internals | Confirms heartbeat thresholds, capability toggles, and cross-harness routing internals stay hidden unless explicitly promoted. | wired |" in doc
     assert "settings writes, message/restart/result routes, fake backend controls, and hidden harness internals remain blocked" in doc
     assert "| ECHO0 | Display-only memory ranking | Shows memory query boundary and ranked memory summaries from the backend. | wired |" in doc
@@ -2612,6 +2615,39 @@ def test_index_settings_surface_controls_diagnostic_visibility_default_locally()
     assert "bridgeUrl('message')" not in diagnostic_surface
     assert "bridgeUrl('call-result')" not in diagnostic_surface
     assert "method: 'POST'" not in diagnostic_surface
+
+
+def test_index_settings_surface_controls_progress_filter_defaults_locally():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    render_start = doc.index("const renderProgressFilterDefaultsPreview = (state) =>")
+    render_end = doc.index("const filterToggle = (key, label, state) =>", render_start)
+    progress_surface = doc[render_start:render_end]
+    filter_start = doc.index("const renderContextFilterPreview = (state) =>")
+    filter_end = doc.index("const renderContextFilterSurface = () =>", filter_start)
+    filter_preview = doc[filter_start:filter_end]
+    settings_start = doc.index("const renderSparkSurface = (label) =>")
+    settings_end = doc.index("const renderHarnessSurface = (button) =>", settings_start)
+    settings_surface = doc[settings_start:settings_end]
+
+    assert "progressInfo: true" in doc
+    assert "progressWarning: true" in doc
+    assert "progressError: true" in doc
+    assert "Progress filter defaults" in progress_surface
+    assert "data-progress-default-toggle" in progress_surface
+    assert "data-progress-default-preview" in progress_surface
+    assert "meridian.context-filter.v1" in progress_surface
+    assert "state[target.dataset.progressDefaultToggle] = target.checked" in progress_surface
+    assert "writeContextFilterState(state)" in progress_surface
+    assert "progress source data is not deleted" in progress_surface
+    assert "No backend progress route, prompt send, result recovery, provider call, or settings mutation is invoked." in progress_surface
+    assert "progress info default" in filter_preview
+    assert "progress warning default" in filter_preview
+    assert "progress error default" in filter_preview
+    assert "data-progress-default-surface" in settings_surface
+    assert "initializeProgressFilterDefaultsSurface();" in settings_surface
+    assert "bridgeUrl('message')" not in progress_surface
+    assert "bridgeUrl('call-result')" not in progress_surface
+    assert "method: 'POST'" not in progress_surface
 
 
 def test_index_voice_io_surface_shows_public_setup_guidance_without_voice_mutation():

@@ -235,7 +235,7 @@ These are the first-pass settings subitems carried forward from Meridian's Polar
 | SET4 | Progress pin list | Persists pinned progress/session items. | planned | Pin item, reload, pin remains. |
 | SET5 | Progress mute list | Persists muted progress/session categories or items. | planned | Mute item/category, reload, muted state remains. |
 | SET6 | Progress collapse state | Persists collapsed progress surface state. | planned | Collapse surface, reload, collapse state remains. |
-| SET7 | Progress filter defaults | Configures default filter/severity visibility for progress items. | planned | New progress items respect chosen defaults. |
+| SET7 | Progress filter defaults | Configures default filter/severity visibility for progress items. | wired | Settings/Spark exposes UI-local progress severity defaults backed by `meridian.context-filter.v1`; the existing Filter preview reflects info/warning/error visibility defaults for new progress previews without deleting progress source data or calling backend progress, prompt, result-recovery, provider, or settings mutation routes. |
 | SET8 | Progress redirect defaults | Configures default routing by category when Prime surfaces progress or review items. | planned | Category route appears in routing metadata, not prompt text. |
 | SET9 | Progress retention window | Controls how long visible progress/proof items stay in the UI. | planned | Old items expire/archive according to setting. |
 | SET10 | Quiet mode | Reduces non-critical UI noise and routine progress surfacing. | planned | Routine updates are suppressed; blockers/proof gates still show. |
