@@ -524,3 +524,19 @@ def test_harness_stage_html_dashboard_tracks_core_stages():
         assert expected in html
 
 
+def test_v2_tracker_contract_baseline_count_matches_detail_rows():
+    tracker = Path("docs/v2-progress-tracker.md").read_text(encoding="utf-8")
+    summary_line = next(
+        line for line in tracker.splitlines()
+        if line.startswith("| **Total V2** |")
+    )
+    summary_contract_count = int(summary_line.split("|")[4].strip().strip("*"))
+    baseline_section = tracker.split("## Contract Baselines Complete", 1)[1]
+    baseline_section = baseline_section.split("## In Progress / Stabilizing", 1)[0]
+    detail_count = sum(
+        1 for line in baseline_section.splitlines()
+        if line.startswith("- [x] **")
+    )
+    assert detail_count == summary_contract_count == 9
+
+

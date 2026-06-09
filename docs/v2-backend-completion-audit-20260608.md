@@ -43,6 +43,18 @@ The V2 tracker intentionally keeps 9 items as `Contract Baseline`. Those baselin
 
 Several baseline areas already have reviewed runtime work represented under `Built and Review-Cleared V2 Capabilities`; the baseline rows remain as provenance records, not duplicate open build tasks. Do not count baseline rows as backend implementation blockers without an explicit tracker update that names the runtime requirement.
 
+| Baseline item | Tracker owner | Current disposition | Backend action |
+|---|---|---|---|
+| Echo + Memory Contract | Echo Harness | Contract remains accepted architecture provenance; Echo runtime and FileMap integration are already review-cleared above it in the tracker. | No backend worker unless a new Echo runtime requirement is moved into `Needs Build`. |
+| Echo + Repository Integration | Echo Harness | Contract-defined local storage/query abstraction remains accepted baseline; promoted Echo runtime covers deterministic memory records, query, ranking, pinning, and project filtering. | No duplicate implementation task from the baseline row alone. |
+| Atlas + Retrieval Contract | Atlas Harness | Contract remains accepted architecture provenance; Atlas ranking, FileMap integration, and Atlas Workflow Adapter are already review-cleared above it. | No backend worker unless V2 tracker explicitly asks for another Atlas runtime slice. |
+| Session Lifecycle + Workflow Contract | Session Lifecycle Harness | Contract is represented by reviewed Workflow Dispatch and Atlas Workflow Adapter capabilities plus Session Lifecycle runtime/proof slices. | No backend worker unless tracker names a new workflow/runtime requirement. |
+| Compass + Project Boundary Contract | Compass Harness | Contract is represented by reviewed Compass project definition, bounds/scope, project difference, and cross-project handoff runtime slices. | No backend worker unless tracker reopens Compass runtime build. |
+| Model Harness + DeepSeek Validation Gate | Relay/Model Harness | Baseline remains the trust/authority contract; DeepSeek validation/transport authority runtime is review-cleared, with autonomous coding/review/branch authority still denied. | No backend worker to expand DeepSeek authority without new proof/tracker entry. |
+| Model Harness + Metadata Contract, including Per-Call GOAL/Intent disposition | Relay/Model Harness | Contract is represented by reviewed model metadata binding and Relay/Model evidence surfaces. The per-call GOAL/Intent line is a sub-disposition of this metadata baseline, preserving the Relay/Model baseline count at 2. | No backend worker unless tracker names a new metadata runtime gap; do not move per-call dispatch intent into Prime. |
+| Bifrost + Voice Command Contract | Bifrost Harness | Contract is review-cleared and FileMap-registered; visible voice surface work belongs to UI/Bifrost ownership unless tracker names a backend data-model gap. | Backend reports dependency only; does not edit UI. |
+| Bifrost + Balance/Payload Contract | Bifrost Harness | Contract is review-cleared and FileMap-registered; reviewed backend/view-model proof covers provider balance and prompt payload visibility above. | No backend worker unless tracker names a new backend evidence gap. |
+
 ## Harness Matrix Findings
 
 Authoritative stage source: `docs/harness-stage-checklist.md`.
