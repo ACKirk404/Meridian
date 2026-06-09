@@ -365,7 +365,7 @@ The Routines icon owns recurring or repeatable work patterns. It should make rou
 | ROU7 | Next run preview | Shows next expected run or waiting condition. | planned | Unknown next run displays as unknown. |
 | ROU8 | Failure handling | Shows retry/escalation behavior for routine failures. | planned | Failure state does not silently disappear. |
 | ROU9 | Prime-owned routine review | Prime reviews routine outputs and only escalates meaningful user gates. | planned | Routine result can be accepted/routed without user micromanagement. |
-| ROU10 | Quiet routine mode | Routine noise respects Quiet mode while preserving blockers. | planned | Quiet mode suppresses normal success chatter. |
+| ROU10 | Quiet routine mode | Routine noise respects Quiet mode while preserving blockers. | wired | Routines reuses the backend-bound Runtime Continuity and Workflow Dispatch renderers under `[data-goal-runtime]` and `[data-workflow-dispatch-status]`, so `meridian.quiet-mode.v1` suppresses routine success chatter in that surface while blockers, proof gates, and failure state remain visible; no automation execution, scheduler mutation, archive/delete, or proof-critical warning suppression is added. |
 | ROU11 | Routine archive/history | Shows previous runs and outcomes without cluttering main panels. | planned | History is inspectable by routine. |
 | ROU12 | Public automation boundary | Public build explains what automation needs local permissions/accounts. | wired | Spark Routines renders a Public automation boundary beside `/bridge/goal-runtime` and `/bridge/workflow-dispatch-status`; missing permission/account setup is guidance only, with no automation creation, schedule mutation, routine execution, credential request, or self-approval. |
 

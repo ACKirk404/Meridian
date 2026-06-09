@@ -1962,6 +1962,8 @@ def test_index_routines_surface_combines_goal_and_workflow_typed_state():
     assert "bridgeUrl('goal-runtime')" in doc
     assert "bridgeUrl('workflow-dispatch-status')" in doc
     assert "renderWorkflowDispatchStatus()" in doc
+    assert "Quiet mode routine status" in doc
+    assert "Quiet mode workflow status" in doc
     assert "Success summary shape" in doc
     assert "Failure summary shape" in doc
     assert "Dispatch visibility policy" in doc
@@ -1986,6 +1988,18 @@ def test_index_routines_surface_combines_goal_and_workflow_typed_state():
     assert "create-automation" not in routines_surface
 
 
+def test_routines_surface_inherits_quiet_mode_from_runtime_renderers():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "const rerenderRuntimeSurfaces = () =>" in doc
+    assert "document.querySelectorAll('[data-goal-runtime]')" in doc
+    assert "document.querySelectorAll('[data-workflow-dispatch-status]')" in doc
+    assert "writeQuietMode(target.checked);" in doc
+    assert "Routine success chatter is suppressed in Runtime Continuity and Workflow Dispatch while blockers, proof gates, and failure state remain visible." in doc
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| ROU10 | Quiet routine mode | Routine noise respects Quiet mode while preserving blockers. | wired |" in checklist
+    assert "Routines reuses the backend-bound Runtime Continuity and Workflow Dispatch renderers" in checklist
+
+
 def test_routines_checklist_keeps_automation_rows_deferred_until_backend_exists():
     doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
     assert "`ROU0` snapshots are compact continuity and workflow-dispatch posture only." in doc
@@ -2000,10 +2014,10 @@ def test_routines_checklist_keeps_automation_rows_deferred_until_backend_exists(
         "| ROU7 | Next run preview | Shows next expected run or waiting condition. | planned |",
         "| ROU8 | Failure handling | Shows retry/escalation behavior for routine failures. | planned |",
         "| ROU9 | Prime-owned routine review | Prime reviews routine outputs and only escalates meaningful user gates. | planned |",
-        "| ROU10 | Quiet routine mode | Routine noise respects Quiet mode while preserving blockers. | planned |",
         "| ROU11 | Routine archive/history | Shows previous runs and outcomes without cluttering main panels. | planned |",
     ):
         assert row in doc
+    assert "| ROU10 | Quiet routine mode | Routine noise respects Quiet mode while preserving blockers. | wired |" in doc
     assert "| ROU12 | Public automation boundary | Public build explains what automation needs local permissions/accounts. | wired |" in doc
     assert "missing permission/account setup is guidance only" in doc
     assert "no automation creation, schedule mutation, routine execution, credential request, or self-approval" in doc
