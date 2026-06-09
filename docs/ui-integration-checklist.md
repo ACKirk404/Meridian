@@ -315,7 +315,7 @@ The Backlog icon owns visible work intake, priority, and conversion into Prime-o
 | ID | Backlog Item | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
 | BAK1 | Backlog list | Shows queued ideas/tasks/objectives for the active project. | wired | Spark Backlog renders a Backlog candidate list from real `/bridge/review-console` queue items in the active Compass project display frame, including project, sequence, id, type, severity, title, state, response need, and suggested actions; empty snapshots render an explicit empty state and no fake items, create/approve/deny/defer/convert/archive controls, owner assignment, priority mutation, prompt send, result recovery, or queue mutation are exposed. |
-| BAK2 | Priority order | Shows priority and why an item is next. | planned | Priority rationale links to Compass/Prime state. |
+| BAK2 | Priority order | Shows priority and why an item is next. | wired | Spark Backlog renders an advisory Priority order frame that joins `/bridge/review-console` queue order with the active Compass project frame plus `/bridge/goal-runtime` objective context and `/bridge/prime-logic` owner/action/risk rationale, explaining why the current item is next without mutating backlog priority, creating tasks, or inventing a backlog planning backend. |
 | BAK3 | Intake capture | Captures a new backlog item from user text. | planned | New item appears with source and timestamp. |
 | BAK4 | Modify item | Allows user or Prime to refine title, scope, and acceptance criteria. | planned | Edit is persisted and visible after reload. |
 | BAK5 | Approve item | Moves an item into active planning/build consideration. | planned | Approved item creates/updates objective/task state. |

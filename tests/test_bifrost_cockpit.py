@@ -680,19 +680,28 @@ def test_index_spark_backlog_uses_typed_task_posture_without_fake_items_or_mutat
     assert "data-backlog-review-console" in doc
     assert "data-backlog-goal-runtime" in doc
     assert "data-backlog-workflow-dispatch-status" in doc
+    assert "data-backlog-prime-logic" in doc
     assert "bridgeUrl('review-console')" in doc
+    assert "bridgeUrl('prime-logic')" in doc
     assert "bridgeUrl('goal-runtime')" in doc
     assert "bridgeUrl('workflow-dispatch-status')" in doc
     backlog_loader = doc[doc.index("const loadSparkBacklog = async () =>"):doc.index("const loadEchoMemory", doc.index("const loadSparkBacklog = async () =>"))]
     assert "Promise.all" in backlog_loader
     assert "renderBacklogReviewSnapshot" in backlog_loader
+    assert "renderBacklogPrioritySnapshot" in backlog_loader
     assert "renderGoalRuntimeSnapshot" in backlog_loader
     assert "renderWorkflowDispatchStatusSnapshot" in backlog_loader
     backlog_review = doc[doc.index("const renderBacklogReviewSnapshot"):doc.index("const renderFederationHorizonSnapshot")]
     assert "activeProjectContext()" in backlog_review
     assert "Backlog candidate list" in backlog_review
+    assert "Priority order" in backlog_review
+    assert "Review Console queue order selects sequence" in backlog_review
+    assert "Goal Runtime keeps the active objective focused on" in backlog_review
+    assert "Prime currently explains the active review posture as:" in backlog_review
     assert "no pending backlog candidates reported by the current Review Console snapshot" in backlog_review
     for field in ("project", "sequence", "id", "type", "severity", "title", "state", "requires response", "suggested actions"):
+        assert f"['{field}'" in backlog_review
+    for field in ("active project", "next candidate id", "next sequence", "goal objective", "Prime owner", "Prime action", "Prime risk", "Prime why"):
         assert f"['{field}'" in backlog_review
     backlog_surface = doc[doc.index("const renderSparkBacklog"):doc.index("const renderProviderBalance")]
     assert "fetch(" not in backlog_surface
@@ -1623,7 +1632,7 @@ def test_index_project_switch_refreshes_project_scoped_surfaces_together():
     assert "if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();" in refresh
-    assert "if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();" in refresh
+    assert "if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-prime-logic], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-spark-models]')) loadSparkModels();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-spark-skills]'))" in refresh
     assert "renderSparkSkillsRegistry(sparkSkillsRegistrySnapshot, query)" in refresh
@@ -2551,6 +2560,8 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "Spark Backlog renders a Backlog candidate list from real `/bridge/review-console` queue items in the active Compass project display frame" in doc
     assert "empty snapshots render an explicit empty state and no fake items" in doc
     assert "no fake items, create/approve/deny/defer/convert/archive controls, owner assignment, priority mutation, prompt send, result recovery, or queue mutation are exposed" in doc
+    assert "| BAK2 | Priority order | Shows priority and why an item is next. | wired |" in doc
+    assert "Spark Backlog renders an advisory Priority order frame that joins `/bridge/review-console` queue order with the active Compass project frame plus `/bridge/goal-runtime` objective context and `/bridge/prime-logic` owner/action/risk rationale" in doc
     assert "| SK7 | Skills | Opens searchable skill/capability registry by model, project, and global scope. | wired |" in doc
     assert "Spark Skills opens a display-only Skills Registry sourced from `/bridge/filemap` and `/bridge/models`" in doc
     assert "search is UI-local over loaded metadata" in doc

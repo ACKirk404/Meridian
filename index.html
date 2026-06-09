@@ -5345,6 +5345,41 @@ body {
       ]), false),
     ].join('');
   };
+  const renderBacklogPrioritySnapshot = (reviewSnapshot, goalSnapshot, primeSnapshot) => {
+    const queue = reviewSnapshot?.queue || {};
+    const items = Array.isArray(queue.items) ? queue.items : [];
+    const nextItem = items[0] || {};
+    const goal = goalSnapshot?.goal || {};
+    const objectiveRef = goal.objective_ref || {};
+    const decision = primeSnapshot?.decision || {};
+    const request = decision.request || {};
+    const reasons = [];
+    if (items.length) reasons.push(`Review Console queue order selects sequence ${nextItem.sequence ?? 'unknown'} first.`);
+    if (nextItem.requires_response) reasons.push('The next item currently requires a human or Prime response.');
+    if ((queue.pending_gate_count ?? 0) > 0) reasons.push(`${queue.pending_gate_count} pending gate item${queue.pending_gate_count === 1 ? '' : 's'} keep review work ahead of routine backlog noise.`);
+    if (goal.objective_text || objectiveRef.label) reasons.push(`Goal Runtime keeps the active objective focused on ${goal.objective_text || objectiveRef.label}.`);
+    if (decision.why || request.why) reasons.push(`Prime currently explains the active review posture as: ${decision.why || request.why}`);
+    return relaySection('Priority order', [
+      relayGrid([
+        ['active project', activeProjectContext()],
+        ['next candidate id', nextItem.id || 'none'],
+        ['next sequence', nextItem.sequence ?? 'none'],
+        ['next title', nextItem.title || 'no pending backlog candidates'],
+        ['next severity', relayText(nextItem.severity)],
+        ['requires response', nextItem.requires_response ? 'yes' : 'no'],
+        ['pending gates', queue.pending_gate_count ?? '0'],
+        ['goal objective', goal.objective_text || objectiveRef.label || 'unknown'],
+        ['Prime owner', decision.ownerHarness || 'unknown'],
+        ['Prime action', relayText(decision.action || request.action)],
+        ['Prime risk', relayText(decision.risk || request.risk)],
+        ['Prime why', decision.why || request.why || 'unknown'],
+      ]),
+      relayList(reasons.length ? reasons : [
+        'No pending Review Console queue item is available to rank yet.',
+        'Prime and Goal Runtime context stay display-only until a reviewed backlog prioritization backend exists.',
+      ]),
+    ].join(''), true);
+  };
   const renderFederationHorizonSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
       return relaySection('Federation horizon source', relayGrid([
@@ -6764,23 +6799,28 @@ body {
     const reviewNode = rightWorkspace?.querySelector('[data-backlog-review-console]');
     const runtimeNode = rightWorkspace?.querySelector('[data-backlog-goal-runtime]');
     const workflowNode = rightWorkspace?.querySelector('[data-backlog-workflow-dispatch-status]');
+    const primeNode = rightWorkspace?.querySelector('[data-backlog-prime-logic]');
     try {
-      const [reviewResponse, runtimeResponse, workflowResponse] = await Promise.all([
+      const [reviewResponse, runtimeResponse, workflowResponse, primeResponse] = await Promise.all([
         reviewNode ? fetch(bridgeUrl('review-console'), { cache: 'no-store' }) : Promise.resolve(null),
         runtimeNode ? fetch(bridgeUrl('goal-runtime'), { cache: 'no-store' }) : Promise.resolve(null),
         workflowNode ? fetch(bridgeUrl('workflow-dispatch-status'), { cache: 'no-store' }) : Promise.resolve(null),
+        primeNode ? fetch(bridgeUrl('prime-logic'), { cache: 'no-store' }) : Promise.resolve(null),
       ]);
-      if (reviewNode && reviewResponse) reviewNode.innerHTML = renderBacklogReviewSnapshot(await reviewResponse.json());
+      const reviewSnapshot = reviewResponse ? await reviewResponse.json() : null;
+      const runtimeSnapshot = runtimeResponse ? await runtimeResponse.json() : null;
+      const workflowSnapshot = workflowResponse ? await workflowResponse.json() : null;
+      const primeSnapshot = primeResponse ? await primeResponse.json() : null;
+      if (reviewNode && reviewSnapshot) reviewNode.innerHTML = renderBacklogReviewSnapshot(reviewSnapshot);
       if (runtimeNode && runtimeResponse) {
-        const snapshot = await runtimeResponse.json();
-        runtimeNode.dataset.goalRuntimeSnapshot = JSON.stringify(snapshot);
-        runtimeNode.innerHTML = renderGoalRuntimeSnapshot(snapshot);
+        runtimeNode.dataset.goalRuntimeSnapshot = JSON.stringify(runtimeSnapshot);
+        runtimeNode.innerHTML = renderGoalRuntimeSnapshot(runtimeSnapshot);
       }
       if (workflowNode && workflowResponse) {
-        const snapshot = await workflowResponse.json();
-        workflowNode.dataset.workflowDispatchStatusSnapshot = JSON.stringify(snapshot);
-        workflowNode.innerHTML = renderWorkflowDispatchStatusSnapshot(snapshot);
+        workflowNode.dataset.workflowDispatchStatusSnapshot = JSON.stringify(workflowSnapshot);
+        workflowNode.innerHTML = renderWorkflowDispatchStatusSnapshot(workflowSnapshot);
       }
+      if (primeNode) primeNode.innerHTML = renderBacklogPrioritySnapshot(reviewSnapshot, runtimeSnapshot, primeSnapshot);
     } catch (error) {
       if (reviewNode) reviewNode.innerHTML = renderBacklogReviewSnapshot({ ok: false, error: error.message });
       if (runtimeNode) {
@@ -6791,6 +6831,7 @@ body {
         delete workflowNode.dataset.workflowDispatchStatusSnapshot;
         workflowNode.innerHTML = renderWorkflowDispatchStatusSnapshot({ ok: false, error: error.message });
       }
+      if (primeNode) primeNode.innerHTML = renderBacklogPrioritySnapshot({ ok: false }, { ok: false }, { ok: false, error: error.message });
     }
   };
   const loadSparkSkills = async () => {
@@ -10126,11 +10167,13 @@ body {
             ${relaySection('Backlog boundary', relayList([
               'Backlog shows typed task posture from Review Console, Goal Runtime, and Workflow Dispatch snapshots.',
               'Backlog candidate list rows are real Review Console queue items displayed in the active Compass project frame.',
+              'Priority order is advisory only: it joins Review Console queue order with Goal Runtime and Prime context to explain why the current item is next.',
               'No fake backlog items are created; empty or missing backend queues render as empty or unavailable state.',
               'This surface does not create tasks, assign workers, mutate queues, start routines, send prompts, recover raw result bodies, or ingest raw worker session history.',
               'Orchestrator intake stays limited to compact typed session state, small worker summaries, and evidence refs.',
             ]), true)}
             <div data-backlog-review-console>${relaySection('Backlog review source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-backlog-prime-logic>${relaySection('Backlog priority source', relayGrid([['status', 'loading backend snapshot']]))}</div>
             <div data-backlog-goal-runtime>${relaySection('Backlog runtime source', relayGrid([['status', 'loading backend snapshot']]))}</div>
             <div data-backlog-workflow-dispatch-status>${relaySection('Backlog workflow source', relayGrid([['status', 'loading backend snapshot']]))}</div>
           </div>
@@ -10512,7 +10555,7 @@ body {
     if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
     if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
     if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
-    if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();
+    if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-prime-logic], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();
     if (rightWorkspace?.querySelector('[data-spark-models]')) loadSparkModels();
     if (rightWorkspace?.querySelector('[data-spark-skills]')) {
       const logicNode = rightWorkspace.querySelector('[data-spark-skills]');
