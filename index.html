@@ -10077,6 +10077,17 @@ body {
               'Evidence refs are links/ids, not pasted logs; raw detail is fetched only on demand.',
               'Findings are visible as safe metadata until an explicit crosscheck execution backend exists.',
             ]), true)}
+            ${relaySection('Open evidence', `
+              <div class="relay-models-handoff" aria-label="Crosscheck evidence handoff">
+                <button type="button" data-crosscheck-handoff="aegis">Open Aegis proofs</button>
+                <button type="button" data-crosscheck-handoff="archive">Open Archive command preview</button>
+              </div>
+              ${relayList([
+                'Open Aegis proofs for display-safe proof summaries and blocking evidence refs already exposed by `/bridge/aegis-logic`.',
+                'Open Archive command preview for display-safe close/archive command-plan summaries already exposed by `/bridge/session-close-archive-proof`.',
+                'This handoff only changes the visible surface; it does not approve findings, rerun checks, apply console responses, execute commands, or inject raw logs into Prime context.',
+              ])}
+            `, false)}
             <div data-crosscheck-stop-conditions>${relaySection('Stop condition alert', relayGrid([['status', 'loading backend snapshot']]))}</div>
             <div data-review-console>${relaySection('Review Console source', relayGrid([['status', 'loading backend snapshot']]))}</div>
             <div data-aegis-logic>${relaySection('Aegis logic source', relayGrid([['status', 'loading backend snapshot']]))}</div>
@@ -10822,14 +10833,22 @@ body {
     openSpark();
   };
   const sparkButtonByLabel = (label) => buttons.find((button) => button.getAttribute('aria-label') === label);
+  const harnessButtonByName = (name) => Array.from(document.querySelectorAll('.harness-dock-button'))
+    .find((button) => button.dataset.harness === name);
   rightWorkspace?.addEventListener('click', (event) => {
     const handoff = event.target.closest?.('[data-balance-handoff]');
-    if (!handoff) return;
-    const targetLabel = handoff.dataset.balanceHandoff === 'models' ? 'Models' : 'Settings';
-    const targetButton = sparkButtonByLabel(targetLabel);
+    const crosscheckHandoff = event.target.closest?.('[data-crosscheck-handoff]');
+    const targetButton = handoff
+      ? sparkButtonByLabel(handoff.dataset.balanceHandoff === 'models' ? 'Models' : 'Settings')
+      : (crosscheckHandoff?.dataset.crosscheckHandoff === 'archive'
+        ? sparkButtonByLabel('Archive')
+        : (crosscheckHandoff?.dataset.crosscheckHandoff === 'aegis'
+          ? harnessButtonByName('Aegis')
+          : null));
     if (!targetButton) return;
     event.preventDefault();
-    activateSparkButton(targetButton);
+    if (targetButton.classList.contains('harness-dock-button')) activateHarnessButton(targetButton);
+    else activateSparkButton(targetButton);
   });
   buttons.forEach((button) => {
     button.addEventListener('click', async () => {

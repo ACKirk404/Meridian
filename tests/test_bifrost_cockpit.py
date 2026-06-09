@@ -586,6 +586,9 @@ def test_index_spark_crosscheck_aggregates_typed_review_and_aegis_state():
     assert "loadAegisLogic();" in doc
     assert "bridgeUrl('review-console')" in doc
     assert "bridgeUrl('aegis-logic')" in doc
+    assert "Open evidence" in doc
+    assert 'data-crosscheck-handoff="aegis"' in doc
+    assert 'data-crosscheck-handoff="archive"' in doc
     assert "raw item content visible" in doc
     assert "raw evidence body visible" in doc
     assert "data-crosscheck-stop-conditions" in doc
@@ -596,11 +599,35 @@ def test_index_spark_crosscheck_aggregates_typed_review_and_aegis_state():
     assert "bridgeUrl('restart')" not in crosscheck_surface
     assert "call-result" not in crosscheck_surface
     assert "method: 'POST'" not in crosscheck_surface
-    assert "<button" not in crosscheck_surface
     assert "<form" not in crosscheck_surface
     assert "apply_console_response" not in crosscheck_surface
     assert "enqueue_to_review_console" not in crosscheck_surface
     assert "provider_call_authorized" not in crosscheck_surface
+
+
+def test_index_crosscheck_evidence_handoff_only_switches_visible_surfaces():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    crosscheck_surface = doc[
+        doc.index("const renderSparkCrosscheck = () =>"):
+        doc.index("const renderSparkBacklog = () =>")
+    ]
+    handler_start = doc.index("const sparkButtonByLabel = (label) =>")
+    handler_end = doc.index("buttons.forEach((button) =>", handler_start)
+    handler = doc[handler_start:handler_end]
+    assert "Crosscheck evidence handoff" in crosscheck_surface
+    assert "Open Aegis proofs" in crosscheck_surface
+    assert "Open Archive command preview" in crosscheck_surface
+    assert "This handoff only changes the visible surface; it does not approve findings, rerun checks, apply console responses, execute commands, or inject raw logs into Prime context." in crosscheck_surface
+    assert "[data-crosscheck-handoff]" in handler
+    assert "crosscheckHandoff?.dataset.crosscheckHandoff === 'archive'" in handler
+    assert "sparkButtonByLabel('Archive')" in handler
+    assert "crosscheckHandoff?.dataset.crosscheckHandoff === 'aegis'" in handler
+    assert "harnessButtonByName('Aegis')" in handler
+    assert "activateHarnessButton(targetButton);" in handler
+    assert "activateSparkButton(targetButton);" in handler
+    assert "fetch(" not in handler
+    assert "bridgeUrl('message')" not in handler
+    assert "method: 'POST'" not in handler
 
 
 def test_index_crosscheck_stop_condition_alert_uses_existing_review_and_aegis_snapshots_only():
