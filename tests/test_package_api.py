@@ -180,6 +180,73 @@ def test_session_lifecycle_close_write_through_exports():
         assert name in meridian_core.__all__, f"{name} missing from __all__"
 
 
+def test_backlog_authority_exports():
+    from meridian_core import (
+        BacklogBlockedStatus,
+        BacklogImportBatch,
+        BacklogImportCandidate,
+        BacklogItem,
+        BacklogItemState,
+        BacklogOwner,
+        BacklogPriority,
+        BacklogQuery,
+        BacklogScope,
+        BacklogSource,
+        BacklogTaskDraft,
+        BacklogValidationError,
+        approve_backlog_item,
+        archive_backlog_item,
+        capture_backlog_item,
+        convert_backlog_item_to_task_draft,
+        defer_backlog_item,
+        deny_backlog_item,
+        import_backlog_candidates,
+        link_backlog_item_scope,
+        load_backlog,
+        modify_backlog_item,
+        query_backlog,
+        reject_backlog_item,
+        save_backlog,
+        to_goal_objective_ref,
+    )
+
+    assert BacklogBlockedStatus
+    assert BacklogImportBatch
+    assert BacklogImportCandidate
+    assert BacklogItem
+    assert BacklogItemState
+    assert BacklogOwner
+    assert BacklogPriority
+    assert BacklogQuery
+    assert BacklogScope
+    assert BacklogSource
+    assert BacklogTaskDraft
+    assert BacklogValidationError
+    assert approve_backlog_item
+    assert archive_backlog_item
+    assert capture_backlog_item
+    assert convert_backlog_item_to_task_draft
+    assert defer_backlog_item
+    assert deny_backlog_item
+    assert import_backlog_candidates
+    assert link_backlog_item_scope
+    assert load_backlog
+    assert modify_backlog_item
+    assert query_backlog
+    assert reject_backlog_item
+    assert save_backlog
+    assert to_goal_objective_ref
+    for name in (
+        "BacklogItem",
+        "BacklogItemState",
+        "BacklogScope",
+        "BacklogTaskDraft",
+        "capture_backlog_item",
+        "query_backlog",
+    ):
+        assert name in meridian_core.__all__, f"{name} missing from __all__"
+
+
 def test_internal_helpers_are_not_root_exports():
     assert "_TIER_SEMANTICS" not in meridian_core.__all__
     assert "_ROUTING_TABLE" not in meridian_core.__all__

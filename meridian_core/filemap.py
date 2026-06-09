@@ -50,6 +50,7 @@ class FileArea:
     PACKAGE_POLICY   = "Package API policy"
     BIFROST          = "Bifrost / session harness"
     GOAL_RUNTIME     = "Goal Runtime / Goal Harness"
+    BACKLOG          = "Backlog Authority"
     PROVIDER_BALANCE = "Provider Balance / Usage"
     WORKFLOW_DISPATCH = "Workflow Sub-Agent Harness / Dispatch"
     WORKFLOW_ATLAS    = "Atlas Workflow Adapter"
@@ -1093,6 +1094,27 @@ def make_default_map() -> FileMap:
             purpose="Test suite for meridian_core/goal_runtime.py: closed GoalStatus lifecycle, single-writer transition matrix (Prime creation and ACTIVE -> COMPLETE; Compass for non-terminal transitions; Echo lineage; Beacon telemetry; Aegis proof refs), proof-trail-ref requirements (risk_tier >= 2, dispatched, blocked, usage-limited, or COMPLETE), display-safe to_safe_dict serialization, and field-cap enforcement.",
             related_tests=[],
             notes="Run before changing meridian_core/goal_runtime.py or any Goal Runtime ownership, lifecycle, transition matrix, proof requirement, or display-safety behavior.",
+        ),
+        FileMapEntry(
+            path="docs/backlog-authority-contract.md",
+            area=FileArea.BACKLOG,
+            purpose="Backlog Authority backend contract for BAK3-BAK11: capture, modify, approve/reject/defer, task-draft conversion, project/initiative links, import candidates, archive, and query/filter field ownership.",
+            related_tests=["tests/test_backlog.py"],
+            notes="Backend-only contract. Read before adding backlog persistence, UI routes, bridge mutations, Polaris imports, or Prime backlog recommendations.",
+        ),
+        FileMapEntry(
+            path="meridian_core/backlog.py",
+            area=FileArea.BACKLOG,
+            purpose="Backlog Authority domain slice: typed backlog records, revisions, audit entries, task drafts, import batches, query filters, display-safety validation, and caller-supplied JSON load/save for BAK3-BAK11.",
+            related_tests=["tests/test_backlog.py"],
+            notes="Pure backend authority only: no UI bridge, no live session dispatch, no model calls, and no writeback to Polaris or external systems.",
+        ),
+        FileMapEntry(
+            path="tests/test_backlog.py",
+            area=FileArea.BACKLOG,
+            purpose="Test suite for meridian_core/backlog.py: capture/provenance, revision persistence/reload, legal transitions, archive inspectability, Polaris import no-writeback, task-draft projection, query/filter fields, and display-safety rejection.",
+            related_tests=[],
+            notes="Run before changing meridian_core/backlog.py or Backlog Authority behavior.",
         ),
         FileMapEntry(
             path="meridian_core/provider_balance.py",
