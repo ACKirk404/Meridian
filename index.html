@@ -6245,6 +6245,7 @@ body {
     const models = Array.isArray(snapshot.models) ? snapshot.models : [];
     const recentCalls = Array.isArray(snapshot.recentCalls) ? snapshot.recentCalls.slice(0, 6) : [];
     const capabilities = snapshot.capabilities || {};
+    const roleOverrides = readRoleModelOverrides();
     const roleMappings = [
       ['orchestrator', 'Prime intent and coordination; routing not wired'],
       ['builder', 'implementation lane; routing not wired'],
@@ -6252,7 +6253,7 @@ body {
       ['verifier', 'proof and acceptance lane; routing not wired'],
       ['researcher', 'research and evidence lane; routing not wired'],
       ['release operator', 'release posture lane; routing not wired'],
-    ];
+    ].map(([role, mapping]) => [role, mapping, roleOverrides[role] || 'follow-manual-selector']);
     return [
       relaySection('Models bridge source', relayGrid([
         ['service', snapshot.service || 'meridian-model-bridge'],
@@ -6271,9 +6272,11 @@ body {
           ['setup guidance', model.installed ? 'ready for manual prompt sends' : (model.setupHint || 'Install and sign in before use')],
         ])).join('')
         : relayGrid([['status', 'no model backends reported']]), true),
-      relaySection('Role mapping', roleMappings.map(([role, mapping]) => relayGrid([
+      relaySection('Role mapping', roleMappings.map(([role, mapping, override]) => relayGrid([
         ['role', role],
         ['mapping', mapping],
+        ['manual override', override === 'follow-manual-selector' ? 'follow manual selector' : override],
+        ['pin state', override === 'follow-manual-selector' ? 'not pinned' : 'pinned in UI-local role metadata'],
       ])).join(''), true),
       relaySection('Public setup boundary', relayList([
         'Public builds use your locally installed Codex and Claude/Max CLIs or configured provider credentials.',
@@ -6300,7 +6303,7 @@ body {
       relaySection('Safety boundary', relayList([
         'No prompt text, response text, raw setup stderr, or recovered result bodies are rendered here.',
         'Auto routing remains unavailable until Relay exposes an executable routing decision.',
-        'Changing models still happens through the existing manual selector; this panel does not mutate settings.',
+        'Changing models still happens through the existing manual selector; per-role overrides are UI-local metadata until Relay routing exists.',
       ]), true),
     ].join('');
   };
@@ -6698,12 +6701,15 @@ body {
       } catch (error) {
         recentCallsError = error.message;
       }
-      logicNode.innerHTML = renderSparkModelsSnapshot({
+      const snapshot = {
         ...modelsSnapshot,
         recentCalls,
         recentCallsError,
-      });
+      };
+      logicNode.dataset.modelsSnapshot = JSON.stringify(snapshot);
+      logicNode.innerHTML = renderSparkModelsSnapshot(snapshot);
     } catch (error) {
+      delete logicNode.dataset.modelsSnapshot;
       logicNode.innerHTML = renderSparkModelsSnapshot({ ok: false, error: error.message });
     }
   };
@@ -8592,6 +8598,44 @@ body {
     try { localStorage.setItem(progressStateKey, JSON.stringify(next)); } catch {}
     return next;
   };
+  const roleModelOverrideKey = 'meridian.role-model-overrides.v1';
+  const roleModelRoles = [
+    'orchestrator',
+    'builder',
+    'reviewer',
+    'verifier',
+    'researcher',
+    'release operator',
+  ];
+  const defaultRoleModelOverrideState = () => Object.fromEntries(roleModelRoles.map((role) => [role, 'follow-manual-selector']));
+  const availableRoleModelOptions = () => {
+    const selectorOptions = Array.from(document.querySelectorAll('.session-model-select option'))
+      .map((option) => String(option.value || '').trim())
+      .filter((value) => value && value !== 'auto');
+    return ['follow-manual-selector', ...new Set(selectorOptions)];
+  };
+  const readRoleModelOverrides = () => {
+    const defaults = defaultRoleModelOverrideState();
+    try {
+      const stored = JSON.parse(localStorage.getItem(roleModelOverrideKey) || '{}');
+      roleModelRoles.forEach((role) => {
+        const value = String(stored?.[role] || '').trim();
+        if (value) defaults[role] = value;
+      });
+      return defaults;
+    } catch {
+      return defaults;
+    }
+  };
+  const writeRoleModelOverrides = (state) => {
+    const next = defaultRoleModelOverrideState();
+    roleModelRoles.forEach((role) => {
+      const value = String(state?.[role] || '').trim();
+      next[role] = value || 'follow-manual-selector';
+    });
+    try { localStorage.setItem(roleModelOverrideKey, JSON.stringify(next)); } catch {}
+    return next;
+  };
   const renderProjectFocusSnapshot = () => [
     relaySection('Project focus authority', relayGrid([
       ['active project', activeProjectContext()],
@@ -8765,6 +8809,56 @@ body {
     });
     refresh();
   };
+  const renderRoleModelOverridePreview = (state) => relayGrid([
+    ['storage key', roleModelOverrideKey],
+    ['available backends', availableRoleModelOptions().join(', ')],
+    ['pinned roles', roleModelRoles.filter((role) => state[role] !== 'follow-manual-selector').length],
+    ['auto routing', 'still disabled until Relay owns the decision'],
+    ['authority', 'UI-local preference metadata only'],
+  ]);
+  const renderRoleModelOverridesSurface = () => {
+    const state = readRoleModelOverrides();
+    const options = availableRoleModelOptions();
+    return [
+      relaySection('Role/model mapping', roleModelRoles.map((role) => `
+        <div class="relay-models-handoff" aria-label="${escapeHtml(role)} model override">
+          <label>${escapeHtml(role)}
+            <select data-role-model-override="${escapeHtml(role)}">
+              ${options.map((option) => `<option value="${escapeHtml(option)}" ${state[role] === option ? 'selected' : ''}>${escapeHtml(option === 'follow-manual-selector' ? 'follow manual selector' : option)}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+      `).join(''), true),
+      relaySection('Role/model override preview', `<div data-role-model-override-preview>${renderRoleModelOverridePreview(state)}</div>`, true),
+      relaySection('Role/model override boundary', relayList([
+        'Per-role model overrides are stored only as UI-local preference metadata.',
+        'These overrides do not mutate Relay routing, provider accounts, prompt payload assembly, or Auto mode.',
+        'Manual prompt sends still follow the visible session model selector until Relay exposes a reviewed per-role routing backend.',
+      ]), false),
+    ];
+  };
+  const initializeRoleModelOverridesSurface = () => {
+    const root = rightWorkspace?.querySelector('[data-role-model-overrides-surface]');
+    if (!root) return;
+    const refresh = (state = readRoleModelOverrides()) => {
+      const preview = root.querySelector('[data-role-model-override-preview]');
+      if (preview) preview.innerHTML = renderRoleModelOverridePreview(state);
+    };
+    root.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!target?.matches?.('[data-role-model-override]')) return;
+      const state = readRoleModelOverrides();
+      state[target.dataset.roleModelOverride] = target.value;
+      refresh(writeRoleModelOverrides(state));
+      const modelsNode = rightWorkspace?.querySelector('[data-spark-models]');
+      if (modelsNode?.dataset.modelsSnapshot) {
+        try {
+          modelsNode.innerHTML = renderSparkModelsSnapshot(JSON.parse(modelsNode.dataset.modelsSnapshot));
+        } catch {}
+      }
+    });
+    refresh();
+  };
   const filterToggle = (key, label, state) => `
     <label class="relay-models-handoff">
       <input type="checkbox" data-filter-toggle="${key}" ${state[key] ? 'checked' : ''}>
@@ -8881,6 +8975,7 @@ body {
         'Manual prompt sends still use the existing model selector; Auto remains disabled until Relay owns the decision.',
       ]), true));
       sections.push(`<div data-spark-models>${relaySection('Models bridge source', relayGrid([['status', 'loading backend snapshot']]))}</div>`);
+      sections.push(`<div data-role-model-overrides-surface>${renderRoleModelOverridesSurface().join('')}</div>`);
       sections.push(`<div data-diagnostic-default-surface>${renderDiagnosticDefaultSurface().join('')}</div>`);
       sections.push(`<div data-progress-default-surface>${renderProgressFilterDefaultsSurface().join('')}</div>`);
       sections.push(`<div data-progress-state-surface>${renderProgressStateDefaultsSurface().join('')}</div>`);
@@ -8896,6 +8991,7 @@ body {
     if (rendered && settingsSelected) {
       loadVoiceIo();
       loadSparkModels();
+      initializeRoleModelOverridesSurface();
       initializeDiagnosticDefaultSurface();
       initializeProgressFilterDefaultsSurface();
       initializeProgressStateDefaultsSurface();

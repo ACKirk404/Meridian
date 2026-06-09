@@ -770,6 +770,9 @@ def test_index_spark_models_lists_planned_role_mappings_without_auto_routing():
     ):
         assert role in models_surface
     assert "routing not wired" in models_surface
+    assert "manual override" in models_surface
+    assert "pin state" in models_surface
+    assert "readRoleModelOverrides()" in models_surface
     assert "auto routing', 'disabled until Relay owns the decision'" in models_surface
     assert "manual selector still owns prompt sends" in models_surface
     assert "method: 'POST'" not in models_surface
@@ -2474,6 +2477,8 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "UI-local muted progress/session item/category list backed by `meridian.progress-state.v1`" in doc
     assert "| SET6 | Progress collapse state | Persists collapsed progress surface state. | wired |" in doc
     assert "UI-local progress collapse default backed by `meridian.progress-state.v1`" in doc
+    assert "| SET14 | Role/model mapping | Shows role-to-model mapping and allows per-role override/pin. | wired |" in doc
+    assert "UI-local per-role model preferences backed by `meridian.role-model-overrides.v1`" in doc
     assert "| SET18 | Diagnostic log visibility | Controls whether per-session diagnostic event logs are visible by default. | wired |" in doc
     assert "UI-local diagnostic event visibility default backed by `meridian.context-filter.v1`" in doc
     assert "without deleting source session data and without calling a backend event-log route" in doc
@@ -2520,6 +2525,8 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "| MOD7 | Capability metadata | Shows backend strengths, limits, steering mode, context limits, and supported tools. | wired |" in doc
     assert "| MOD4 | Per-role mapping | Lists planned roles such as orchestrator, builder, reviewer, verifier, researcher, and release operator. | wired |" in doc
     assert "Spark Models renders display-only Role mapping entries" in doc
+    assert "| MOD5 | Manual role override | Allows user to pin a model for a role once role routing exists. | wired |" in doc
+    assert "Per-role model overrides persist in `meridian.role-model-overrides.v1`" in doc
     assert "| MOD8 | Trust state | Shows candidate/trusted/restricted/degraded state for each backend. | wired |" in doc
     assert "| MOD9 | Prompt payload impact | Shows prompt size/budget pressure for recent dispatches. | wired |" in doc
     assert "| MOD9A | Per-call GOAL / Intent | Shows the dispatch-scoped goal for a model call when Relay exposes it. | wired |" in doc
@@ -2692,6 +2699,38 @@ def test_index_settings_surface_persists_progress_pin_mute_and_collapse_state_lo
     assert "bridgeUrl('message')" not in progress_state
     assert "bridgeUrl('call-result')" not in progress_state
     assert "method: 'POST'" not in progress_state
+
+
+def test_index_settings_surface_persists_role_model_overrides_locally():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    render_start = doc.index("const roleModelOverrideKey = 'meridian.role-model-overrides.v1'")
+    render_end = doc.index("const filterToggle = (key, label, state) =>", render_start)
+    role_override = doc[render_start:render_end]
+    settings_start = doc.index("const renderSparkSurface = (label) =>")
+    settings_end = doc.index("const harnessDraftStorageKey", settings_start)
+    settings_surface = doc[settings_start:settings_end]
+    load_models_start = doc.index("const loadSparkModels = async () =>")
+    load_models_end = doc.index("const loadReleaseAutonomy = async () =>", load_models_start)
+    load_models = doc[load_models_start:load_models_end]
+
+    assert "const roleModelOverrideKey = 'meridian.role-model-overrides.v1'" in role_override
+    assert "roleModelRoles" in role_override
+    assert "defaultRoleModelOverrideState" in role_override
+    assert "availableRoleModelOptions" in role_override
+    assert "localStorage.getItem(roleModelOverrideKey)" in role_override
+    assert "localStorage.setItem(roleModelOverrideKey, JSON.stringify(next))" in role_override
+    assert "Role/model mapping" in role_override
+    assert "data-role-model-override" in role_override
+    assert "Role/model override preview" in role_override
+    assert "Role/model override boundary" in role_override
+    assert "These overrides do not mutate Relay routing, provider accounts, prompt payload assembly, or Auto mode." in role_override
+    assert "data-role-model-overrides-surface" in settings_surface
+    assert "initializeRoleModelOverridesSurface();" in settings_surface
+    assert "logicNode.dataset.modelsSnapshot = JSON.stringify(snapshot);" in load_models
+    assert "renderSparkModelsSnapshot(snapshot)" in load_models
+    assert "bridgeUrl('message')" not in role_override
+    assert "bridgeUrl('call-result')" not in role_override
+    assert "method: 'POST'" not in role_override
 
 
 def test_index_voice_io_surface_shows_public_setup_guidance_without_voice_mutation():
