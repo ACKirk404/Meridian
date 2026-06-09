@@ -6314,6 +6314,7 @@ body {
     const closeSummaryNextAction = preview.human_gate_required
       ? 'Hold for human/Aegis review before any close or archive execution.'
       : 'Continue watching write-through and proof posture.';
+    const archiveSummary = snapshot.summary || 'Display-safe close/archive write-through and command-plan preview proof.';
     return [
       relaySection('Session close archive proof source', relayGrid([
         ['source', snapshot.source || 'unknown'],
@@ -6339,6 +6340,13 @@ body {
         ['status', relayText(archiveMetadata.status)],
         ['source session id', archiveMetadata.source_session_id || archiveProof.target_session_id || 'unknown'],
         ['observed at', archiveMetadata.observed_at || snapshot.timestamp || 'unknown'],
+      ]), true),
+      relaySection('Archive summary', relayGrid([
+        ['summary', archiveSummary],
+        ['status', closeSummaryStatus],
+        ['session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['project', archiveMetadata.project_name || 'unknown'],
+        ['proof posture', archiveArtifactRefs.length ? 'proof refs available for inspection' : 'proof refs not reported'],
       ]), true),
       relaySection('Close summary', relayGrid([
         ['status', closeSummaryStatus],
