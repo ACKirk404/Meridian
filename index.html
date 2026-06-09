@@ -6467,6 +6467,21 @@ body {
       ['intent evidence refs', relayJoin(snapshots.relayEvidence?.per_call_intent?.evidence_refs)],
       ['dispatch boundary', 'Relay + Model Harness own route/model/payload posture; this surface renders evidence only and does not call providers'],
     ]), true),
+    relaySection('Harness diagnostics', relayGrid([
+      ['prompt packet decision', relayText(snapshots.relayEvidence?.prompt_packet?.decision)],
+      ['prompt packet severity', relayText(snapshots.relayEvidence?.prompt_packet?.severity)],
+      ['prompt packet blockers', relayJoin(snapshots.relayEvidence?.prompt_packet?.blockers)],
+      ['payload status', relayText(snapshots.relayEvidence?.prompt_payload_meter?.payload_status)],
+      ['payload warning tags', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.warning_tags)],
+      ['payload blocker tags', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.blocker_tags)],
+      ['provider validation', relayText(snapshots.relayEvidence?.provider_result?.validation_status)],
+      ['provider telemetry available', snapshots.relayEvidence?.provider_result?.telemetry_available ? 'yes' : 'no'],
+      ['provider warnings', relayJoin(snapshots.relayEvidence?.provider_result?.warnings)],
+      ['provider blockers', relayJoin(snapshots.relayEvidence?.provider_result?.blockers)],
+      ['dispatch visibility', relayText(snapshots.workflowDispatchStatus?.workflow?.status_policy?.dispatch_surface || 'display_only')],
+      ['heartbeat history visible', snapshots.workflowDispatchStatus?.workflow?.status_policy?.heartbeat_history_visible ? 'yes' : 'no'],
+      ['raw artifacts visible', snapshots.workflowDispatchStatus?.workflow?.status_policy?.raw_artifacts_visible ? 'yes' : 'no'],
+    ]), true),
     snapshots.aspect === 'Goal' ? relaySection('Goal aspect per-call intent', relayGrid([
       ['intent source', snapshots.relayEvidence?.per_call_intent ? '/bridge/relay-evidence per_call_intent' : 'not exposed by Relay'],
       ['call goal', snapshots.relayEvidence?.per_call_intent?.call_goal || 'not exposed'],
@@ -6506,12 +6521,13 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-model-harness-backend-binding]');
     if (!logicNode) return;
     const aspect = logicNode.dataset.modelHarnessAspect || 'Model';
-    const [models, relayEvidence, providerBalance, aegisLogic, relayLogic] = await Promise.all([
+    const [models, relayEvidence, providerBalance, aegisLogic, relayLogic, workflowDispatchStatus] = await Promise.all([
       fetchBridgeSnapshot('models', 'Models'),
       fetchBridgeSnapshot('relay-evidence', 'Relay evidence'),
       fetchBridgeSnapshot('provider-balance', 'Provider balance'),
       fetchBridgeSnapshot('aegis-logic', 'Aegis logic'),
       fetchBridgeSnapshot('relay-logic', 'Relay logic'),
+      fetchBridgeSnapshot('workflow-dispatch-status', 'Workflow dispatch/status'),
     ]);
     logicNode.innerHTML = renderModelHarnessBackendBindingSnapshot({
       aspect,
@@ -6520,6 +6536,7 @@ body {
       providerBalance,
       aegisLogic,
       relayLogic,
+      workflowDispatchStatus,
     });
   };
   const renderReleaseAutonomySnapshot = (snapshot) => {

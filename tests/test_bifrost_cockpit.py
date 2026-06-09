@@ -1131,6 +1131,7 @@ def test_index_model_harness_detail_surface_backend_binds_existing_snapshots():
     assert "existing backend snapshots only" in doc
     assert "display-only; no provider calls or settings writes" in doc
     assert "Relay-mediated dispatch posture" in doc
+    assert "Harness diagnostics" in doc
     assert "Backend binding safety" in doc
     assert "No provider call, Auto enablement, settings mutation, route mutation, or prompt payload assembly is authorized here." in doc
     assert "No prompt text, response text, recovered result body, raw provider output, raw evidence body, or worker chat is rendered." in doc
@@ -1152,6 +1153,7 @@ def test_index_model_harness_detail_surface_backend_binds_existing_snapshots():
     assert "fetchBridgeSnapshot('provider-balance', 'Provider balance')" in doc
     assert "fetchBridgeSnapshot('aegis-logic', 'Aegis logic')" in doc
     assert "fetchBridgeSnapshot('relay-logic', 'Relay logic')" in doc
+    assert "fetchBridgeSnapshot('workflow-dispatch-status', 'Workflow dispatch/status')" in doc
     assert "loadModelHarnessBackendBinding();" in doc
     assert "if (rightWorkspace?.querySelector('[data-model-harness-backend-binding]')) loadModelHarnessBackendBinding();" in doc
     backend_binding = doc[
@@ -1178,6 +1180,28 @@ def test_index_model_harness_backend_binding_names_relay_mediated_dispatch_postu
     assert "['payload evidence refs', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.evidence_refs)]" in backend_binding
     assert "['intent evidence refs', relayJoin(snapshots.relayEvidence?.per_call_intent?.evidence_refs)]" in backend_binding
     assert "Relay + Model Harness own route/model/payload posture; this surface renders evidence only and does not call providers" in backend_binding
+    assert "method: 'POST'" not in backend_binding
+
+
+def test_index_model_harness_backend_binding_renders_structured_harness_diagnostics():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    backend_binding = doc[
+        doc.index("const renderModelHarnessBackendBindingSnapshot = (snapshots = {}) =>"):
+        doc.index("const fetchBridgeSnapshot = async (path, label) =>")
+    ]
+    assert "relaySection('Harness diagnostics', relayGrid([" in backend_binding
+    assert "['prompt packet decision', relayText(snapshots.relayEvidence?.prompt_packet?.decision)]" in backend_binding
+    assert "['prompt packet severity', relayText(snapshots.relayEvidence?.prompt_packet?.severity)]" in backend_binding
+    assert "['prompt packet blockers', relayJoin(snapshots.relayEvidence?.prompt_packet?.blockers)]" in backend_binding
+    assert "['payload warning tags', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.warning_tags)]" in backend_binding
+    assert "['payload blocker tags', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.blocker_tags)]" in backend_binding
+    assert "['provider telemetry available', snapshots.relayEvidence?.provider_result?.telemetry_available ? 'yes' : 'no']" in backend_binding
+    assert "['provider warnings', relayJoin(snapshots.relayEvidence?.provider_result?.warnings)]" in backend_binding
+    assert "['provider blockers', relayJoin(snapshots.relayEvidence?.provider_result?.blockers)]" in backend_binding
+    assert "['dispatch visibility', relayText(snapshots.workflowDispatchStatus?.workflow?.status_policy?.dispatch_surface || 'display_only')]" in backend_binding
+    assert "['heartbeat history visible', snapshots.workflowDispatchStatus?.workflow?.status_policy?.heartbeat_history_visible ? 'yes' : 'no']" in backend_binding
+    assert "['raw artifacts visible', snapshots.workflowDispatchStatus?.workflow?.status_policy?.raw_artifacts_visible ? 'yes' : 'no']" in backend_binding
+    assert "per-harness event history" not in backend_binding
     assert "method: 'POST'" not in backend_binding
     assert "method: 'POST'" not in backend_binding
     assert "fetch(bridgeUrl('message')" not in backend_binding
