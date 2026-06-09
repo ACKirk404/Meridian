@@ -1158,6 +1158,13 @@ def make_default_map() -> FileMap:
             notes="Companion to v0-v1-progress-tracker.md. Update when a V2 capability status changes.",
         ),
         FileMapEntry(
+            path="docs/v2-backend-completion-audit-20260608.md",
+            area=FileArea.BUILD_PROCESS,
+            purpose="Backend completion audit for the June 8 V2 restart wave: records tracker counts, reviewed backend closure evidence, contract-baseline disposition, harness matrix dependencies, and UI-owned exclusions.",
+            related_tests=["tests/test_filemap.py"],
+            notes="Read before declaring backend V2 closed, launching more backend workers, or confusing UI-owned Runtime Logic wiring with backend scope.",
+        ),
+        FileMapEntry(
             path="docs/prime-autonomy-v2-contract.md",
             area=FileArea.ARCHITECTURE,
             purpose="Prime autonomy V2 contract: defines stronger autonomy boundaries for V2. Establishes coordination rules between Prime, extended harnesses, and worker sessions.",

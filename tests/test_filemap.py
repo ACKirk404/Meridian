@@ -150,6 +150,7 @@ _REQUIRED_PATHS = [
     "docs/main-write-coordination-ledger.md",
     "docs/v2-package-api-surface-note.md",
     "docs/v2-progress-tracker.md",
+    "docs/v2-backend-completion-audit-20260608.md",
     "docs/prime-autonomy-v2-contract.md",
     "meridian_core/release_autonomy_snapshot.py",
     "docs/bifrost-session-queue-activation-brief.md",
