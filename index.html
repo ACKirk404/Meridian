@@ -8547,6 +8547,32 @@ body {
   const writeContextFilterState = (state) => {
     try { localStorage.setItem('meridian.context-filter.v1', JSON.stringify(state)); } catch {}
   };
+  const renderProjectFocusSnapshot = () => [
+    relaySection('Project focus authority', relayGrid([
+      ['active project', activeProjectContext()],
+      ['selector owner', '.session-project-select'],
+      ['storage key', projectSelectKey],
+      ['Prime context', primeWindow?.dataset.projectContext || activeProjectContext()],
+      ['screen context', screen?.dataset.projectContext || activeProjectContext()],
+      ['User Session target', 'selected separately; project switch does not retarget sessions'],
+    ]), true),
+    relaySection('Project-scoped refresh path', relayGrid([
+      ['Compass context', 'refreshed'],
+      ['User Sessions list', 'regrouped without retargeting'],
+      ['Review/Crosscheck', 'GET-only snapshots refreshed'],
+      ['Goal/Workflow', 'GET-only snapshots refreshed'],
+      ['Backlog/Models/Skills', 'project-scoped UI refreshed'],
+      ['prompt routing', 'unchanged until user sends through an explicit panel'],
+    ]), true),
+    relaySection('Project focus boundary', relayList([
+      'Settings reflects the existing project selector authority instead of adding a second project switch.',
+      'Changing project preserves visible prompt drafts through the existing guard and updates project-scoped surfaces without calling /bridge/message, result recovery, or session close/archive controls.',
+    ]), false),
+  ].join('');
+  const refreshProjectFocusSurface = () => {
+    const node = rightWorkspace?.querySelector('[data-project-focus-surface]');
+    if (node) node.innerHTML = renderProjectFocusSnapshot();
+  };
   const renderDiagnosticDefaultPreview = (state) => relayGrid([
     ['diagnostic events default', state.diagnostics ? 'visible in context previews' : 'hidden in context previews'],
     ['storage key', 'meridian.context-filter.v1'],
@@ -8684,6 +8710,7 @@ body {
       ]), true),
     ];
     if (settingsSelected) {
+      sections.push(`<div data-project-focus-surface>${renderProjectFocusSnapshot()}</div>`);
       sections.push(relaySection('Settings voice boundary', relayList([
         'Settings/Spark renders compact Voice I/O state from the reviewed backend snapshot.',
         'No microphone capture, speech output, read-aloud, mute mutation, prompt text, response text, raw worker history, or worker chat is exposed.',
@@ -9532,6 +9559,7 @@ body {
     window.meridianRefreshUserSessionTarget?.();
   };
   const refreshProjectScopedSurfaces = () => {
+    refreshProjectFocusSurface();
     if (rightWorkspace?.querySelector('[data-review-console]')) loadReviewConsole();
     if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
     if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();

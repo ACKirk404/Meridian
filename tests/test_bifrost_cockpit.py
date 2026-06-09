@@ -2444,6 +2444,9 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "remains disabled/`aria-disabled=true`" in doc
     assert "| HN2 | Bifrost | Opens/focuses UI/Bifrost surface. | wired |" in doc
     assert "Click opens Bifrost Voice I/O from `/bridge/voice-io` with compact typed state only" in doc
+    assert "| SET1 | Project focus | Switches active project context across Prime panel, Review Console, lane/progress state, and instrumentation. | wired |" in doc
+    assert "Settings/Spark reflects the existing `.session-project-select` authority" in doc
+    assert "does not retarget sessions, POST prompts, call result recovery, or invoke close/archive controls" in doc
     assert "| SET2 | Last project persistence | Remembers the last active project across UI sessions. | wired |" in doc
     assert "falls back to Meridian for invalid/missing stored values" in doc
     assert "| SET18 | Diagnostic log visibility | Controls whether per-session diagnostic event logs are visible by default. | wired |" in doc
@@ -2537,6 +2540,35 @@ def test_index_settings_surface_shows_public_cli_setup_without_mutation_paths():
     refresh_end = doc.index("window.addEventListener('focus', refreshRelayPanel);", refresh_start)
     refresh_surface = doc[refresh_start:refresh_end]
     assert "if (rightWorkspace?.querySelector('[data-spark-models]')) loadSparkModels();" in refresh_surface
+
+
+def test_index_settings_surface_reflects_project_focus_without_second_switch():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    render_start = doc.index("const renderProjectFocusSnapshot = () =>")
+    render_end = doc.index("const renderDiagnosticDefaultPreview = (state) =>", render_start)
+    project_focus = doc[render_start:render_end]
+    settings_start = doc.index("const renderSparkSurface = (label) =>")
+    settings_end = doc.index("const renderHarnessSurface = (button) =>", settings_start)
+    settings_surface = doc[settings_start:settings_end]
+    refresh_start = doc.index("const refreshProjectScopedSurfaces = () =>")
+    refresh_end = doc.index("const refreshRelayPanel = () =>", refresh_start)
+    refresh_surface = doc[refresh_start:refresh_end]
+
+    assert "Project focus authority" in project_focus
+    assert "activeProjectContext()" in project_focus
+    assert "projectSelectKey" in project_focus
+    assert ".session-project-select" in project_focus
+    assert "selected separately; project switch does not retarget sessions" in project_focus
+    assert "Project-scoped refresh path" in project_focus
+    assert "Review/Crosscheck" in project_focus
+    assert "Backlog/Models/Skills" in project_focus
+    assert "Settings reflects the existing project selector authority instead of adding a second project switch." in project_focus
+    assert "without calling /bridge/message, result recovery, or session close/archive controls." in project_focus
+    assert "data-project-focus-surface" in settings_surface
+    assert "refreshProjectFocusSurface();" in refresh_surface
+    assert "bridgeUrl('message')" not in project_focus
+    assert "bridgeUrl('call-result')" not in project_focus
+    assert "method: 'POST'" not in project_focus
 
 
 def test_index_settings_surface_controls_diagnostic_visibility_default_locally():

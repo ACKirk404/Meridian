@@ -229,7 +229,7 @@ These are the first-pass settings subitems carried forward from Meridian's Polar
 
 | ID | Settings Item | Intended Behavior | Current Status | Verification |
 |---|---|---|---|---|
-| SET1 | Project focus | Switches active project context across Prime panel, Review Console, lane/progress state, and instrumentation. | planned | Change project; all project-scoped surfaces update together. |
+| SET1 | Project focus | Switches active project context across Prime panel, Review Console, lane/progress state, and instrumentation. | wired | Settings/Spark reflects the existing `.session-project-select` authority, active project, and project-scoped refresh path; changing project preserves prompt drafts through the existing guard, refreshes Compass, User Sessions, Review/Crosscheck, Goal/Workflow, Backlog, Models, and Skills surfaces, and does not retarget sessions, POST prompts, call result recovery, or invoke close/archive controls. |
 | SET2 | Last project persistence | Remembers the last active project across UI sessions. | wired | Project selector stores `meridian.session.project`, restores only known project options on reload, and falls back to Meridian for invalid/missing stored values. |
 | SET3 | Risk tier override | Lets Prime propose risk tier while user can pin/override for a session. | planned | Override appears in UI state and affects future routing/proof requirements. |
 | SET4 | Progress pin list | Persists pinned progress/session items. | planned | Pin item, reload, pin remains. |
