@@ -6293,6 +6293,21 @@ body {
     const transition = Array.isArray(preview.expected_state_transition)
       ? preview.expected_state_transition.join(' -> ')
       : 'unknown';
+    const closeSummaryBlockers = Array.from(new Set([
+      ...(Array.isArray(preview.advisory_blockers) ? preview.advisory_blockers : []),
+      ...(Array.isArray(archiveProof.blockers) ? archiveProof.blockers : []),
+      ...(Array.isArray(closeProof.blockers) ? closeProof.blockers : []),
+    ]));
+    const closeSummaryRefs = Array.from(new Set([
+      ...(Array.isArray(preview.evidence_refs) ? preview.evidence_refs : []),
+      ...(Array.isArray(archiveProof.evidence_refs) ? archiveProof.evidence_refs : []),
+    ]));
+    const closeSummaryStatus = preview.is_executable_now
+      ? 'ready'
+      : (preview.human_gate_required ? 'review gated' : 'proof only');
+    const closeSummaryNextAction = preview.human_gate_required
+      ? 'Hold for human/Aegis review before any close or archive execution.'
+      : 'Continue watching write-through and proof posture.';
     return [
       relaySection('Session close archive proof source', relayGrid([
         ['source', snapshot.source || 'unknown'],
@@ -6318,6 +6333,14 @@ body {
         ['status', relayText(archiveMetadata.status)],
         ['source session id', archiveMetadata.source_session_id || archiveProof.target_session_id || 'unknown'],
         ['observed at', archiveMetadata.observed_at || snapshot.timestamp || 'unknown'],
+      ]), true),
+      relaySection('Close summary', relayGrid([
+        ['status', closeSummaryStatus],
+        ['next action', closeSummaryNextAction],
+        ['expected transition', transition],
+        ['command posture', relayText(preview.command_kind || archiveProof.intended_action)],
+        ['blockers', relayJoin(closeSummaryBlockers)],
+        ['proof refs', relayJoin(closeSummaryRefs)],
       ]), true),
       relaySection('Archive write-through proof', relayGrid([
         ['target session', archiveProof.target_session_id || 'unknown'],

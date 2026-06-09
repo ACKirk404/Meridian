@@ -417,7 +417,7 @@ Close is a targeted session-control action, not merely closing a panel. It shoul
 | CLS1 | Target selection | Lets user/Prime choose the session or surface to close. | planned | Target is explicit before action runs. |
 | CLS2 | Write-through before close | Forces pending session state/transcript/metadata write before closing. | planned | Close records a final saved state event. |
 | CLS3 | Obsidian capture | Writes or queues an Obsidian update before close when applicable. | planned | Obsidian result is visible as success/failure. |
-| CLS4 | Close summary | Captures concise close summary with status, next action, blockers, and proof refs. | planned | Summary appears in archive/session history. |
+| CLS4 | Close summary | Captures concise close summary with status, next action, blockers, and proof refs. | wired | Spark Archive renders a display-only Close summary from `/bridge/session-close-archive-proof`, joining command-preview posture with archive/close proof blockers and evidence refs to show status, next action, expected transition, and proof references for the current close/archive preview without closing a session, writing history, or claiming a durable archive backend. |
 | CLS5 | Archive option | Offers archive-on-close for sessions worth reopening. | planned | Archived close appears in Archive list. |
 | CLS6 | No silent data loss | Blocks close or warns when write-through fails. | planned | Failed write-through leaves session open or visibly recoverable. |
 | CLS7 | Stop-before-close check | Detects running work before close and asks for stop/archive/leave-running path. | planned | Running session cannot be silently killed. |
