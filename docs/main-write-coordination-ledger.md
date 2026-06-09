@@ -84,7 +84,18 @@ Status: Complete | Aborted | Blocked
 
 ## Active Coordination
 
-No active write lease.
+```text
+Time: 2026-06-08 18:46 -06:00
+Writer: Meridian coordinator
+Requested action: push
+Target base: origin/main d285ffdc0d29b1d059a6a1585cc65308e0877ed2
+Path-limited scope: meridian_core/prime_runtime.py; tests/test_prime_runtime.py; meridian_core/filemap.py; docs/FileMap.md; docs/main-write-coordination-ledger.md.
+Reason: land Codex Review A/B-cleared backend-only Prime/Beacon liveness input boundary; no UI wiring, bridge route, renderer, Bifrost/Electron, index.html, scripts/meridian-model-bridge.js, or UI checklist movement.
+Proof to run: python -m pytest tests/test_prime_runtime.py tests/test_beacon.py tests/test_filemap.py -q; python -m pytest tests/test_prime_runtime.py tests/test_beacon.py tests/test_bifrost_cockpit.py tests/test_filemap.py -q; git diff --check HEAD~1..HEAD for backend candidate paths plus ledger commit check.
+Expected duration: 10 minutes after UI-lane ACK.
+Requires other party ACK: yes
+Status: Intent posted
+```
 
 ## Standing Acknowledgements
 
