@@ -5331,6 +5331,16 @@ body {
         ['requires clarification', primeBool(request.requiresClarification)],
         ['visible prompt ref', request.visiblePromptRef || 'none'],
       ]), true),
+      relaySection('Prime review before dispatch', relayGrid([
+        ['harness intent', relayText(request.intent || decision.action)],
+        ['reviewed action', relayText(decision.action || request.action)],
+        ['owner before dispatch', decision.ownerHarness || 'unknown'],
+        ['risk before dispatch', relayText(decision.risk || request.risk)],
+        ['Prime status', relayText(decision.status)],
+        ['proof needs', relayJoin(aegisRisk.evidenceRequired) || 'none'],
+        ['blocking proof gates', relayJoin(aegisRisk.blockedGates) || 'none'],
+        ['dispatch boundary', 'Prime reviews intent/risk/proof only; Relay and Model Harness own route, provider, and payload decisions.'],
+      ]), true),
       relaySection('Decision and owner logic', relayGrid([
         ['decision id', decision.decisionId || 'unknown'],
         ['status', relayText(decision.status)],

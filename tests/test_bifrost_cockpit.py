@@ -1640,6 +1640,7 @@ def test_index_prime_harness_uses_backend_runtime_snapshot():
     assert "Prime backend source" in doc
     assert "Runtime truth map" in doc
     assert "Typed interaction request" in doc
+    assert "Prime review before dispatch" in doc
     assert "Decision and owner logic" in doc
     assert "No drift audit logic" in doc
     assert "Backend context logic" in doc
@@ -1654,6 +1655,24 @@ def test_index_prime_harness_uses_backend_runtime_snapshot():
     assert "bridgeUrl('prime-logic')" in doc
     assert "renderPrimeDecisionSnapshot" in doc
     assert "renderPrimeLogic" in doc
+
+
+def test_index_prime_review_before_dispatch_uses_runtime_packet_without_route_ownership():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    start = doc.index("relaySection('Prime review before dispatch'")
+    end = doc.index("relaySection('Decision and owner logic'", start)
+    section = doc[start:end]
+
+    assert "request.intent || decision.action" in section
+    assert "decision.action || request.action" in section
+    assert "decision.ownerHarness || 'unknown'" in section
+    assert "decision.risk || request.risk" in section
+    assert "aegisRisk.evidenceRequired" in section
+    assert "aegisRisk.blockedGates" in section
+    assert "Prime reviews intent/risk/proof only" in section
+    assert "Relay and Model Harness own route, provider, and payload decisions." in section
+    assert "bridgeUrl('prime-logic')" in doc
+    assert "method: 'POST'" not in section
 
 
 def test_index_spark_and_workflow_surfaces_use_bridge_snapshots():
@@ -2676,6 +2695,9 @@ def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wi
     assert "Generic planned harness surfaces render a UI-local unsaved harness logic note stored under `meridian.harness.draft.v1.<harness>`" in doc
     assert "| HMS12 | Harness permission boundary | High-risk harness actions require explicit approval. | wired |" in doc
     assert "Planned Tool/Git/Browser harness surfaces render a permission boundary" in doc
+    assert "| HMS4 | Prime review path | Prime reviews harness intent, risk, and proof needs before model interaction. | wired |" in doc
+    assert "Prime Runtime Logic renders a display-only `Prime review before dispatch` section from `/bridge/prime-logic`" in doc
+    assert "leaving route/provider/payload decisions with Relay and Model Harness" in doc
     assert "const renderRightPanelSurface = ({ title, status, sections, surfaceClass = '' }) =>" in index
     assert "const renderHarnessSurface = (button) =>" in index
     assert "const renderSparkSurface = (label) =>" in index
