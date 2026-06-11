@@ -3,14 +3,37 @@
   "version": "0.1.0",
   "private": true,
   "description": "Electron app shell for the Meridian cockpit UI.",
+  "author": "AesopScott",
   "main": "electron/main.js",
   "scripts": {
+    "app": "electron .",
+    "build:win": "electron-builder --win portable",
     "preview": "python -m bifrost.preview",
     "model-bridge": "node scripts/meridian-model-bridge.js",
     "start": "electron .",
+    "test:electron": "node --test tests/electron_main.test.js",
     "proof:cockpit": "python -m pytest tests/test_bifrost_cockpit.py tests/test_bifrost_preview.py -q && npm audit --audit-level=high"
   },
+  "build": {
+    "appId": "com.aesopscott.meridian",
+    "productName": "Meridian",
+    "asar": false,
+    "files": [
+      "electron/**/*",
+      "index.html",
+      "scripts/**/*",
+      "meridian_core/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "artifactName": "Meridian-${version}-${arch}.${ext}"
+    }
+  },
   "devDependencies": {
-    "electron": "^42.3.0"
+    "electron": "^42.3.0",
+    "electron-builder": "^26.0.12"
   }
 }

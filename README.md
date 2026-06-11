@@ -21,6 +21,21 @@ source. Startup must not regenerate or substitute `bifrost/preview.html`.
 
 `bifrost/preview.html` is a generated backend/render proof artifact created by `bifrost/preview.py`. It is not the product UI entrypoint.
 
+### App runtime
+
+`npm start` launches the Meridian Electron app runtime. Electron now owns the
+local model bridge lifecycle: it checks `127.0.0.1:8767`, starts
+`scripts/meridian-model-bridge.js` when the bridge is not already running, and
+stops only the bridge process that this app launched when Meridian exits.
+
+To build a Windows portable app:
+
+```bash
+npm run build:win
+```
+
+The generated app is written to `dist/Meridian-0.1.0-x64.exe`.
+
 ## What It Is
 
 Meridian is a proactive portfolio orchestrator and builder. It advances projects, businesses, websites, tools, and experiments until Scott's judgment is the bottleneck — not execution.
