@@ -48,7 +48,13 @@ Approved implementation files: docs/FileMap.md, docs/cross-check-authority-contr
 Guardrails: no index.html, no Electron/renderer/Bifrost UI files, no scripts/meridian-model-bridge.js, no docs/ui-integration-checklist.md, no UI wiring, no bridge route changes, and no dirty shared-checkout changes.
 Pre-write check: `origin/main` fetched at `07e8b67cdf7b97140688ef70762df956025b5e02`; XCK branch is clean and one commit ahead; diff scope matches approved backend files before this ledger entry.
 Proof expected before push: focused XCK/package/FileMap/Aegis/Review Console pytest, full pytest suite, and diff-check across approved files plus this ledger.
-Status: In progress
+Action completed: pushed reviewed XCK backend authority candidate and required ledger record to `origin/main`.
+Commit(s): `7df8e191`, `5d5d08255`
+Pushed to origin/main: yes
+Files changed: docs/FileMap.md, docs/cross-check-authority-contract.md, meridian_core/__init__.py, meridian_core/cross_check.py, meridian_core/filemap.py, tests/test_cross_check.py, tests/test_filemap.py, tests/test_package_api.py, docs/main-write-coordination-ledger.md
+Proof run: `python -m pytest tests/test_cross_check.py tests/test_package_api.py tests/test_filemap.py tests/test_aegis.py tests/test_review_console.py -q` -> 484 passed; `python -m pytest -q` -> 3453 passed; `git diff --check` -> LF/CRLF warning only for this ledger file.
+Final shared main status: pending final fetch/status after completion ledger push.
+Status: Complete
 ```
 
 ```text
