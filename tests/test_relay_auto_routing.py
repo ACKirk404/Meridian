@@ -169,6 +169,22 @@ class TestPrimeRelayAutoRoutingEvidence:
                 serialized_prompt=_PROMPT,
             )
 
+    def test_rejects_request_field_that_embeds_raw_prompt(self):
+        request = PrimeRelayAutoRoutingRequest(
+            request_id="prime-auto-embedded-raw",
+            requested_by="prime",
+            prime_intent_ref="prime-intent:embedded-raw",
+            call_goal=f"Summarize this prompt: {_PROMPT}",
+            expected_output_shape="summary",
+            risk_tier=1,
+            proof_requirement="packet proof",
+        )
+        with pytest.raises(ValueError, match="raw prompt"):
+            build_prime_relay_auto_routing_evidence(
+                request=request,
+                serialized_prompt=_PROMPT,
+            )
+
     def test_rejects_unsafe_private_data_in_display_evidence(self):
         request = PrimeRelayAutoRoutingRequest(
             request_id="prime-auto-secret",

@@ -269,7 +269,7 @@ def _assert_request_display_safe(
     for value in fields:
         if not value:
             continue
-        if value.strip() == prompt:
+        if prompt in value.strip():
             raise ValueError("display evidence must not repeat raw prompt text")
         for pattern in _UNSAFE_DISPLAY_PATTERNS:
             if pattern.search(value):
