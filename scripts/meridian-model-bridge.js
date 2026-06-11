@@ -29,6 +29,7 @@ const BRIDGE_CAPABILITIES = {
   providerBalanceSnapshot: true,
   goalRuntimeSnapshot: true,
   workflowDispatchStatusSnapshot: true,
+  routineAuthoritySnapshot: true,
   echoMemorySnapshot: true,
   atlasRetrievalSnapshot: true,
   fileMapSnapshot: true,
@@ -52,6 +53,7 @@ const BRIDGE_ROUTES = Object.freeze({
   providerBalance: '/bridge/provider-balance',
   goalRuntime: '/bridge/goal-runtime',
   workflowDispatchStatus: '/bridge/workflow-dispatch-status',
+  routines: '/bridge/routines',
   echoMemory: '/bridge/echo-memory',
   atlasRetrieval: '/bridge/atlas-retrieval',
   fileMap: '/bridge/filemap',
@@ -108,7 +110,7 @@ if (process.argv.includes('--self-test')) {
     rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
     const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
     const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-    const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.beaconLivenessSnapshot && BRIDGE_CAPABILITIES.reviewConsoleSnapshot && BRIDGE_CAPABILITIES.federationHorizonSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot && BRIDGE_CAPABILITIES.voiceIoSnapshot && BRIDGE_CAPABILITIES.primeAutonomyReleaseSnapshot;
+    const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.beaconLivenessSnapshot && BRIDGE_CAPABILITIES.reviewConsoleSnapshot && BRIDGE_CAPABILITIES.federationHorizonSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.routineAuthoritySnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot && BRIDGE_CAPABILITIES.voiceIoSnapshot && BRIDGE_CAPABILITIES.primeAutonomyReleaseSnapshot;
     const sampleSession = sessionTargetFromWorktree({
       path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
       branch: 'refs/heads/worktree-build-5-bifrost',
@@ -153,7 +155,23 @@ if (process.argv.includes('--self-test')) {
       archiveSnapshot.transcript_access?.authorized === false &&
       !JSON.stringify(archiveSnapshot).includes('safe bounded session summary')
     );
-    console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && versionOk && routeNamesOk && originOk && restartGuardOk && archiveOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, versionOk, routeNamesOk, originOk, restartGuardOk, archiveOk }, null, 2));
+    const routineSnapshot = await routineAuthoritySnapshot();
+    const routines = Array.isArray(routineSnapshot?.routine_authority?.routines) ? routineSnapshot.routine_authority.routines : [];
+    const runPlans = Array.isArray(routineSnapshot?.routine_authority?.run_plans) ? routineSnapshot.routine_authority.run_plans : [];
+    const primeReviews = Array.isArray(routineSnapshot?.routine_authority?.prime_reviews) ? routineSnapshot.routine_authority.prime_reviews : [];
+    const routineOk = Boolean(
+      routineSnapshot?.ok &&
+      routines.some((routine) => routine.state === 'enabled' && routine.execution_authorized === false) &&
+      routines.some((routine) => routine.state === 'disabled' && routine.execution_authorized === false) &&
+      runPlans.some((plan) => plan.status === 'planned' && plan.execution_authorized === false) &&
+      runPlans.some((plan) => plan.status === 'blocked_disabled' && plan.execution_authorized === false) &&
+      primeReviews.some((review) => review.disposition === 'accepted' && review.accept_authorized === false) &&
+      primeReviews.some((review) => review.disposition === 'route_repair' && review.reroute_authorized === false) &&
+      primeReviews.some((review) => review.disposition === 'escalate_human_gate' && review.escalate_authorized === false) &&
+      !JSON.stringify(routineSnapshot).includes('provider response') &&
+      !JSON.stringify(routineSnapshot).includes('worker chat')
+    );
+    console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && versionOk && routeNamesOk && originOk && restartGuardOk && archiveOk && routineOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, versionOk, routeNamesOk, originOk, restartGuardOk, archiveOk, routineOk }, null, 2));
     process.exit(0);
   })().catch((error) => {
     console.error(error?.stack || String(error));
@@ -1039,6 +1057,178 @@ print(json.dumps({
 `);
 }
 
+function routineAuthoritySnapshot() {
+  return pythonJsonSnapshot('Routine authority', String.raw`
+import json
+from datetime import datetime, timedelta, timezone
+from meridian_core.routines import (
+    RoutineTrigger,
+    RoutineTriggerKind,
+    create_routine,
+    plan_routine_run,
+    review_routine_result,
+)
+from meridian_core.workflow_dispatch import (
+    WorkflowErrorSummary,
+    WorkflowFailureKind,
+    WorkflowHarness,
+    WorkflowResteerChanges,
+    WorkflowResteerRequest,
+    WorkflowResultSummary,
+)
+
+observed_at = datetime(2026, 6, 10, 23, 15, tzinfo=timezone.utc)
+manual_trigger = RoutineTrigger(
+    trigger_id="routine-trigger-manual",
+    kind=RoutineTriggerKind.MANUAL,
+    label="Manual review checkpoint",
+    evidence_refs=("proof://routine/trigger/manual",),
+)
+cadence_trigger = RoutineTrigger(
+    trigger_id="routine-trigger-cadence",
+    kind=RoutineTriggerKind.CADENCE,
+    label="Nightly continuity heartbeat",
+    evidence_refs=("proof://routine/trigger/cadence",),
+)
+enabled_routine = create_routine(
+    routine_id="routine-review-checkpoint",
+    name="Review checkpoint",
+    owner="prime",
+    scope_refs=("workflow://review/checkpoint",),
+    triggers=(manual_trigger,),
+    created_by="prime",
+    created_at=observed_at - timedelta(hours=4),
+    enabled=True,
+    evidence_refs=("proof://routine/create/enabled",),
+)
+disabled_routine = create_routine(
+    routine_id="routine-nightly-continuity",
+    name="Nightly continuity",
+    owner="prime",
+    scope_refs=("goal://runtime/continuity",),
+    triggers=(cadence_trigger,),
+    created_by="prime",
+    created_at=observed_at - timedelta(hours=12),
+    enabled=False,
+    evidence_refs=("proof://routine/create/disabled",),
+)
+planned_run = plan_routine_run(
+    enabled_routine,
+    plan_id="workflow.routine.001",
+    trigger_id=manual_trigger.trigger_id,
+    requested_by="prime",
+    requested_at=observed_at,
+    evidence_refs=("proof://routine/run/planned",),
+)
+blocked_run = plan_routine_run(
+    disabled_routine,
+    plan_id="workflow.routine.002",
+    trigger_id=cadence_trigger.trigger_id,
+    requested_by="prime",
+    requested_at=observed_at,
+    evidence_refs=("proof://routine/run/blocked",),
+)
+accepted_result = WorkflowResultSummary(
+    work_order_id=planned_run.plan_id,
+    harness=WorkflowHarness.RELAY,
+    result_shape="RoutineResult",
+    summary="Routine completed and produced a bounded summary.",
+    proof_trail=("proof.routine.result.accepted",),
+    requires_human_gate=False,
+)
+gate_result = WorkflowResultSummary(
+    work_order_id="workflow.routine.003",
+    harness=WorkflowHarness.RELAY,
+    result_shape="RoutineResult",
+    summary="Routine completed but requires explicit human gate review.",
+    proof_trail=("proof.routine.result.gate",),
+    requires_human_gate=True,
+)
+gate_plan = plan_routine_run(
+    enabled_routine,
+    plan_id=gate_result.work_order_id,
+    trigger_id=manual_trigger.trigger_id,
+    requested_by="prime",
+    requested_at=observed_at + timedelta(minutes=3),
+    evidence_refs=("proof://routine/run/gate",),
+)
+repair_error = WorkflowErrorSummary(
+    work_order_id=planned_run.plan_id,
+    harness=WorkflowHarness.RELAY,
+    failure_kind=WorkflowFailureKind.RESTEER_REQUESTED,
+    summary="Routine output needs a bounded repair route.",
+    proof_trail=("proof.routine.error.repair",),
+    resteer_request=WorkflowResteerRequest(
+        original_work_order_id=planned_run.plan_id,
+        reason="narrow the routine review scope",
+        suggested_changes=WorkflowResteerChanges(allowed_paths=("docs/",)),
+    ),
+)
+accepted_review = review_routine_result(
+    enabled_routine,
+    planned_run,
+    accepted_result,
+    review_id="routine-review-accepted",
+    reviewed_by="prime",
+    reviewed_at=observed_at + timedelta(minutes=5),
+    evidence_refs=("proof://routine/review/accepted",),
+)
+repair_review = review_routine_result(
+    enabled_routine,
+    planned_run,
+    repair_error,
+    review_id="routine-review-route-repair",
+    reviewed_by="prime",
+    reviewed_at=observed_at + timedelta(minutes=8),
+    evidence_refs=("proof://routine/review/repair",),
+)
+gate_review = review_routine_result(
+    enabled_routine,
+    gate_plan,
+    gate_result,
+    review_id="routine-review-human-gate",
+    reviewed_by="prime",
+    reviewed_at=observed_at + timedelta(minutes=11),
+    evidence_refs=("proof://routine/review/gate",),
+)
+print(json.dumps({
+    "ok": True,
+    "source": "meridian_core.routines + meridian_core.workflow_dispatch",
+    "version": "v2-routine-authority-depth-2026-06-11",
+    "harness": "Prime / Workflow Dispatch",
+    "summary": "Display-safe routine definitions, trigger metadata, non-executable run plans, and Prime routine review posture.",
+    "display_only": True,
+    "mutation_authorized": False,
+    "active_project": "Meridian",
+    "routine_authority": {
+        "routines": [
+            enabled_routine.to_dict(),
+            disabled_routine.to_dict(),
+        ],
+        "run_plans": [
+            planned_run.to_dict(),
+            blocked_run.to_dict(),
+            gate_plan.to_dict(),
+        ],
+        "prime_reviews": [
+            accepted_review.to_dict(),
+            repair_review.to_dict(),
+            gate_review.to_dict(),
+        ],
+        "visibility_policy": {
+            "execution_authorized": False,
+            "scheduler_mutation_authorized": False,
+            "raw_prompt_visible": False,
+            "raw_provider_response_visible": False,
+            "raw_worker_chat_visible": False,
+            "raw_worker_history_visible": False,
+            "local_paths_visible": False,
+        },
+    },
+}))
+`);
+}
+
 function echoMemorySnapshot() {
   return pythonJsonSnapshot('Echo memory', String.raw`
 import json
@@ -1905,6 +2095,17 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && req.url === BRIDGE_ROUTES.workflowDispatchStatus) {
     const snapshot = await workflowDispatchStatusSnapshot();
+    sendJson(res, snapshot.ok ? 200 : 500, {
+      service: 'meridian-model-bridge',
+      version: BRIDGE_VERSION,
+      capabilities: BRIDGE_CAPABILITIES,
+      ...snapshot,
+    }, req);
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.routines) {
+    const snapshot = await routineAuthoritySnapshot();
     sendJson(res, snapshot.ok ? 200 : 500, {
       service: 'meridian-model-bridge',
       version: BRIDGE_VERSION,

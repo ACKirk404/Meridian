@@ -5829,6 +5829,108 @@ body {
       ]), true),
     ].join('');
   };
+  const renderRoutineAuthoritySnapshot = (snapshot) => {
+    if (!snapshot?.ok) {
+      return relaySection('Routine authority source', relayGrid([
+        ['status', 'offline'],
+        ['backend error', snapshot?.error || 'Routine authority snapshot unavailable'],
+      ]), true);
+    }
+    const authority = snapshot.routine_authority || {};
+    const routines = Array.isArray(authority.routines) ? authority.routines : [];
+    const runPlans = Array.isArray(authority.run_plans) ? authority.run_plans : [];
+    const primeReviews = Array.isArray(authority.prime_reviews) ? authority.prime_reviews : [];
+    const visibilityPolicy = authority.visibility_policy || {};
+    const enabledRoutine = routines.find((routine) => routine.state === 'enabled') || routines[0] || {};
+    const disabledRoutine = routines.find((routine) => routine.state === 'disabled') || {};
+    const plannedRun = runPlans.find((plan) => plan.status === 'planned') || {};
+    const blockedRun = runPlans.find((plan) => plan.status === 'blocked_disabled') || {};
+    const acceptedReview = primeReviews.find((review) => review.disposition === 'accepted') || {};
+    const repairReview = primeReviews.find((review) => review.disposition === 'route_repair') || {};
+    const gateReview = primeReviews.find((review) => review.disposition === 'escalate_human_gate') || {};
+    return [
+      relaySection('Routine authority source', relayGrid([
+        ['source', snapshot.source || 'unknown'],
+        ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Prime / Workflow Dispatch'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Routine list', relayGrid([
+        ['active project', snapshot.active_project || activeProjectContext()],
+        ['configured routines', routines.length || 0],
+        ['enabled routine', enabledRoutine.name || 'none reported'],
+        ['disabled routine', disabledRoutine.name || 'none reported'],
+        ['list boundary', 'display-only typed routine definitions from reviewed routine authority; no fake rows or hidden scheduler state are added'],
+      ]), true),
+      ...routines.map((routine, index) => relaySection(
+        `Routine ${index + 1}: ${routine.name || routine.routine_id || 'unknown'}`,
+        relayGrid([
+          ['routine id', routine.routine_id || 'unknown'],
+          ['owner', routine.owner || 'unknown'],
+          ['state', relayText(routine.state)],
+          ['scope refs', relayJoin(routine.scope_refs)],
+          ['triggers', relayJoin((routine.triggers || []).map((trigger) => `${trigger.kind || 'unknown'}:${trigger.label || 'unknown'}`))],
+          ['created by', routine.created_by || 'unknown'],
+          ['created at', routine.created_at || 'unknown'],
+          ['evidence refs', relayJoin(routine.evidence_refs)],
+        ]),
+        index === 0,
+      )),
+      relaySection('Routine control posture', relayGrid([
+        ['create routine available', 'no'],
+        ['enable/disable control available', 'no'],
+        ['run-now control available', 'no'],
+        ['enabled state visible', enabledRoutine.state === 'enabled' ? 'yes' : 'no'],
+        ['disabled state visible', disabledRoutine.state === 'disabled' ? 'yes' : 'no'],
+        ['scheduler authority', visibilityPolicy.scheduler_mutation_authorized ? 'exposed' : 'not exposed by reviewed routine authority'],
+        ['action boundary', 'display-only routine control posture; routine definitions, state, and non-executable run planning are visible, but no automation creation, enable/disable mutation, or run-now action is executed'],
+      ]), true),
+      relaySection('Cadence/trigger view', relayGrid([
+        ['enabled trigger', relayJoin((enabledRoutine.triggers || []).map((trigger) => `${trigger.kind || 'unknown'}:${trigger.label || 'unknown'}`))],
+        ['disabled trigger', relayJoin((disabledRoutine.triggers || []).map((trigger) => `${trigger.kind || 'unknown'}:${trigger.label || 'unknown'}`))],
+        ['planned run ref', plannedRun.plan_id || 'none'],
+        ['blocked run ref', blockedRun.plan_id || 'none'],
+        ['timing boundary', 'reviewed trigger metadata only; no scheduler registration, next-run prediction, or execution countdown is exposed'],
+      ]), true),
+      relaySection('Routine run posture', relayGrid([
+        ['planned status', relayText(plannedRun.status)],
+        ['planned reason', plannedRun.reason || 'unknown'],
+        ['blocked status', relayText(blockedRun.status)],
+        ['blocked reason', blockedRun.reason || 'unknown'],
+        ['requested by', plannedRun.requested_by || 'unknown'],
+        ['execution authorized', plannedRun.execution_authorized ? 'yes' : 'no'],
+        ['run boundary', 'display-only non-executable run plans from reviewed routine authority; no manual trigger route or workflow execution is exposed'],
+      ]), false),
+      relaySection('Prime routine review summary', relayGrid([
+        ['latest accepted review', acceptedReview.review_id || 'none'],
+        ['latest repair review', repairReview.review_id || 'none'],
+        ['latest gate review', gateReview.review_id || 'none'],
+        ['review source', gateReview.source || repairReview.source || acceptedReview.source || 'none reported'],
+        ['review boundary', 'display-only Prime routine review summaries; reviewed disposition posture is visible, but no accept, reroute, retry, or escalate action is executed'],
+      ]), true),
+      relaySection('Prime routine review posture', relayGrid([
+        ['accepted disposition', relayText(acceptedReview.disposition)],
+        ['repair disposition', relayText(repairReview.disposition)],
+        ['gate disposition', relayText(gateReview.disposition)],
+        ['gate required', gateReview.gate_required ? 'yes' : 'no'],
+        ['escalation required', gateReview.escalation_required ? 'yes' : 'no'],
+        ['proof trail', relayJoin(gateReview.proof_trail || repairReview.proof_trail || acceptedReview.proof_trail)],
+        ['posture boundary', 'Prime review posture is gate-aware and escalation-only; executable acceptance or routing authority is not exposed'],
+      ]), true),
+      relaySection('Prime routine action posture', relayGrid([
+        ['accept control available', acceptedReview.accept_authorized ? 'yes' : 'no'],
+        ['reroute control available', repairReview.reroute_authorized ? 'yes' : 'no'],
+        ['retry control available', repairReview.retry_authorized ? 'yes' : 'no'],
+        ['escalate control available', gateReview.escalate_authorized ? 'yes' : 'no'],
+        ['execution authorized', visibilityPolicy.execution_authorized ? 'yes' : 'no'],
+        ['raw prompt visible', visibilityPolicy.raw_prompt_visible ? 'yes' : 'no'],
+        ['raw provider response visible', visibilityPolicy.raw_provider_response_visible ? 'yes' : 'no'],
+        ['raw worker chat visible', visibilityPolicy.raw_worker_chat_visible ? 'yes' : 'no'],
+        ['action boundary', 'display-only Prime routine action posture; reviewed result/gate posture is visible, but no routine-review action, scheduler mutation, or workflow execution is authorized'],
+      ]), true),
+    ].join('');
+  };
   const renderEchoMemorySnapshot = (snapshot) => {
     if (!snapshot?.ok) {
       return relaySection('Echo memory source', relayGrid([
@@ -6736,6 +6838,19 @@ body {
     } catch (error) {
       delete logicNode.dataset.workflowDispatchStatusSnapshot;
       logicNode.innerHTML = renderWorkflowDispatchStatusSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadRoutineAuthority = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-routine-authority]');
+    if (!logicNode) return;
+    try {
+      const response = await fetch(bridgeUrl('routines'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      logicNode.dataset.routineAuthoritySnapshot = JSON.stringify(snapshot);
+      logicNode.innerHTML = renderRoutineAuthoritySnapshot(snapshot);
+    } catch (error) {
+      delete logicNode.dataset.routineAuthoritySnapshot;
+      logicNode.innerHTML = renderRoutineAuthoritySnapshot({ ok: false, error: error.message });
     }
   };
   const loadSparkBacklog = async () => {
@@ -9377,6 +9492,13 @@ body {
           node.innerHTML = renderWorkflowDispatchStatusSnapshot(JSON.parse(node.dataset.workflowDispatchStatusSnapshot));
         } catch {}
       });
+      const routineNodes = Array.from(document.querySelectorAll('[data-routine-authority]'));
+      routineNodes.forEach((node) => {
+        if (!node.dataset.routineAuthoritySnapshot) return;
+        try {
+          node.innerHTML = renderRoutineAuthoritySnapshot(JSON.parse(node.dataset.routineAuthoritySnapshot));
+        } catch {}
+      });
     };
     root.addEventListener('change', (event) => {
       const target = event.target;
@@ -10220,9 +10342,10 @@ body {
             ${relaySection('Public automation boundary', relayList([
               'Public builds require explicit local permissions, configured accounts, and reviewed scheduler authority before recurring automation can run.',
               'Missing permission or account setup is shown as setup guidance only; this surface does not create automations, mutate schedules, run routines, request credentials, or approve itself.',
-              'Routine results remain display-only typed state until a reviewed routine automation backend exists.',
+              'Routine definitions, non-executable run plans, and Prime review posture can be displayed from reviewed routine authority without exposing executable controls.',
             ]), false)}
             <div data-goal-runtime>${relaySection('Goal runtime source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-routine-authority>${relaySection('Routine authority source', relayGrid([['status', 'loading backend snapshot']]))}</div>
             <div data-workflow-dispatch-status>${relaySection('Workflow dispatch source', relayGrid([['status', 'loading backend snapshot']]))}</div>
           </div>
         </div>
@@ -10235,6 +10358,7 @@ body {
         localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
       }, true);
       loadGoalRuntime();
+      loadRoutineAuthority();
       loadWorkflowDispatchStatus();
       return true;
     } catch {
@@ -10475,6 +10599,7 @@ body {
     if (rightWorkspace?.querySelector('[data-review-console]')) loadReviewConsole();
     if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
     if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
+    if (rightWorkspace?.querySelector('[data-routine-authority]')) loadRoutineAuthority();
     if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
     if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();
     if (rightWorkspace?.querySelector('[data-spark-models]')) loadSparkModels();
@@ -10497,6 +10622,7 @@ body {
     if (rightWorkspace?.querySelector('[data-federation-horizon]')) loadFederationHorizon();
     if (rightWorkspace?.querySelector('[data-provider-balance]')) loadProviderBalance();
     if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
+    if (rightWorkspace?.querySelector('[data-routine-authority]')) loadRoutineAuthority();
     if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
     if (rightWorkspace?.querySelector('[data-echo-memory]')) loadEchoMemory();
     if (rightWorkspace?.querySelector('[data-atlas-retrieval]')) loadAtlasRetrieval();

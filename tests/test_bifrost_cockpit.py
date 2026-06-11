@@ -517,7 +517,6 @@ def test_index_planned_spark_surfaces_do_not_fetch_fake_backends():
         "backlog",
         "skills",
         "crosscheck",
-        "routines",
         "settings",
     ):
         assert f"bridgeUrl('{route}')" not in doc
@@ -1521,6 +1520,7 @@ def test_index_project_switch_refreshes_project_scoped_surfaces_together():
     assert "if (rightWorkspace?.querySelector('[data-review-console]')) loadReviewConsole();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();" in refresh
+    assert "if (rightWorkspace?.querySelector('[data-routine-authority]')) loadRoutineAuthority();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-spark-models]')) loadSparkModels();" in refresh
@@ -1700,9 +1700,11 @@ def test_index_spark_and_workflow_surfaces_use_bridge_snapshots():
     assert "Workflow Dispatch Status" in doc
     assert "data-provider-balance" in doc
     assert "data-goal-runtime" in doc
+    assert "data-routine-authority" in doc
     assert "data-workflow-dispatch-status" in doc
     assert "bridgeUrl('provider-balance')" in doc
     assert "bridgeUrl('goal-runtime')" in doc
+    assert "bridgeUrl('routines')" in doc
     assert "bridgeUrl('workflow-dispatch-status')" in doc
     assert "renderProviderBalance()" in doc
     assert "renderGoalRuntime()" in doc
@@ -1856,14 +1858,25 @@ def test_index_routines_surface_combines_goal_and_workflow_typed_state():
     assert "Public automation boundary" in doc
     assert "Public builds require explicit local permissions, configured accounts, and reviewed scheduler authority before recurring automation can run." in doc
     assert "this surface does not create automations, mutate schedules, run routines, request credentials, or approve itself." in doc
-    assert "Routine results remain display-only typed state until a reviewed routine automation backend exists." in doc
+    assert "Routine definitions, non-executable run plans, and Prime review posture can be displayed from reviewed routine authority without exposing executable controls." in doc
     assert "data-goal-runtime" in doc
+    assert "data-routine-authority" in doc
     assert "data-workflow-dispatch-status" in doc
     assert "loadGoalRuntime();" in doc
+    assert "loadRoutineAuthority();" in doc
     assert "loadWorkflowDispatchStatus();" in doc
     assert "bridgeUrl('goal-runtime')" in doc
+    assert "bridgeUrl('routines')" in doc
     assert "bridgeUrl('workflow-dispatch-status')" in doc
     assert "renderWorkflowDispatchStatus()" in doc
+    assert "renderRoutineAuthoritySnapshot" in doc
+    assert "Routine authority source" in doc
+    assert "Routine list" in doc
+    assert "Routine control posture" in doc
+    assert "Cadence/trigger view" in doc
+    assert "Prime routine review summary" in doc
+    assert "Prime routine review posture" in doc
+    assert "Prime routine action posture" in doc
     assert "Success summary shape" in doc
     assert "Failure summary shape" in doc
     assert "Dispatch visibility policy" in doc
@@ -1873,19 +1886,18 @@ def test_index_routines_surface_combines_goal_and_workflow_typed_state():
     routines_start = doc.index("const renderGoalRuntime = () =>")
     routines_end = doc.index("const renderWorkflowDispatchStatus = () =>", routines_start)
     routines_surface = doc[routines_start:routines_end]
-    assert "fetch(" not in routines_surface
+    authority_start = doc.index("const renderRoutineAuthoritySnapshot = (snapshot) =>")
+    authority_end = doc.index("const renderEchoMemorySnapshot = (snapshot) =>", authority_start)
+    authority_surface = doc[authority_start:authority_end]
     assert "bridgeUrl('message')" not in routines_surface
     assert "method: 'POST'" not in routines_surface
-    assert "scheduler mutation" not in routines_surface.lower()
-    assert "create automations" in routines_surface
-    assert "mutate schedules" in routines_surface
-    assert "run-now" not in routines_surface
-    assert "raw_artifacts_visible ? 'yes'" not in routines_surface
-    assert "raw worker session history" not in routines_surface
-    assert "routine list" not in routines_surface.lower()
-    assert "next run" not in routines_surface.lower()
-    assert "routine history" not in routines_surface.lower()
-    assert "create-automation" not in routines_surface
+    assert "loadRoutineAuthority();" in routines_surface
+    assert "renderRoutineAuthoritySnapshot" in authority_surface
+    assert "no automation creation, enable/disable mutation, or run-now action is executed" in authority_surface
+    assert "no manual trigger route or workflow execution is exposed" in authority_surface
+    assert "no routine-review action, scheduler mutation, or workflow execution is authorized" in authority_surface
+    assert "bridgeUrl('message')" not in authority_surface
+    assert "method: 'POST'" not in authority_surface
 
 
 def test_routines_checklist_keeps_automation_rows_deferred_until_backend_exists():
@@ -1893,22 +1905,101 @@ def test_routines_checklist_keeps_automation_rows_deferred_until_backend_exists(
     assert "`ROU0` snapshots are compact continuity and workflow-dispatch posture only." in doc
     assert "They are not evidence of configured routine automation" in doc
     for row in (
-        "| ROU1 | Routine list | Shows configured routines for active project/system. | planned |",
+        "| ROU1 | Routine list | Shows configured routines for active project/system. | wired |",
         "| ROU2 | Create routine | Creates a new repeatable workflow or monitor with explicit scope. | planned |",
-        "| ROU3 | Enable/disable routine | Toggles routine active state. | planned |",
+        "| ROU3 | Enable/disable routine | Toggles routine active state. | wired |",
         "| ROU4 | Routine trigger | Supports manual run-now once routine execution exists. | planned |",
-        "| ROU5 | Cadence/trigger view | Shows schedule, heartbeat, or event trigger. | planned |",
+        "| ROU5 | Cadence/trigger view | Shows schedule, heartbeat, or event trigger. | wired |",
         "| ROU6 | Last run result | Shows last run status, duration, and proof/evidence link. | planned |",
         "| ROU7 | Next run preview | Shows next expected run or waiting condition. | planned |",
         "| ROU8 | Failure handling | Shows retry/escalation behavior for routine failures. | planned |",
-        "| ROU9 | Prime-owned routine review | Prime reviews routine outputs and only escalates meaningful user gates. | planned |",
+        "| ROU9 | Prime-owned routine review | Prime reviews routine outputs and only escalates meaningful user gates. | wired |",
         "| ROU10 | Quiet routine mode | Routine noise respects Quiet mode while preserving blockers. | planned |",
         "| ROU11 | Routine archive/history | Shows previous runs and outcomes without cluttering main panels. | planned |",
     ):
         assert row in doc
+    assert "Spark Routines renders a display-only Routine list frame from `/bridge/routines`" in doc
+    assert "Spark Routines renders a display-only Routine control posture plus real enabled/disabled state visibility from `/bridge/routines`" in doc
+    assert "Spark Routines renders a display-only Cadence/trigger view from `/bridge/routines`" in doc
+    assert "Spark Routines renders a display-only Prime routine review summary/posture plus Prime routine action posture from `/bridge/routines`" in doc
     assert "| ROU12 | Public automation boundary | Public build explains what automation needs local permissions/accounts. | wired |" in doc
     assert "missing permission/account setup is guidance only" in doc
     assert "no automation creation, schedule mutation, routine execution, credential request, or self-approval" in doc
+
+
+def test_routine_authority_bridge_endpoint_smoke_returns_display_safe_routine_authority():
+    sock = socket.socket()
+    sock.bind(("127.0.0.1", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+
+    env = {
+        **__import__("os").environ,
+        "MERIDIAN_MODEL_HOST": "127.0.0.1",
+        "MERIDIAN_MODEL_PORT": str(port),
+        "MERIDIAN_MODEL_CWD": str(ROOT),
+        "MERIDIAN_MODEL_ALLOWED_ORIGINS": "http://127.0.0.1:5500",
+    }
+    proc = subprocess.Popen(
+        ["node", "scripts/meridian-model-bridge.js"],
+        cwd=ROOT,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        deadline = time.time() + 15
+        health_ok = False
+        health_error = None
+        while time.time() < deadline:
+            try:
+                req = urllib.request.Request(
+                    f"http://127.0.0.1:{port}/bridge/health",
+                    headers={"Origin": "http://127.0.0.1:5500"},
+                )
+                with urllib.request.urlopen(req, timeout=2) as response:
+                    payload = json.loads(response.read().decode("utf-8"))
+                if payload.get("ok") is True:
+                    health_ok = True
+                    break
+            except Exception as error:  # pragma: no cover - retry loop
+                health_error = error
+                time.sleep(0.2)
+        assert health_ok, f"bridge failed to become healthy: {health_error}"
+
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/bridge/routines",
+            headers={"Origin": "http://127.0.0.1:5500"},
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            assert response.status == 200
+            payload = json.loads(response.read().decode("utf-8"))
+
+        routines = payload["routine_authority"]["routines"]
+        run_plans = payload["routine_authority"]["run_plans"]
+        prime_reviews = payload["routine_authority"]["prime_reviews"]
+        body = json.dumps(payload)
+
+        assert payload["ok"] is True
+        assert payload["source"] == "meridian_core.routines + meridian_core.workflow_dispatch"
+        assert any(routine["state"] == "enabled" for routine in routines)
+        assert any(routine["state"] == "disabled" for routine in routines)
+        assert any(plan["status"] == "planned" and plan["execution_authorized"] is False for plan in run_plans)
+        assert any(plan["status"] == "blocked_disabled" and plan["execution_authorized"] is False for plan in run_plans)
+        assert any(review["disposition"] == "accepted" and review["accept_authorized"] is False for review in prime_reviews)
+        assert any(review["disposition"] == "route_repair" and review["reroute_authorized"] is False for review in prime_reviews)
+        assert any(review["disposition"] == "escalate_human_gate" and review["escalate_authorized"] is False for review in prime_reviews)
+        assert "provider response" not in body.lower()
+        assert "worker chat" not in body.lower()
+        assert "C:\\" not in body
+    finally:
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait(timeout=5)
 
 
 def test_index_bifrost_harness_uses_voice_io_snapshot():
@@ -1949,7 +2040,6 @@ def test_index_memory_retrieval_and_filemap_surfaces_use_bridge_snapshots():
     assert "renderFileMap()" in doc
     assert "hit.record.body" not in doc
     assert "record.body" not in doc
-    assert "mutation_authorized ? 'yes'" not in doc
     echo_memory = doc[
         doc.index("const renderEchoMemorySnapshot = (snapshot) =>"):
         doc.index("const renderAtlasRetrievalSnapshot")
@@ -1959,6 +2049,7 @@ def test_index_memory_retrieval_and_filemap_surfaces_use_bridge_snapshots():
     assert "hit.reason || 'unknown'" in echo_memory
     assert "method: 'POST'" not in echo_memory
     assert "record.body" not in echo_memory
+    assert "mutation_authorized ? 'yes'" not in echo_memory
     atlas_retrieval = doc[
         doc.index("const renderAtlasRetrievalSnapshot = (snapshot) =>"):
         doc.index("const renderFileMapSnapshot")
@@ -2332,6 +2423,7 @@ def test_bridge_exposes_reviewed_display_only_capability_routes():
         "providerBalanceSnapshot: true",
         "goalRuntimeSnapshot: true",
         "workflowDispatchStatusSnapshot: true",
+        "routineAuthoritySnapshot: true",
     ):
         assert flag in doc
 
@@ -2339,6 +2431,7 @@ def test_bridge_exposes_reviewed_display_only_capability_routes():
         "providerBalance: '/bridge/provider-balance'",
         "goalRuntime: '/bridge/goal-runtime'",
         "workflowDispatchStatus: '/bridge/workflow-dispatch-status'",
+        "routines: '/bridge/routines'",
     ):
         assert route in doc
 
@@ -2346,6 +2439,7 @@ def test_bridge_exposes_reviewed_display_only_capability_routes():
         "req.method === 'GET' && req.url === BRIDGE_ROUTES.providerBalance",
         "req.method === 'GET' && req.url === BRIDGE_ROUTES.goalRuntime",
         "req.method === 'GET' && req.url === BRIDGE_ROUTES.workflowDispatchStatus",
+        "req.method === 'GET' && req.url === BRIDGE_ROUTES.routines",
     ):
         assert handler in doc
 
@@ -2357,6 +2451,28 @@ def test_bridge_exposes_reviewed_display_only_capability_routes():
     assert "evaluate_v3_goal_checkpoint_discipline_advisory" in doc
     assert "serialize_v3_goal_checkpoint_discipline_policy_result" in doc
     assert "checkpoint_discipline" in doc
+
+
+def test_routine_authority_bridge_snapshot_uses_backend_routine_authority():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    snapshot = doc[
+        doc.index("function routineAuthoritySnapshot() {"):
+        doc.index("function echoMemorySnapshot()", doc.index("function routineAuthoritySnapshot() {"))
+    ]
+
+    assert "from meridian_core.routines import (" in snapshot
+    assert "create_routine" in snapshot
+    assert "plan_routine_run" in snapshot
+    assert "review_routine_result" in snapshot
+    assert '"source": "meridian_core.routines + meridian_core.workflow_dispatch"' in snapshot
+    assert '"version": "v2-routine-authority-depth-2026-06-11"' in snapshot
+    assert '"routines": [' in snapshot
+    assert '"run_plans": [' in snapshot
+    assert '"prime_reviews": [' in snapshot
+    assert '"execution_authorized": False' in snapshot
+    assert '"scheduler_mutation_authorized": False' in snapshot
+    assert '"raw_provider_response_visible": False' in snapshot
+    assert '"raw_worker_chat_visible": False' in snapshot
     assert "meridian_core.workflow_dispatch" in doc
     assert '"display_only": True' in doc
     assert '"mutation_authorized": False' in doc
@@ -2655,13 +2771,14 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "Model Harness aspect buttons open display-only surfaces bound to `/bridge/models`, `/bridge/relay-evidence`, `/bridge/provider-balance`, `/bridge/aegis-logic`, and `/bridge/relay-logic`" in doc
     assert "no provider call, Auto enablement, route mutation, prompt payload assembly, POST, `/bridge/message`, `/bridge/call-result`, raw prompt/response/provider output/evidence body, or worker chat is authorized" in doc
     assert "account/credential probing unavailable" in doc
-    assert "| SK13 | Routines | Opens current runtime continuity status until a routine automation backend exists. | wired |" in doc
+    assert "| SK13 | Routines | Opens current runtime continuity status plus reviewed routine authority posture until executable automation exists. | wired |" in doc
     assert "| ROU0 | Runtime continuity status | Shows current continuation/goal runtime and workflow dispatch posture until routine automation exists. | wired |" in doc
     assert "/bridge/goal-runtime" in doc
+    assert "/bridge/routines" in doc
     assert "/bridge/workflow-dispatch-status" in doc
     assert "no routine execution, scheduler mutation, raw artifact/log/transcript/detail paste, raw worker history replay, or self-approval is authorized" in doc
     assert "| ROU12 | Public automation boundary | Public build explains what automation needs local permissions/accounts. | wired |" in doc
-    assert "Spark Routines renders a Public automation boundary beside `/bridge/goal-runtime` and `/bridge/workflow-dispatch-status`" in doc
+    assert "Spark Routines opens backend-sourced Goal Runtime, Routine Authority, and Workflow Dispatch Status" in doc
     assert "| ARC0 | Close/archive proof snapshot | Shows current session-close/archive proof posture before any live archive controls exist. | wired |" in doc
     assert "| SK10 | Archive | Opens close/archive proof posture plus reviewed archive authority metadata until live archive controls exist. | wired |" in doc
     assert "/bridge/session-close-archive-proof" in doc
