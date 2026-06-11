@@ -235,10 +235,12 @@ def _safe_reason(value: str) -> str:
 def _looks_like_unsafe_reason(value: str) -> bool:
     return bool(
         re.search(
-            r"(?i)(?:traceback|exception:|raw\s+(?:prompt|transcript|content|log)|"
+            r"(?i)(?:traceback|exception:|"
+            r"(?:raw|full|complete)\s+(?:prompt|transcript|content|log)|"
             r"provider\s+(?:response|output)|model\s+(?:response|output)|"
             r"\b(?:api[_-]?key|secret|token|password|credential)\s*[:=]\s*\S{8,}|"
-            r"sk-(?:proj-)?[A-Za-z0-9_-]{16,})",
+            r"sk-(?:proj-)?[A-Za-z0-9_-]{16,}|"
+            r"gh[pousr]_[A-Za-z0-9_]{20,})",
             value,
         )
     )

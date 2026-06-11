@@ -455,3 +455,25 @@ def test_direct_safe_navigation_summary_display_sanitizes_unsafe_schemes_and_war
     assert display["warnings"] == ("navigation_warning",)
     assert r"C:\Users\scott" not in rendered
     assert "hidden scheme" not in rendered
+
+
+def test_tool_dry_run_plan_redacts_github_token_shaped_refs():
+    plan = build_tool_dry_run_plan(
+        "plan:ghp_abcdefghijklmnopqrstuvwxyz0123456789",
+        (
+            ToolActionInput(
+                tool_name="ghs_abcdefghijklmnopqrstuvwxyz0123456789",
+                action_label="would run command",
+                target_ref="ghp_abcdefghijklmnopqrstuvwxyz0123456789",
+                mutation_kind="write",
+                reversible=True,
+                rollback_plan_ref="gho_abcdefghijklmnopqrstuvwxyz0123456789",
+            ),
+        ),
+    )
+
+    rendered = str(plan.to_display_dict())
+
+    for prefix in ("ghp_", "gho_", "ghs_"):
+        assert prefix not in rendered
+    assert "abcdefghijklmnopqrstuvwxyz0123456789" not in rendered

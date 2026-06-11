@@ -311,3 +311,29 @@ def test_direct_duplicate_finding_group_display_sanitizes_sources():
     assert all(source.startswith("source:unsafe:") for source in display["sources"])
     assert r"C:\Users\scott" not in rendered
     assert "/home/scott" not in rendered
+
+
+def test_direct_duplicate_finding_group_redacts_github_token_shaped_sources():
+    group = DuplicateFindingGroup(
+        fingerprint=ReviewFindingFingerprint(
+            fingerprint="rfp:cafebabe",
+            source_ref="ghp_abcdefghijklmnopqrstuvwxyz0123456789",
+            artifact_ref="ghs_abcdefghijklmnopqrstuvwxyz0123456789",
+            rule_ref="gho_abcdefghijklmnopqrstuvwxyz0123456789",
+        ),
+        duplicate_count=1,
+        sources=("ghu_abcdefghijklmnopqrstuvwxyz0123456789",),
+        severity=SeverityCalibration(
+            severity=ReviewFindingSeverity.INFO,
+            rationale="highest observed severity is info",
+        ),
+        repair=RepairVerification(state=RepairVerificationState.FIXED),
+        waiver=WaiverVisibility(present=False),
+        regression_risk=RegressionRiskLabel.LOW,
+    )
+
+    rendered = str(group.to_display_dict())
+
+    for prefix in ("ghp_", "gho_", "ghs_", "ghu_"):
+        assert prefix not in rendered
+    assert "abcdefghijklmnopqrstuvwxyz0123456789" not in rendered

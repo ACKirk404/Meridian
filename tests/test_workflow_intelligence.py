@@ -340,3 +340,22 @@ def test_direct_failure_recovery_recommendation_redacts_raw_prompt_and_model_out
     assert "hidden reason" not in rendered
     assert "another hidden reason" not in rendered
     assert "hidden escalation note" not in rendered
+
+
+def test_direct_failure_recovery_recommendation_redacts_github_token_shaped_refs():
+    recommendation = FailureRecoveryRecommendation(
+        task_ref="task:ghp_abcdefghijklmnopqrstuvwxyz0123456789",
+        action=FailureRecoveryAction.ESCALATE,
+        reason_tags=("ghs_abcdefghijklmnopqrstuvwxyz0123456789",),
+        message="ghp_abcdefghijklmnopqrstuvwxyz0123456789",
+    )
+
+    display = recommendation.to_display_dict()
+    rendered = str(display)
+
+    assert display["task_ref"].startswith("task:unsafe:")
+    assert display["message"] == "[redacted]"
+    assert display["reason_tags"] == ("[redacted]",)
+    for prefix in ("ghp_", "ghs_"):
+        assert prefix not in rendered
+    assert "abcdefghijklmnopqrstuvwxyz0123456789" not in rendered

@@ -481,7 +481,8 @@ def _looks_like_unsafe_content(value: str) -> bool:
             r"\n|traceback|exception:|"
             r"(?:raw|full|complete)\s+(?:prompt|transcript|content|log)|"
             r"(?:provider|model)\s+(?:response|output)|"
-            r"api[_-]?key|secret|token|password|sk-(?:proj-)?[A-Za-z0-9_-]{16,})",
+            r"api[_-]?key|secret|token|password|sk-(?:proj-)?[A-Za-z0-9_-]{16,}|"
+            r"gh[pousr]_[A-Za-z0-9_]{20,})",
             value,
         )
     )

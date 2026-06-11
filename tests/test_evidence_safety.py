@@ -208,3 +208,65 @@ def test_scan_redacts_unsafe_credential_artifact_id_in_finding_records():
     rendered = str(proof.to_display_dict())
     assert "abcdef1234567890" not in rendered
     assert "api_key=" not in rendered
+
+
+def test_scan_redacts_full_prompt_artifact_id_and_raw_prompt_reason_body():
+    proof = scan_evidence_artifact(
+        artifact_id="artifact:full prompt: hidden body",
+        text="raw prompt: separate unsafe text",
+    )
+
+    display = proof.to_display_dict()
+    rendered = str(display)
+    assert proof.status is EvidenceSafetyStatus.FAIL
+    for finding in display["findings"]:
+        assert finding["artifact_id"] == "artifact:unsafe-id"
+    assert "full prompt" not in rendered
+    assert "hidden body" not in rendered
+    assert "separate unsafe text" not in rendered
+
+
+def test_direct_finding_redacts_full_prompt_reason_body():
+    finding = EvidenceSafetyFinding(
+        artifact_id="proof:full-prompt-reason",
+        category=EvidenceSafetyCategory.RAW_PROMPT,
+        severity=EvidenceSafetySeverity.ERROR,
+        reason="full prompt: hidden body",
+    )
+
+    display = finding.to_display_dict()
+    assert display["reason"] == "[redacted]"
+    assert "hidden body" not in str(display)
+
+
+def test_direct_finding_redacts_complete_prompt_and_complete_transcript_reason_bodies():
+    for reason in (
+        "complete prompt: confidential plan",
+        "complete transcript: confidential plan",
+        "full transcript: confidential plan",
+    ):
+        finding = EvidenceSafetyFinding(
+            artifact_id="proof:reason-variant",
+            category=EvidenceSafetyCategory.RAW_PROMPT,
+            severity=EvidenceSafetySeverity.ERROR,
+            reason=reason,
+        )
+        display = finding.to_display_dict()
+        assert display["reason"] == "[redacted]"
+        assert "confidential plan" not in str(display)
+
+
+def test_direct_finding_redacts_github_token_shaped_artifact_id():
+    for prefix in ("ghp_", "gho_", "ghu_", "ghs_", "ghr_"):
+        token = f"artifact:{prefix}abcdefghijklmnopqrstuvwxyz0123456789"
+        finding = EvidenceSafetyFinding(
+            artifact_id=token,
+            category=EvidenceSafetyCategory.SECRET,
+            severity=EvidenceSafetySeverity.CRITICAL,
+            reason="possible credential or secret token detected",
+        )
+        display = finding.to_display_dict()
+        rendered = str(display)
+        assert display["artifact_id"] == "artifact:unsafe-id"
+        assert prefix not in rendered
+        assert "abcdefghijklmnopqrstuvwxyz0123456789" not in rendered
