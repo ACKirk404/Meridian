@@ -29,7 +29,6 @@ const BRIDGE_CAPABILITIES = {
   providerBalanceSnapshot: true,
   goalRuntimeSnapshot: true,
   workflowDispatchStatusSnapshot: true,
-  routineAuthoritySnapshot: true,
   echoMemorySnapshot: true,
   atlasRetrievalSnapshot: true,
   fileMapSnapshot: true,
@@ -53,7 +52,6 @@ const BRIDGE_ROUTES = Object.freeze({
   providerBalance: '/bridge/provider-balance',
   goalRuntime: '/bridge/goal-runtime',
   workflowDispatchStatus: '/bridge/workflow-dispatch-status',
-  routines: '/bridge/routines',
   echoMemory: '/bridge/echo-memory',
   atlasRetrieval: '/bridge/atlas-retrieval',
   fileMap: '/bridge/filemap',
@@ -82,101 +80,69 @@ function beginRestartRequest() {
 }
 
 if (process.argv.includes('--self-test')) {
-  (async () => {
-    const samples = [
-      classifySetupError('codex', 'codex is not recognized as an internal or external command'),
-      classifySetupError('max', 'not authenticated, please login'),
-    ];
-    const setupFlags = [
-      needsSetup('codex', 'codex is not recognized as an internal or external command'),
-      needsSetup('max', 'not authenticated, please login'),
-      needsSetup('codex', 'Process exited with code 1'),
-    ];
-    const contextPrompt = promptWithVisibleSession('What should I do next?', [
-      { role: 'user', text: 'Remember this visible detail.' },
-      { role: 'model', text: 'I can see the visible detail.' },
-    ]);
-    const emptyPrompt = promptWithVisibleSession('Fresh question', []);
-    const contextOk = (
-      contextPrompt.entries === 2 &&
-      contextPrompt.chars > 0 &&
-      contextPrompt.prompt.includes('USER: Remember this visible detail.') &&
-      contextPrompt.prompt.includes('MODEL: I can see the visible detail.') &&
-      contextPrompt.prompt.includes('CURRENT USER PROMPT: What should I do next?') &&
-      emptyPrompt.entries === 0 &&
-      emptyPrompt.prompt === 'Fresh question'
-    );
-    const maxJsonOk = normalizeModelText('max', JSON.stringify({ result: 'max clean ok' })) === 'max clean ok';
-    rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
-    const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
-    const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
-    const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.beaconLivenessSnapshot && BRIDGE_CAPABILITIES.reviewConsoleSnapshot && BRIDGE_CAPABILITIES.federationHorizonSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.routineAuthoritySnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot && BRIDGE_CAPABILITIES.voiceIoSnapshot && BRIDGE_CAPABILITIES.primeAutonomyReleaseSnapshot;
-    const sampleSession = sessionTargetFromWorktree({
-      path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
-      branch: 'refs/heads/worktree-build-5-bifrost',
-      head: 'abc123',
-    });
-    const waitingSession = sessionTargetFromWorktree({
-      path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-test-waiting',
-      branch: 'refs/heads/worktree-build-5-test-waiting',
-      head: 'def456',
-    });
-    const hiddenSession = sessionTargetFromWorktree({
-      path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\codex-reviews-b',
-      branch: 'refs/heads/codex-reviews-b',
-      head: 'fed789',
-    });
-    const sharedMainSession = sessionTargetFromWorktree({
-      path: 'C:\\Users\\scott\\Code\\Meridian',
-      branch: 'refs/heads/main',
-      head: 'abc789',
-    });
-    const sessionTargetsOk = (
-      BRIDGE_CAPABILITIES.userSessionTargets &&
-      sampleSession?.sessionId === 'build-5-bifrost' &&
-      sampleSession.routable &&
-      sampleSession.status === 'live' &&
-      waitingSession?.status === 'waiting' &&
-      hiddenSession?.status === 'hidden' &&
-      sharedMainSession === null
-    );
-    const versionOk = BRIDGE_VERSION === 'local-bridge-routes-v2';
-    const routeNamesOk = Object.values(BRIDGE_ROUTES).every((route) => route.startsWith('/bridge/') && !route.startsWith('/api/'));
-    const originOk = isAllowedOrigin({ headers: { origin: 'http://127.0.0.1:5500' } }) && !isAllowedOrigin({ headers: { origin: 'https://example.com' } });
-    const restartGuardOk = beginRestartRequest() && !beginRestartRequest();
-    const archiveSnapshot = await sessionCloseArchiveProofSnapshot();
-    const archiveOk = Boolean(
-      archiveSnapshot?.ok &&
-      archiveSnapshot.archive_metadata?.archive_id === 'archive-session-close-proof' &&
-      Array.isArray(archiveSnapshot.archive_catalog) &&
-      archiveSnapshot.archive_catalog.length === 1 &&
-      archiveSnapshot.archive_reload_plan?.execution_authorized === false &&
-      archiveSnapshot.archive_run_again_plan?.execution_authorized === false &&
-      archiveSnapshot.transcript_access?.authorized === false &&
-      !JSON.stringify(archiveSnapshot).includes('safe bounded session summary')
-    );
-    const routineSnapshot = await routineAuthoritySnapshot();
-    const routines = Array.isArray(routineSnapshot?.routine_authority?.routines) ? routineSnapshot.routine_authority.routines : [];
-    const runPlans = Array.isArray(routineSnapshot?.routine_authority?.run_plans) ? routineSnapshot.routine_authority.run_plans : [];
-    const primeReviews = Array.isArray(routineSnapshot?.routine_authority?.prime_reviews) ? routineSnapshot.routine_authority.prime_reviews : [];
-    const routineOk = Boolean(
-      routineSnapshot?.ok &&
-      routines.some((routine) => routine.state === 'enabled' && routine.execution_authorized === false) &&
-      routines.some((routine) => routine.state === 'disabled' && routine.execution_authorized === false) &&
-      runPlans.some((plan) => plan.status === 'planned' && plan.execution_authorized === false) &&
-      runPlans.some((plan) => plan.status === 'blocked_disabled' && plan.execution_authorized === false) &&
-      primeReviews.some((review) => review.disposition === 'accepted' && review.accept_authorized === false) &&
-      primeReviews.some((review) => review.disposition === 'route_repair' && review.reroute_authorized === false) &&
-      primeReviews.some((review) => review.disposition === 'escalate_human_gate' && review.escalate_authorized === false) &&
-      !JSON.stringify(routineSnapshot).includes('provider response') &&
-      !JSON.stringify(routineSnapshot).includes('worker chat')
-    );
-    console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && versionOk && routeNamesOk && originOk && restartGuardOk && archiveOk && routineOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, versionOk, routeNamesOk, originOk, restartGuardOk, archiveOk, routineOk }, null, 2));
-    process.exit(0);
-  })().catch((error) => {
-    console.error(error?.stack || String(error));
-    process.exit(1);
+  const samples = [
+    classifySetupError('codex', 'codex is not recognized as an internal or external command'),
+    classifySetupError('max', 'not authenticated, please login'),
+  ];
+  const setupFlags = [
+    needsSetup('codex', 'codex is not recognized as an internal or external command'),
+    needsSetup('max', 'not authenticated, please login'),
+    needsSetup('codex', 'Process exited with code 1'),
+  ];
+  const contextPrompt = promptWithVisibleSession('What should I do next?', [
+    { role: 'user', text: 'Remember this visible detail.' },
+    { role: 'model', text: 'I can see the visible detail.' },
+  ]);
+  const emptyPrompt = promptWithVisibleSession('Fresh question', []);
+  const contextOk = (
+    contextPrompt.entries === 2 &&
+    contextPrompt.chars > 0 &&
+    contextPrompt.prompt.includes('USER: Remember this visible detail.') &&
+    contextPrompt.prompt.includes('MODEL: I can see the visible detail.') &&
+    contextPrompt.prompt.includes('CURRENT USER PROMPT: What should I do next?') &&
+    emptyPrompt.entries === 0 &&
+    emptyPrompt.prompt === 'Fresh question'
+  );
+  const maxJsonOk = normalizeModelText('max', JSON.stringify({ result: 'max clean ok' })) === 'max clean ok';
+  rememberResult({ requestId: 'self-test-result', ok: true, text: 'recoverable text' });
+  const resultRecoveryOk = resultForRequestId('self-test-result')?.text === 'recoverable text';
+  const setupOk = samples.every(Boolean) && setupFlags[0] && setupFlags[1] && !setupFlags[2];
+  const capabilitiesOk = BRIDGE_CAPABILITIES.visibleTranscriptContext && BRIDGE_CAPABILITIES.samePortRestart && BRIDGE_CAPABILITIES.requestResultRecovery && BRIDGE_CAPABILITIES.relayLogicSnapshot && BRIDGE_CAPABILITIES.relayEvidenceSnapshot && BRIDGE_CAPABILITIES.primeRuntimeSnapshot && BRIDGE_CAPABILITIES.compassLogicSnapshot && BRIDGE_CAPABILITIES.vulcanLogicSnapshot && BRIDGE_CAPABILITIES.beaconLivenessSnapshot && BRIDGE_CAPABILITIES.reviewConsoleSnapshot && BRIDGE_CAPABILITIES.federationHorizonSnapshot && BRIDGE_CAPABILITIES.providerBalanceSnapshot && BRIDGE_CAPABILITIES.goalRuntimeSnapshot && BRIDGE_CAPABILITIES.workflowDispatchStatusSnapshot && BRIDGE_CAPABILITIES.echoMemorySnapshot && BRIDGE_CAPABILITIES.atlasRetrievalSnapshot && BRIDGE_CAPABILITIES.fileMapSnapshot && BRIDGE_CAPABILITIES.aegisLogicSnapshot && BRIDGE_CAPABILITIES.sessionCloseArchiveProofSnapshot && BRIDGE_CAPABILITIES.voiceIoSnapshot && BRIDGE_CAPABILITIES.primeAutonomyReleaseSnapshot;
+  const sampleSession = sessionTargetFromWorktree({
+    path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-bifrost',
+    branch: 'refs/heads/worktree-build-5-bifrost',
+    head: 'abc123',
   });
+  const waitingSession = sessionTargetFromWorktree({
+    path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\build-5-test-waiting',
+    branch: 'refs/heads/worktree-build-5-test-waiting',
+    head: 'def456',
+  });
+  const hiddenSession = sessionTargetFromWorktree({
+    path: 'C:\\Users\\scott\\Code\\Meridian-Worktrees\\codex-reviews-b',
+    branch: 'refs/heads/codex-reviews-b',
+    head: 'fed789',
+  });
+  const sharedMainSession = sessionTargetFromWorktree({
+    path: 'C:\\Users\\scott\\Code\\Meridian',
+    branch: 'refs/heads/main',
+    head: 'abc789',
+  });
+  const sessionTargetsOk = (
+    BRIDGE_CAPABILITIES.userSessionTargets &&
+    sampleSession?.sessionId === 'build-5-bifrost' &&
+    sampleSession.routable &&
+    sampleSession.status === 'live' &&
+    waitingSession?.status === 'waiting' &&
+    hiddenSession?.status === 'hidden' &&
+    sharedMainSession === null
+  );
+  const versionOk = BRIDGE_VERSION === 'local-bridge-routes-v2';
+  const routeNamesOk = Object.values(BRIDGE_ROUTES).every((route) => route.startsWith('/bridge/') && !route.startsWith('/api/'));
+  const originOk = isAllowedOrigin({ headers: { origin: 'http://127.0.0.1:5500' } }) && !isAllowedOrigin({ headers: { origin: 'https://example.com' } });
+  const restartGuardOk = beginRestartRequest() && !beginRestartRequest();
+  console.log(JSON.stringify({ ok: setupOk && contextOk && maxJsonOk && resultRecoveryOk && capabilitiesOk && sessionTargetsOk && versionOk && routeNamesOk && originOk && restartGuardOk, samples, setupFlags, contextOk, maxJsonOk, resultRecoveryOk, capabilitiesOk, sessionTargetsOk, versionOk, routeNamesOk, originOk, restartGuardOk }, null, 2));
+  process.exit(0);
 }
 
 function isAllowedOrigin(req) {
@@ -1046,183 +1012,36 @@ print(json.dumps({
     "workflow": {
         "success_summary": safe(success),
         "error_summary": safe(failure),
+        "recent_runs": [
+            {
+                "run_ref": "workflow-run:atlas-success-001",
+                "harness": WorkflowHarness.ATLAS.value,
+                "status": "completed",
+                "summary": success.summary,
+                "proof_trail": list(success.proof_trail),
+                "observed_at": "2026-06-07T18:58:00+00:00",
+            },
+            {
+                "run_ref": "workflow-run:atlas-gate-002",
+                "harness": WorkflowHarness.ATLAS.value,
+                "status": "blocked",
+                "summary": failure.summary,
+                "proof_trail": list(failure.proof_trail),
+                "observed_at": "2026-06-07T19:00:00+00:00",
+            },
+        ],
         "status_policy": {
             "dispatch_surface": "display_only",
             "heartbeat_history_visible": False,
             "raw_artifacts_visible": False,
             "tier_three_gate_required": True,
-        },
-    },
-}))
-`);
-}
-
-function routineAuthoritySnapshot() {
-  return pythonJsonSnapshot('Routine authority', String.raw`
-import json
-from datetime import datetime, timedelta, timezone
-from meridian_core.routines import (
-    RoutineTrigger,
-    RoutineTriggerKind,
-    create_routine,
-    plan_routine_run,
-    review_routine_result,
-)
-from meridian_core.workflow_dispatch import (
-    WorkflowErrorSummary,
-    WorkflowFailureKind,
-    WorkflowHarness,
-    WorkflowResteerChanges,
-    WorkflowResteerRequest,
-    WorkflowResultSummary,
-)
-
-observed_at = datetime(2026, 6, 10, 23, 15, tzinfo=timezone.utc)
-manual_trigger = RoutineTrigger(
-    trigger_id="routine-trigger-manual",
-    kind=RoutineTriggerKind.MANUAL,
-    label="Manual review checkpoint",
-    evidence_refs=("proof://routine/trigger/manual",),
-)
-cadence_trigger = RoutineTrigger(
-    trigger_id="routine-trigger-cadence",
-    kind=RoutineTriggerKind.CADENCE,
-    label="Nightly continuity heartbeat",
-    evidence_refs=("proof://routine/trigger/cadence",),
-)
-enabled_routine = create_routine(
-    routine_id="routine-review-checkpoint",
-    name="Review checkpoint",
-    owner="prime",
-    scope_refs=("workflow://review/checkpoint",),
-    triggers=(manual_trigger,),
-    created_by="prime",
-    created_at=observed_at - timedelta(hours=4),
-    enabled=True,
-    evidence_refs=("proof://routine/create/enabled",),
-)
-disabled_routine = create_routine(
-    routine_id="routine-nightly-continuity",
-    name="Nightly continuity",
-    owner="prime",
-    scope_refs=("goal://runtime/continuity",),
-    triggers=(cadence_trigger,),
-    created_by="prime",
-    created_at=observed_at - timedelta(hours=12),
-    enabled=False,
-    evidence_refs=("proof://routine/create/disabled",),
-)
-planned_run = plan_routine_run(
-    enabled_routine,
-    plan_id="workflow.routine.001",
-    trigger_id=manual_trigger.trigger_id,
-    requested_by="prime",
-    requested_at=observed_at,
-    evidence_refs=("proof://routine/run/planned",),
-)
-blocked_run = plan_routine_run(
-    disabled_routine,
-    plan_id="workflow.routine.002",
-    trigger_id=cadence_trigger.trigger_id,
-    requested_by="prime",
-    requested_at=observed_at,
-    evidence_refs=("proof://routine/run/blocked",),
-)
-accepted_result = WorkflowResultSummary(
-    work_order_id=planned_run.plan_id,
-    harness=WorkflowHarness.RELAY,
-    result_shape="RoutineResult",
-    summary="Routine completed and produced a bounded summary.",
-    proof_trail=("proof.routine.result.accepted",),
-    requires_human_gate=False,
-)
-gate_result = WorkflowResultSummary(
-    work_order_id="workflow.routine.003",
-    harness=WorkflowHarness.RELAY,
-    result_shape="RoutineResult",
-    summary="Routine completed but requires explicit human gate review.",
-    proof_trail=("proof.routine.result.gate",),
-    requires_human_gate=True,
-)
-gate_plan = plan_routine_run(
-    enabled_routine,
-    plan_id=gate_result.work_order_id,
-    trigger_id=manual_trigger.trigger_id,
-    requested_by="prime",
-    requested_at=observed_at + timedelta(minutes=3),
-    evidence_refs=("proof://routine/run/gate",),
-)
-repair_error = WorkflowErrorSummary(
-    work_order_id=planned_run.plan_id,
-    harness=WorkflowHarness.RELAY,
-    failure_kind=WorkflowFailureKind.RESTEER_REQUESTED,
-    summary="Routine output needs a bounded repair route.",
-    proof_trail=("proof.routine.error.repair",),
-    resteer_request=WorkflowResteerRequest(
-        original_work_order_id=planned_run.plan_id,
-        reason="narrow the routine review scope",
-        suggested_changes=WorkflowResteerChanges(allowed_paths=("docs/",)),
-    ),
-)
-accepted_review = review_routine_result(
-    enabled_routine,
-    planned_run,
-    accepted_result,
-    review_id="routine-review-accepted",
-    reviewed_by="prime",
-    reviewed_at=observed_at + timedelta(minutes=5),
-    evidence_refs=("proof://routine/review/accepted",),
-)
-repair_review = review_routine_result(
-    enabled_routine,
-    planned_run,
-    repair_error,
-    review_id="routine-review-route-repair",
-    reviewed_by="prime",
-    reviewed_at=observed_at + timedelta(minutes=8),
-    evidence_refs=("proof://routine/review/repair",),
-)
-gate_review = review_routine_result(
-    enabled_routine,
-    gate_plan,
-    gate_result,
-    review_id="routine-review-human-gate",
-    reviewed_by="prime",
-    reviewed_at=observed_at + timedelta(minutes=11),
-    evidence_refs=("proof://routine/review/gate",),
-)
-print(json.dumps({
-    "ok": True,
-    "source": "meridian_core.routines + meridian_core.workflow_dispatch",
-    "version": "v2-routine-authority-depth-2026-06-11",
-    "harness": "Prime / Workflow Dispatch",
-    "summary": "Display-safe routine definitions, trigger metadata, non-executable run plans, and Prime routine review posture.",
-    "display_only": True,
-    "mutation_authorized": False,
-    "active_project": "Meridian",
-    "routine_authority": {
-        "routines": [
-            enabled_routine.to_dict(),
-            disabled_routine.to_dict(),
-        ],
-        "run_plans": [
-            planned_run.to_dict(),
-            blocked_run.to_dict(),
-            gate_plan.to_dict(),
-        ],
-        "prime_reviews": [
-            accepted_review.to_dict(),
-            repair_review.to_dict(),
-            gate_review.to_dict(),
-        ],
-        "visibility_policy": {
-            "execution_authorized": False,
-            "scheduler_mutation_authorized": False,
-            "raw_prompt_visible": False,
-            "raw_provider_response_visible": False,
-            "raw_worker_chat_visible": False,
-            "raw_worker_history_visible": False,
-            "local_paths_visible": False,
+            "cadence_view": {
+                "cadence_kind": "on_review_gate_clear",
+                "trigger_type": "event_gate",
+                "trigger_ref": "review_console_pass + gate_context",
+                "next_expected_check_at": "2026-06-07T19:05:00+00:00",
+                "heartbeat_policy": "history_hidden_status_only",
+            },
         },
     },
 }))
@@ -1389,6 +1208,7 @@ print(json.dumps({
     "mutation_authorized": False,
     "entry_count": len(entries),
     "with_tests_count": len(fm.with_tests()),
+    "injection_summary": fm.injection_summary(),
     "area_counts": [
         {"area": area, "count": count}
         for area, count in sorted(areas.items())
@@ -1497,16 +1317,12 @@ function sessionCloseArchiveProofSnapshot() {
   return pythonJsonSnapshot('Session close/archive proof', String.raw`
 import json
 from datetime import datetime, timedelta, timezone
-from meridian_core.session_archive import (
-    archive_record_from_close_result,
-    authorize_transcript_access,
-    catalog_entry_from_record,
-    plan_archive_reload,
-    plan_archive_run_again,
-)
 from meridian_core.session_lifecycle import (
     CloseArchiveWriteThroughAction,
     CommandIntent,
+    GoalRuntimeCheckpointCadence,
+    GoalRuntimeCheckpointSurface,
+    GoalRuntimeContinuationState,
     HarnessRole,
     HealthState,
     OperationScope,
@@ -1515,11 +1331,12 @@ from meridian_core.session_lifecycle import (
     ProofState,
     ReviewCadenceState,
     SessionCommandPlan,
-    SessionCloseWriteThroughResult,
     SessionLifecycleState,
     SessionStatus,
+    build_v3_goal_runtime_checkpoint_proof_packet,
     build_close_archive_write_through_proof,
     build_v2_command_plan_preview_proof,
+    gather_prime_autonomy_input,
 )
 
 observed_at = datetime(2026, 6, 7, 18, 0, tzinfo=timezone.utc)
@@ -1559,9 +1376,6 @@ running_session = SessionLifecycleState(
 )
 stopped_session = SessionLifecycleState(
     **{**running_session.__dict__, "status": SessionStatus.STOPPED}
-)
-archived_session = SessionLifecycleState(
-    **{**stopped_session.__dict__, "status": SessionStatus.ARCHIVED}
 )
 archive_command_plan = SessionCommandPlan(
     session_id=stopped_session.session_id,
@@ -1615,58 +1429,40 @@ command_preview = build_v2_command_plan_preview_proof(
     archive_command_plan,
     timestamp=observed_at,
 )
-archive_result = SessionCloseWriteThroughResult(
-    request_id="close-request-archive",
-    target_session_id=archived_session.session_id,
-    intended_action=CloseArchiveWriteThroughAction.ARCHIVE,
-    initial_status=SessionStatus.STOPPED,
-    final_status=SessionStatus.ARCHIVED,
-    close_authorized=True,
-    write_through_attempted=True,
-    write_through_completed=True,
-    obsidian_capture_attempted=True,
-    obsidian_capture_completed=True,
-    session_left_recoverable=True,
-    failure_reason=None,
-    blockers=(),
-    proof_refs=("proof://archive/sk9", "obsidian://capture/session-archive"),
-    final_state=archived_session,
-    raw_transcript_included=False,
-    raw_prompt_included=False,
+obsidian_capture = build_v3_goal_runtime_checkpoint_proof_packet(
+    checkpoint_id="checkpoint-close-archive-001",
+    goal_id="goal-close-archive-proof",
+    goal_title="close archive durability review",
+    owning_lane="spark_archive",
+    owning_session_label=stopped_session.session_name,
+    update_surface=GoalRuntimeCheckpointSurface.OBSIDIAN,
+    checkpoint_cadence=GoalRuntimeCheckpointCadence.BEFORE_BLOCKER_HANDOFF,
+    token_budget_summary="not_applicable",
+    time_budget_summary="within_window",
+    latest_git_ref="git-checkpoint:close-archive-proof-001",
+    latest_obsidian_ref="obsidian-checkpoint:close-archive-proof-001",
+    reviewer_gate_refs=("review:close-archive-proof",),
+    lease_gate_refs=("lease:close-archive-proof",),
+    blocker_tags=("close_archive.awaiting_human_review",),
+    continuation_state=GoalRuntimeContinuationState.READY_FOR_HANDOFF,
+    evidence_refs=(
+        "proof:close-archive-write-through",
+        "proof:obsidian-checkpoint-close-archive",
+    ),
     timestamp=observed_at,
 )
-archive_record = archive_record_from_close_result(
-    archive_result,
-    archive_id="archive-session-close-proof",
-    session_name=stopped_session.session_name,
-    transcript_text="safe bounded session summary",
-)
-archive_catalog = catalog_entry_from_record(archive_record)
-archive_reload_plan = plan_archive_reload(
-    archive_record,
-    plan_id="archive-reload-plan",
-    requested_by="prime",
-    evidence_refs=("proof://archive/reload",),
-)
-archive_run_again_plan = plan_archive_run_again(
-    archive_record,
-    plan_id="archive-run-again-plan",
-    requested_by="prime",
-    evidence_refs=("proof://archive/run-again",),
-)
-transcript_access = authorize_transcript_access(
-    archive_record,
-    handle_id="archive-transcript-handle",
-    requested_by="prime",
-    human_gate_approved=False,
-    evidence_refs=("proof://archive/transcript-access",),
+archive_history = gather_prime_autonomy_input(
+    sessions=(stopped_session,),
+    queues_by_harness={stopped_session.harness_role.value: (stopped_session.assigned_queue_file,)},
+    recent_completions=("session-close-archive-proof:archived", "session-close-archive-proof:closed"),
+    timestamp=observed_at,
 )
 print(json.dumps({
     "ok": True,
-    "source": "meridian_core.session_lifecycle + meridian_core.session_archive",
-    "version": "v2-session-archive-authority-2026-06-11",
-    "harness": "Session Lifecycle + Archive Authority",
-    "summary": "Display-safe close/archive proof plus preview-only archive catalog, reload/run-again, and transcript-access posture.",
+    "source": "meridian_core.session_lifecycle",
+    "version": "v2-session-close-archive-proof-2026-06-07",
+    "harness": "Session Lifecycle",
+    "summary": "Display-safe close/archive write-through and command-plan preview proof.",
     "display_only": True,
     "mutation_authorized": False,
     "live_control_authorized": False,
@@ -1679,29 +1475,25 @@ print(json.dumps({
     "orchestrator_intake": "compact_typed_session_state_only",
     "raw_detail_access": "fetched_on_demand_only",
     "archive_metadata": {
-        "archive_id": archive_record.archive_id,
-        "target_session_id": archive_record.session_id,
-        "session_name": archive_record.session_name,
-        "final_status": archive_record.final_status.value,
-        "archived_at": archive_record.archived_at.isoformat(),
-        "close_request_id": archive_record.close_request_id,
-        "intended_action": archive_record.intended_action.value,
-        "write_through_completed": archive_record.write_through_completed,
-        "obsidian_capture_completed": archive_record.obsidian_capture_completed,
-        "session_left_recoverable": archive_record.session_left_recoverable,
-        "transcript_hash": archive_record.transcript_hash,
-        "transcript_length": archive_record.transcript_length,
-        "proof_refs": list(archive_record.proof_refs),
+        "target_session_id": stopped_session.session_id,
+        "session_name": stopped_session.session_name,
+        "project_name": stopped_session.project_name,
+        "harness_role": stopped_session.harness_role.value,
+        "model_provider": stopped_session.model_provider,
+        "model_name": stopped_session.model_name,
+        "status": stopped_session.status.value,
+        "source_session_id": running_session.session_id,
+        "observed_at": observed_at.isoformat(),
     },
-    "archive_catalog": [archive_catalog.to_dict()],
-    "archive_reload_plan": archive_reload_plan.to_dict(),
-    "archive_run_again_plan": archive_run_again_plan.to_dict(),
-    "transcript_access": transcript_access.to_dict(),
-    "archive_context_refs": [
-        "archive://archive-session-close-proof",
-        "session://session-close-archive-proof",
-        "proof://archive/sk9",
+    "archive_sessions": [
+        {
+            "session_ref": session_ref,
+            "status": "archived" if session_ref.endswith(":archived") else "closed",
+        }
+        for session_ref in archive_history.recent_completions
     ],
+    "recent_close_refs": list(archive_history.recent_completions),
+    "obsidian_capture": obsidian_capture.to_dict(),
     "proofs": {
         "archive": archive_proof.to_dict(),
         "close": close_proof.to_dict(),
@@ -1716,20 +1508,14 @@ function voiceIoSnapshot() {
   return pythonJsonSnapshot('Voice I/O', String.raw`
 import json
 from bifrost.cockpit import sample_cockpit_view_model
-from meridian_core.voice_io import recognize_voice_command_intent
 
 voice = sample_cockpit_view_model().voice
-command_intent = recognize_voice_command_intent(
-    "Open Review Console",
-    confidence=0.93,
-    evidence_refs=("proof://voice/voc10",),
-)
 print(json.dumps({
     "ok": True,
-    "source": "bifrost.cockpit.VoiceIOState + meridian_core.voice_io",
-    "version": "bifrost-voice-io-command-intent-2026-06-10",
+    "source": "bifrost.cockpit.VoiceIOState",
+    "version": "bifrost-voice-io-display-2026-06-07",
     "harness": "Bifrost / Spark",
-    "summary": "Display-safe Voice I/O state plus preview-only VOC10 command intent authority.",
+    "summary": "Display-safe Voice I/O state from the reviewed Bifrost view model.",
     "display_only": True,
     "mutation_authorized": False,
     "microphone_authorized": False,
@@ -1748,23 +1534,7 @@ print(json.dumps({
         "output_mode": voice.output_mode,
         "permission_state": voice.permission_state,
         "status_call": voice.status_call,
-        "last_intent_ref": command_intent.intent_id,
-    },
-    "command_intent": command_intent.to_dict(),
-    "command_families": [
-        "harness_panel",
-        "project_lane",
-        "dictation",
-        "speech_output",
-        "proof",
-        "unknown",
-    ],
-    "command_preview_boundary": {
-        "execution_authorized": False,
-        "microphone_capture_authorized": False,
-        "speech_output_authorized": False,
-        "prompt_submit_authorized": False,
-        "mute_control_authorized": False,
+        "last_intent_ref": voice.last_intent_ref,
     },
     "controls": [
         {"id": "input-status", "label": "Mic", "aria_disabled": True},
@@ -2095,17 +1865,6 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' && req.url === BRIDGE_ROUTES.workflowDispatchStatus) {
     const snapshot = await workflowDispatchStatusSnapshot();
-    sendJson(res, snapshot.ok ? 200 : 500, {
-      service: 'meridian-model-bridge',
-      version: BRIDGE_VERSION,
-      capabilities: BRIDGE_CAPABILITIES,
-      ...snapshot,
-    }, req);
-    return;
-  }
-
-  if (req.method === 'GET' && req.url === BRIDGE_ROUTES.routines) {
-    const snapshot = await routineAuthoritySnapshot();
     sendJson(res, snapshot.ok ? 200 : 500, {
       service: 'meridian-model-bridge',
       version: BRIDGE_VERSION,

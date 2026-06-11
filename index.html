@@ -119,6 +119,26 @@ body {
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }
 
+.speech-mode-button::before {
+  content: attr(data-status-copy);
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -8px;
+  min-width: 112px;
+  max-width: 144px;
+  padding: 4px 7px;
+  border: 1px solid rgba(255, 84, 84, 0.28);
+  background: rgba(2, 8, 14, 0.94);
+  color: rgba(223, 251, 255, 0.86);
+  font-size: 10px;
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: normal;
+  pointer-events: none;
+}
+
 .speech-mode-button svg {
   width: 100%;
   height: 100%;
@@ -1056,12 +1076,41 @@ body {
   transform: translateY(10px) scale(0.985);
 }
 
+.session-window[data-session-hidden="true"] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(10px) scale(0.985) !important;
+}
+
+.session-window[data-session-pinned="true"] {
+  box-shadow:
+    0 0 4px rgba(var(--session-electric-soft), 0.78),
+    0 0 22px rgba(var(--session-electric), 0.4),
+    inset 0 0 16px rgba(var(--session-electric), 0.08);
+}
+
+.harness-screen:has(.harness-dock-wrap.harness-dock-open) .session-window[data-session-pinned="true"] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
 .session-window-right {
   left: var(--session-left);
 }
 
 .session-window-left {
   right: calc(50% + ((min(360px, 48vw) + 116px) / 2) + 10px);
+}
+
+.harness-screen[data-session-band-side="left"] .session-window-right {
+  left: auto;
+  right: calc(50% + ((min(360px, 48vw) + 116px) / 2) + 10px);
+}
+
+.harness-screen[data-session-band-side="left"] .session-window-left {
+  right: auto;
+  left: var(--session-left);
 }
 
 .session-window-left::after {
@@ -1196,6 +1245,98 @@ body {
 
 .session-window-right.is-panel-surface .session-target-select {
   display: none;
+}
+
+.session-window[data-session-size="compact"] {
+  width: min(440px, var(--session-side-width));
+}
+
+.session-window[data-session-size="wide"] {
+  width: min(620px, calc(var(--session-side-width) + 84px));
+}
+
+.instrumentation-band {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 18px;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  pointer-events: none;
+}
+
+.instrumentation-band-cell {
+  min-height: 58px;
+  border: 1px solid rgba(87, 239, 255, 0.28);
+  background:
+    linear-gradient(180deg, rgba(0, 10, 12, 0.94), rgba(0, 5, 7, 0.92)),
+    radial-gradient(circle at 0 0, rgba(87, 239, 255, 0.09), transparent 120px);
+  box-shadow:
+    inset 0 0 10px rgba(87, 239, 255, 0.06),
+    0 0 16px rgba(0, 0, 0, 0.34);
+  padding: 8px 10px 7px;
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
+
+.instrumentation-band-label {
+  color: rgba(149, 225, 255, 0.72);
+  font-size: 8px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.instrumentation-band-value {
+  color: rgba(235, 251, 255, 0.96);
+  font-size: 12px;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.instrumentation-band-detail {
+  color: rgba(154, 187, 196, 0.82);
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+.instrumentation-band-cell[data-status="online"] {
+  border-color: rgba(111, 255, 181, 0.44);
+}
+
+.instrumentation-band-cell[data-status="busy"],
+.instrumentation-band-cell[data-status="degraded"] {
+  border-color: rgba(255, 207, 102, 0.44);
+}
+
+.instrumentation-band-cell[data-status="offline"],
+.instrumentation-band-cell[data-status="blocked"] {
+  border-color: rgba(255, 121, 121, 0.5);
+}
+
+.instrumentation-band-cell[data-status="planned"] {
+  border-color: rgba(132, 157, 173, 0.28);
+}
+
+@media (max-width: 1100px) {
+  .instrumentation-band {
+    left: 18px;
+    right: 18px;
+    bottom: 14px;
+    gap: 6px;
+  }
+
+  .instrumentation-band-cell {
+    min-height: 54px;
+    padding: 7px 8px 6px;
+  }
+
+  .instrumentation-band-value {
+    font-size: 11px;
+  }
 }
 
 .session-window-right .session-project-select {
@@ -1403,6 +1544,10 @@ body {
   line-height: 1.45;
 }
 
+.session-window[data-session-collapsed="true"] .session-interface {
+  grid-template-rows: auto auto auto;
+}
+
 .session-prompt-input,
 .session-response-output {
   width: 100%;
@@ -1429,6 +1574,10 @@ body {
   min-height: 0;
   overflow: auto;
   white-space: pre-wrap;
+}
+
+.session-window[data-session-collapsed="true"] .session-response-output {
+  max-height: 86px;
 }
 
 .session-window-right.is-panel-surface .session-top-icons,
@@ -3929,6 +4078,7 @@ body {
 <button class="speech-mode-button" type="button" aria-label="Speech mode unavailable" aria-pressed="false" aria-disabled="true" disabled><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 24h21c6 0 10 4 10 10s-4 10-10 10H28l-10 8v-8c-5 0-9-4-9-10s4-10 9-10z"></path><path d="M47 20c4 3 7 8 7 14s-3 11-7 14"></path><path d="M39 28c2 1 4 3 4 6s-2 5-4 6"></path></svg></button>
 <div class="spark-stage"><div class="core-animation spark-final-image" role="img" aria-label="Spark, voice of Prime" data-name="Spark" data-role="voice-of-prime"></div><button class="spark-core-toggle" type="button" aria-label="Toggle session panels"></button><nav class="spark-menu spark-icon-menu" aria-label="Spark actions"><button class="spark-menu-icon-button is-selected" type="button" aria-label="Settings" style="--slot: 0"><span class="spark-action-label">Settings</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="7"></circle><path d="M32 12v7M32 45v7M12 32h7M45 32h7M18 18l5 5M41 41l5 5M46 18l-5 5M23 41l-5 5"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Filter" style="--slot: 1"><span class="spark-action-label">Filter</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 18h36L36 34v12l-8 4V34z"></path><path d="M22 18l10 16 10-16"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Models" style="--slot: 2"><span class="spark-action-label">Models</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 12l17 10v20L32 52 15 42V22z"></path><path d="M32 12v20l17 10M32 32L15 22M32 32v20"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Backlog" style="--slot: 3"><span class="spark-action-label">Backlog</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 16h28v36H18z"></path><path d="M24 25h16M24 33h16M24 41h10"></path><path d="M14 21h4M14 47h4"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Skills" style="--slot: 4"><span class="spark-action-label">Skills</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M20 45l15-15"></path><path d="M29 21l14 14"></path><path d="M25 17l22 22"></path><path d="M17 49l8-4 20-20-4-4-20 20z"></path><path d="M42 14l8 8"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Crosscheck" style="--slot: 5"><span class="spark-action-label">Crosscheck</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M16 21l13 13 19-19"></path><path d="M16 43l8 8 24-26"></path><path d="M14 15l36 36"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Close" style="--slot: 6"><span class="spark-action-label">Close</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="19"></circle><path d="M24 24l16 16M40 24L24 40"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Archive" style="--slot: 7"><span class="spark-action-label">Archive</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M16 20h32v10H16z"></path><path d="M20 30h24v22H20z"></path><path d="M27 38h10"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Reset" style="--slot: 8"><span class="spark-action-label">Reset</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M45 22a17 17 0 1 0 2 18"></path><path d="M45 14v8h-8"></path><path d="M32 24v10l7 5"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Reload" style="--slot: 9"><span class="spark-action-label">Reload</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M46 25a16 16 0 0 0-27-5"></path><path d="M18 13v9h9"></path><path d="M18 39a16 16 0 0 0 27 5"></path><path d="M46 51v-9h-9"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Routines" style="--slot: 10"><span class="spark-action-label">Routines</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="22" r="5"></circle><circle cx="44" cy="22" r="5"></circle><circle cx="32" cy="46" r="5"></circle><path d="M25 22h14M41 27l-7 14M23 27l7 14"></path></svg></button><button class="spark-menu-icon-button" type="button" aria-label="Balance" style="--slot: 11"><span class="spark-action-label">Balance</span><svg class="spark-action-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 14v36"></path><path d="M20 22h24"></path><path d="M20 22l-9 17h18z"></path><path d="M44 22l-9 17h18z"></path><path d="M24 50h16"></path></svg></button></nav></div>
 <section class="session-window session-window-left" aria-label="Left session window"><span class="session-title" aria-hidden="true">Prime</span><select class="session-project-select" aria-label="Projects"><option value="Projects">Projects</option><option value="Meridian">Meridian</option><option value="Bifrost">Bifrost</option><option value="Spark">Spark</option></select><span class="session-right-ticks" aria-hidden="true"></span><span class="session-corner-plus" aria-hidden="true"></span><nav class="session-outside-icons session-top-icons" aria-label="Session top actions"><button class="session-outside-icon" type="button" aria-label="Yes"><span class="session-outside-label">Yes</span><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="18"></circle><path d="M22 33l7 7 14-18"></path></svg></button><button class="session-outside-icon" type="button" aria-label="No"><span class="session-outside-label">No</span><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="18"></circle><path d="M24 24l16 16M40 24L24 40"></path></svg></button><button class="session-outside-icon" type="button" aria-label="Continue"><span class="session-outside-label">Continue</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 32h27"></path><path d="M34 20l13 12-13 12"></path><path d="M17 44h16"></path></svg></button><button class="session-outside-icon" type="button" aria-label="Confirm"><span class="session-outside-label">Confirm</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 12l18 8v12c0 11-7 18-18 22-11-4-18-11-18-22V20z"></path><path d="M24 32l6 6 12-14"></path></svg></button></nav><div class="session-workspace" aria-hidden="true"><div class="session-text-slider" aria-hidden="true"><span class="session-text-slider-small">A</span><input type="range" min="0" max="100" value="0" tabindex="-1"><span class="session-text-slider-large">A</span></div></div></section><section class="session-window session-window-right" aria-label="Right session window"><span class="session-title" aria-hidden="true">User</span><span class="session-right-ticks" aria-hidden="true"></span><span class="session-corner-plus" aria-hidden="true"></span><nav class="session-outside-icons session-top-icons" aria-label="Session top actions"><button class="session-outside-icon" type="button" aria-label="Yes"><span class="session-outside-label">Yes</span><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="18"></circle><path d="M22 33l7 7 14-18"></path></svg></button><button class="session-outside-icon" type="button" aria-label="No"><span class="session-outside-label">No</span><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="18"></circle><path d="M24 24l16 16M40 24L24 40"></path></svg></button><button class="session-outside-icon" type="button" aria-label="Continue"><span class="session-outside-label">Continue</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 32h27"></path><path d="M34 20l13 12-13 12"></path><path d="M17 44h16"></path></svg></button><button class="session-outside-icon" type="button" aria-label="Confirm"><span class="session-outside-label">Confirm</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 12l18 8v12c0 11-7 18-18 22-11-4-18-11-18-22V20z"></path><path d="M24 32l6 6 12-14"></path></svg></button></nav><div class="session-workspace" aria-hidden="true"><div class="session-text-slider" aria-hidden="true"><span class="session-text-slider-small">A</span><input type="range" min="0" max="100" value="0" tabindex="-1"><span class="session-text-slider-large">A</span></div></div></section>
+<section class="instrumentation-band" data-instrumentation-band aria-label="Bottom instrumentation band"></section>
 <svg class="spark-lightning" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><defs><radialGradient id="synapse-depth-gradient" cx="50%" cy="48%" r="72%"><stop offset="0%" stop-color="white"></stop><stop offset="28%" stop-color="white"></stop><stop offset="64%" stop-color="rgba(255, 255, 255, 0.24)"></stop><stop offset="100%" stop-color="black"></stop></radialGradient><mask id="synapse-depth-mask"><rect width="100" height="100" fill="url(#synapse-depth-gradient)"></rect></mask></defs><g class="synapse-field" mask="url(#synapse-depth-mask)"><g class="synapse synapse-1"><path class="synapse-track" pathLength="100" d="M4 6 C17 11 28 22 42 39 C45 42 48 45 50 48 M18 12 C17 5 20 2 25 0 M25 20 C17 20 11 23 5 29"></path><path class="synapse-fire" pathLength="100" d="M4 6 C17 11 28 22 42 39 C45 42 48 45 50 48 M18 12 C17 5 20 2 25 0 M25 20 C17 20 11 23 5 29"></path></g><g class="synapse synapse-2"><path class="synapse-track" pathLength="100" d="M49 0 C49 12 49 24 50 37 C50 42 50 45 50 48 M44 15 C37 9 31 7 24 8 M55 16 C62 9 70 5 80 3"></path><path class="synapse-fire" pathLength="100" d="M49 0 C49 12 49 24 50 37 C50 42 50 45 50 48 M44 15 C37 9 31 7 24 8 M55 16 C62 9 70 5 80 3"></path></g><g class="synapse synapse-3"><path class="synapse-track" pathLength="100" d="M97 7 C83 13 72 23 60 38 C56 42 53 45 50 48 M82 16 C88 10 92 7 99 5 M77 25 C86 26 93 31 99 36"></path><path class="synapse-fire" pathLength="100" d="M97 7 C83 13 72 23 60 38 C56 42 53 45 50 48 M82 16 C88 10 92 7 99 5 M77 25 C86 26 93 31 99 36"></path></g><g class="synapse synapse-4"><path class="synapse-track" pathLength="100" d="M100 47 C86 45 72 45 60 47 C55 48 52 48 50 48 M82 45 C88 38 94 34 100 31 M80 48 C88 55 94 60 100 65"></path><path class="synapse-fire" pathLength="100" d="M100 47 C86 45 72 45 60 47 C55 48 52 48 50 48 M82 45 C88 38 94 34 100 31 M80 48 C88 55 94 60 100 65"></path></g><g class="synapse synapse-5"><path class="synapse-track" pathLength="100" d="M94 93 C82 84 72 75 61 62 C56 57 53 52 50 48 M80 77 C88 76 95 78 100 82 M73 68 C77 80 82 90 88 100"></path><path class="synapse-fire" pathLength="100" d="M94 93 C82 84 72 75 61 62 C56 57 53 52 50 48 M80 77 C88 76 95 78 100 82 M73 68 C77 80 82 90 88 100"></path></g><g class="synapse synapse-6"><path class="synapse-track" pathLength="100" d="M52 100 C52 87 52 76 51 63 C51 57 50 52 50 48 M45 82 C36 89 29 94 22 100 M58 78 C65 88 72 95 82 100"></path><path class="synapse-fire" pathLength="100" d="M52 100 C52 87 52 76 51 63 C51 57 50 52 50 48 M45 82 C36 89 29 94 22 100 M58 78 C65 88 72 95 82 100"></path></g><g class="synapse synapse-7"><path class="synapse-track" pathLength="100" d="M5 92 C19 82 30 72 41 60 C45 55 48 51 50 48 M21 78 C14 77 7 80 0 85 M29 70 C24 82 19 92 13 100"></path><path class="synapse-fire" pathLength="100" d="M5 92 C19 82 30 72 41 60 C45 55 48 51 50 48 M21 78 C14 77 7 80 0 85 M29 70 C24 82 19 92 13 100"></path></g><g class="synapse synapse-8"><path class="synapse-track" pathLength="100" d="M0 48 C13 47 27 46 40 47 C45 47 48 48 50 48 M17 46 C10 39 5 35 0 31 M19 50 C10 56 4 62 0 70"></path><path class="synapse-fire" pathLength="100" d="M0 48 C13 47 27 46 40 47 C45 47 48 48 50 48 M17 46 C10 39 5 35 0 31 M19 50 C10 56 4 62 0 70"></path></g><g class="synapse-nodes"><circle cx="4" cy="6" r="0.65"></circle><circle cx="49" cy="0" r="0.56"></circle><circle cx="97" cy="7" r="0.64"></circle><circle cx="100" cy="47" r="0.7"></circle><circle cx="94" cy="93" r="0.62"></circle><circle cx="52" cy="100" r="0.58"></circle><circle cx="5" cy="92" r="0.66"></circle><circle cx="0" cy="48" r="0.62"></circle><circle cx="25" cy="20" r="0.46"></circle><circle cx="77" cy="25" r="0.48"></circle><circle cx="80" cy="77" r="0.5"></circle><circle cx="21" cy="78" r="0.48"></circle></g></g></svg>
 </main>
 <script>
@@ -4143,10 +4293,30 @@ body {
     if (voice.listening) return 'listening';
     return 'unavailable';
   };
+  const speechButtonDisabledReason = (snapshot = {}, voice = {}) => {
+    if (!snapshot?.ok) return 'Voice I/O snapshot unavailable';
+    if (voice.blocked) return 'Voice interaction blocked by reviewed backend state';
+    if (!snapshot.microphone_authorized) return 'Mic unavailable: microphone permission not authorized';
+    if (!snapshot.speech_output_authorized && !snapshot.read_aloud_authorized) {
+      return 'Voice output unavailable: speech output backend not authorized';
+    }
+    if (snapshot.controls_disabled) return 'Voice controls are display-only in this build';
+    return 'Voice capture inactive';
+  };
+  const speechButtonStatusCopy = (snapshot = {}, voice = {}) => {
+    if (!snapshot?.ok) return 'Voice offline';
+    if (voice.blocked) return 'Voice blocked';
+    if (!snapshot.microphone_authorized) return 'Mic unavailable';
+    if (!snapshot.speech_output_authorized && !snapshot.read_aloud_authorized) return 'Output unavailable';
+    if (snapshot.controls_disabled) return 'Display only';
+    return snapshot.microphone_authorized && voice.listening ? 'Mic active' : 'Voice ready';
+  };
   const applySpeechButtonVoiceState = (snapshot = {}) => {
     if (!speechButton) return;
     const voice = snapshot.voice || {};
     const state = snapshot.ok ? voiceStateLabel(voice) : 'unavailable';
+    const disabledReason = speechButtonDisabledReason(snapshot, voice);
+    const statusCopy = speechButtonStatusCopy(snapshot, voice);
     const authorized = Boolean(
       snapshot.microphone_authorized ||
       snapshot.speech_output_authorized ||
@@ -4154,10 +4324,10 @@ body {
     );
     speechButton.dataset.voiceState = state;
     speechButton.dataset.captureState = snapshot.microphone_authorized && voice.listening ? 'capturing' : 'not-capturing';
+    speechButton.dataset.disabledReason = disabledReason;
+    speechButton.dataset.statusCopy = statusCopy;
     speechButton.setAttribute('aria-label', `Speech mode ${state}`);
-    speechButton.title = snapshot.microphone_authorized && voice.listening
-      ? 'Microphone capture active'
-      : 'Microphone capture inactive';
+    speechButton.title = disabledReason;
     speechButton.setAttribute('aria-pressed', state !== 'unavailable' && state !== 'blocked' ? 'true' : 'false');
     speechButton.setAttribute('aria-disabled', 'true');
     speechButton.disabled = true;
@@ -4769,6 +4939,7 @@ body {
   const modelHarnessSelectionKey = 'meridian.model-harness.selection.v1';
   const validRightPanelModes = new Set(['user', 'spark', 'harness']);
   let rightPanelRecoveryWarning = '';
+  let sessionCloseArchiveProofSnapshotCache = null;
   const readStoredRightPanel = () => {
     try {
       const mode = localStorage.getItem(rightPanelModeKey) || 'user';
@@ -4791,15 +4962,20 @@ body {
       // The live panel still changes even if browser storage is unavailable.
     }
   };
+  const setRightPanelRecoveryWarning = (warning = '') => {
+    rightPanelRecoveryWarning = warning || '';
+    window.meridianRightPanelRecoveryWarning = rightPanelRecoveryWarning;
+    if (rightWindow) rightWindow.dataset.panelWarning = rightPanelRecoveryWarning;
+    if (rightWorkspace) rightWorkspace.dataset.panelWarning = rightPanelRecoveryWarning;
+    updateUserSessionStatus();
+  };
   const setRightPanelAuthority = (mode, selection, { persist = true, warning = '' } = {}) => {
     const safeMode = validRightPanelModes.has(mode) ? mode : 'user';
     const safeSelection = selection || (safeMode === 'user' ? 'User' : safeMode);
-    rightPanelRecoveryWarning = warning || '';
-    window.meridianRightPanelRecoveryWarning = rightPanelRecoveryWarning;
+    setRightPanelRecoveryWarning(warning);
     if (rightWindow) {
       rightWindow.dataset.panelMode = safeMode;
       rightWindow.dataset.panelSelection = safeSelection;
-      rightWindow.dataset.panelWarning = rightPanelRecoveryWarning;
     }
     if (rightWorkspace) {
       rightWorkspace.dataset.panelMode = safeMode;
@@ -5102,6 +5278,7 @@ body {
     const permissionGate = runtime.live_control_permission_gate || {};
     const workflowRecovery = runtime.workflow_recovery || {};
     const permissionSummary = runtime.permission_summary || {};
+    const autonomyInput = runtime.prime_autonomy_input || {};
     const beaconAdvisories = Array.isArray(runtime.beacon_advisories) ? runtime.beacon_advisories : [];
     const displayContract = runtime.display_contract || {};
     const mutationAllowed = Boolean(snapshot.mutation_authorized || displayContract.mutation_authorized);
@@ -5157,6 +5334,44 @@ body {
         ['permission gate ready', permissionGate.ready_for_execution ? 'yes' : 'no'],
         ['can accept work', permissionSummary.can_accept_work ? 'yes' : 'no'],
       ]), true),
+      relaySection('Lifecycle status history', relayGrid([
+        ['current sessions', Array.isArray(autonomyInput.current_session_ids) ? autonomyInput.current_session_ids.length : 0],
+        ['approvals pending', Array.isArray(autonomyInput.approvals_pending) ? autonomyInput.approvals_pending.length : 0],
+        ['recent completions', Array.isArray(autonomyInput.recent_completions) ? autonomyInput.recent_completions.length : 0],
+        ['permission summaries', Array.isArray(autonomyInput.permission_summaries) ? autonomyInput.permission_summaries.length : 0],
+        ['history boundary', 'display-safe lifecycle status only; no close/archive execution, restore, or session mutation'],
+      ]), false),
+      relaySection('Pending approvals and recent completions', [
+        relayGrid([
+          ['pending approval reasons', relayJoin((Array.isArray(autonomyInput.approvals_pending) ? autonomyInput.approvals_pending : []).map((item) => Array.isArray(item) ? item[1] : 'unknown'))],
+          ['recent completion ids', relayJoin(Array.isArray(autonomyInput.recent_completions) ? autonomyInput.recent_completions : [])],
+        ]),
+        relayList([
+          'Pending approvals and recent completions are display-safe lifecycle inputs for Prime/Vulcan visibility only.',
+          'This history does not reopen sessions, restore archives, confirm close actions, or mutate queue/session state.',
+        ]),
+      ].join(''), false),
+      relaySection('Prime autonomy recovery posture', [
+        relayGrid([
+          ['restart/resteer findings', relayJoin(Array.isArray(autonomyInput.restart_resteer_findings) ? autonomyInput.restart_resteer_findings : [])],
+          ['permission summary count', Array.isArray(autonomyInput.permission_summaries) ? autonomyInput.permission_summaries.length : 0],
+          ['queue visibility', relayJoin(Object.entries(autonomyInput.queues_by_harness || {}).map(([harness, queues]) => `${harness}:${Array.isArray(queues) ? queues.join(',') : 'none'}`))],
+          ['boundary', 'display-only Prime autonomy posture; no restart, resteer, transfer, or queue mutation is executed'],
+        ]),
+        Array.isArray(autonomyInput.permission_summaries) && autonomyInput.permission_summaries.length
+          ? autonomyInput.permission_summaries.map((summary) => relayGrid([
+            ['session id', summary.session_id || 'unknown'],
+            ['permission state', relayText(summary.permission_state)],
+            ['approved operations', relayJoin(summary.approved_operations)],
+            ['approvals pending', relayJoin((Array.isArray(summary.approvals_pending) ? summary.approvals_pending : []).map((item) => Array.isArray(item) ? item[1] : relayText(item)))],
+            ['blockers', relayJoin(summary.blockers)],
+            ['review gate blockers', relayJoin(summary.review_gate_blockers)],
+            ['restart/resteer findings', relayJoin(summary.restart_resteer_findings)],
+            ['can accept work', summary.can_accept_work ? 'yes' : 'no'],
+            ['recorded at', summary.timestamp || 'unknown'],
+          ])).join('')
+          : relayGrid([['status', 'no permission summaries reported']]),
+      ].join(''), false),
       relaySection('Beacon advisory evidence', beaconAdvisories.length
         ? beaconAdvisories.map((advisory) => relayGrid([
           ['harness', advisory.harness_id || 'unknown'],
@@ -5223,12 +5438,59 @@ body {
     }
     const queue = snapshot.queue || {};
     const items = Array.isArray(queue.items) ? queue.items : [];
+    const query = String(snapshot._ui_query || '').trim().toLowerCase();
+    const severityFilter = String(snapshot._ui_severity || 'all').trim().toLowerCase();
+    const ownerFilter = String(snapshot._ui_owner || 'all').trim().toLowerCase();
+    const filteredItems = items.filter((item) => {
+      const severity = relayText(item.severity).toLowerCase();
+      const owner = String(item.owner_harness || 'unknown').trim().toLowerCase();
+      const haystack = [
+        item.id,
+        item.item_type,
+        item.severity,
+        item.owner_harness,
+        item.title,
+        item.content_label,
+        item.status,
+        ...(Array.isArray(item.suggested_actions) ? item.suggested_actions : []),
+      ].map((value) => String(value || '').toLowerCase()).join(' ');
+      if (query && !haystack.includes(query)) return false;
+      if (severityFilter !== 'all' && severity !== severityFilter) return false;
+      if (ownerFilter !== 'all' && owner !== ownerFilter) return false;
+      return true;
+    });
     const guardrails = Array.isArray(snapshot.guardrails) ? snapshot.guardrails : [];
     const mutationAllowed = Boolean(snapshot.mutation_authorized);
     const responseAuthorized = Boolean(snapshot.response_authorized);
     const executionControlsVisible = Boolean(snapshot.execution_controls_visible);
     const rawItemContentVisible = Boolean(snapshot.raw_item_content_visible);
     const rawWorkerChatVisible = Boolean(snapshot.raw_worker_chat_visible);
+    const ledgerItems = [...filteredItems]
+      .sort((left, right) => {
+        const leftSequence = Number(left.sequence ?? Number.MAX_SAFE_INTEGER);
+        const rightSequence = Number(right.sequence ?? Number.MAX_SAFE_INTEGER);
+        if (leftSequence !== rightSequence) return leftSequence - rightSequence;
+        return String(left.id || '').localeCompare(String(right.id || ''));
+      })
+      .slice(0, 8);
+    const repairReady = filteredItems.filter((item) => (
+      Array.isArray(item.suggested_actions)
+      && item.suggested_actions.includes('modify')
+      && ['warning', 'error', 'critical'].includes(relayText(item.severity).toLowerCase())
+    ));
+    const approveVisible = filteredItems.filter((item) => (
+      Array.isArray(item.suggested_actions)
+      && item.suggested_actions.includes('approve')
+    ));
+    const responseRequired = filteredItems.filter((item) => item.requires_response);
+    const repairOwnerCounts = Array.from(repairReady.reduce((map, item) => {
+      const owner = item.owner_harness || 'unknown';
+      map.set(owner, (map.get(owner) || 0) + 1);
+      return map;
+    }, new Map()).entries()).sort((left, right) => {
+      if (right[1] !== left[1]) return right[1] - left[1];
+      return String(left[0]).localeCompare(String(right[0]));
+    });
     return [
       relaySection('Review Console source', relayGrid([
         ['source', snapshot.source || 'unknown'],
@@ -5238,6 +5500,7 @@ body {
         ['mutation authorized', mutationAllowed ? 'yes' : 'no'],
         ['response authorized', responseAuthorized ? 'yes' : 'no'],
         ['execution controls visible', executionControlsVisible ? 'yes' : 'no'],
+        ['observed at', snapshot.timestamp || 'unknown'],
       ]), true),
       relaySection('Review Console summary', relaySummary(snapshot.summary || ''), true),
       relaySection('Queue status', relayGrid([
@@ -5247,11 +5510,35 @@ body {
         ['raw item content visible', rawItemContentVisible ? 'yes' : 'no'],
         ['raw worker chat visible', rawWorkerChatVisible ? 'yes' : 'no'],
       ]), true),
+      relaySection('Findings filter', `
+        <input data-review-console-search type="search" value="${escapeHtml(snapshot._ui_query || '')}" placeholder="Search id, title, type, severity, owner, action" autocomplete="off" />
+        <div class="relay-models-handoff" aria-label="Review findings filter controls">
+          <label>severity
+            <select data-review-console-severity-filter>
+              ${['all', 'info', 'warning', 'error', 'critical'].map((option) => `<option value="${escapeHtml(option)}" ${severityFilter === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+          </label>
+          <label>owner
+            <select data-review-console-owner-filter>
+              ${['all', ...new Set(items.map((item) => String(item.owner_harness || 'unknown').trim().toLowerCase()))].map((option) => `<option value="${escapeHtml(option)}" ${ownerFilter === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+        ${relayGrid([
+          ['query', query || 'none'],
+          ['severity filter', severityFilter],
+          ['owner filter', ownerFilter],
+          ['matching findings', filteredItems.length],
+          ['filter boundary', 'UI-local filter over the current reviewed Review Console snapshot only'],
+        ])}
+      `, false),
       relaySection('Pending review items', items.length
-        ? items.map((item) => relayGrid([
+        ? filteredItems.map((item) => relayGrid([
           ['id', item.id || 'unknown'],
+          ['sequence', item.sequence ?? 'unknown'],
           ['type', relayText(item.item_type)],
           ['severity', relayText(item.severity)],
+          ['owner', item.owner_harness || 'unknown'],
           ['title', item.title || 'unknown'],
           ['content label', item.content_label || 'none'],
           ['content length', item.content_length ?? '0'],
@@ -5260,9 +5547,216 @@ body {
           ['suggested actions', relayJoin(item.suggested_actions)],
           ['status', relayText(item.status)],
         ])).join('')
-        : relayGrid([['status', 'no pending review items']]), false),
+        : relayGrid([['status', items.length ? 'no pending review items match the current UI-local filter' : 'no pending review items']]), false),
+      relaySection('Recent review ledger summary', relayGrid([
+        ['visible entries', ledgerItems.length],
+        ['matching findings', filteredItems.length],
+        ['owner lanes visible', Array.from(new Set(ledgerItems.map((item) => item.owner_harness || 'unknown'))).length],
+        ['repair-route hints visible', ledgerItems.filter((item) => Array.isArray(item.suggested_actions) && item.suggested_actions.includes('modify')).length],
+        ['summary boundary', 'display-only recent-ledger summary over the current reviewed pending queue; no completed history or durable routing history is exposed'],
+      ]), false),
+      relaySection('Recent review ledger', ledgerItems.length
+        ? [
+          relayGrid([
+            ['ledger scope', 'current reviewed pending queue only'],
+            ['visible entries', ledgerItems.length],
+            ['ordering', 'lowest sequence first'],
+            ['history boundary', 'chronological queue posture only; completed review history and durable repair routing history are not exposed'],
+          ]),
+          ledgerItems.map((item) => relayGrid([
+            ['sequence', item.sequence ?? 'unknown'],
+            ['id', item.id || 'unknown'],
+            ['type', relayText(item.item_type)],
+            ['severity / owner', `${relayText(item.severity)} / ${item.owner_harness || 'unknown'}`],
+            ['title', item.title || 'unknown'],
+            ['status', relayText(item.status)],
+            ['repair route hint', Array.isArray(item.suggested_actions) && item.suggested_actions.includes('modify')
+              ? `modify visible for ${item.owner_harness || 'unknown'}`
+              : 'no modify hint reported'],
+            ['suggested actions', relayJoin(item.suggested_actions)],
+          ])).join(''),
+        ].join('')
+        : relayGrid([['status', items.length ? 'no ledger entries match the current UI-local filter' : 'no current review ledger entries']]), false),
+      relaySection('Repair routing summary', [
+        relayGrid([
+          ['repair-ready findings', repairReady.length],
+          ['approve-visible findings', approveVisible.length],
+          ['response-required findings', responseRequired.length],
+          ['owner lanes with repair hints', repairOwnerCounts.length],
+          ['queue posture', repairReady.length ? 'display-only repair hints over the current reviewed queue' : 'no repair routing hints in the current reviewed snapshot'],
+          ['boundary', 'display-only routing summary; no task creation, queue reprioritization, approval, waiver, or route execution is performed'],
+        ]),
+        repairOwnerCounts.length
+          ? relayList(repairOwnerCounts.map(([owner, count]) => `${owner}: ${count} modify-visible ${count === 1 ? 'finding' : 'findings'}`))
+          : relayList(['No owner currently has a reviewed modify-visible repair hint in the loaded queue.']),
+      ].join(''), false),
+      relaySection('Approval posture', relayGrid([
+        ['approve-visible findings', approveVisible.length],
+        ['response-required findings', responseRequired.length],
+        ['pending gates', queue.pending_gate_count ?? '0'],
+        ['approval posture', approveVisible.length ? 'display-only approval hints are visible in the current reviewed queue' : 'no approve-visible findings in the current reviewed snapshot'],
+        ['boundary', 'display-only approval posture; no response route, approval control, actor capture, or queue mutation is executed'],
+      ]), false),
+      relaySection('Queue posture summary', relayGrid([
+        ['repair-ready findings', repairReady.length],
+        ['approve-visible findings', approveVisible.length],
+        ['response-required findings', responseRequired.length],
+        ['pending gates', queue.pending_gate_count ?? '0'],
+        ['owner lanes with repair hints', repairOwnerCounts.length],
+        ['visible ledger entries', ledgerItems.length],
+        ['summary posture', filteredItems.length ? 'display-only queue posture over the current reviewed findings set' : 'no current findings match the active UI-local filter'],
+        ['boundary', 'display-only queue posture summary; no approval, waiver, rerun, repair execution, or durable review-history mutation is performed'],
+      ]), false),
+      relaySection('Review action posture', relayGrid([
+        ['approve control available', 'no'],
+        ['waive/dismiss control available', 'no'],
+        ['rerun control available', 'no'],
+        ['repair execution available', 'no'],
+        ['history mutation available', 'no'],
+        ['action boundary', 'display-only review action posture; reviewed findings remain visible, but no response, waiver, rerun, repair execution, or history mutation is performed'],
+      ]), false),
+      relaySection('Repair posture', relayGrid([
+        ['repair-leaning findings', repairReady.length],
+        ['route signal', repairReady.length ? 'modify action visible on the current reviewed findings set' : 'no repair-leaning findings in the current reviewed snapshot'],
+        ['owner spread', Array.from(new Set(repairReady.map((item) => item.owner_harness || 'unknown'))).join(' | ') || 'none'],
+        ['boundary', 'display-only repair posture; no reroute, assign, approve, waive, or rerun control is executed'],
+      ]), false),
       relaySection('Review guardrails', relayList(guardrails), false),
     ].join('');
+  };
+  const renderCrosscheckStopConditionsSnapshot = (reviewSnapshot, aegisSnapshot) => {
+    const reviewOk = Boolean(reviewSnapshot?.ok);
+    const aegisOk = Boolean(aegisSnapshot?.ok);
+    const queue = reviewSnapshot?.queue || {};
+    const proofTrail = aegisSnapshot?.proof_trail || {};
+    const policy = aegisSnapshot?.cognition_policy || {};
+    const stopConditions = [];
+    if (!reviewOk) stopConditions.push('review_console_snapshot_unavailable');
+    if (!aegisOk) stopConditions.push('aegis_logic_snapshot_unavailable');
+    if ((queue.pending_gate_count ?? 0) > 0) stopConditions.push('review_console_pending_gate');
+    if ((proofTrail.blocking_count ?? 0) > 0) stopConditions.push('aegis_proof_blocking');
+    if (policy.requires_human_gate) stopConditions.push('aegis_human_gate_required');
+    if (policy.can_dispatch === false) stopConditions.push('aegis_dispatch_blocked');
+    const uniqueConditions = relayUnique(stopConditions);
+    return [
+      relaySection('Stop condition summary', relayGrid([
+        ['stop condition count', uniqueConditions.length],
+        ['review console source', reviewOk ? 'online' : 'offline'],
+        ['Aegis source', aegisOk ? 'online' : 'offline'],
+        ['summary posture', uniqueConditions.length ? 'blocking review/proof posture is visible below' : 'no current hard-stop conditions are reported'],
+        ['summary boundary', 'display-only stop-condition summary; no approve, waive, rerun, or review-state mutation is executed'],
+      ]), false),
+      relaySection('Stop condition alert', [
+      relayGrid([
+        ['review console source', reviewOk ? 'online' : 'offline'],
+        ['Aegis source', aegisOk ? 'online' : 'offline'],
+        ['pending gates', queue.pending_gate_count ?? 'unknown'],
+        ['proof blockers', proofTrail.blocking_count ?? 'unknown'],
+        ['human gate required', policy.requires_human_gate ? 'yes' : 'no'],
+        ['dispatch allowed', policy.can_dispatch ? 'yes' : 'no'],
+        ['stop condition count', uniqueConditions.length],
+      ]),
+      uniqueConditions.length
+        ? relayList([
+          ...uniqueConditions.map((condition) => `Stop condition: ${condition}`),
+          'Further UI wiring should pause until the blocking review/proof condition is cleared or explicitly waived by reviewed backend policy.',
+        ])
+        : relayList([
+          'No current hard-stop conditions are reported by the loaded Review Console and Aegis snapshots.',
+          'Crosscheck remains display-only; this alert does not approve, waive, rerun, or mutate any review/proof state.',
+        ]),
+    ].join(''), true),
+    ].join('');
+  };
+  const renderCrosscheckRunPostureSnapshot = (reviewSnapshot, aegisSnapshot) => {
+    const reviewOk = Boolean(reviewSnapshot?.ok);
+    const aegisOk = Boolean(aegisSnapshot?.ok);
+    const queue = reviewSnapshot?.queue || {};
+    const proofTrail = aegisSnapshot?.proof_trail || {};
+    const policy = aegisSnapshot?.cognition_policy || {};
+    const blockingReasons = Array.isArray(policy.blocking_reasons) ? policy.blocking_reasons : [];
+    const runReady = reviewOk
+      && aegisOk
+      && (queue.pending_gate_count ?? 0) === 0
+      && (proofTrail.blocking_count ?? 0) === 0
+      && !policy.requires_human_gate
+      && policy.can_dispatch !== false;
+    return relaySection('Crosscheck run posture', [
+      relayGrid([
+        ['review source online', reviewOk ? 'yes' : 'no'],
+        ['Aegis source online', aegisOk ? 'yes' : 'no'],
+        ['current scope', 'current reviewed findings and proof posture only'],
+        ['pending findings', queue.pending_count ?? 'unknown'],
+        ['pending gates', queue.pending_gate_count ?? 'unknown'],
+        ['proof blockers', proofTrail.blocking_count ?? 'unknown'],
+        ['human gate required', policy.requires_human_gate ? 'yes' : 'no'],
+        ['dispatch posture', policy.can_dispatch === false ? 'blocked' : 'reviewed snapshot available'],
+        ['run readiness', runReady ? 'snapshot posture clear, but execution still unavailable' : 'snapshot posture indicates blockers or gates'],
+        ['run control available', 'no'],
+        ['target selection available', 'no'],
+      ]),
+      blockingReasons.length
+        ? relayList(blockingReasons.map((reason) => `Run boundary: ${reason}`))
+        : relayList(['Run boundary: no execution route or review-event creation path is exposed from this surface.']),
+      relayList([
+        'Crosscheck run posture is display-only and derived from the current reviewed Review Console and Aegis snapshots.',
+        'This surface does not start a review run, create a review event, execute providers, or select a target artifact.',
+      ]),
+    ].join(''), false);
+  };
+  const renderCrosscheckIrreversibleActionGateSnapshot = (reviewSnapshot, aegisSnapshot) => {
+    const queue = reviewSnapshot?.queue || {};
+    const policy = aegisSnapshot?.cognition_policy || {};
+    const gateRequired = (queue.pending_gate_count ?? 0) > 0 || policy.requires_human_gate || policy.can_dispatch === false;
+    return relaySection('Irreversible action gate', [
+      relayGrid([
+        ['gate required', gateRequired ? 'yes' : 'no'],
+        ['pending review gates', queue.pending_gate_count ?? 'unknown'],
+        ['human gate required', policy.requires_human_gate ? 'yes' : 'no'],
+        ['dispatch allowed', policy.can_dispatch ? 'yes' : 'no'],
+      ]),
+      relayList(gateRequired ? [
+        'Public, financial, account-risking, or otherwise irreversible actions must stay behind the current review/proof gate state.',
+        'Crosscheck can show the blocking posture, but it cannot approve, bypass, or execute the gated action from this surface.',
+      ] : [
+        'No irreversible-action gate is currently reported by the loaded review/proof snapshots.',
+        'Crosscheck remains display-only; gate state is visible here before any reviewed backend execution path exists.',
+      ]),
+    ].join(''), false);
+  };
+  const renderCrosscheckLaneComparisonSnapshot = (reviewSnapshot, relaySnapshot) => {
+    const items = Array.isArray(reviewSnapshot?.queue?.items) ? reviewSnapshot.queue.items : [];
+    const comparisonItems = items.filter((item) => item?.item_type === 'comparison');
+    const tiers = Array.isArray(relaySnapshot?.tiers) ? relaySnapshot.tiers : [];
+    const tier3 = tiers.find((tier) => tier.tier === 3) || {};
+    const lanes = Array.isArray(tier3.lanes) ? tier3.lanes : [];
+    const independentRoles = lanes.filter((lane) => lane.independent).map((lane) => relayText(lane.role));
+    return relaySection('Model lane disagreement', [
+      relayGrid([
+        ['comparison items', comparisonItems.length],
+        ['tier 3 lanes', relayLaneSummary(tier3)],
+        ['independent lanes', independentRoles.join(' | ') || 'not exposed'],
+        ['disagreement visibility', comparisonItems.length ? 'visible as display-safe comparison metadata' : 'not reported by the current reviewed snapshots'],
+        ['raw transcript visible', 'no'],
+      ]),
+      comparisonItems.length
+        ? comparisonItems.map((item) => relayGrid([
+          ['id', item.id || 'unknown'],
+          ['severity', relayText(item.severity)],
+          ['owner', item.owner_harness || 'unknown'],
+          ['title', item.title || 'unknown'],
+          ['status', relayText(item.status)],
+          ['suggested actions', relayJoin(item.suggested_actions)],
+        ])).join('')
+        : relayList([
+          'No current comparison item is reported by the loaded Review Console snapshot.',
+          'Independent lane posture can still be inspected from the reviewed Relay tier metadata without inventing a disagreement result.',
+        ]),
+      relayList([
+        'Disagreement is rendered as compact comparison metadata only; raw prompts, raw transcripts, raw evidence bodies, and worker chat stay hidden.',
+        'Crosscheck does not approve, dismiss, rerun, or resolve comparison items from this surface.',
+      ]),
+    ].join(''), false);
   };
   const renderBacklogReviewSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
@@ -5277,23 +5771,159 @@ body {
     const activeProject = activeProjectContext();
     const rawItemContentVisible = Boolean(snapshot.raw_item_content_visible);
     const mutationAllowed = Boolean(snapshot.mutation_authorized);
+    const query = String(snapshot._ui_query || '').trim().toLowerCase();
+    const stateFilter = String(snapshot._ui_state || 'all').trim().toLowerCase();
+    const severityFilter = String(snapshot._ui_severity || 'all').trim().toLowerCase();
+    const responseFilter = String(snapshot._ui_response || 'all').trim().toLowerCase();
+    const ownerFilter = String(snapshot._ui_owner || 'all').trim().toLowerCase();
+    const blockedFilter = String(snapshot._ui_blocked || 'all').trim().toLowerCase();
+    const filteredItems = items.filter((item) => {
+      const status = relayText(item.status).toLowerCase();
+      const severity = relayText(item.severity).toLowerCase();
+      const requiresResponse = item.requires_response ? 'requires-response' : 'no-response';
+      const owner = String(item.owner_harness || 'unknown').trim().toLowerCase();
+      const blockedState = status === 'blocked' ? 'blocked' : 'not-blocked';
+      const haystack = [
+        activeProject,
+        item.sequence,
+        item.id,
+        item.item_type,
+        item.severity,
+        item.owner_harness,
+        item.title,
+        item.status,
+        item.requires_response ? 'requires response' : 'no response',
+        ...(Array.isArray(item.suggested_actions) ? item.suggested_actions : []),
+      ].map((value) => String(value || '').toLowerCase()).join(' ');
+      if (query && !haystack.includes(query)) return false;
+      if (stateFilter !== 'all' && status !== stateFilter) return false;
+      if (severityFilter !== 'all' && severity !== severityFilter) return false;
+      if (responseFilter !== 'all' && requiresResponse !== responseFilter) return false;
+      if (ownerFilter !== 'all' && owner !== ownerFilter) return false;
+      if (blockedFilter !== 'all' && blockedState !== blockedFilter) return false;
+      return true;
+    });
+    const responseRequired = filteredItems.filter((item) => item.requires_response);
+    const blockedItems = filteredItems.filter((item) => relayText(item.status).toLowerCase() === 'blocked');
+    const modifyVisible = filteredItems.filter((item) => Array.isArray(item.suggested_actions) && item.suggested_actions.includes('modify'));
+    const approveVisible = filteredItems.filter((item) => Array.isArray(item.suggested_actions) && item.suggested_actions.includes('approve'));
+    const rejectVisible = filteredItems.filter((item) => Array.isArray(item.suggested_actions) && item.suggested_actions.includes('reject'));
+    const ownerCounts = Array.from(filteredItems.reduce((map, item) => {
+      const owner = item.owner_harness || 'unknown';
+      map.set(owner, (map.get(owner) || 0) + 1);
+      return map;
+    }, new Map()).entries()).sort((left, right) => {
+      if (right[1] !== left[1]) return right[1] - left[1];
+      return String(left[0]).localeCompare(String(right[0]));
+    });
     return [
       relaySection('Backlog candidate source', relayGrid([
         ['source', snapshot.source || 'unknown'],
         ['version', snapshot.version || 'unknown'],
+        ['harness', snapshot.harness || 'Arbiter / Review Console'],
+        ['display only', snapshot.display_only ? 'yes' : 'no'],
         ['active project', activeProject],
         ['project scope', 'active Compass project display frame'],
         ['pending candidates', queue.pending_count ?? items.length],
+        ['external import available', 'no'],
         ['mutation authorized', mutationAllowed ? 'yes' : 'no'],
+        ['response authorized', snapshot.response_authorized ? 'yes' : 'no'],
         ['raw item content visible', rawItemContentVisible ? 'yes' : 'no'],
+        ['raw worker chat visible', snapshot.raw_worker_chat_visible ? 'yes' : 'no'],
+        ['execution controls visible', snapshot.execution_controls_visible ? 'yes' : 'no'],
+        ['observed at', snapshot.timestamp || 'unknown'],
       ]), true),
-      relaySection('Backlog candidate list', items.length
-        ? items.map((item) => relayGrid([
+      relaySection('Backlog candidate summary', relaySummary(snapshot.summary || 'Backlog candidate summary unavailable.'), true),
+      relaySection('Backlog filter', `
+        <input data-backlog-search type="search" value="${escapeHtml(snapshot._ui_query || '')}" placeholder="Search id, title, type, severity, owner, state, action" autocomplete="off" />
+        <div class="relay-models-handoff" aria-label="Backlog filter controls">
+          <label>state
+            <select data-backlog-state-filter>
+              ${['all', 'pending', 'open', 'blocked', 'resolved'].map((option) => `<option value="${escapeHtml(option)}" ${stateFilter === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+          </label>
+          <label>severity
+            <select data-backlog-severity-filter>
+              ${['all', 'info', 'warning', 'error', 'critical'].map((option) => `<option value="${escapeHtml(option)}" ${severityFilter === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+          </label>
+          <label>response
+            <select data-backlog-response-filter>
+              ${[
+                ['all', 'all'],
+                ['requires-response', 'requires response'],
+                ['no-response', 'no response'],
+              ].map(([value, label]) => `<option value="${escapeHtml(value)}" ${responseFilter === value ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}
+            </select>
+          </label>
+          <label>owner
+            <select data-backlog-owner-filter>
+              ${['all', ...new Set(items.map((item) => String(item.owner_harness || 'unknown').trim().toLowerCase()))].map((option) => `<option value="${escapeHtml(option)}" ${ownerFilter === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+          </label>
+          <label>blocked
+            <select data-backlog-blocked-filter>
+              ${[
+                ['all', 'all'],
+                ['blocked', 'blocked'],
+                ['not-blocked', 'not blocked'],
+              ].map(([value, label]) => `<option value="${escapeHtml(value)}" ${blockedFilter === value ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+        ${relayGrid([
+          ['query', query || 'none'],
+          ['state filter', stateFilter],
+          ['severity filter', severityFilter],
+          ['response filter', responseFilter],
+          ['owner filter', ownerFilter],
+          ['blocked filter', blockedFilter],
+          ['matching rows', filteredItems.length],
+          ['filter boundary', 'UI-local filter over the current reviewed backlog snapshot only'],
+        ])}
+      `, true),
+      relaySection('Backlog filter summary', [
+        relayGrid([
+          ['active project', activeProject],
+          ['project scope', 'active Compass project only'],
+          ['project filter control', 'no dedicated control; inherits active Compass project'],
+          ['matching rows', filteredItems.length],
+          ['requires response', responseRequired.length],
+          ['blocked rows', blockedItems.length],
+          ['owner lanes visible', ownerCounts.length],
+          ['priority filter available', 'no reviewed priority field exposed'],
+          ['summary boundary', 'display-only filter summary over the loaded backlog snapshot; no durable backlog query or mutation is performed'],
+        ]),
+        ownerCounts.length
+          ? relayList(ownerCounts.map(([owner, count]) => `${owner}: ${count} visible ${count === 1 ? 'candidate' : 'candidates'}`))
+          : relayList(['No backlog candidates are currently visible under the active UI-local filter.']),
+      ].join(''), false),
+      relaySection('Backlog action posture', relayGrid([
+        ['modify-visible rows', modifyVisible.length],
+        ['approve-visible rows', approveVisible.length],
+        ['reject-visible rows', rejectVisible.length],
+        ['response-required rows', responseRequired.length],
+        ['action boundary', 'display-only action posture from reviewed backlog metadata; no backlog response, edit, approval, defer, or queue mutation is executed'],
+      ]), false),
+      relaySection('Backlog mutation posture', relayGrid([
+        ['create-item available', 'no'],
+        ['edit form available', 'no'],
+        ['approve action available', 'no'],
+        ['defer/reject action available', 'no'],
+        ['project/initiative link available', 'no'],
+        ['convert-to-task available', 'no'],
+        ['archive action available', 'no'],
+        ['owner/priority mutation available', 'no'],
+        ['action boundary', 'display-only backlog mutation posture; reviewed candidate/action visibility remains visible, but no backlog intake or mutation is executed'],
+      ]), false),
+      relaySection('Backlog candidate list', filteredItems.length
+        ? filteredItems.map((item) => relayGrid([
           ['project', activeProject],
           ['sequence', item.sequence ?? 'unknown'],
           ['id', item.id || 'unknown'],
           ['type', relayText(item.item_type)],
           ['severity', relayText(item.severity)],
+          ['owner', item.owner_harness || 'unknown'],
           ['title', item.title || 'unknown'],
           ['state', relayText(item.status)],
           ['requires response', item.requires_response ? 'yes' : 'no'],
@@ -5301,14 +5931,83 @@ body {
         ])).join('')
         : relayGrid([
           ['project', activeProject],
-          ['status', 'no pending backlog candidates reported by the current Review Console snapshot'],
+          ['status', items.length ? 'no backlog rows match the current UI-local filter' : 'no pending backlog candidates reported by the current Review Console snapshot'],
         ]), true),
       relaySection('Backlog list boundary', relayList([
         'Backlog candidate rows are derived from the Review Console queue snapshot only.',
         'The active project is the current Compass project display frame; no hidden cross-project merge or fake item fill is performed.',
+        'Filter state is UI-local over the currently loaded backlog snapshot only; it does not mutate queue state or imply a durable backlog query backend.',
         'Create, approve, deny, defer, convert, archive, owner assignment, and priority mutation remain unavailable until a reviewed backlog backend exists.',
       ]), false),
     ].join('');
+  };
+  const renderBacklogPrioritySnapshot = (reviewSnapshot, goalSnapshot, primeSnapshot) => {
+    const queue = reviewSnapshot?.queue || {};
+    const items = Array.isArray(queue.items) ? queue.items : [];
+    const nextItem = items[0] || {};
+    const goal = goalSnapshot?.goal || {};
+    const objectiveRef = goal.objective_ref || {};
+    const decision = primeSnapshot?.decision || {};
+    const request = decision.request || {};
+    const reasons = [];
+    if (items.length) reasons.push(`Review Console queue order selects sequence ${nextItem.sequence ?? 'unknown'} first.`);
+    if (nextItem.requires_response) reasons.push('The next item currently requires a human or Prime response.');
+    if ((queue.pending_gate_count ?? 0) > 0) reasons.push(`${queue.pending_gate_count} pending gate item${queue.pending_gate_count === 1 ? '' : 's'} keep review work ahead of routine backlog noise.`);
+    if (goal.objective_text || objectiveRef.label) reasons.push(`Goal Runtime keeps the active objective focused on ${goal.objective_text || objectiveRef.label}.`);
+    if (decision.why || request.why) reasons.push(`Prime currently explains the active review posture as: ${decision.why || request.why}`);
+    return relaySection('Priority order', [
+      relayGrid([
+        ['active project', activeProjectContext()],
+        ['next candidate id', nextItem.id || 'none'],
+        ['next sequence', nextItem.sequence ?? 'none'],
+        ['next title', nextItem.title || 'no pending backlog candidates'],
+        ['next severity', relayText(nextItem.severity)],
+        ['requires response', nextItem.requires_response ? 'yes' : 'no'],
+        ['pending gates', queue.pending_gate_count ?? '0'],
+        ['goal objective', goal.objective_text || objectiveRef.label || 'unknown'],
+        ['Prime owner', decision.ownerHarness || 'unknown'],
+        ['Prime action', relayText(decision.action || request.action)],
+        ['Prime risk', relayText(decision.risk || request.risk)],
+        ['Prime why', decision.why || request.why || 'unknown'],
+      ]),
+      relayList(reasons.length ? reasons : [
+        'No pending Review Console queue item is available to rank yet.',
+        'Prime and Goal Runtime context stay display-only until a reviewed backlog prioritization backend exists.',
+      ]),
+    ].join(''), true);
+  };
+  const renderBacklogRecommendationSnapshot = (reviewSnapshot, goalSnapshot, primeSnapshot) => {
+    const queue = reviewSnapshot?.queue || {};
+    const items = Array.isArray(queue.items) ? queue.items : [];
+    const nextItem = items[0] || {};
+    const goal = goalSnapshot?.goal || {};
+    const objectiveRef = goal.objective_ref || {};
+    const decision = primeSnapshot?.decision || {};
+    const request = decision.request || {};
+    const recommendedAction = decision.action || request.action || 'unknown';
+    const recommendedRisk = decision.risk || request.risk || 'unknown';
+    const recommendationWhy = decision.why || request.why || 'unknown';
+    const proofContext = [];
+    if (goal.objective_text || objectiveRef.label) proofContext.push(`Goal Runtime objective: ${goal.objective_text || objectiveRef.label}.`);
+    if (nextItem.requires_response) proofContext.push('The top candidate still requires a human or Prime response.');
+    if ((queue.pending_gate_count ?? 0) > 0) proofContext.push(`${queue.pending_gate_count} pending gate item${queue.pending_gate_count === 1 ? '' : 's'} remain visible in review posture.`);
+    if (recommendationWhy !== 'unknown') proofContext.push(`Prime rationale: ${recommendationWhy}`);
+    return relaySection('Prime recommendation', [
+      relayGrid([
+        ['active project', activeProjectContext()],
+        ['recommended candidate', nextItem.id || 'none'],
+        ['candidate title', nextItem.title || 'no pending backlog candidates'],
+        ['recommended action', relayText(recommendedAction)],
+        ['risk posture', relayText(recommendedRisk)],
+        ['proof/risk context', nextItem.requires_response ? 'review-gated candidate remains in focus' : 'display-only recommendation context'],
+        ['Prime owner', decision.ownerHarness || 'unknown'],
+        ['goal objective', goal.objective_text || objectiveRef.label || 'unknown'],
+      ]),
+      relayList(proofContext.length ? proofContext : [
+        'No pending Review Console queue item is available for a Prime recommendation yet.',
+        'Recommendation remains display-only until a reviewed backlog planning backend exists.',
+      ]),
+    ].join(''), true);
   };
   const renderFederationHorizonSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
@@ -5370,6 +6069,7 @@ body {
     const driftAudit = decision.driftAudit || {};
     const context = decision.context || {};
     const aegisRisk = context.aegisRisk || {};
+    const beaconLiveness = context.beaconLiveness || {};
     const proof = Array.isArray(decision.proof) ? decision.proof : [];
     const refs = Array.isArray(context.sourceRefs) ? context.sourceRefs : [];
     const blockers = Array.isArray(decision.blockers) ? decision.blockers : [];
@@ -5383,8 +6083,8 @@ body {
         ['harness', snapshot.harness || 'Prime'],
         ['service', snapshot.service || 'unknown'],
       ]), true),
+      relaySection('Prime runtime summary', relaySummary(snapshot.summary || 'Prime runtime summary unavailable.'), true),
       relaySection('Runtime truth map', [
-        relaySummary(snapshot.summary || 'Prime runtime summary unavailable.'),
         primeLogicStrip([
           ['status', relayText(decision.status)],
           ['owner', decision.ownerHarness || 'unknown'],
@@ -5445,6 +6145,20 @@ body {
         ['evidence required', relayJoin(aegisRisk.evidenceRequired)],
         ['approvals present', relayJoin(aegisRisk.approvalsPresent)],
         ['waivers present', relayJoin(aegisRisk.waiversPresent)],
+      ]), true),
+      relaySection('Beacon liveness input', relayGrid([
+        ['source', beaconLiveness.source || 'unavailable'],
+        ['statuses', relayJoin(beaconLiveness.statuses)],
+        ['observed harnesses', relayJoin(beaconLiveness.observedHarnesses)],
+        ['blocker count', beaconLiveness.blockerCount ?? '0'],
+        ['current work present', beaconLiveness.currentWorkPresentCount ?? '0'],
+        ['observation mode', beaconLiveness.observationMode || 'unavailable'],
+        ['advisory families', relayJoin(beaconLiveness.advisoryFamilies)],
+        ['updated latest', beaconLiveness.updatedAtLatest || 'unavailable'],
+        ['degraded', primeBool(beaconLiveness.degraded)],
+        ['advisory only', primeBool(beaconLiveness.advisoryOnly)],
+        ['execution authorized', primeBool(beaconLiveness.executionAuthorized)],
+        ['session control authorized', primeBool(beaconLiveness.sessionControlAuthorized)],
       ]), true),
       relaySection('Backend source refs', relayGrid(refs.map((source) => [
         source.harness || 'unknown',
@@ -5545,6 +6259,7 @@ body {
         ['raw provider response visible', snapshot.raw_provider_response_visible ? 'yes' : 'no'],
         ['provider call authorized', snapshot.provider_call_authorized ? 'yes' : 'no'],
       ]), true),
+      relaySection('Relay evidence summary', relaySummary(snapshot.summary || 'Relay evidence summary unavailable.'), true),
       relaySection('Per-call GOAL / Intent', relayGrid([
         ['requested by', relayText(callIntent.requested_by)],
         ['Prime intent ref', callIntent.prime_intent_ref || 'not exposed'],
@@ -5615,7 +6330,7 @@ body {
       ]), true),
     ].join('');
   };
-  const renderProviderBalanceSnapshot = (snapshot, modelsSnapshot = null) => {
+  const renderProviderBalanceSnapshot = (snapshot, modelsSnapshot = null, relayEvidenceSnapshot = null, relayLogicSnapshot = null) => {
     if (!snapshot?.ok) {
       return relaySection('Provider balance source', relayGrid([
         ['status', 'offline'],
@@ -5631,13 +6346,30 @@ body {
     const providers = Array.isArray(balance.providers) ? balance.providers : [];
     const evidence = Array.isArray(balance.evidence_refs) ? balance.evidence_refs : [];
     const models = Array.isArray(modelsSnapshot?.models) ? modelsSnapshot.models : [];
+    const callIntent = relayEvidenceSnapshot?.per_call_intent || {};
+    const relayTiers = Array.isArray(relayLogicSnapshot?.tiers) ? relayLogicSnapshot.tiers : [];
+    const recommendedTier = relayTiers.find((tier) => tier.tier === callIntent.risk_tier) || null;
+    const routingRecommendationRows = [
+      ['intent source', relayEvidenceSnapshot?.per_call_intent ? '/bridge/relay-evidence per_call_intent' : 'not exposed by Relay'],
+      ['Prime intent', callIntent.call_goal || 'not exposed'],
+      ['action type', relayText(callIntent.action_type)],
+      ['risk tier', callIntent.risk_tier ?? 'unknown'],
+      ['recommended provider', balance.selected_provider || 'not exposed'],
+      ['routing owner', balance.routing_owner || 'unknown'],
+      ['policy state', relayText(balance.policy_state)],
+      ['lane plan', recommendedTier ? relayLaneSummary(recommendedTier) : 'not exposed by Relay logic'],
+      ['proof posture', recommendedTier ? ((recommendedTier.audit?.proofRequired || []).map(relayText).join(' | ') || 'none') : 'not exposed by Relay logic'],
+      ['recommendation boundary', 'advisory only; Relay/Aegis still owns dispatch approval and execution'],
+    ];
     return [
       relaySection('Provider balance source', relayGrid([
         ['source', snapshot.source || 'unknown'],
         ['version', snapshot.version || 'unknown'],
         ['harness', snapshot.harness || 'Relay / Model Harness'],
         ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no'],
       ]), true),
+      relaySection('Provider balance summary', relaySummary(snapshot.summary || 'Provider balance summary unavailable.'), true),
       relaySection('Routing summary', relayGrid([
         ['selected provider', balance.selected_provider || 'none'],
         ['routing owner', balance.routing_owner || 'unknown'],
@@ -5650,6 +6382,7 @@ body {
         ['visibility owner', 'Prime visibility from Relay / Model Harness evidence'],
         ['route authority', 'advisory display only; no route selection or mutation from Balance'],
       ]), true),
+      relaySection('Routing recommendation', relayGrid(routingRecommendationRows), true),
       relaySection('CLI/account readiness', models.length
         ? models.map((model) => relayGrid([
           ['backend', model.backend || 'unknown'],
@@ -5671,6 +6404,7 @@ body {
           ['route', relayText(provider.route_kind)],
           ['context budget', providerTokenLabel(provider.context_budget_tokens)],
           ['prompt budget', providerPromptBudgetLabel(provider)],
+          ['prompt delta', providerTokenLabel(provider.prompt_delta_tokens)],
           ['cost pressure', relayText(provider.cost_pressure)],
           ['quota', relayText(provider.quota_state)],
           ['credit', `${relayText(provider.credit_status)} ${provider.remaining_credit_label || ''}`.trim()],
@@ -5716,7 +6450,9 @@ body {
         ['version', snapshot.version || 'unknown'],
         ['harness', snapshot.harness || 'Prime / Compass'],
         ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no'],
       ]), true),
+      relaySection('Goal runtime summary', relaySummary(snapshot.summary || 'Goal runtime summary unavailable.'), true),
       relaySection('Active goal', relayGrid([
         ['goal id', goal.goal_id || 'unknown'],
         ['project', goal.project || 'unknown'],
@@ -5787,14 +6523,59 @@ body {
     const workflow = snapshot.workflow || {};
     const success = workflow.success_summary || {};
     const failure = workflow.error_summary || {};
+    const recentRuns = Array.isArray(workflow.recent_runs) ? workflow.recent_runs : [];
+    const retainedRuns = filterRetainedTimestampedItems(recentRuns, 'observed_at');
     const statusPolicy = workflow.status_policy || {};
+    const cadenceView = statusPolicy.cadence_view || {};
     const quietMode = readQuietMode();
+    const latestRecentRun = [...recentRuns]
+      .sort((left, right) => String(right.observed_at || '').localeCompare(String(left.observed_at || '')))[0] || null;
+    const lastRunStatus = failure.summary ? 'failed' : (success.summary ? 'completed' : 'unknown');
+    const lastRunDuration = failure.summary
+      ? `${failure.time_used_seconds ?? 0}s`
+      : `${success.time_used_seconds ?? 0}s`;
+    const lastRunProof = failure.summary
+      ? relayJoin(failure.proof_trail)
+      : relayJoin(success.proof_trail);
+    const failureHandlingPosture = failure.summary
+      ? (statusPolicy.tier_three_gate_required ? 'review gate required before retry/escalation' : 'display-only failure posture')
+      : 'no failure handling required';
+    const nextRunPreview = statusPolicy.dispatch_surface === 'display_only'
+      ? 'unknown'
+      : 'not exposed';
     return [
       relaySection('Workflow dispatch source', relayGrid([
         ['source', snapshot.source || 'unknown'],
         ['version', snapshot.version || 'unknown'],
         ['harness', snapshot.harness || 'Workflow Sub-agents'],
         ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no'],
+      ]), true),
+      relaySection('Workflow dispatch summary', relaySummary(snapshot.summary || 'Workflow dispatch summary unavailable.'), true),
+      relaySection('Next run preview', relayGrid([
+        ['next run', nextRunPreview],
+        ['waiting condition', statusPolicy.tier_three_gate_required ? 'review gate or scheduler state not exposed' : 'unknown'],
+        ['scheduler authority', 'not exposed by reviewed workflow snapshot'],
+      ]), true),
+      relaySection('Routine list', relayGrid([
+        ['configured routines', 'none reported by the current reviewed workflow snapshot'],
+        ['active project', activeProjectContext()],
+        ['scope', 'display-only routine registry posture'],
+        ['list boundary', 'real routine rows appear only when a reviewed automation backend exposes them; no fake routines are synthesized'],
+      ]), true),
+      relaySection('Cadence/trigger view', relayGrid([
+        ['cadence kind', relayText(cadenceView.cadence_kind)],
+        ['trigger type', relayText(cadenceView.trigger_type)],
+        ['trigger ref', cadenceView.trigger_ref || 'unknown'],
+        ['next expected check', cadenceView.next_expected_check_at || 'unknown'],
+        ['heartbeat policy', relayText(cadenceView.heartbeat_policy)],
+        ['authority boundary', 'display-only cadence/trigger metadata; no scheduler mutation, routine execution, or heartbeat-history replay'],
+      ]), true),
+      relaySection('Last run result', relayGrid([
+        ['status', lastRunStatus],
+        ['duration', lastRunDuration],
+        ['proof/evidence link', lastRunProof],
+        ['result summary', failure.summary || success.summary || 'unknown'],
       ]), true),
       ...(quietMode ? [relaySection('Quiet mode workflow status', relayGrid([
         ['quiet mode', 'enabled'],
@@ -5821,113 +6602,84 @@ body {
         ['tokens used', failure.tokens_used ?? 0],
         ['time used', `${failure.time_used_seconds ?? 0}s`],
       ]), true),
+      relaySection('Failure summary', relayGrid([
+        ['failure visible', failure.summary ? 'yes' : 'no'],
+        ['failure kind', relayText(failure.failure_kind)],
+        ['proof trail', relayJoin(failure.proof_trail)],
+        ['review gate required', statusPolicy.tier_three_gate_required ? 'yes' : 'no'],
+        ['summary boundary', 'display-only failure summary; no retry, escalation, routine execution, or scheduler control is exposed'],
+      ]), false),
+      relaySection('Failure handling', relayGrid([
+        ['posture', failureHandlingPosture],
+        ['failure visible', failure.summary ? 'yes' : 'no'],
+        ['proof trail', relayJoin(failure.proof_trail)],
+        ['review gate required', statusPolicy.tier_three_gate_required ? 'yes' : 'no'],
+        ['retry control available', 'no'],
+        ['escalation control available', 'no'],
+      ]), true),
+      relaySection('Prime routine review summary', relayGrid([
+        ['active project', activeProjectContext()],
+        ['latest run ref', latestRecentRun?.run_ref || 'none'],
+        ['review input source', failure.summary ? 'failure summary' : (success.summary ? 'success summary' : 'no routine result reported')],
+        ['gate posture', statusPolicy.tier_three_gate_required ? 'gate-aware and escalation-only' : 'review posture visible; routing authority not exposed'],
+        ['proof trail', failure.summary ? relayJoin(failure.proof_trail) : relayJoin(success.proof_trail)],
+        ['summary boundary', 'display-only Prime routine review summary; no accept, reroute, retry, escalate, or scheduler control is executed'],
+      ]), false),
+      relaySection('Prime routine review posture', relayGrid([
+        ['active project', activeProjectContext()],
+        ['latest run ref', latestRecentRun?.run_ref || 'none'],
+        ['latest run status', relayText(latestRecentRun?.status || 'unknown')],
+        ['latest run observed', latestRecentRun?.observed_at || 'unknown'],
+        ['latest result source', failure.summary ? 'failure summary' : (success.summary ? 'success summary' : 'no routine result reported')],
+        ['Prime review input', failure.summary || success.summary || 'no reviewed routine result summary available'],
+        ['proof trail', failure.summary ? relayJoin(failure.proof_trail) : relayJoin(success.proof_trail)],
+        ['gate posture', statusPolicy.tier_three_gate_required ? 'Prime review remains gate-aware and escalation-only' : 'Prime review posture visible, but acceptance/routing authority is not exposed'],
+        ['boundary', 'display-only Prime routine review posture; no accept, reroute, retry, escalate, or scheduler control is executed'],
+      ]), true),
+      relaySection('Prime routine action posture', relayGrid([
+        ['accept control available', 'no'],
+        ['reroute control available', 'no'],
+        ['retry control available', 'no'],
+        ['escalate control available', 'no'],
+        ['scheduler control available', 'no'],
+        ['action boundary', 'display-only Prime routine action posture; reviewed result/gate posture is visible, but no routine-review action is executed'],
+      ]), false),
+      relaySection('Routine control posture', relayGrid([
+        ['create routine available', 'no'],
+        ['enable/disable control available', 'no'],
+        ['run-now control available', 'no'],
+        ['configured routines visible', 'none reported by the current reviewed workflow snapshot'],
+        ['scheduler authority', 'not exposed by reviewed workflow snapshot'],
+        ['action boundary', 'display-only routine control posture; cadence, trigger, last-run, and gate posture are visible, but no automation creation, enable/disable mutation, or run-now action is executed'],
+      ]), false),
+      relaySection('Routine history summary', relayGrid([
+        ['retained runs', retainedRuns.kept.length],
+        ['expired runs', retainedRuns.expired.length],
+        ['latest retained run', retainedRuns.kept[0]?.run_ref || 'none'],
+        ['history posture', retainedRuns.kept.length ? 'display-only recent routine outcomes are visible below' : 'no retained routine outcomes are visible in the current reviewed snapshot'],
+        ['summary boundary', 'display-only routine history summary; no rerun control, scheduler mutation, or durable automation history backend is exposed'],
+      ]), false),
+      relaySection('Routine archive/history', retainedRuns.kept.length
+        ? retainedRuns.kept.map((run) => relayGrid([
+          ['run ref', run.run_ref || 'unknown'],
+          ['harness', relayText(run.harness)],
+          ['status', relayText(run.status)],
+          ['summary', run.summary || 'unknown'],
+          ['proof trail', relayJoin(run.proof_trail)],
+          ['observed at', run.observed_at || 'unknown'],
+        ])).join('')
+        : relayGrid([['status', retainedRuns.expired.length ? 'all reported routine history is outside the visible retention window' : 'no routine history reported by the current reviewed workflow snapshot']]), true),
+      relaySection('Routine history retention', relayGrid([
+        ['retention window', renderProgressRetentionWindowLabel()],
+        ['visible rows', retainedRuns.kept.length],
+        ['expired rows hidden', retainedRuns.expired.length],
+        ['source data', 'reviewed workflow snapshot remains unchanged'],
+      ]), false),
       relaySection('Dispatch visibility policy', relayGrid([
         ['dispatch surface', relayText(statusPolicy.dispatch_surface)],
         ['heartbeat history visible', statusPolicy.heartbeat_history_visible ? 'yes' : 'no'],
         ['raw artifacts visible', statusPolicy.raw_artifacts_visible ? 'yes' : 'no'],
         ['tier three gate required', statusPolicy.tier_three_gate_required ? 'yes' : 'no'],
-      ]), true),
-    ].join('');
-  };
-  const renderRoutineAuthoritySnapshot = (snapshot) => {
-    if (!snapshot?.ok) {
-      return relaySection('Routine authority source', relayGrid([
-        ['status', 'offline'],
-        ['backend error', snapshot?.error || 'Routine authority snapshot unavailable'],
-      ]), true);
-    }
-    const authority = snapshot.routine_authority || {};
-    const routines = Array.isArray(authority.routines) ? authority.routines : [];
-    const runPlans = Array.isArray(authority.run_plans) ? authority.run_plans : [];
-    const primeReviews = Array.isArray(authority.prime_reviews) ? authority.prime_reviews : [];
-    const visibilityPolicy = authority.visibility_policy || {};
-    const enabledRoutine = routines.find((routine) => routine.state === 'enabled') || routines[0] || {};
-    const disabledRoutine = routines.find((routine) => routine.state === 'disabled') || {};
-    const plannedRun = runPlans.find((plan) => plan.status === 'planned') || {};
-    const blockedRun = runPlans.find((plan) => plan.status === 'blocked_disabled') || {};
-    const acceptedReview = primeReviews.find((review) => review.disposition === 'accepted') || {};
-    const repairReview = primeReviews.find((review) => review.disposition === 'route_repair') || {};
-    const gateReview = primeReviews.find((review) => review.disposition === 'escalate_human_gate') || {};
-    return [
-      relaySection('Routine authority source', relayGrid([
-        ['source', snapshot.source || 'unknown'],
-        ['version', snapshot.version || 'unknown'],
-        ['harness', snapshot.harness || 'Prime / Workflow Dispatch'],
-        ['display only', snapshot.display_only ? 'yes' : 'no'],
-        ['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no'],
-      ]), true),
-      relaySection('Routine list', relayGrid([
-        ['active project', snapshot.active_project || activeProjectContext()],
-        ['configured routines', routines.length || 0],
-        ['enabled routine', enabledRoutine.name || 'none reported'],
-        ['disabled routine', disabledRoutine.name || 'none reported'],
-        ['list boundary', 'display-only typed routine definitions from reviewed routine authority; no fake rows or hidden scheduler state are added'],
-      ]), true),
-      ...routines.map((routine, index) => relaySection(
-        `Routine ${index + 1}: ${routine.name || routine.routine_id || 'unknown'}`,
-        relayGrid([
-          ['routine id', routine.routine_id || 'unknown'],
-          ['owner', routine.owner || 'unknown'],
-          ['state', relayText(routine.state)],
-          ['scope refs', relayJoin(routine.scope_refs)],
-          ['triggers', relayJoin((routine.triggers || []).map((trigger) => `${trigger.kind || 'unknown'}:${trigger.label || 'unknown'}`))],
-          ['created by', routine.created_by || 'unknown'],
-          ['created at', routine.created_at || 'unknown'],
-          ['evidence refs', relayJoin(routine.evidence_refs)],
-        ]),
-        index === 0,
-      )),
-      relaySection('Routine control posture', relayGrid([
-        ['create routine available', 'no'],
-        ['enable/disable control available', 'no'],
-        ['run-now control available', 'no'],
-        ['enabled state visible', enabledRoutine.state === 'enabled' ? 'yes' : 'no'],
-        ['disabled state visible', disabledRoutine.state === 'disabled' ? 'yes' : 'no'],
-        ['scheduler authority', visibilityPolicy.scheduler_mutation_authorized ? 'exposed' : 'not exposed by reviewed routine authority'],
-        ['action boundary', 'display-only routine control posture; routine definitions, state, and non-executable run planning are visible, but no automation creation, enable/disable mutation, or run-now action is executed'],
-      ]), true),
-      relaySection('Cadence/trigger view', relayGrid([
-        ['enabled trigger', relayJoin((enabledRoutine.triggers || []).map((trigger) => `${trigger.kind || 'unknown'}:${trigger.label || 'unknown'}`))],
-        ['disabled trigger', relayJoin((disabledRoutine.triggers || []).map((trigger) => `${trigger.kind || 'unknown'}:${trigger.label || 'unknown'}`))],
-        ['planned run ref', plannedRun.plan_id || 'none'],
-        ['blocked run ref', blockedRun.plan_id || 'none'],
-        ['timing boundary', 'reviewed trigger metadata only; no scheduler registration, next-run prediction, or execution countdown is exposed'],
-      ]), true),
-      relaySection('Routine run posture', relayGrid([
-        ['planned status', relayText(plannedRun.status)],
-        ['planned reason', plannedRun.reason || 'unknown'],
-        ['blocked status', relayText(blockedRun.status)],
-        ['blocked reason', blockedRun.reason || 'unknown'],
-        ['requested by', plannedRun.requested_by || 'unknown'],
-        ['execution authorized', plannedRun.execution_authorized ? 'yes' : 'no'],
-        ['run boundary', 'display-only non-executable run plans from reviewed routine authority; no manual trigger route or workflow execution is exposed'],
-      ]), false),
-      relaySection('Prime routine review summary', relayGrid([
-        ['latest accepted review', acceptedReview.review_id || 'none'],
-        ['latest repair review', repairReview.review_id || 'none'],
-        ['latest gate review', gateReview.review_id || 'none'],
-        ['review source', gateReview.source || repairReview.source || acceptedReview.source || 'none reported'],
-        ['review boundary', 'display-only Prime routine review summaries; reviewed disposition posture is visible, but no accept, reroute, retry, or escalate action is executed'],
-      ]), true),
-      relaySection('Prime routine review posture', relayGrid([
-        ['accepted disposition', relayText(acceptedReview.disposition)],
-        ['repair disposition', relayText(repairReview.disposition)],
-        ['gate disposition', relayText(gateReview.disposition)],
-        ['gate required', gateReview.gate_required ? 'yes' : 'no'],
-        ['escalation required', gateReview.escalation_required ? 'yes' : 'no'],
-        ['proof trail', relayJoin(gateReview.proof_trail || repairReview.proof_trail || acceptedReview.proof_trail)],
-        ['posture boundary', 'Prime review posture is gate-aware and escalation-only; executable acceptance or routing authority is not exposed'],
-      ]), true),
-      relaySection('Prime routine action posture', relayGrid([
-        ['accept control available', acceptedReview.accept_authorized ? 'yes' : 'no'],
-        ['reroute control available', repairReview.reroute_authorized ? 'yes' : 'no'],
-        ['retry control available', repairReview.retry_authorized ? 'yes' : 'no'],
-        ['escalate control available', gateReview.escalate_authorized ? 'yes' : 'no'],
-        ['execution authorized', visibilityPolicy.execution_authorized ? 'yes' : 'no'],
-        ['raw prompt visible', visibilityPolicy.raw_prompt_visible ? 'yes' : 'no'],
-        ['raw provider response visible', visibilityPolicy.raw_provider_response_visible ? 'yes' : 'no'],
-        ['raw worker chat visible', visibilityPolicy.raw_worker_chat_visible ? 'yes' : 'no'],
-        ['action boundary', 'display-only Prime routine action posture; reviewed result/gate posture is visible, but no routine-review action, scheduler mutation, or workflow execution is authorized'],
       ]), true),
     ].join('');
   };
@@ -5946,7 +6698,9 @@ body {
         ['version', snapshot.version || 'unknown'],
         ['harness', snapshot.harness || 'Echo'],
         ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no'],
       ]), true),
+      relaySection('Echo memory summary', relaySummary(snapshot.summary || 'Echo memory summary unavailable.'), true),
       relaySection('Query boundary', relayGrid([
         ['project', query.project || 'unknown'],
         ['tags', relayJoin(query.tags)],
@@ -5985,7 +6739,9 @@ body {
         ['version', snapshot.version || 'unknown'],
         ['harness', snapshot.harness || 'Atlas'],
         ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no'],
       ]), true),
+      relaySection('Atlas retrieval summary', relaySummary(snapshot.summary || 'Atlas retrieval summary unavailable.'), true),
       relaySection('Retrieval query', relayGrid([
         ['terms', relayJoin(query.terms)],
         ['required paths', relayJoin(query.required_paths)],
@@ -6015,18 +6771,22 @@ body {
     }
     const areaCounts = Array.isArray(snapshot.area_counts) ? snapshot.area_counts : [];
     const entries = Array.isArray(snapshot.focus_entries) ? snapshot.focus_entries : [];
+    const injectionSummary = String(snapshot.injection_summary || '').trim();
     return [
       relaySection('FileMap source', relayGrid([
         ['source', snapshot.source || 'unknown'],
         ['version', snapshot.version || 'unknown'],
         ['harness', snapshot.harness || 'FileMap / Charon'],
         ['display only', snapshot.display_only ? 'yes' : 'no'],
+        ['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no'],
       ]), true),
+      relaySection('FileMap summary', relaySummary(snapshot.summary || 'FileMap summary unavailable.'), true),
       relaySection('Registry summary', relayGrid([
         ['entries', snapshot.entry_count ?? 0],
         ['entries with tests', snapshot.with_tests_count ?? 0],
         ['area count', areaCounts.length],
       ]), true),
+      relaySection('Injection summary', relaySummary(injectionSummary || 'no injection summary reported'), true),
       relaySection('Area counts', areaCounts.length
         ? relayGrid(areaCounts.slice(0, 12).map((item) => [item.area || 'unknown', item.count ?? 0]))
         : relaySummary('none'), false),
@@ -6253,6 +7013,7 @@ body {
         ['display only', snapshot.display_only ? 'yes' : 'no'],
         ['raw evidence body visible', snapshot.raw_evidence_body_visible ? 'yes' : 'no'],
       ]), true),
+      relaySection('Aegis summary', relaySummary(snapshot.summary || 'Aegis summary unavailable.'), true),
       relaySection('Proof trail summary', relayGrid([
         ['clean', trail.is_clean ? 'yes' : 'no'],
         ['evidence count', trail.evidence_count ?? 0],
@@ -6292,6 +7053,89 @@ body {
       )),
     ].join('');
   };
+  const renderArchiveSearchResults = ({
+    query,
+    archiveMetadata,
+    archiveSummary,
+    archiveSessions,
+    recentCloseRefs,
+  }) => {
+    const normalizedQuery = String(query || '').trim().toLowerCase();
+    const buildFields = (pairs) => pairs.map(([label, value]) => ({
+      label,
+      value: String(value || ''),
+    }));
+    const haystacks = [
+      {
+        kind: 'archive preview',
+        label: archiveMetadata.session_name || archiveMetadata.target_session_id || 'current archive preview',
+        fields: buildFields([
+          ['project', archiveMetadata.project_name],
+          ['role', archiveMetadata.harness_role],
+          ['model provider', archiveMetadata.model_provider],
+          ['model name', archiveMetadata.model_name],
+          ['status', archiveMetadata.status],
+          ['observed at', archiveMetadata.observed_at],
+          ['summary', archiveSummary],
+          ['target session id', archiveMetadata.target_session_id],
+          ['source session id', archiveMetadata.source_session_id],
+        ]),
+      },
+      ...archiveSessions.map((entry) => ({
+        kind: 'archive ref',
+        label: entry.session_ref || 'unknown',
+        detail: entry.session_ref || 'unknown',
+        fields: buildFields([
+          ['session ref', entry.session_ref],
+          ['status', entry.status],
+          ['project', archiveMetadata.project_name],
+          ['observed at', archiveMetadata.observed_at],
+        ]),
+      })),
+      ...recentCloseRefs.map((ref) => ({
+        kind: 'recent close ref',
+        label: ref || 'unknown',
+        detail: ref || 'unknown',
+        fields: buildFields([
+          ['recent close ref', ref],
+          ['project', archiveMetadata.project_name],
+          ['observed at', archiveMetadata.observed_at],
+        ]),
+      })),
+    ];
+    const results = haystacks
+      .map((entry) => {
+        const matchedField = !normalizedQuery
+          ? null
+          : (entry.fields.find((field) => field.value.toLowerCase().includes(normalizedQuery)) || null);
+        return {
+          ...entry,
+          matchedField,
+        };
+      })
+      .filter((entry) => !normalizedQuery || entry.matchedField);
+    return `
+      <label class="relay-section-summary" for="archive-search-input">Search current archive metadata and refs</label>
+      <input id="archive-search-input" data-archive-search type="search" value="${escapeHtml(query || '')}" placeholder="Project, role, model, status, date, summary, ref" autocomplete="off" />
+      ${relayGrid([
+        ['query', normalizedQuery || 'none'],
+        ['scope', 'current reviewed archive snapshot only'],
+        ['result count', results.length],
+        ['search boundary', 'UI-local filter over loaded archive metadata, summary, archive refs, and recent close refs'],
+        ['match provenance', 'local loaded-field match only; no backend archive lookup or transcript retrieval'],
+      ])}
+      ${results.length
+        ? results.map((entry) => relayGrid([
+          ['kind', entry.kind],
+          ['match', entry.label],
+          ['matched field', entry.matchedField?.label || 'all loaded fields'],
+          ['detail', entry.detail || entry.label],
+          ['project', archiveMetadata.project_name || 'unknown'],
+          ['role/status', `${relayText(archiveMetadata.harness_role)} / ${relayText(archiveMetadata.status)}`],
+        ])).join('')
+        : relayGrid([['status', 'no archive matches in the current reviewed snapshot']])}
+    `;
+  };
   const renderSessionCloseArchiveProofSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
       return relaySection('Session close archive proof source', relayGrid([
@@ -6305,15 +7149,36 @@ body {
     const writeThroughProof = proofs.write_through || {};
     const preview = snapshot.command_plan_preview || {};
     const archiveMetadata = snapshot.archive_metadata || {};
-    const archiveCatalog = Array.isArray(snapshot.archive_catalog) ? snapshot.archive_catalog : [];
-    const archiveReloadPlan = snapshot.archive_reload_plan || {};
-    const archiveRunAgainPlan = snapshot.archive_run_again_plan || {};
-    const transcriptAccess = snapshot.transcript_access || {};
-    const archiveContextRefs = Array.isArray(snapshot.archive_context_refs) ? snapshot.archive_context_refs : [];
+    const archiveSessions = Array.isArray(snapshot.archive_sessions) ? snapshot.archive_sessions : [];
+    const recentCloseRefs = Array.isArray(snapshot.recent_close_refs) ? snapshot.recent_close_refs : [];
+    const obsidianCapture = snapshot.obsidian_capture || {};
+    const archiveSearchQuery = rightWorkspace?.querySelector('[data-session-close-archive-proof]')?.dataset.archiveSearchQuery || '';
     const mutationAllowed = Boolean(snapshot.mutation_authorized);
     const transition = Array.isArray(preview.expected_state_transition)
       ? preview.expected_state_transition.join(' -> ')
       : 'unknown';
+    const closeSummaryBlockers = Array.from(new Set([
+      ...(Array.isArray(preview.advisory_blockers) ? preview.advisory_blockers : []),
+      ...(Array.isArray(archiveProof.blockers) ? archiveProof.blockers : []),
+      ...(Array.isArray(closeProof.blockers) ? closeProof.blockers : []),
+    ]));
+    const closeSummaryRefs = Array.from(new Set([
+      ...(Array.isArray(preview.evidence_refs) ? preview.evidence_refs : []),
+      ...(Array.isArray(archiveProof.evidence_refs) ? archiveProof.evidence_refs : []),
+    ]));
+    const archiveArtifactRefs = Array.from(new Set([
+      ...(Array.isArray(preview.evidence_refs) ? preview.evidence_refs : []),
+      ...(Array.isArray(archiveProof.evidence_refs) ? archiveProof.evidence_refs : []),
+      ...(Array.isArray(writeThroughProof.evidence_refs) ? writeThroughProof.evidence_refs : []),
+      ...(Array.isArray(closeProof.evidence_refs) ? closeProof.evidence_refs : []),
+    ]));
+    const closeSummaryStatus = preview.is_executable_now
+      ? 'ready'
+      : (preview.human_gate_required ? 'review gated' : 'proof only');
+    const closeSummaryNextAction = preview.human_gate_required
+      ? 'Hold for human/Aegis review before any close or archive execution.'
+      : 'Continue watching write-through and proof posture.';
+    const archiveSummary = snapshot.summary || 'Display-safe close/archive write-through and command-plan preview proof.';
     return [
       relaySection('Session close archive proof source', relayGrid([
         ['source', snapshot.source || 'unknown'],
@@ -6329,65 +7194,247 @@ body {
         ['Orchestrator intake', relayText(snapshot.orchestrator_intake || 'compact typed session state')],
         ['raw detail is fetched only on demand', snapshot.raw_detail_access === 'fetched_on_demand_only' ? 'yes' : relayText(snapshot.raw_detail_access)],
       ]), true),
-      relaySection('Session archive list', archiveCatalog.length
-        ? archiveCatalog.map((entry) => relayGrid([
-          ['archive id', entry.archive_id || 'unknown'],
-          ['session id', entry.session_id || 'unknown'],
-          ['session name', entry.session_name || 'unknown'],
-          ['final status', relayText(entry.final_status)],
-          ['archived at', entry.archived_at || 'unknown'],
-          ['reload available', entry.reload_available ? 'yes' : 'no'],
-          ['run again available', entry.run_again_available ? 'yes' : 'no'],
-          ['transcript access mode', relayText(entry.transcript_access_mode)],
-          ['proof refs', relayJoin(entry.proof_refs)],
-        ])).join('')
-        : relayGrid([['status', 'no archived sessions reported by the reviewed archive authority snapshot']]),
-      true),
+      relaySection('Session close archive proof summary', relaySummary(snapshot.summary || 'Session close/archive proof summary unavailable.'), true),
       relaySection('Archive metadata', relayGrid([
-        ['archive id', archiveMetadata.archive_id || 'unknown'],
-        ['target session', archiveMetadata.target_session_id || 'unknown'],
-        ['session name', archiveMetadata.session_name || 'unknown'],
-        ['final status', relayText(archiveMetadata.final_status)],
-        ['archived at', archiveMetadata.archived_at || 'unknown'],
-        ['close request id', archiveMetadata.close_request_id || 'unknown'],
-        ['intended action', relayText(archiveMetadata.intended_action)],
-        ['write-through completed', archiveMetadata.write_through_completed ? 'yes' : 'no'],
-        ['obsidian capture completed', archiveMetadata.obsidian_capture_completed ? 'yes' : 'no'],
-        ['recoverable session', archiveMetadata.session_left_recoverable ? 'yes' : 'no'],
+        ['target session id', archiveMetadata.target_session_id || archiveProof.target_session_id || 'unknown'],
+        ['session name', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['project', archiveMetadata.project_name || 'unknown'],
+        ['role', relayText(archiveMetadata.harness_role)],
+        ['model provider', archiveMetadata.model_provider || 'unknown'],
+        ['model name', archiveMetadata.model_name || 'unknown'],
+        ['status', relayText(archiveMetadata.status)],
+        ['source session id', archiveMetadata.source_session_id || archiveProof.target_session_id || 'unknown'],
+        ['observed at', archiveMetadata.observed_at || snapshot.timestamp || 'unknown'],
       ]), true),
-      relaySection('Archive reload posture', relayGrid([
-        ['plan id', archiveReloadPlan.plan_id || 'unknown'],
-        ['status', relayText(archiveReloadPlan.status)],
-        ['reload authorized', archiveReloadPlan.reload_authorized ? 'yes' : 'no'],
-        ['execution authorized', archiveReloadPlan.execution_authorized ? 'yes' : 'no'],
-        ['blockers', relayJoin(archiveReloadPlan.blockers)],
-        ['proof refs', relayJoin(archiveReloadPlan.proof_refs)],
-        ['boundary', 'display-only archive reload posture; no reopen or active-session restore is executed'],
+      relaySection('Context reference', relayGrid([
+        ['target session id', archiveMetadata.target_session_id || archiveProof.target_session_id || 'unknown'],
+        ['source session id', archiveMetadata.source_session_id || archiveProof.target_session_id || 'unknown'],
+        ['reference mode', relayText(snapshot.orchestrator_intake || 'compact typed session state only')],
+        ['raw detail access', snapshot.raw_detail_access === 'fetched_on_demand_only' ? 'on demand only' : relayText(snapshot.raw_detail_access)],
       ]), false),
-      relaySection('Archive run-again posture', relayGrid([
-        ['plan id', archiveRunAgainPlan.plan_id || 'unknown'],
-        ['status', relayText(archiveRunAgainPlan.status)],
-        ['run again authorized', archiveRunAgainPlan.run_again_authorized ? 'yes' : 'no'],
-        ['execution authorized', archiveRunAgainPlan.execution_authorized ? 'yes' : 'no'],
-        ['blockers', relayJoin(archiveRunAgainPlan.blockers)],
-        ['proof refs', relayJoin(archiveRunAgainPlan.proof_refs)],
-        ['boundary', 'display-only archive run-again posture; no rerun, resume, or restart action is executed'],
+      relaySection('Surface close boundary', relayGrid([
+        ['Spark Close action', 'restores the visible User Session surface only'],
+        ['session close executed', 'no'],
+        ['reviewed close posture', 'open Spark Archive for typed close/archive proof'],
+        ['boundary', 'surface close does not force write-through, Obsidian capture, archive creation, or session mutation'],
+      ]), false),
+      relaySection('Close target selection', relayGrid([
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['target session id', archiveMetadata.target_session_id || archiveProof.target_session_id || 'unknown'],
+        ['source session id', archiveMetadata.source_session_id || archiveProof.target_session_id || 'unknown'],
+        ['project', archiveMetadata.project_name || 'unknown'],
+        ['selection posture', 'target is explicit in reviewed archive/close metadata before any close/archive review proceeds'],
+        ['selection boundary', 'display-only target identity; no session retarget, chooser, close, or archive control is executed'],
+      ]), false),
+      relaySection('Obsidian capture', relayGrid([
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['update surface', relayText(obsidianCapture.update_surface)],
+        ['obsidian result', obsidianCapture.latest_obsidian_ref ? 'success' : 'missing'],
+        ['obsidian ref', obsidianCapture.latest_obsidian_ref || 'none'],
+        ['continuation state', relayText(obsidianCapture.continuation_state)],
+        ['checkpoint cadence', relayText(obsidianCapture.checkpoint_cadence)],
+        ['review refs', relayJoin(obsidianCapture.reviewer_gate_refs)],
+        ['lease refs', relayJoin(obsidianCapture.lease_gate_refs)],
+        ['blocker tags', relayJoin(obsidianCapture.blocker_tags)],
+        ['proof refs', relayJoin(obsidianCapture.evidence_refs)],
+        ['capture boundary', 'display-only checkpoint result; no Obsidian write, queue, close, or archive action is executed'],
+      ]), false),
+      relaySection('Archive summary', relayGrid([
+        ['summary', archiveSummary],
+        ['status', closeSummaryStatus],
+        ['session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['project', archiveMetadata.project_name || 'unknown'],
+        ['proof posture', archiveArtifactRefs.length ? 'proof refs available for inspection' : 'proof refs not reported'],
+      ]), true),
+      relaySection('Transcript access summary', relayGrid([
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['transcript available', 'no'],
+        ['raw worker history visible', snapshot.raw_worker_session_history_visible ? 'yes' : 'no'],
+        ['raw detail access', snapshot.raw_detail_access === 'fetched_on_demand_only' ? 'on demand only' : relayText(snapshot.raw_detail_access)],
+        ['summary boundary', 'display-only transcript-access summary; no transcript body, transcript restore, or raw detail paste is exposed'],
       ]), false),
       relaySection('Transcript access posture', relayGrid([
-        ['handle id', transcriptAccess.handle_id || 'unknown'],
-        ['mode', relayText(transcriptAccess.mode)],
-        ['authorized', transcriptAccess.authorized ? 'yes' : 'no'],
-        ['transcript hash visible', transcriptAccess.transcript_hash ? 'yes' : 'no'],
-        ['transcript length', transcriptAccess.transcript_length ?? 'unknown'],
-        ['raw transcript included', transcriptAccess.raw_transcript_included ? 'yes' : 'no'],
-        ['proof refs', relayJoin(transcriptAccess.proof_refs)],
-        ['boundary', 'display-only transcript-access posture; full transcript body remains unavailable and on-demand only'],
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['full transcript available', 'no'],
+        ['raw worker session history', snapshot.raw_worker_session_history_visible ? 'yes' : 'no'],
+        ['raw detail access', snapshot.raw_detail_access === 'fetched_on_demand_only' ? 'on demand only' : relayText(snapshot.raw_detail_access)],
+        ['authorization posture', 'compact typed session state only until reviewed transcript access is explicitly authorized'],
+        ['boundary', 'no transcript body is opened or pasted from this surface; raw detail remains fetch-on-demand posture only'],
       ]), false),
-      relaySection('Archive context reference', relayGrid([
-        ['archive refs', relayJoin(archiveContextRefs)],
-        ['context reference posture', archiveContextRefs.length ? 'explicit archive/session/proof refs only' : 'no archive context refs reported'],
-        ['hidden prompt drag', 'no'],
-        ['boundary', 'archive context is referenced intentionally through display-safe ids only'],
+      relaySection('Transcript action posture', relayGrid([
+        ['transcript body available', 'no'],
+        ['transcript restore available', 'no'],
+        ['raw detail fetch mode', snapshot.raw_detail_access === 'fetched_on_demand_only' ? 'fetch on demand only' : relayText(snapshot.raw_detail_access)],
+        ['worker history paste available', 'no'],
+        ['action boundary', 'display-only transcript action posture; no transcript body, transcript restore, worker-history replay, or raw detail paste is executed'],
+      ]), false),
+      relaySection('Search archived sessions', renderArchiveSearchResults({
+        query: archiveSearchQuery,
+        archiveMetadata,
+        archiveSummary,
+        archiveSessions,
+        recentCloseRefs,
+      }), false),
+      relaySection('Session archive list', archiveSessions.length
+        ? archiveSessions.map((entry) => relayGrid([
+          ['session ref', entry.session_ref || 'unknown'],
+          ['status', relayText(entry.status)],
+          ['inspect posture', 'display-safe archive history id only'],
+        ])).join('')
+        : relayGrid([['status', 'no archived sessions reported by the current reviewed snapshot']]), false),
+      relaySection('Archive-on-close option', relayGrid([
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['archive alternative', relayText(archiveProof.intended_action)],
+        ['required operation', relayText(archiveProof.required_operation)],
+        ['human gate required', archiveProof.human_gate_required ? 'yes' : 'no'],
+        ['archive list visibility', archiveSessions.length ? 'archived refs visible in Session archive list' : 'no archive refs currently reported'],
+        ['option boundary', 'display-only archive alternative; no archive-on-close control is executed'],
+      ]), false),
+      relaySection('Recently closed references', recentCloseRefs.length
+        ? relayGrid([
+          ['recent close refs', relayJoin(recentCloseRefs)],
+          ['recovery posture', 'findable through recent/archive references only'],
+          ['restore control available', 'no'],
+        ])
+        : relayGrid([['status', 'no recent close references reported by the current reviewed snapshot']]), false),
+      relaySection('Command preview summary', relayGrid([
+        ['target session', preview.session_name || archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['command preview', relayText(preview.command_kind || 'not exposed')],
+        ['expected transition', relayText(preview.expected_state_transition || 'not exposed')],
+        ['permission state', relayText(preview.permission_state || archiveProof.permission_state || 'unknown')],
+        ['executable now', archiveProof.is_executable_now ? 'yes' : 'no'],
+        ['summary boundary', archiveProof.is_executable_now
+          ? 'reviewed command preview is visible here before any separate execution authority is exposed'
+          : 'command preview remains display-only here; reopen, rerun, restart, and resume controls are not exposed'],
+      ]), false),
+      relaySection('Command gate summary', relayGrid([
+        ['target session', preview.session_name || archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['permission state', relayText(preview.permission_state || archiveProof.permission_state || 'unknown')],
+        ['human gate state', relayText(preview.human_gate_state || 'required')],
+        ['review cadence', relayText(preview.review_cadence_state || 'unknown')],
+        ['blocker count', Array.isArray(archiveProof.blockers) ? archiveProof.blockers.length : 0],
+        ['summary boundary', 'display-only command gate summary; no reopen, rerun, restart, resume, or confirmation control is executed'],
+      ]), false),
+      relaySection('Reopen / rerun summary', relayGrid([
+        ['target session', preview.session_name || archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['command preview', relayText(preview.command_kind || 'not exposed')],
+        ['expected transition', relayText(preview.expected_state_transition || 'not exposed')],
+        ['blocker count', Array.isArray(archiveProof.blockers) ? archiveProof.blockers.length : 0],
+        ['recovery note', relayText(preview.rollback_or_recovery_note_label || closeProof.rollback_or_preservation_note || 'none')],
+        ['summary boundary', 'display-only reopen/rerun summary; no reopen, resume, restart, or rerun control is executed'],
+      ]), false),
+      relaySection('Reopen / rerun posture', relayGrid([
+        ['target session', preview.session_name || archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['command preview', relayText(preview.command_kind || 'not exposed')],
+        ['expected transition', relayText(preview.expected_state_transition || 'not exposed')],
+        ['reason label', relayText(preview.reason_label || 'not exposed')],
+        ['reason length', relayText(preview.reason_length || 'not exposed')],
+        ['required operation', relayText(preview.required_operation || archiveProof.required_operation || 'not exposed')],
+        ['permission state', relayText(preview.permission_state || archiveProof.permission_state || 'unknown')],
+        ['human gate state', relayText(preview.human_gate_state || 'required')],
+        ['review cadence', relayText(preview.review_cadence_state || 'unknown')],
+        ['executable now', archiveProof.is_executable_now ? 'yes' : 'no'],
+        ['blockers', relayJoin(archiveProof.blockers)],
+        ['recovery note', relayText(preview.rollback_or_recovery_note_label || closeProof.rollback_or_preservation_note || 'none')],
+        ['reopen control available', 'no'],
+        ['rerun control available', 'no'],
+        ['boundary', 'display-only reopen/rerun posture; no reopen, resume, restart, or rerun control is executed'],
+      ]), false),
+      relaySection('Safe deletion boundary', relayGrid([
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['delete available', 'no'],
+        ['close action', relayText(closeProof.intended_action)],
+        ['archive action', relayText(archiveProof.intended_action)],
+        ['filter/search action', 'separate archive browsing concern only'],
+        ['intent boundary', 'archive deletion requires its own explicit reviewed intent and cannot happen from one-click close or filtering'],
+        ['artifact visibility', archiveArtifactRefs.length ? 'proof refs only; no delete control exposed' : 'no archive artifact delete control exposed'],
+      ]), false),
+      relaySection('Archive retention', relayGrid([
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['retention state', 'not exposed by the current reviewed archive snapshot'],
+        ['policy source', relayText(snapshot.orchestrator_intake || 'compact typed session state only')],
+        ['observed at', archiveMetadata.observed_at || snapshot.timestamp || 'unknown'],
+        ['reversible now', 'no'],
+        ['retention boundary', 'display-only retention posture; no retention-policy mutation, archive destruction, restore, or storage-model claim is made'],
+      ]), false),
+      relaySection('Close summary', relayGrid([
+        ['status', closeSummaryStatus],
+        ['next action', closeSummaryNextAction],
+        ['expected transition', transition],
+        ['command posture', relayText(preview.command_kind || archiveProof.intended_action)],
+        ['blockers', relayJoin(closeSummaryBlockers)],
+        ['proof refs', relayJoin(closeSummaryRefs)],
+      ]), true),
+      relaySection('Archive to knowledge handoff', `
+        <div class="relay-models-handoff" aria-label="Archive to knowledge handoff">
+          <button type="button" data-archive-handoff="echo">Open Echo memory</button>
+          <button type="button" data-archive-handoff="atlas">Open Atlas retrieval</button>
+        </div>
+        ${relayList([
+          'This handoff makes durable-memory and retrieval destinations explicit without replacing the archive record itself.',
+          'It changes only the visible surface; it does not extract lessons, write memory, create retrieval entries, mutate archive state, or close the current session.',
+        ])}
+      `, false),
+      relaySection('Close permission gate', relayGrid([
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['permission state', relayText(preview.permission_state || archiveProof.permission_gate_state)],
+        ['required operation', relayText(preview.required_operation || archiveProof.required_operation)],
+        ['aegis gate', relayText(preview.aegis_gate_status)],
+        ['review cadence', relayText(preview.review_cadence_state)],
+        ['human gate required', preview.human_gate_required ? 'yes' : 'no'],
+        ['executable now', preview.is_executable_now ? 'yes' : 'no'],
+        ['confirmation posture', preview.human_gate_required ? 'explicit human confirmation required before close/archive execution' : 'no additional confirmation reported'],
+      ]), false),
+      relaySection('Orchestrator-led close proposal', relayGrid([
+        ['target session', preview.session_name || archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['target session id', preview.target_session_id || archiveMetadata.target_session_id || archiveProof.target_session_id || 'unknown'],
+        ['proposed action', relayText(preview.command_kind || archiveProof.intended_action)],
+        ['reason visible', preview.reason_present ? 'bounded label only' : 'no reason reported'],
+        ['reason label', relayText(preview.reason_label || 'none')],
+        ['reason length', preview.reason_length ?? 0],
+        ['saved state posture', archiveProof.write_through_completed ? 'write-through proof reported before proposal' : 'write-through still pending or unavailable'],
+        ['preservation note', relayText(preview.rollback_or_recovery_note_label || closeProof.rollback_or_preservation_note || 'none')],
+        ['proof refs', relayJoin(closeSummaryRefs)],
+        ['proposal boundary', 'display-only proposal; no close/archive execution, confirmation, or queue mutation'],
+      ]), false),
+      relaySection('No silent data loss', relayGrid([
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['write-through completed', archiveProof.write_through_completed ? 'yes' : 'no'],
+        ['failure visibility', closeProof.failure_visibility || writeThroughProof.failure_visibility || 'unknown'],
+        ['required condition', writeThroughProof.required_write_through_condition || 'unknown'],
+        ['preservation note', closeProof.rollback_or_preservation_note || writeThroughProof.rollback_or_preservation_note || 'none'],
+        ['recovery posture', archiveProof.write_through_completed ? 'recoverable proof reported before close/archive execution' : 'session remains in proof-only posture until write-through succeeds'],
+        ['blockers', relayJoin(Array.from(new Set([
+          ...(Array.isArray(closeProof.blockers) ? closeProof.blockers : []),
+          ...(Array.isArray(writeThroughProof.blockers) ? writeThroughProof.blockers : []),
+        ])))],
+      ]), false),
+      relaySection('Write-through before close gate', relayGrid([
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['write-through completed', archiveProof.write_through_completed ? 'yes' : 'no'],
+        ['required condition', writeThroughProof.required_write_through_condition || 'unknown'],
+        ['proof refs', relayJoin(Array.from(new Set([
+          ...(Array.isArray(writeThroughProof.evidence_refs) ? writeThroughProof.evidence_refs : []),
+          ...(Array.isArray(archiveProof.evidence_refs) ? archiveProof.evidence_refs : []),
+        ])))],
+        ['gate posture', archiveProof.write_through_completed ? 'close/archive review sees durable write-through proof' : 'close/archive remains gated until write-through proof is reported'],
+        ['gate boundary', 'display-only write-through gate; no write, close, archive, or transcript mutation is executed'],
+      ]), false),
+      relaySection('Stop-before-close guard', relayGrid([
+        ['target session', archiveMetadata.session_name || archiveProof.session_name || 'unknown'],
+        ['running-work posture', closeProof.human_gate_required ? 'running or review-gated work requires an explicit stop/archive decision' : 'no running-work guard reported'],
+        ['intended close action', relayText(closeProof.intended_action)],
+        ['archive alternative', relayText(archiveProof.intended_action)],
+        ['human gate required', closeProof.human_gate_required ? 'yes' : 'no'],
+        ['preservation note', closeProof.rollback_or_preservation_note || 'none'],
+        ['guard boundary', 'display-only stop-before-close posture; no close, stop, archive, or leave-running control is executed'],
+        ['blockers', relayJoin(closeProof.blockers)],
+      ]), false),
+      relaySection('Restore proof/artifacts', relayGrid([
+        ['archive proof refs', relayJoin(archiveArtifactRefs)],
+        ['artifact posture', archiveArtifactRefs.length ? 'inspectable refs only' : 'no archive proof refs reported'],
+        ['raw artifact body visible', 'no'],
+        ['reload/run again available', 'no'],
       ]), false),
       relaySection('Archive write-through proof', relayGrid([
         ['target session', archiveProof.target_session_id || 'unknown'],
@@ -6428,6 +7475,33 @@ body {
       ]), true),
     ].join('');
   };
+  const renderCloseBoundaryWarning = (snapshot) => {
+    if (!snapshot?.ok) return 'surface closed only; open Archive for reviewed session close proof';
+    const proofs = snapshot.proofs || {};
+    const archiveProof = proofs.archive || {};
+    const preview = snapshot.command_plan_preview || {};
+    const archiveMetadata = snapshot.archive_metadata || {};
+    const sessionName = archiveMetadata.session_name || archiveProof.session_name || 'target session';
+    const posture = preview.is_executable_now
+      ? 'reviewed close ready'
+      : (preview.human_gate_required ? 'review gated' : 'proof only');
+    const writeThrough = archiveProof.write_through_completed ? 'write-through reported' : 'write-through pending';
+    return `surface closed only; ${sessionName} remains ${posture}, ${writeThrough}; open Archive for reviewed session close proof`;
+  };
+  const refreshCloseBoundaryWarning = async () => {
+    if (sessionCloseArchiveProofSnapshotCache?.ok) {
+      setRightPanelRecoveryWarning(renderCloseBoundaryWarning(sessionCloseArchiveProofSnapshotCache));
+      return;
+    }
+    try {
+      const response = await fetch(bridgeUrl('session-close-archive-proof'), { cache: 'no-store' });
+      const snapshot = await response.json();
+      sessionCloseArchiveProofSnapshotCache = snapshot;
+      setRightPanelRecoveryWarning(renderCloseBoundaryWarning(snapshot));
+    } catch {
+      setRightPanelRecoveryWarning('surface closed only; open Archive for reviewed session close proof');
+    }
+  };
   const renderVoiceIoSnapshot = (snapshot) => {
     if (!snapshot?.ok) {
       return relaySection('Voice I/O source', relayGrid([
@@ -6436,11 +7510,25 @@ body {
       ]), true);
     }
     const voice = snapshot.voice || {};
-    const commandIntent = snapshot.command_intent || {};
-    const commandFamilies = Array.isArray(snapshot.command_families) ? snapshot.command_families : [];
-    const commandPreviewBoundary = snapshot.command_preview_boundary || {};
     const controls = Array.isArray(snapshot.controls) ? snapshot.controls : [];
     const mutationAllowed = Boolean(snapshot.mutation_authorized);
+    const voiceControlDisabledReason = (controlId) => {
+      if (!snapshot.controls_disabled) return 'control state not reported as disabled';
+      if (controlId === 'read-aloud-status') {
+        if (!snapshot.speech_output_authorized) return 'speech output backend not authorized';
+        if (!snapshot.read_aloud_authorized) return 'read-aloud execution not authorized';
+        return 'read-aloud remains display-only in public builds';
+      }
+      if (controlId === 'mute-status' || controlId === 'unmute-status') {
+        if (!snapshot.speech_output_authorized) return 'speech output backend not authorized';
+        return 'mute state is visible, but mute mutation is not authorized';
+      }
+      if (controlId === 'input-status') {
+        if (!snapshot.microphone_authorized) return 'microphone permission not authorized';
+        return 'microphone capture remains display-only in public builds';
+      }
+      return 'control remains display-only in public builds';
+    };
     return [
       relaySection('Voice I/O source', relayGrid([
         ['source', snapshot.source || 'unknown'],
@@ -6453,6 +7541,7 @@ body {
         ['read aloud authorized', snapshot.read_aloud_authorized ? 'yes' : 'no'],
         ['controls disabled', snapshot.controls_disabled ? 'yes' : 'no'],
       ]), true),
+      relaySection('Voice I/O summary', relaySummary(snapshot.summary || 'Voice I/O summary unavailable.'), true),
       relaySection('Voice state', relayGrid([
         ['listening', voice.listening ? 'yes' : 'no'],
         ['dictating', voice.dictating ? 'yes' : 'no'],
@@ -6470,21 +7559,55 @@ body {
       relaySection('Voice intent summary', relayGrid([
         ['status call', voice.status_call || 'standing by'],
         ['last intent ref', voice.last_intent_ref || 'none'],
-        ['command family', commandIntent.command_family || 'unknown'],
-        ['command action', commandIntent.action || 'unknown'],
-        ['command target', commandIntent.target_ref || 'none'],
-        ['command confidence', Number.isFinite(commandIntent.confidence) ? commandIntent.confidence.toFixed(2) : 'unknown'],
-        ['confirmation required', commandIntent.requires_confirmation ? 'yes' : 'no'],
-        ['summary boundary', 'display-only voice intent/status summary; VOC10 command-family recognition is preview-only and does not execute commands, capture audio, or submit prompts'],
+        ['input posture', voice.input_mode || 'unknown'],
+        ['output posture', voice.output_mode || 'unknown'],
+        ['summary boundary', 'display-only voice intent/status summary; no command recognition, command preview, or command execution is performed'],
       ]), false),
-      relaySection('Voice command preview boundary', relayGrid([
-        ['recognized families', commandFamilies.length ? commandFamilies.join(' | ') : 'none reported'],
-        ['execution authorized', commandIntent.execution_authorized ? 'yes' : 'no'],
-        ['microphone capture authorized', commandPreviewBoundary.microphone_capture_authorized ? 'yes' : 'no'],
-        ['speech output authorized', commandPreviewBoundary.speech_output_authorized ? 'yes' : 'no'],
-        ['prompt submit authorized', commandPreviewBoundary.prompt_submit_authorized ? 'yes' : 'no'],
-        ['mute control authorized', commandPreviewBoundary.mute_control_authorized ? 'yes' : 'no'],
-        ['boundary', 'preview-only command intent authority; no reset, reload, open, close, filter, crosscheck, dictation, speech-output, or proof command is executed'],
+      relaySection('Voice output summary', relayGrid([
+        ['read-aloud visible', controls.some((control) => control.id === 'read-aloud-status') ? 'yes' : 'no'],
+        ['mute visible', controls.some((control) => control.id === 'mute-status' || control.id === 'unmute-status') ? 'yes' : 'no'],
+        ['output authorized', snapshot.speech_output_authorized ? 'yes' : 'no'],
+        ['read-aloud disabled reason', voiceControlDisabledReason('read-aloud-status')],
+        ['mute disabled reason', voiceControlDisabledReason(voice.muted ? 'unmute-status' : 'mute-status')],
+        ['summary boundary', 'display-only voice output summary; no speech output, read-aloud execution, or mute mutation is performed'],
+      ]), false),
+      relaySection('Voice output control posture', relayGrid([
+        ['read-aloud visible', controls.some((control) => control.id === 'read-aloud-status') ? 'yes' : 'no'],
+        ['read-aloud executable', snapshot.read_aloud_authorized && !snapshot.controls_disabled ? 'yes' : 'no'],
+        ['mute visible', controls.some((control) => control.id === 'mute-status' || control.id === 'unmute-status') ? 'yes' : 'no'],
+        ['mute executable', snapshot.speech_output_authorized && !snapshot.controls_disabled ? 'yes' : 'no'],
+        ['typed responses available', 'yes'],
+        ['output boundary', 'read-aloud and mute remain reviewed display state only until speech-output authority exists'],
+      ]), true),
+      relaySection('Voice selection posture', relayGrid([
+        ['output posture', voice.output_mode || 'unknown'],
+        ['speech output authorized', snapshot.speech_output_authorized ? 'yes' : 'no'],
+        ['selected voice exposed', 'no'],
+        ['voice list available', 'no'],
+        ['selection boundary', 'display-only voice-selection posture; no selectable voice inventory or persisted voice preference is exposed'],
+      ]), false),
+      relaySection('Voice interrupt posture', relayGrid([
+        ['speaking now', voice.speaking ? 'yes' : 'no'],
+        ['speech output authorized', snapshot.speech_output_authorized ? 'yes' : 'no'],
+        ['interrupt control available', 'no'],
+        ['transcript-preserving stop available', 'no'],
+        ['interrupt boundary', 'display-only interrupt posture; no speech-stop route or transcript-preserving interrupt action is executed'],
+      ]), false),
+      relaySection('Voice input summary', relayGrid([
+        ['microphone visible', controls.some((control) => control.id === 'input-status') ? 'yes' : 'no'],
+        ['microphone authorized', snapshot.microphone_authorized ? 'yes' : 'no'],
+        ['capture state', snapshot.microphone_authorized && voice.listening ? 'active' : 'inactive'],
+        ['top icon status copy', speechButton?.dataset.statusCopy || 'not exposed'],
+        ['input disabled reason', voiceControlDisabledReason('input-status')],
+        ['summary boundary', 'display-only voice input summary; no microphone permission request, capture start, dictation, or prompt send is performed'],
+      ]), false),
+      relaySection('Voice input action posture', relayGrid([
+        ['push-to-talk available', 'no'],
+        ['dictation draft available', 'no'],
+        ['spoken submit available', 'no'],
+        ['correction surface available', 'no'],
+        ['typed path fallback', 'typed prompt/response remains available'],
+        ['action boundary', 'display-only voice input action posture; no microphone capture, dictation draft, spoken submit, or correction action is executed'],
       ]), false),
       relaySection('Voice privacy indicator', relayGrid([
         ['microphone capture', snapshot.microphone_authorized && voice.listening ? 'active' : 'inactive'],
@@ -6503,12 +7626,19 @@ body {
         relayGrid([
           ['label', control.label || 'unknown'],
           ['aria disabled', control.aria_disabled ? 'yes' : 'no'],
+          ['disabled reason', voiceControlDisabledReason(control.id)],
+          ['typed path fallback', 'typed prompt/response remains available'],
         ]),
         false,
       )),
     ].join('');
   };
-  const renderSparkModelsSnapshot = (snapshot) => {
+  const renderSparkModelsSnapshot = (
+    snapshot,
+    relayEvidenceSnapshot = null,
+    providerBalanceSnapshot = null,
+    relayLogicSnapshot = null,
+  ) => {
     if (!snapshot?.ok) {
       return relaySection('Models bridge source', relayGrid([
         ['status', 'offline'],
@@ -6517,7 +7647,12 @@ body {
     }
     const models = Array.isArray(snapshot.models) ? snapshot.models : [];
     const recentCalls = Array.isArray(snapshot.recentCalls) ? snapshot.recentCalls.slice(0, 6) : [];
+    const retainedCalls = filterRetainedTimestampedItems(recentCalls, 'at');
     const capabilities = snapshot.capabilities || {};
+    const callIntent = relayEvidenceSnapshot?.per_call_intent || {};
+    const providerBalance = providerBalanceSnapshot?.provider_balance || {};
+    const relayTiers = Array.isArray(relayLogicSnapshot?.tiers) ? relayLogicSnapshot.tiers : [];
+    const recommendedTier = relayTiers.find((tier) => tier.tier === callIntent.risk_tier) || null;
     const roleOverrides = readRoleModelOverrides();
     const roleMappings = [
       ['orchestrator', 'Prime intent and coordination; routing not wired'],
@@ -6551,13 +7686,23 @@ body {
         ['manual override', override === 'follow-manual-selector' ? 'follow manual selector' : override],
         ['pin state', override === 'follow-manual-selector' ? 'not pinned' : 'pinned in UI-local role metadata'],
       ])).join(''), true),
+      relaySection('Prime/Relay Auto-routing posture', relayGrid([
+        ['intent source', relayEvidenceSnapshot?.per_call_intent ? '/bridge/relay-evidence per_call_intent' : 'not exposed by Relay'],
+        ['Prime intent', callIntent.call_goal || 'not exposed'],
+        ['routing owner', providerBalance.routing_owner || 'unknown'],
+        ['policy state', relayText(providerBalance.policy_state)],
+        ['lane plan', recommendedTier ? relayLaneSummary(recommendedTier) : 'not exposed by Relay logic'],
+        ['auto routing gate', relayLogicSnapshot?.autoRouting ? relayText(relayLogicSnapshot.autoRouting) : 'not exposed by Relay logic'],
+        ['manual fallback', 'manual selector remains active while Auto stays disabled'],
+        ['execution boundary', 'display-only posture; no executable Relay route decision or provider dispatch is performed'],
+      ]), true),
       relaySection('Public setup boundary', relayList([
         'Public builds use your locally installed Codex and Claude/Max CLIs or configured provider credentials.',
         'Missing CLIs or missing login state are shown as setup guidance from /bridge/models; this panel does not install software, sign in, read secrets, or probe accounts.',
         'Provider account readiness is informational only until Relay/Model Harness exposes a reviewed account-readiness backend.',
       ]), false),
-      relaySection('Recent model call metadata', recentCalls.length
-        ? recentCalls.map((call, index) => relayGrid([
+      relaySection('Recent model call metadata', retainedCalls.kept.length
+        ? retainedCalls.kept.map((call, index) => relayGrid([
           [`call ${index + 1}`, call.at || 'unknown'],
           ['request id', call.requestId || 'unknown'],
           ['channel', relayText(call.channel)],
@@ -6572,7 +7717,13 @@ body {
           ['project', call.projectContext || 'unknown'],
           ['session target present', call.sessionTargetId ? 'yes' : 'no'],
         ])).join('')
-        : relayGrid([['status', snapshot.recentCallsError || 'no recent call metadata']]), false),
+        : relayGrid([['status', snapshot.recentCallsError || (retainedCalls.expired.length ? 'all recent call metadata is outside the visible retention window' : 'no recent call metadata')]]), false),
+      relaySection('Recent call retention', relayGrid([
+        ['retention window', renderProgressRetentionWindowLabel()],
+        ['visible rows', retainedCalls.kept.length],
+        ['expired rows hidden', retainedCalls.expired.length],
+        ['source data', 'bridge recent-call memory remains unchanged'],
+      ]), false),
       relaySection('Safety boundary', relayList([
         'No prompt text, response text, raw setup stderr, or recovered result bodies are rendered here.',
         'Auto routing remains unavailable until Relay exposes an executable routing decision.',
@@ -6587,9 +7738,41 @@ body {
       ['model metadata source', snapshots.models?.ok ? 'models bridge metadata' : 'offline'],
       ['relay evidence source', snapshots.relayEvidence?.ok ? 'relay evidence advisory' : 'offline'],
       ['provider balance source', snapshots.providerBalance?.ok ? 'provider balance summary' : 'offline'],
+      ['provider balance display only', snapshots.providerBalance?.display_only ? 'yes' : 'no'],
+      ['provider balance mutation authorized', snapshots.providerBalance?.mutation_authorized ? 'yes' : 'no'],
       ['aegis policy source', snapshots.aegisLogic?.ok ? 'aegis logic snapshot' : 'offline'],
       ['relay dispatch source', snapshots.relayLogic?.ok ? 'relay logic snapshot' : 'offline'],
       ['mutation policy', 'display-only; no provider calls or settings writes'],
+    ]), true),
+    relaySection('Relay-mediated dispatch posture', relayGrid([
+      ['dispatch route source', snapshots.relayLogic?.ok ? '/bridge/relay-logic' : 'offline'],
+      ['selected provider', snapshots.providerBalance?.provider_balance?.selected_provider || 'not exposed'],
+      ['routing owner', snapshots.providerBalance?.provider_balance?.routing_owner || 'unknown'],
+      ['policy state', relayText(snapshots.providerBalance?.provider_balance?.policy_state)],
+      ['exact lane plan', (() => {
+        const tier = (Array.isArray(snapshots.relayLogic?.tiers) ? snapshots.relayLogic.tiers : [])
+          .find((item) => item.tier === snapshots.relayEvidence?.per_call_intent?.risk_tier);
+        return tier ? relayLaneSummary(tier) : 'not exposed by Relay logic';
+      })()],
+      ['payload continuity refs', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.route_continuity_refs)],
+      ['payload evidence refs', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.evidence_refs)],
+      ['intent evidence refs', relayJoin(snapshots.relayEvidence?.per_call_intent?.evidence_refs)],
+      ['dispatch boundary', 'Relay + Model Harness own route/model/payload posture; this surface renders evidence only and does not call providers'],
+    ]), true),
+    relaySection('Harness diagnostics', relayGrid([
+      ['prompt packet decision', relayText(snapshots.relayEvidence?.prompt_packet?.decision)],
+      ['prompt packet severity', relayText(snapshots.relayEvidence?.prompt_packet?.severity)],
+      ['prompt packet blockers', relayJoin(snapshots.relayEvidence?.prompt_packet?.blockers)],
+      ['payload status', relayText(snapshots.relayEvidence?.prompt_payload_meter?.payload_status)],
+      ['payload warning tags', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.warning_tags)],
+      ['payload blocker tags', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.blocker_tags)],
+      ['provider validation', relayText(snapshots.relayEvidence?.provider_result?.validation_status)],
+      ['provider telemetry available', snapshots.relayEvidence?.provider_result?.telemetry_available ? 'yes' : 'no'],
+      ['provider warnings', relayJoin(snapshots.relayEvidence?.provider_result?.warnings)],
+      ['provider blockers', relayJoin(snapshots.relayEvidence?.provider_result?.blockers)],
+      ['dispatch visibility', relayText(snapshots.workflowDispatchStatus?.workflow?.status_policy?.dispatch_surface || 'display_only')],
+      ['heartbeat history visible', snapshots.workflowDispatchStatus?.workflow?.status_policy?.heartbeat_history_visible ? 'yes' : 'no'],
+      ['raw artifacts visible', snapshots.workflowDispatchStatus?.workflow?.status_policy?.raw_artifacts_visible ? 'yes' : 'no'],
     ]), true),
     snapshots.aspect === 'Goal' ? relaySection('Goal aspect per-call intent', relayGrid([
       ['intent source', snapshots.relayEvidence?.per_call_intent ? '/bridge/relay-evidence per_call_intent' : 'not exposed by Relay'],
@@ -6607,9 +7790,19 @@ body {
       'No prompt text, response text, recovered result body, raw provider output, raw evidence body, or worker chat is rendered.',
       'The aspect surface reads existing GET-only bridge snapshots and never posts to message, restart, or result-recovery paths.',
     ]), true),
-    renderSparkModelsSnapshot(snapshots.models || { ok: false, error: 'Models snapshot unavailable' }),
+    renderSparkModelsSnapshot(
+      snapshots.models || { ok: false, error: 'Models snapshot unavailable' },
+      snapshots.relayEvidence || null,
+      snapshots.providerBalance || null,
+      snapshots.relayLogic || null,
+    ),
     renderRelayEvidenceSnapshot(snapshots.relayEvidence || { ok: false, error: 'Relay evidence snapshot unavailable' }),
-    renderProviderBalanceSnapshot(snapshots.providerBalance || { ok: false, error: 'Provider balance snapshot unavailable' }),
+    renderProviderBalanceSnapshot(
+      snapshots.providerBalance || { ok: false, error: 'Provider balance snapshot unavailable' },
+      snapshots.models || null,
+      snapshots.relayEvidence || null,
+      snapshots.relayLogic || null,
+    ),
     renderAegisLogicSnapshot(snapshots.aegisLogic || { ok: false, error: 'Aegis logic snapshot unavailable' }),
     renderRelayLogicSnapshot(snapshots.relayLogic || { ok: false, error: 'Relay logic snapshot unavailable' }),
   ].join('');
@@ -6625,12 +7818,13 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-model-harness-backend-binding]');
     if (!logicNode) return;
     const aspect = logicNode.dataset.modelHarnessAspect || 'Model';
-    const [models, relayEvidence, providerBalance, aegisLogic, relayLogic] = await Promise.all([
+    const [models, relayEvidence, providerBalance, aegisLogic, relayLogic, workflowDispatchStatus] = await Promise.all([
       fetchBridgeSnapshot('models', 'Models'),
       fetchBridgeSnapshot('relay-evidence', 'Relay evidence'),
       fetchBridgeSnapshot('provider-balance', 'Provider balance'),
       fetchBridgeSnapshot('aegis-logic', 'Aegis logic'),
       fetchBridgeSnapshot('relay-logic', 'Relay logic'),
+      fetchBridgeSnapshot('workflow-dispatch-status', 'Workflow dispatch/status'),
     ]);
     logicNode.innerHTML = renderModelHarnessBackendBindingSnapshot({
       aspect,
@@ -6639,6 +7833,7 @@ body {
       providerBalance,
       aegisLogic,
       relayLogic,
+      workflowDispatchStatus,
     });
   };
   const renderReleaseAutonomySnapshot = (snapshot) => {
@@ -6657,11 +7852,13 @@ body {
         ['source', snapshot.source || 'unknown'],
         ['version', snapshot.version || 'unknown'],
         ['harness', snapshot.harness || 'Autonomy / Release'],
+        ['generated at', snapshot.generated_at || 'unknown'],
         ['display only', snapshot.display_only ? 'yes' : 'no'],
         ['mutation authorized', primeBool(snapshot.mutation_authorized)],
         ['release execution authorized', snapshot.release_execution_authorized ? 'yes' : 'no'],
         ['deployment authorized', snapshot.deployment_authorized ? 'yes' : 'no'],
       ]), true),
+      relaySection('Release autonomy summary', relaySummary(snapshot.summary || 'Release autonomy summary unavailable.'), true),
       relaySection('Release posture', relayGrid([
         ['state', relayText(posture.state)],
         ['release ready', posture.release_ready ? 'yes' : 'no'],
@@ -6772,9 +7969,55 @@ body {
     try {
       const response = await fetch(bridgeUrl('review-console'), { cache: 'no-store' });
       const snapshot = await response.json();
+      const prior = logicNode.dataset.reviewConsoleUiState ? JSON.parse(logicNode.dataset.reviewConsoleUiState) : {};
+      snapshot._ui_query = prior.query || '';
+      snapshot._ui_severity = prior.severity || 'all';
+      snapshot._ui_owner = prior.owner || 'all';
+      logicNode.dataset.reviewConsoleSnapshot = JSON.stringify(snapshot);
       logicNode.innerHTML = renderReviewConsoleSnapshot(snapshot);
     } catch (error) {
+      delete logicNode.dataset.reviewConsoleSnapshot;
       logicNode.innerHTML = renderReviewConsoleSnapshot({ ok: false, error: error.message });
+    }
+  };
+  const loadCrosscheckStopConditions = async () => {
+    const logicNode = rightWorkspace?.querySelector('[data-crosscheck-stop-conditions]');
+    const runNode = rightWorkspace?.querySelector('[data-crosscheck-run-posture]');
+    const gateNode = rightWorkspace?.querySelector('[data-crosscheck-irreversible-gate]');
+    const comparisonNode = rightWorkspace?.querySelector('[data-crosscheck-lane-comparison]');
+    if (!logicNode) return;
+    try {
+      const [reviewResponse, aegisResponse, relayResponse] = await Promise.all([
+        fetch(bridgeUrl('review-console'), { cache: 'no-store' }),
+        fetch(bridgeUrl('aegis-logic'), { cache: 'no-store' }),
+        fetch(bridgeUrl('relay-logic'), { cache: 'no-store' }),
+      ]);
+      const [reviewSnapshot, aegisSnapshot, relaySnapshot] = await Promise.all([
+        reviewResponse.json(),
+        aegisResponse.json(),
+        relayResponse.json(),
+      ]);
+      logicNode.innerHTML = renderCrosscheckStopConditionsSnapshot(reviewSnapshot, aegisSnapshot);
+      if (runNode) runNode.innerHTML = renderCrosscheckRunPostureSnapshot(reviewSnapshot, aegisSnapshot);
+      if (gateNode) gateNode.innerHTML = renderCrosscheckIrreversibleActionGateSnapshot(reviewSnapshot, aegisSnapshot);
+      if (comparisonNode) comparisonNode.innerHTML = renderCrosscheckLaneComparisonSnapshot(reviewSnapshot, relaySnapshot);
+    } catch (error) {
+      logicNode.innerHTML = renderCrosscheckStopConditionsSnapshot(
+        { ok: false, error: error.message },
+        { ok: false, error: error.message },
+      );
+      if (runNode) runNode.innerHTML = renderCrosscheckRunPostureSnapshot(
+        { ok: false, error: error.message },
+        { ok: false, error: error.message },
+      );
+      if (gateNode) gateNode.innerHTML = renderCrosscheckIrreversibleActionGateSnapshot(
+        { ok: false, error: error.message },
+        { ok: false, error: error.message },
+      );
+      if (comparisonNode) comparisonNode.innerHTML = renderCrosscheckLaneComparisonSnapshot(
+        { ok: false, error: error.message, queue: { items: [] } },
+        { ok: false, error: error.message, tiers: [] },
+      );
     }
   };
   const loadFederationHorizon = async () => {
@@ -6809,7 +8052,9 @@ body {
       ]);
       const providerBalanceSnapshot = await providerBalanceResponse.json();
       const modelsSnapshot = await modelsResponse.json();
-      logicNode.innerHTML = renderProviderBalanceSnapshot(providerBalanceSnapshot, modelsSnapshot);
+      const relayEvidenceSnapshot = await fetchBridgeSnapshot('relay-evidence', 'Relay evidence');
+      const relayLogicSnapshot = await fetchBridgeSnapshot('relay-logic', 'Relay logic');
+      logicNode.innerHTML = renderProviderBalanceSnapshot(providerBalanceSnapshot, modelsSnapshot, relayEvidenceSnapshot, relayLogicSnapshot);
     } catch (error) {
       logicNode.innerHTML = renderProviderBalanceSnapshot({ ok: false, error: error.message });
     }
@@ -6840,40 +8085,48 @@ body {
       logicNode.innerHTML = renderWorkflowDispatchStatusSnapshot({ ok: false, error: error.message });
     }
   };
-  const loadRoutineAuthority = async () => {
-    const logicNode = rightWorkspace?.querySelector('[data-routine-authority]');
-    if (!logicNode) return;
-    try {
-      const response = await fetch(bridgeUrl('routines'), { cache: 'no-store' });
-      const snapshot = await response.json();
-      logicNode.dataset.routineAuthoritySnapshot = JSON.stringify(snapshot);
-      logicNode.innerHTML = renderRoutineAuthoritySnapshot(snapshot);
-    } catch (error) {
-      delete logicNode.dataset.routineAuthoritySnapshot;
-      logicNode.innerHTML = renderRoutineAuthoritySnapshot({ ok: false, error: error.message });
-    }
-  };
   const loadSparkBacklog = async () => {
     const reviewNode = rightWorkspace?.querySelector('[data-backlog-review-console]');
     const runtimeNode = rightWorkspace?.querySelector('[data-backlog-goal-runtime]');
     const workflowNode = rightWorkspace?.querySelector('[data-backlog-workflow-dispatch-status]');
+    const primeNode = rightWorkspace?.querySelector('[data-backlog-prime-logic]');
+    const recommendationNode = rightWorkspace?.querySelector('[data-backlog-prime-recommendation]');
     try {
-      const [reviewResponse, runtimeResponse, workflowResponse] = await Promise.all([
+      const [reviewResponse, runtimeResponse, workflowResponse, primeResponse] = await Promise.all([
         reviewNode ? fetch(bridgeUrl('review-console'), { cache: 'no-store' }) : Promise.resolve(null),
         runtimeNode ? fetch(bridgeUrl('goal-runtime'), { cache: 'no-store' }) : Promise.resolve(null),
         workflowNode ? fetch(bridgeUrl('workflow-dispatch-status'), { cache: 'no-store' }) : Promise.resolve(null),
+        primeNode ? fetch(bridgeUrl('prime-logic'), { cache: 'no-store' }) : Promise.resolve(null),
       ]);
-      if (reviewNode && reviewResponse) reviewNode.innerHTML = renderBacklogReviewSnapshot(await reviewResponse.json());
+      const reviewSnapshot = reviewResponse ? await reviewResponse.json() : null;
+      const runtimeSnapshot = runtimeResponse ? await runtimeResponse.json() : null;
+      const workflowSnapshot = workflowResponse ? await workflowResponse.json() : null;
+      const primeSnapshot = primeResponse ? await primeResponse.json() : null;
+      if (reviewNode && reviewSnapshot) {
+        const prior = reviewNode.dataset.backlogUiState
+          ? JSON.parse(reviewNode.dataset.backlogUiState)
+          : readBacklogFilterState();
+        const nextState = normalizeBacklogFilterState(prior);
+        reviewSnapshot._ui_query = nextState.query;
+        reviewSnapshot._ui_state = nextState.state;
+        reviewSnapshot._ui_severity = nextState.severity;
+        reviewSnapshot._ui_response = nextState.response;
+        reviewSnapshot._ui_owner = nextState.owner;
+        reviewSnapshot._ui_blocked = nextState.blocked;
+        reviewNode.dataset.backlogUiState = JSON.stringify(nextState);
+        reviewNode.dataset.backlogReviewSnapshot = JSON.stringify(reviewSnapshot);
+        reviewNode.innerHTML = renderBacklogReviewSnapshot(reviewSnapshot);
+      }
       if (runtimeNode && runtimeResponse) {
-        const snapshot = await runtimeResponse.json();
-        runtimeNode.dataset.goalRuntimeSnapshot = JSON.stringify(snapshot);
-        runtimeNode.innerHTML = renderGoalRuntimeSnapshot(snapshot);
+        runtimeNode.dataset.goalRuntimeSnapshot = JSON.stringify(runtimeSnapshot);
+        runtimeNode.innerHTML = renderGoalRuntimeSnapshot(runtimeSnapshot);
       }
       if (workflowNode && workflowResponse) {
-        const snapshot = await workflowResponse.json();
-        workflowNode.dataset.workflowDispatchStatusSnapshot = JSON.stringify(snapshot);
-        workflowNode.innerHTML = renderWorkflowDispatchStatusSnapshot(snapshot);
+        workflowNode.dataset.workflowDispatchStatusSnapshot = JSON.stringify(workflowSnapshot);
+        workflowNode.innerHTML = renderWorkflowDispatchStatusSnapshot(workflowSnapshot);
       }
+      if (primeNode) primeNode.innerHTML = renderBacklogPrioritySnapshot(reviewSnapshot, runtimeSnapshot, primeSnapshot);
+      if (recommendationNode) recommendationNode.innerHTML = renderBacklogRecommendationSnapshot(reviewSnapshot, runtimeSnapshot, primeSnapshot);
     } catch (error) {
       if (reviewNode) reviewNode.innerHTML = renderBacklogReviewSnapshot({ ok: false, error: error.message });
       if (runtimeNode) {
@@ -6884,6 +8137,9 @@ body {
         delete workflowNode.dataset.workflowDispatchStatusSnapshot;
         workflowNode.innerHTML = renderWorkflowDispatchStatusSnapshot({ ok: false, error: error.message });
       }
+      if (primeNode) primeNode.innerHTML = renderBacklogPrioritySnapshot({ ok: false }, { ok: false }, { ok: false, error: error.message });
+      if (recommendationNode) recommendationNode.innerHTML = renderBacklogRecommendationSnapshot({ ok: false }, { ok: false }, { ok: false, error: error.message });
+      if (reviewNode) delete reviewNode.dataset.backlogReviewSnapshot;
     }
   };
   const loadSparkSkills = async () => {
@@ -6970,8 +8226,12 @@ body {
     try {
       const response = await fetch(bridgeUrl('session-close-archive-proof'), { cache: 'no-store' });
       const snapshot = await response.json();
+      sessionCloseArchiveProofSnapshotCache = snapshot;
+      logicNode.dataset.sessionCloseArchiveProofSnapshot = JSON.stringify(snapshot);
+      const query = logicNode.dataset.archiveSearchQuery || '';
       logicNode.innerHTML = renderSessionCloseArchiveProofSnapshot(snapshot);
     } catch (error) {
+      sessionCloseArchiveProofSnapshotCache = { ok: false, error: error.message };
       logicNode.innerHTML = renderSessionCloseArchiveProofSnapshot({ ok: false, error: error.message });
     }
   };
@@ -9076,6 +10336,81 @@ body {
     try { localStorage.setItem(quickReplyOrderKey, JSON.stringify(next)); } catch {}
     return next;
   };
+  const backlogFilterStateKey = 'meridian.backlog-filter.v1';
+  const normalizeBacklogFilterState = (value) => {
+    const source = value && typeof value === 'object' ? value : {};
+    const normalizeOption = (field, fallback = 'all') => {
+      const normalized = String(source[field] || '').trim().toLowerCase();
+      return normalized || fallback;
+    };
+    return {
+      query: String(source.query || '').trim(),
+      state: normalizeOption('state'),
+      severity: normalizeOption('severity'),
+      response: normalizeOption('response'),
+      owner: normalizeOption('owner'),
+      blocked: normalizeOption('blocked'),
+    };
+  };
+  const readBacklogFilterState = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(backlogFilterStateKey) || '{}');
+      if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
+        const projectState = stored[activeProjectContext()];
+        if (projectState && typeof projectState === 'object') return normalizeBacklogFilterState(projectState);
+      }
+    } catch {}
+    return normalizeBacklogFilterState({});
+  };
+  const writeBacklogFilterState = (value) => {
+    const next = normalizeBacklogFilterState(value);
+    let stored = {};
+    try {
+      const parsed = JSON.parse(localStorage.getItem(backlogFilterStateKey) || '{}');
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) stored = parsed;
+    } catch {}
+    stored[activeProjectContext()] = next;
+    try { localStorage.setItem(backlogFilterStateKey, JSON.stringify(stored)); } catch {}
+    return next;
+  };
+  const progressRetentionWindowKey = 'meridian.progress-retention.v1';
+  const progressRetentionWindowOptions = [
+    { value: '5m', label: '5 minutes', durationMs: 5 * 60 * 1000 },
+    { value: '30m', label: '30 minutes', durationMs: 30 * 60 * 1000 },
+    { value: '2h', label: '2 hours', durationMs: 2 * 60 * 60 * 1000 },
+    { value: '1d', label: '1 day', durationMs: 24 * 60 * 60 * 1000 },
+    { value: 'session', label: 'until reload', durationMs: null },
+  ];
+  const progressRetentionWindowOption = (value) => (
+    progressRetentionWindowOptions.find((option) => option.value === value) || progressRetentionWindowOptions[1]
+  );
+  const readProgressRetentionWindow = () => {
+    try {
+      const stored = String(localStorage.getItem(progressRetentionWindowKey) || '').trim().toLowerCase();
+      return progressRetentionWindowOption(stored).value;
+    } catch {
+      return '30m';
+    }
+  };
+  const writeProgressRetentionWindow = (value) => {
+    const next = progressRetentionWindowOption(String(value || '').trim().toLowerCase()).value;
+    try { localStorage.setItem(progressRetentionWindowKey, next); } catch {}
+    return next;
+  };
+  const renderProgressRetentionWindowLabel = (value = readProgressRetentionWindow()) => progressRetentionWindowOption(value).label;
+  const filterRetainedTimestampedItems = (items, timestampKey) => {
+    const durationMs = progressRetentionWindowOption(readProgressRetentionWindow()).durationMs;
+    if (durationMs == null) return { kept: Array.isArray(items) ? items : [], expired: [] };
+    const cutoff = Date.now() - durationMs;
+    const kept = [];
+    const expired = [];
+    (Array.isArray(items) ? items : []).forEach((item) => {
+      const timestamp = Date.parse(String(item?.[timestampKey] || ''));
+      if (Number.isFinite(timestamp) && timestamp < cutoff) expired.push(item);
+      else kept.push(item);
+    });
+    return { kept, expired };
+  };
   const wakeModeKey = 'meridian.wake-mode.v1';
   const wakeModeOptions = ['full wake', 'fast wake', 'silent wake'];
   const readWakeMode = () => {
@@ -9092,6 +10427,418 @@ body {
       : 'full wake';
     try { localStorage.setItem(wakeModeKey, next); } catch {}
     return next;
+  };
+  const instrumentationBandKey = 'meridian.instrumentation-band.v1';
+  const instrumentationBandCap = 6;
+  const instrumentationBandOptions = [
+    { id: 'beacon', label: 'Beacon' },
+    { id: 'relay', label: 'Relay' },
+    { id: 'aegis', label: 'Aegis' },
+    { id: 'compass', label: 'Compass' },
+    { id: 'queue', label: 'Queue' },
+    { id: 'risk', label: 'Risk tier' },
+    { id: 'build', label: 'Build' },
+    { id: 'clock', label: 'Clock' },
+  ];
+  const instrumentationBandDefaults = instrumentationBandOptions
+    .slice(0, instrumentationBandCap)
+    .map((option) => option.id);
+  const instrumentationBandNode = document.querySelector('[data-instrumentation-band]');
+  const normalizeInstrumentationBandSelection = (value) => {
+    const items = Array.isArray(value)
+      ? value
+      : String(value || '').split(/[\n,]+/);
+    const selected = [];
+    items.forEach((item) => {
+      const id = String(item || '').trim().toLowerCase();
+      if (!instrumentationBandOptions.some((option) => option.id === id) || selected.includes(id)) return;
+      if (selected.length < instrumentationBandCap) selected.push(id);
+    });
+    return selected.length ? selected : [...instrumentationBandDefaults];
+  };
+  const readInstrumentationBandSelection = () => {
+    try {
+      return normalizeInstrumentationBandSelection(JSON.parse(localStorage.getItem(instrumentationBandKey) || '[]'));
+    } catch {
+      return [...instrumentationBandDefaults];
+    }
+  };
+  const writeInstrumentationBandSelection = (value) => {
+    const next = normalizeInstrumentationBandSelection(value);
+    try { localStorage.setItem(instrumentationBandKey, JSON.stringify(next)); } catch {}
+    return next;
+  };
+  const instrumentationBandSnapshot = {
+    beacon: null,
+    relay: null,
+    review: null,
+    aegis: null,
+    build: null,
+  };
+  const instrumentationBandCellState = () => {
+    const heartbeats = Array.isArray(instrumentationBandSnapshot.beacon?.heartbeats) ? instrumentationBandSnapshot.beacon.heartbeats : [];
+    const beaconAlerts = heartbeats.filter((heartbeat) => relayText(heartbeat?.status) !== 'online').length;
+    const reviewQueue = instrumentationBandSnapshot.review?.queue || {};
+    const policy = instrumentationBandSnapshot.aegis?.cognition_policy || {};
+    const buildVersion = instrumentationBandSnapshot.build?.version
+      || instrumentationBandSnapshot.review?.version
+      || instrumentationBandSnapshot.aegis?.version
+      || instrumentationBandSnapshot.beacon?.version
+      || 'unknown';
+    const riskTier = policy.risk_tier ?? 'unknown';
+    const clockValue = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return {
+      beacon: {
+        label: 'Beacon',
+        value: instrumentationBandSnapshot.beacon?.ok ? `${heartbeats.length} lane${heartbeats.length === 1 ? '' : 's'}` : 'offline',
+        detail: instrumentationBandSnapshot.beacon?.ok ? `${beaconAlerts} alert${beaconAlerts === 1 ? '' : 's'} visible` : 'bridge snapshot unavailable',
+        status: instrumentationBandSnapshot.beacon?.ok ? (beaconAlerts ? 'degraded' : 'online') : 'offline',
+      },
+      relay: {
+        label: 'Relay',
+        value: instrumentationBandSnapshot.build?.ok ? 'online' : 'offline',
+        detail: instrumentationBandSnapshot.build?.ok
+          ? (instrumentationBandSnapshot.build?.capabilities?.visibleTranscriptContext ? 'visible context enabled' : 'visible context blocked')
+          : 'bridge health unavailable',
+        status: instrumentationBandSnapshot.build?.ok ? 'online' : 'offline',
+      },
+      aegis: {
+        label: 'Aegis',
+        value: instrumentationBandSnapshot.aegis?.ok ? relayText(policy.decision || 'monitor') : 'offline',
+        detail: instrumentationBandSnapshot.aegis?.ok
+          ? `${policy.requires_human_gate ? 'human gate' : 'no human gate'} | ${instrumentationBandSnapshot.aegis?.proof_trail?.blocking_count ?? 0} blockers`
+          : 'proof gate unavailable',
+        status: instrumentationBandSnapshot.aegis?.ok
+          ? ((instrumentationBandSnapshot.aegis?.proof_trail?.blocking_count ?? 0) > 0 || policy.requires_human_gate ? 'busy' : 'online')
+          : 'offline',
+      },
+      compass: {
+        label: 'Compass',
+        value: activeProjectContext(),
+        detail: 'active project frame',
+        status: 'online',
+      },
+      queue: {
+        label: 'Queue',
+        value: (reviewQueue.pending_gate_count ?? 0) > 0
+          ? 'blocked'
+          : ((reviewQueue.pending_count ?? 0) > 0 ? 'on' : 'off'),
+        detail: instrumentationBandSnapshot.review?.ok
+          ? `${reviewQueue.pending_count ?? 0} pending | ${reviewQueue.pending_gate_count ?? 0} gated`
+          : 'review queue unavailable',
+        status: instrumentationBandSnapshot.review?.ok
+          ? ((reviewQueue.pending_gate_count ?? 0) > 0 ? 'blocked' : ((reviewQueue.pending_count ?? 0) > 0 ? 'busy' : 'online'))
+          : 'offline',
+      },
+      risk: {
+        label: 'Risk tier',
+        value: riskTier === 'unknown' ? 'unknown' : `tier-${riskTier}`,
+        detail: instrumentationBandSnapshot.aegis?.ok
+          ? (policy.requires_proof ? 'proof required' : 'proof posture clear')
+          : 'risk posture unavailable',
+        status: instrumentationBandSnapshot.aegis?.ok ? (Number(riskTier) >= 3 ? 'busy' : 'online') : 'offline',
+      },
+      build: {
+        label: 'Build',
+        value: buildVersion,
+        detail: instrumentationBandSnapshot.build?.ok ? 'bridge health version' : 'last visible reviewed version',
+        status: instrumentationBandSnapshot.build?.ok ? 'online' : 'planned',
+      },
+      clock: {
+        label: 'Clock',
+        value: clockValue,
+        detail: Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(new Date()),
+        status: 'online',
+      },
+    };
+  };
+  const renderInstrumentationBand = () => {
+    if (!instrumentationBandNode) return;
+    const selected = readInstrumentationBandSelection();
+    const cellState = instrumentationBandCellState();
+    instrumentationBandNode.style.gridTemplateColumns = `repeat(${Math.max(1, selected.length)}, minmax(0, 1fr))`;
+    instrumentationBandNode.innerHTML = selected.map((id) => {
+      const cell = cellState[id];
+      return `
+        <div class="instrumentation-band-cell" data-status="${escapeHtml(cell.status)}" data-instrumentation-cell="${escapeHtml(id)}">
+          <div class="instrumentation-band-label">${escapeHtml(cell.label)}</div>
+          <div class="instrumentation-band-value">${escapeHtml(cell.value)}</div>
+          <div class="instrumentation-band-detail">${escapeHtml(cell.detail)}</div>
+        </div>
+      `;
+    }).join('');
+  };
+  const loadInstrumentationBand = async () => {
+    try {
+      const [beaconResponse, reviewResponse, aegisResponse, healthResponse] = await Promise.all([
+        fetch(bridgeUrl('beacon-liveness'), { cache: 'no-store' }),
+        fetch(bridgeUrl('review-console'), { cache: 'no-store' }),
+        fetch(bridgeUrl('aegis-logic'), { cache: 'no-store' }),
+        fetch(bridgeUrl('health'), { cache: 'no-store' }),
+      ]);
+      instrumentationBandSnapshot.beacon = await beaconResponse.json();
+      instrumentationBandSnapshot.review = await reviewResponse.json();
+      instrumentationBandSnapshot.aegis = await aegisResponse.json();
+      instrumentationBandSnapshot.build = await healthResponse.json();
+    } catch (error) {
+      instrumentationBandSnapshot.beacon = instrumentationBandSnapshot.beacon || { ok: false, error: error.message };
+      instrumentationBandSnapshot.review = instrumentationBandSnapshot.review || { ok: false, error: error.message };
+      instrumentationBandSnapshot.aegis = instrumentationBandSnapshot.aegis || { ok: false, error: error.message };
+      instrumentationBandSnapshot.build = instrumentationBandSnapshot.build || { ok: false, error: error.message };
+    }
+    renderInstrumentationBand();
+  };
+  const renderInstrumentationBandPreview = (selected = readInstrumentationBandSelection()) => relayGrid([
+    ['visible cells', selected.map((id) => instrumentationBandOptions.find((option) => option.id === id)?.label || id).join(' | ') || 'none'],
+    ['fixed cap', String(instrumentationBandCap)],
+    ['storage key', instrumentationBandKey],
+    ['surface', 'bottom instrumentation band'],
+    ['layout', 'stable fixed-cap grid; hidden cells remain available in Settings'],
+  ]);
+  const renderInstrumentationBandSurface = () => {
+    const selected = readInstrumentationBandSelection();
+    return [
+      relaySection('Bottom band visibility', `
+        <div class="relay-models-handoff" aria-label="Bottom band cell visibility">
+          ${instrumentationBandOptions.map((option) => `
+            <label class="relay-models-handoff">
+              <input type="checkbox" data-instrumentation-band-toggle="${escapeHtml(option.id)}" ${selected.includes(option.id) ? 'checked' : ''}>
+              <span>${escapeHtml(option.label)}</span>
+            </label>
+          `).join('')}
+        </div>
+        <div data-instrumentation-band-preview>${renderInstrumentationBandPreview(selected)}</div>
+      `, true),
+      relaySection('Bottom band boundary', relayList([
+        'Settings chooses which reviewed instrumentation cells stay visible in the live bottom band.',
+        'Selection is capped so the layout stays stable instead of widening as more cells are enabled.',
+        'This is UI-local visibility only; no backend queue, route, review, proof, or settings mutation is invoked.',
+      ]), false),
+    ];
+  };
+  const initializeInstrumentationBandSurface = () => {
+    const root = rightWorkspace?.querySelector('[data-instrumentation-band-surface]');
+    if (!root) return;
+    const refresh = (selected = readInstrumentationBandSelection()) => {
+      const preview = root.querySelector('[data-instrumentation-band-preview]');
+      if (preview) preview.innerHTML = renderInstrumentationBandPreview(selected);
+      const atCap = selected.length >= instrumentationBandCap;
+      root.querySelectorAll('[data-instrumentation-band-toggle]').forEach((input) => {
+        const checked = selected.includes(input.dataset.instrumentationBandToggle);
+        input.checked = checked;
+        input.disabled = !checked && atCap;
+      });
+    };
+    root.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!target?.matches?.('[data-instrumentation-band-toggle]')) return;
+      const selected = readInstrumentationBandSelection();
+      const id = target.dataset.instrumentationBandToggle;
+      const next = target.checked
+        ? [...selected, id]
+        : selected.filter((item) => item !== id);
+      const normalized = writeInstrumentationBandSelection(next);
+      refresh(normalized);
+      renderInstrumentationBand();
+    });
+    refresh();
+  };
+  const sessionBandSideKey = 'meridian.session-band-side.v1';
+  const sessionBandSideOptions = ['right', 'left'];
+  const readSessionBandSide = () => {
+    try {
+      const stored = String(localStorage.getItem(sessionBandSideKey) || '').trim().toLowerCase();
+      return sessionBandSideOptions.includes(stored) ? stored : 'right';
+    } catch {
+      return 'right';
+    }
+  };
+  const writeSessionBandSide = (value) => {
+    const next = sessionBandSideOptions.includes(String(value || '').trim().toLowerCase())
+      ? String(value || '').trim().toLowerCase()
+      : 'right';
+    try { localStorage.setItem(sessionBandSideKey, next); } catch {}
+    return next;
+  };
+  const applySessionBandSide = (value = readSessionBandSide()) => {
+    if (!screen) return value;
+    const next = writeSessionBandSide(value);
+    screen.dataset.sessionBandSide = next;
+    return next;
+  };
+  const renderSessionBandSidePreview = (value = readSessionBandSide()) => relayGrid([
+    ['band side', value],
+    ['storage key', sessionBandSideKey],
+    ['visible movement', value === 'left' ? 'User/Settings session band anchored on the left side' : 'User/Settings session band anchored on the right side'],
+    ['Prime panel', value === 'left' ? 'mirrors to the opposite side to keep the pair aligned' : 'mirrors to the opposite side to keep the pair aligned'],
+    ['scope', 'UI-local lane/session band placement only'],
+  ]);
+  const renderSessionBandSideSurface = () => {
+    const selected = readSessionBandSide();
+    return [
+      relaySection('Lane band side', `
+        <div class="relay-models-handoff" aria-label="Lane band side">
+          <label>Session band side
+            <select data-session-band-side>
+              ${sessionBandSideOptions.map((option) => `<option value="${escapeHtml(option)}" ${selected === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+        <div data-session-band-side-preview>${renderSessionBandSidePreview(selected)}</div>
+      `, true),
+      relaySection('Lane band boundary', relayList([
+        'This changes only the visible placement of the existing Prime/User session band substrate.',
+        'No queue, lane ownership, backend route authority, prompt send, archive control, or settings mutation is invoked.',
+        'The paired session windows move as a mirrored band so the layout shifts sides without panel drift.',
+      ]), false),
+    ];
+  };
+  const initializeSessionBandSideSurface = () => {
+    const root = rightWorkspace?.querySelector('[data-session-band-side-surface]');
+    if (!root) return;
+    const refresh = (value = readSessionBandSide()) => {
+      const preview = root.querySelector('[data-session-band-side-preview]');
+      if (preview) preview.innerHTML = renderSessionBandSidePreview(value);
+      const select = root.querySelector('[data-session-band-side]');
+      if (select) select.value = value;
+    };
+    root.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!target?.matches?.('[data-session-band-side]')) return;
+      const next = applySessionBandSide(target.value);
+      refresh(next);
+    });
+    refresh(applySessionBandSide());
+  };
+  const sessionWindowDefaultsKey = 'meridian.session-window-defaults.v1';
+  const sessionWindowDefaultRoles = ['prime', 'user'];
+  const sessionWindowSizeOptions = ['compact', 'standard', 'wide'];
+  const defaultSessionWindowDefaultsState = () => ({
+    prime: { hidden: false, collapsed: false, pinned: false, size: 'standard' },
+    user: { hidden: false, collapsed: false, pinned: false, size: 'standard' },
+  });
+  const normalizeSessionWindowDefaultsState = (value) => {
+    const defaults = defaultSessionWindowDefaultsState();
+    sessionWindowDefaultRoles.forEach((role) => {
+      const raw = value?.[role] || {};
+      defaults[role] = {
+        hidden: Boolean(raw.hidden),
+        collapsed: Boolean(raw.collapsed),
+        pinned: Boolean(raw.pinned),
+        size: sessionWindowSizeOptions.includes(String(raw.size || '').trim().toLowerCase())
+          ? String(raw.size).trim().toLowerCase()
+          : 'standard',
+      };
+    });
+    return defaults;
+  };
+  const readSessionWindowDefaultsState = () => {
+    try {
+      return normalizeSessionWindowDefaultsState(JSON.parse(localStorage.getItem(sessionWindowDefaultsKey) || '{}'));
+    } catch {
+      return defaultSessionWindowDefaultsState();
+    }
+  };
+  const writeSessionWindowDefaultsState = (state) => {
+    const next = normalizeSessionWindowDefaultsState(state);
+    try { localStorage.setItem(sessionWindowDefaultsKey, JSON.stringify(next)); } catch {}
+    return next;
+  };
+  const sessionWindowRole = (windowEl) => (
+    windowEl?.classList.contains('session-window-right') ? 'user' : 'prime'
+  );
+  const applySessionWindowDefaults = (state = readSessionWindowDefaultsState()) => {
+    document.querySelectorAll('.session-window').forEach((windowEl) => {
+      const role = sessionWindowRole(windowEl);
+      const config = state[role] || defaultSessionWindowDefaultsState()[role];
+      windowEl.dataset.sessionHidden = config.hidden ? 'true' : 'false';
+      windowEl.dataset.sessionCollapsed = config.collapsed ? 'true' : 'false';
+      windowEl.dataset.sessionPinned = config.pinned ? 'true' : 'false';
+      windowEl.dataset.sessionSize = config.size || 'standard';
+    });
+    return state;
+  };
+  const renderSessionWindowDefaultsPreview = (state = readSessionWindowDefaultsState()) => relayGrid([
+    ['Prime defaults', `${state.prime.hidden ? 'hidden' : 'visible'} | ${state.prime.collapsed ? 'collapsed' : 'expanded'} | ${state.prime.pinned ? 'pinned' : 'unpinned'} | ${state.prime.size}`],
+    ['User defaults', `${state.user.hidden ? 'hidden' : 'visible'} | ${state.user.collapsed ? 'collapsed' : 'expanded'} | ${state.user.pinned ? 'pinned' : 'unpinned'} | ${state.user.size}`],
+    ['Role comparison', JSON.stringify(state.prime) === JSON.stringify(state.user) ? 'Prime and User defaults currently match' : 'Prime and User defaults diverge'],
+    ['Exposed defaults', 'hidden | collapsed | pinned | size'],
+    ['Unavailable defaults', 'archive | transfer | rerun/restart'],
+    ['Archive default', 'not exposed; backend-owned'],
+    ['Transfer default', 'not exposed; backend-owned'],
+    ['Rerun/restart default', 'not exposed; backend-owned'],
+    ['storage key', sessionWindowDefaultsKey],
+    ['visible scope', 'existing Prime/User session windows only'],
+    ['authority boundary', 'archive, transfer, rerun, and close/write-through authority remain backend-owned'],
+  ]);
+  const sessionWindowDefaultsControls = (role, state) => `
+    <div class="relay-models-handoff" aria-label="${escapeHtml(role)} session window defaults">
+      <label class="relay-models-handoff">
+        <input type="checkbox" data-session-window-default="${escapeHtml(role)}:hidden" ${state[role].hidden ? 'checked' : ''}>
+        <span>${escapeHtml(role)} hidden</span>
+      </label>
+      <label class="relay-models-handoff">
+        <input type="checkbox" data-session-window-default="${escapeHtml(role)}:collapsed" ${state[role].collapsed ? 'checked' : ''}>
+        <span>${escapeHtml(role)} collapsed</span>
+      </label>
+      <label class="relay-models-handoff">
+        <input type="checkbox" data-session-window-default="${escapeHtml(role)}:pinned" ${state[role].pinned ? 'checked' : ''}>
+        <span>${escapeHtml(role)} pinned</span>
+      </label>
+      <label>size
+        <select data-session-window-size="${escapeHtml(role)}">
+          ${sessionWindowSizeOptions.map((option) => `<option value="${escapeHtml(option)}" ${state[role].size === option ? 'selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+        </select>
+      </label>
+    </div>`;
+  const renderSessionWindowDefaultsSurface = () => {
+    const state = readSessionWindowDefaultsState();
+    return [
+      relaySection('Session window defaults', `
+        ${sessionWindowDefaultsControls('prime', state)}
+        ${sessionWindowDefaultsControls('user', state)}
+        <div data-session-window-defaults-preview>${renderSessionWindowDefaultsPreview(state)}</div>
+      `, true),
+      relaySection('Session window defaults boundary', relayList([
+        'These defaults apply only to the existing Prime and User session windows in the current UI.',
+        'They control visible hidden/collapsed/pinned/size posture only and do not create a card system.',
+        'Archive, transfer, rerun, and close/write-through behavior remain backend-owned and are not implied by these defaults.',
+      ]), false),
+    ];
+  };
+  const initializeSessionWindowDefaultsSurface = () => {
+    const root = rightWorkspace?.querySelector('[data-session-window-defaults-surface]');
+    if (!root) return;
+    const refresh = (state = readSessionWindowDefaultsState()) => {
+      const preview = root.querySelector('[data-session-window-defaults-preview]');
+      if (preview) preview.innerHTML = renderSessionWindowDefaultsPreview(state);
+      root.querySelectorAll('[data-session-window-default]').forEach((input) => {
+        const [role, key] = String(input.dataset.sessionWindowDefault || '').split(':');
+        input.checked = Boolean(state?.[role]?.[key]);
+      });
+      root.querySelectorAll('[data-session-window-size]').forEach((select) => {
+        const role = select.dataset.sessionWindowSize;
+        if (state?.[role]) select.value = state[role].size;
+      });
+    };
+    const update = () => {
+      const state = readSessionWindowDefaultsState();
+      root.querySelectorAll('[data-session-window-default]').forEach((input) => {
+        const [role, key] = String(input.dataset.sessionWindowDefault || '').split(':');
+        if (state?.[role]) state[role][key] = input.checked;
+      });
+      root.querySelectorAll('[data-session-window-size]').forEach((select) => {
+        const role = select.dataset.sessionWindowSize;
+        if (state?.[role]) state[role].size = select.value;
+      });
+      const next = writeSessionWindowDefaultsState(state);
+      applySessionWindowDefaults(next);
+      refresh(next);
+    };
+    root.addEventListener('change', (event) => {
+      if (event.target?.matches?.('[data-session-window-default], [data-session-window-size]')) update();
+    });
+    refresh(applySessionWindowDefaults());
   };
   const renderProjectFocusSnapshot = () => [
     relaySection('Project focus authority', relayGrid([
@@ -9266,6 +11013,62 @@ body {
     });
     refresh();
   };
+  const renderProgressRetentionPreview = () => relayGrid([
+    ['retention window', renderProgressRetentionWindowLabel()],
+    ['storage key', progressRetentionWindowKey],
+    ['scope', 'UI-local timestamped progress/proof metadata'],
+    ['applies to', 'recent model calls and routine history'],
+    ['source data', 'older rows are hidden from current UI surfaces only; backend snapshots are unchanged'],
+  ]);
+  const renderProgressRetentionSurface = () => {
+    const selected = readProgressRetentionWindow();
+    return [
+      relaySection('Progress retention window', `
+        <div class="relay-models-handoff" aria-label="Progress retention window">
+          <label>Visible retention
+            <select data-progress-retention-window>
+              ${progressRetentionWindowOptions.map((option) => `<option value="${escapeHtml(option.value)}" ${selected === option.value ? 'selected' : ''}>${escapeHtml(option.label)}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+        <div data-progress-retention-preview>${renderProgressRetentionPreview()}</div>
+      `, true),
+      relaySection('Progress retention boundary', relayList([
+        'This setting expires older timestamped progress/proof rows from the visible UI only.',
+        'Changing the window can reveal or hide older rows again because backend snapshots and source data are not deleted.',
+        'No backend progress route, prompt send, result recovery, provider call, archive/delete action, or settings mutation is invoked.',
+      ]), false),
+    ];
+  };
+  const initializeProgressRetentionSurface = () => {
+    const root = rightWorkspace?.querySelector('[data-progress-retention-surface]');
+    if (!root) return;
+    const refresh = () => {
+      const preview = root.querySelector('[data-progress-retention-preview]');
+      if (preview) preview.innerHTML = renderProgressRetentionPreview();
+      const filterPreview = rightWorkspace?.querySelector('[data-filter-preview]');
+      if (filterPreview) filterPreview.innerHTML = renderContextFilterPreview(readContextFilterState());
+      const modelsNode = rightWorkspace?.querySelector('[data-spark-models]');
+      if (modelsNode?.dataset.modelsSnapshot) {
+        try {
+          modelsNode.innerHTML = renderSparkModelsSnapshot(JSON.parse(modelsNode.dataset.modelsSnapshot));
+        } catch {}
+      }
+      Array.from(document.querySelectorAll('[data-workflow-dispatch-status]')).forEach((node) => {
+        if (!node.dataset.workflowDispatchStatusSnapshot) return;
+        try {
+          node.innerHTML = renderWorkflowDispatchStatusSnapshot(JSON.parse(node.dataset.workflowDispatchStatusSnapshot));
+        } catch {}
+      });
+    };
+    root.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!target?.matches?.('[data-progress-retention-window]')) return;
+      writeProgressRetentionWindow(target.value);
+      refresh();
+    });
+    refresh();
+  };
   const renderProgressRedirectDefaultsPreview = (state) => relayGrid([
     ['storage key', progressRedirectDefaultsKey],
     ['scope', 'UI-local routing metadata preview'],
@@ -9273,6 +11076,7 @@ body {
     ['review result route', state['review result']],
     ['human gate route', state['human gate']],
     ['system health route', state['system health']],
+    ['progress retention window', renderProgressRetentionWindowLabel()],
   ]);
   const renderProgressRedirectDefaultsSurface = () => {
     const state = readProgressRedirectDefaults();
@@ -9492,13 +11296,6 @@ body {
           node.innerHTML = renderWorkflowDispatchStatusSnapshot(JSON.parse(node.dataset.workflowDispatchStatusSnapshot));
         } catch {}
       });
-      const routineNodes = Array.from(document.querySelectorAll('[data-routine-authority]'));
-      routineNodes.forEach((node) => {
-        if (!node.dataset.routineAuthoritySnapshot) return;
-        try {
-          node.innerHTML = renderRoutineAuthoritySnapshot(JSON.parse(node.dataset.routineAuthoritySnapshot));
-        } catch {}
-      });
     };
     root.addEventListener('change', (event) => {
       const target = event.target;
@@ -9638,6 +11435,7 @@ body {
       ['review result route default', readProgressRedirectDefaults()['review result']],
       ['human gate route default', readProgressRedirectDefaults()['human gate']],
       ['system health route default', readProgressRedirectDefaults()['system health']],
+      ['progress retention window', renderProgressRetentionWindowLabel()],
       ['Prime risk override', riskTierScopeValue(readRiskTierOverrides(), `prime.${activeProjectContext()}`)],
       ['User risk override', riskTierScopeValue(readRiskTierOverrides(), `user.${selectedUserSessionId() || 'unselected'}`)],
       ['quiet mode', readQuietMode() ? 'enabled for routine surfaces' : 'disabled'],
@@ -9742,13 +11540,17 @@ body {
       sections.push(`<div data-focus-mode-surface>${renderFocusModeSurface().join('')}</div>`);
       sections.push(`<div data-quiet-mode-surface>${renderQuietModeSurface().join('')}</div>`);
       sections.push(`<div data-wake-mode-surface>${renderWakeModeSurface().join('')}</div>`);
+      sections.push(`<div data-session-band-side-surface>${renderSessionBandSideSurface().join('')}</div>`);
+      sections.push(`<div data-session-window-defaults-surface>${renderSessionWindowDefaultsSurface().join('')}</div>`);
       sections.push(`<div data-risk-tier-override-surface>${renderRiskTierOverrideSurface().join('')}</div>`);
       sections.push(`<div data-quick-reply-order-surface>${renderQuickReplyOrderSurface().join('')}</div>`);
       sections.push(`<div data-role-model-overrides-surface>${renderRoleModelOverridesSurface().join('')}</div>`);
       sections.push(`<div data-diagnostic-default-surface>${renderDiagnosticDefaultSurface().join('')}</div>`);
       sections.push(`<div data-progress-default-surface>${renderProgressFilterDefaultsSurface().join('')}</div>`);
       sections.push(`<div data-progress-state-surface>${renderProgressStateDefaultsSurface().join('')}</div>`);
+      sections.push(`<div data-progress-retention-surface>${renderProgressRetentionSurface().join('')}</div>`);
       sections.push(`<div data-progress-redirect-surface>${renderProgressRedirectDefaultsSurface().join('')}</div>`);
+      sections.push(`<div data-instrumentation-band-surface>${renderInstrumentationBandSurface().join('')}</div>`);
     }
     if (filterSelected) {
       sections.push(`<div data-context-filter-surface>${renderContextFilterSurface().join('')}</div>`);
@@ -9764,13 +11566,17 @@ body {
       initializeFocusModeSurface();
       initializeQuietModeSurface();
       initializeWakeModeSurface();
+      initializeSessionBandSideSurface();
+      initializeSessionWindowDefaultsSurface();
       initializeRiskTierOverrideSurface();
       initializeQuickReplyOrderSurface();
       initializeRoleModelOverridesSurface();
       initializeDiagnosticDefaultSurface();
       initializeProgressFilterDefaultsSurface();
       initializeProgressStateDefaultsSurface();
+      initializeProgressRetentionSurface();
       initializeProgressRedirectDefaultsSurface();
+      initializeInstrumentationBandSurface();
     }
     if (rendered && filterSelected) initializeContextFilterSurface();
     return rendered;
@@ -10177,6 +11983,21 @@ body {
               'Evidence refs are links/ids, not pasted logs; raw detail is fetched only on demand.',
               'Findings are visible as safe metadata until an explicit crosscheck execution backend exists.',
             ]), true)}
+            ${relaySection('Open evidence', `
+              <div class="relay-models-handoff" aria-label="Crosscheck evidence handoff">
+                <button type="button" data-crosscheck-handoff="aegis">Open Aegis proofs</button>
+                <button type="button" data-crosscheck-handoff="archive">Open Archive command preview</button>
+              </div>
+              ${relayList([
+                'Open Aegis proofs for display-safe proof summaries and blocking evidence refs already exposed by `/bridge/aegis-logic`.',
+                'Open Archive command preview for display-safe close/archive command-plan summaries already exposed by `/bridge/session-close-archive-proof`.',
+                'This handoff only changes the visible surface; it does not approve findings, rerun checks, apply console responses, execute commands, or inject raw logs into Prime context.',
+              ])}
+            `, false)}
+            <div data-crosscheck-stop-conditions>${relaySection('Stop condition alert', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-crosscheck-run-posture>${relaySection('Crosscheck run posture', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-crosscheck-irreversible-gate>${relaySection('Irreversible action gate', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-crosscheck-lane-comparison>${relaySection('Model lane disagreement', relayGrid([['status', 'loading backend snapshot']]))}</div>
             <div data-review-console>${relaySection('Review Console source', relayGrid([['status', 'loading backend snapshot']]))}</div>
             <div data-aegis-logic>${relaySection('Aegis logic source', relayGrid([['status', 'loading backend snapshot']]))}</div>
           </div>
@@ -10189,6 +12010,7 @@ body {
         state[section.dataset.relaySection] = section.open;
         localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
       }, true);
+      loadCrosscheckStopConditions();
       loadReviewConsole();
       loadAegisLogic();
       return true;
@@ -10213,11 +12035,14 @@ body {
             ${relaySection('Backlog boundary', relayList([
               'Backlog shows typed task posture from Review Console, Goal Runtime, and Workflow Dispatch snapshots.',
               'Backlog candidate list rows are real Review Console queue items displayed in the active Compass project frame.',
+              'Priority order is advisory only: it joins Review Console queue order with Goal Runtime and Prime context to explain why the current item is next.',
               'No fake backlog items are created; empty or missing backend queues render as empty or unavailable state.',
               'This surface does not create tasks, assign workers, mutate queues, start routines, send prompts, recover raw result bodies, or ingest raw worker session history.',
               'Orchestrator intake stays limited to compact typed session state, small worker summaries, and evidence refs.',
             ]), true)}
             <div data-backlog-review-console>${relaySection('Backlog review source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-backlog-prime-logic>${relaySection('Backlog priority source', relayGrid([['status', 'loading backend snapshot']]))}</div>
+            <div data-backlog-prime-recommendation>${relaySection('Backlog recommendation source', relayGrid([['status', 'loading backend snapshot']]))}</div>
             <div data-backlog-goal-runtime>${relaySection('Backlog runtime source', relayGrid([['status', 'loading backend snapshot']]))}</div>
             <div data-backlog-workflow-dispatch-status>${relaySection('Backlog workflow source', relayGrid([['status', 'loading backend snapshot']]))}</div>
           </div>
@@ -10342,10 +12167,9 @@ body {
             ${relaySection('Public automation boundary', relayList([
               'Public builds require explicit local permissions, configured accounts, and reviewed scheduler authority before recurring automation can run.',
               'Missing permission or account setup is shown as setup guidance only; this surface does not create automations, mutate schedules, run routines, request credentials, or approve itself.',
-              'Routine definitions, non-executable run plans, and Prime review posture can be displayed from reviewed routine authority without exposing executable controls.',
+              'Routine results remain display-only typed state until a reviewed routine automation backend exists.',
             ]), false)}
             <div data-goal-runtime>${relaySection('Goal runtime source', relayGrid([['status', 'loading backend snapshot']]))}</div>
-            <div data-routine-authority>${relaySection('Routine authority source', relayGrid([['status', 'loading backend snapshot']]))}</div>
             <div data-workflow-dispatch-status>${relaySection('Workflow dispatch source', relayGrid([['status', 'loading backend snapshot']]))}</div>
           </div>
         </div>
@@ -10358,7 +12182,6 @@ body {
         localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
       }, true);
       loadGoalRuntime();
-      loadRoutineAuthority();
       loadWorkflowDispatchStatus();
       return true;
     } catch {
@@ -10545,6 +12368,17 @@ body {
         state[section.dataset.relaySection] = section.open;
         localStorage.setItem(relaySectionStateKey, JSON.stringify(state));
       }, true);
+      rightWorkspace.querySelector('[data-session-close-archive-proof]')?.addEventListener('input', (event) => {
+        const target = event.target;
+        if (!target?.matches?.('[data-archive-search]')) return;
+        const logicNode = rightWorkspace?.querySelector('[data-session-close-archive-proof]');
+        if (!logicNode?.dataset.sessionCloseArchiveProofSnapshot) return;
+        logicNode.dataset.archiveSearchQuery = target.value || '';
+        logicNode.innerHTML = renderSessionCloseArchiveProofSnapshot(
+          JSON.parse(logicNode.dataset.sessionCloseArchiveProofSnapshot),
+        );
+        logicNode.querySelector('[data-archive-search]')?.focus({ preventScroll: true });
+      });
       loadSessionCloseArchiveProof();
       return true;
     } catch {
@@ -10596,12 +12430,13 @@ body {
   };
   const refreshProjectScopedSurfaces = () => {
     refreshProjectFocusSurface();
+    renderInstrumentationBand();
     if (rightWorkspace?.querySelector('[data-review-console]')) loadReviewConsole();
+    if (rightWorkspace?.querySelector('[data-crosscheck-stop-conditions]')) loadCrosscheckStopConditions();
     if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();
     if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
-    if (rightWorkspace?.querySelector('[data-routine-authority]')) loadRoutineAuthority();
     if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
-    if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();
+    if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-prime-logic], [data-backlog-prime-recommendation], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();
     if (rightWorkspace?.querySelector('[data-spark-models]')) loadSparkModels();
     if (rightWorkspace?.querySelector('[data-spark-skills]')) {
       const logicNode = rightWorkspace.querySelector('[data-spark-skills]');
@@ -10611,6 +12446,7 @@ body {
     }
   };
   const refreshRelayPanel = () => {
+    loadInstrumentationBand();
     if (rightWorkspace?.querySelector('.relay-models-surface')) renderRelayBridgeStatus();
     if (rightWorkspace?.querySelector('[data-relay-logic]')) loadRelayLogic();
     if (rightWorkspace?.querySelector('[data-relay-evidence]')) loadRelayEvidence();
@@ -10619,10 +12455,10 @@ body {
     if (rightWorkspace?.querySelector('[data-vulcan-logic]')) loadVulcanLogic();
     if (rightWorkspace?.querySelector('[data-beacon-liveness]')) loadBeaconLiveness();
     if (rightWorkspace?.querySelector('[data-review-console]')) loadReviewConsole();
+    if (rightWorkspace?.querySelector('[data-crosscheck-stop-conditions]')) loadCrosscheckStopConditions();
     if (rightWorkspace?.querySelector('[data-federation-horizon]')) loadFederationHorizon();
     if (rightWorkspace?.querySelector('[data-provider-balance]')) loadProviderBalance();
     if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();
-    if (rightWorkspace?.querySelector('[data-routine-authority]')) loadRoutineAuthority();
     if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();
     if (rightWorkspace?.querySelector('[data-echo-memory]')) loadEchoMemory();
     if (rightWorkspace?.querySelector('[data-atlas-retrieval]')) loadAtlasRetrieval();
@@ -10639,6 +12475,10 @@ body {
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) refreshRelayPanel();
   });
+  applySessionBandSide();
+  applySessionWindowDefaults();
+  loadInstrumentationBand();
+  window.setInterval(renderInstrumentationBand, 1000);
   const openHarness = ({ force = false } = {}) => {
     if (force) harnessDisabledUntil = 0;
     if (!force && Date.now() < harnessDisabledUntil) return;
@@ -10922,14 +12762,107 @@ body {
     openSpark();
   };
   const sparkButtonByLabel = (label) => buttons.find((button) => button.getAttribute('aria-label') === label);
+  const harnessButtonByName = (name) => Array.from(document.querySelectorAll('.harness-dock-button'))
+    .find((button) => button.dataset.harness === name);
   rightWorkspace?.addEventListener('click', (event) => {
     const handoff = event.target.closest?.('[data-balance-handoff]');
-    if (!handoff) return;
-    const targetLabel = handoff.dataset.balanceHandoff === 'models' ? 'Models' : 'Settings';
-    const targetButton = sparkButtonByLabel(targetLabel);
+    const crosscheckHandoff = event.target.closest?.('[data-crosscheck-handoff]');
+    const archiveHandoff = event.target.closest?.('[data-archive-handoff]');
+    const targetButton = handoff
+      ? sparkButtonByLabel(handoff.dataset.balanceHandoff === 'models' ? 'Models' : 'Settings')
+      : archiveHandoff
+        ? sparkButtonByLabel(archiveHandoff.dataset.archiveHandoff === 'echo' ? 'Echo' : 'Atlas')
+      : (crosscheckHandoff?.dataset.crosscheckHandoff === 'archive'
+        ? sparkButtonByLabel('Archive')
+        : (crosscheckHandoff?.dataset.crosscheckHandoff === 'aegis'
+          ? harnessButtonByName('Aegis')
+          : null));
     if (!targetButton) return;
     event.preventDefault();
-    activateSparkButton(targetButton);
+    if (targetButton.classList.contains('harness-dock-button')) activateHarnessButton(targetButton);
+    else activateSparkButton(targetButton);
+  });
+  rightWorkspace?.addEventListener('input', (event) => {
+    const target = event.target;
+    if (!target?.matches?.('[data-backlog-search]')) return;
+    const reviewNode = rightWorkspace.querySelector('[data-backlog-review-console]');
+    if (!reviewNode?.dataset.backlogReviewSnapshot) return;
+    try {
+      const snapshot = JSON.parse(reviewNode.dataset.backlogReviewSnapshot);
+      snapshot._ui_query = target.value || '';
+      const nextState = writeBacklogFilterState({
+        query: snapshot._ui_query,
+        state: snapshot._ui_state || 'all',
+        severity: snapshot._ui_severity || 'all',
+        response: snapshot._ui_response || 'all',
+        owner: snapshot._ui_owner || 'all',
+        blocked: snapshot._ui_blocked || 'all',
+      });
+      reviewNode.dataset.backlogUiState = JSON.stringify(nextState);
+      reviewNode.innerHTML = renderBacklogReviewSnapshot(snapshot);
+      reviewNode.querySelector('[data-backlog-search]')?.focus({ preventScroll: true });
+    } catch {}
+  });
+  rightWorkspace?.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!target?.matches?.('[data-backlog-state-filter], [data-backlog-severity-filter], [data-backlog-response-filter], [data-backlog-owner-filter], [data-backlog-blocked-filter]')) return;
+    const reviewNode = rightWorkspace.querySelector('[data-backlog-review-console]');
+    if (!reviewNode?.dataset.backlogReviewSnapshot) return;
+    try {
+      const snapshot = JSON.parse(reviewNode.dataset.backlogReviewSnapshot);
+      const search = reviewNode.querySelector('[data-backlog-search]')?.value || snapshot._ui_query || '';
+      snapshot._ui_query = search;
+      snapshot._ui_state = reviewNode.querySelector('[data-backlog-state-filter]')?.value || 'all';
+      snapshot._ui_severity = reviewNode.querySelector('[data-backlog-severity-filter]')?.value || 'all';
+      snapshot._ui_response = reviewNode.querySelector('[data-backlog-response-filter]')?.value || 'all';
+      snapshot._ui_owner = reviewNode.querySelector('[data-backlog-owner-filter]')?.value || 'all';
+      snapshot._ui_blocked = reviewNode.querySelector('[data-backlog-blocked-filter]')?.value || 'all';
+      const nextState = writeBacklogFilterState({
+        query: snapshot._ui_query,
+        state: snapshot._ui_state,
+        severity: snapshot._ui_severity,
+        response: snapshot._ui_response,
+        owner: snapshot._ui_owner,
+        blocked: snapshot._ui_blocked,
+      });
+      reviewNode.dataset.backlogUiState = JSON.stringify(nextState);
+      reviewNode.innerHTML = renderBacklogReviewSnapshot(snapshot);
+    } catch {}
+  });
+  rightWorkspace?.addEventListener('input', (event) => {
+    const target = event.target;
+    if (!target?.matches?.('[data-review-console-search]')) return;
+    const logicNode = rightWorkspace.querySelector('[data-review-console]');
+    if (!logicNode?.dataset.reviewConsoleSnapshot) return;
+    try {
+      const snapshot = JSON.parse(logicNode.dataset.reviewConsoleSnapshot);
+      snapshot._ui_query = target.value || '';
+      logicNode.dataset.reviewConsoleUiState = JSON.stringify({
+        query: snapshot._ui_query,
+        severity: snapshot._ui_severity || 'all',
+        owner: snapshot._ui_owner || 'all',
+      });
+      logicNode.innerHTML = renderReviewConsoleSnapshot(snapshot);
+      logicNode.querySelector('[data-review-console-search]')?.focus({ preventScroll: true });
+    } catch {}
+  });
+  rightWorkspace?.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!target?.matches?.('[data-review-console-severity-filter], [data-review-console-owner-filter]')) return;
+    const logicNode = rightWorkspace.querySelector('[data-review-console]');
+    if (!logicNode?.dataset.reviewConsoleSnapshot) return;
+    try {
+      const snapshot = JSON.parse(logicNode.dataset.reviewConsoleSnapshot);
+      snapshot._ui_query = logicNode.querySelector('[data-review-console-search]')?.value || snapshot._ui_query || '';
+      snapshot._ui_severity = logicNode.querySelector('[data-review-console-severity-filter]')?.value || 'all';
+      snapshot._ui_owner = logicNode.querySelector('[data-review-console-owner-filter]')?.value || 'all';
+      logicNode.dataset.reviewConsoleUiState = JSON.stringify({
+        query: snapshot._ui_query,
+        severity: snapshot._ui_severity,
+        owner: snapshot._ui_owner,
+      });
+      logicNode.innerHTML = renderReviewConsoleSnapshot(snapshot);
+    } catch {}
   });
   buttons.forEach((button) => {
     button.addEventListener('click', async () => {
@@ -10944,7 +12877,8 @@ body {
       }
       if (actionLabel === 'Close') {
         buttons.forEach((item) => item.classList.remove('is-selected'));
-        restoreUserPanel();
+        restoreUserPanel({ warning: 'surface closed only; open Archive for reviewed session close proof' });
+        refreshCloseBoundaryWarning();
         openSpark();
         return;
       }
