@@ -210,6 +210,21 @@ from .routines import (
     plan_routine_run,
     set_routine_enabled,
 )
+from .session_archive import (
+    ArchiveCatalogEntry,
+    ArchiveReloadPlan,
+    ArchiveRunAgainPlan,
+    ArchivedSessionRecord,
+    SessionArchivePlanStatus,
+    SessionArchiveValidationError,
+    TranscriptAccessHandle,
+    TranscriptAccessMode,
+    archive_record_from_close_result,
+    authorize_transcript_access,
+    catalog_entry_from_record,
+    plan_archive_reload,
+    plan_archive_run_again,
+)
 
 from .cockpit_state import (
     CockpitStatus,
@@ -449,6 +464,20 @@ __all__ = [
     "create_routine",
     "plan_routine_run",
     "set_routine_enabled",
+    # -- Session Archive Authority ------------------------------------------
+    "ArchiveCatalogEntry",
+    "ArchiveReloadPlan",
+    "ArchiveRunAgainPlan",
+    "ArchivedSessionRecord",
+    "SessionArchivePlanStatus",
+    "SessionArchiveValidationError",
+    "TranscriptAccessHandle",
+    "TranscriptAccessMode",
+    "archive_record_from_close_result",
+    "authorize_transcript_access",
+    "catalog_entry_from_record",
+    "plan_archive_reload",
+    "plan_archive_run_again",
     # -- Cockpit state --------------------------------------------------------
     "CockpitStatus",
     "QueuePolicy",

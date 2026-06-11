@@ -53,6 +53,7 @@ class FileArea:
     BACKLOG          = "Backlog Authority"
     VOICE_IO         = "Voice I/O Authority"
     ROUTINES         = "Routine Authority"
+    SESSION_ARCHIVE  = "Session Archive Authority"
     PROVIDER_BALANCE = "Provider Balance / Usage"
     WORKFLOW_DISPATCH = "Workflow Sub-Agent Harness / Dispatch"
     WORKFLOW_ATLAS    = "Atlas Workflow Adapter"
@@ -1180,6 +1181,27 @@ def make_default_map() -> FileMap:
             purpose="Test suite for meridian_core/routines.py: routine creation, enable/disable transitions, disabled-run blocking, enabled-run non-executable planning, trigger validation, and display-safety rejection.",
             related_tests=[],
             notes="Run before changing meridian_core/routines.py or Routine Authority behavior.",
+        ),
+        FileMapEntry(
+            path="docs/session-archive-authority-contract.md",
+            area=FileArea.SESSION_ARCHIVE,
+            purpose="Session Archive Authority backend contract for archive catalog records, reload plans, run-again plans, and authorized transcript access handles.",
+            related_tests=["tests/test_session_archive.py"],
+            notes="Backend-only contract. Read before adding archive storage, reload execution, run-again execution, transcript retrieval, UI routes, or bridge controls.",
+        ),
+        FileMapEntry(
+            path="meridian_core/session_archive.py",
+            area=FileArea.SESSION_ARCHIVE,
+            purpose="Session Archive Authority domain slice: metadata-only archive records from close/write-through results, catalog entries, non-executable reload/run-again plans, and transcript access handles.",
+            related_tests=["tests/test_session_archive.py"],
+            notes="Pure backend authority only: no raw transcripts, no UI bridge, no live session restart/replay, no provider calls, and no filesystem persistence.",
+        ),
+        FileMapEntry(
+            path="tests/test_session_archive.py",
+            area=FileArea.SESSION_ARCHIVE,
+            purpose="Test suite for meridian_core/session_archive.py: archive record ingestion, catalog posture, non-executable reload/run-again plans, transcript handle authorization, and display-safety rejection.",
+            related_tests=[],
+            notes="Run before changing meridian_core/session_archive.py or Session Archive Authority behavior.",
         ),
         FileMapEntry(
             path="meridian_core/provider_balance.py",

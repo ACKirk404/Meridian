@@ -390,6 +390,51 @@ def test_routine_authority_exports():
         assert name in meridian_core.__all__, f"{name} missing from __all__"
 
 
+def test_session_archive_authority_exports():
+    from meridian_core import (
+        ArchiveCatalogEntry,
+        ArchiveReloadPlan,
+        ArchiveRunAgainPlan,
+        ArchivedSessionRecord,
+        SessionArchivePlanStatus,
+        SessionArchiveValidationError,
+        TranscriptAccessHandle,
+        TranscriptAccessMode,
+        archive_record_from_close_result,
+        authorize_transcript_access,
+        catalog_entry_from_record,
+        plan_archive_reload,
+        plan_archive_run_again,
+    )
+
+    assert ArchiveCatalogEntry
+    assert ArchiveReloadPlan
+    assert ArchiveRunAgainPlan
+    assert ArchivedSessionRecord
+    assert SessionArchivePlanStatus
+    assert SessionArchiveValidationError
+    assert TranscriptAccessHandle
+    assert TranscriptAccessMode
+    assert archive_record_from_close_result
+    assert authorize_transcript_access
+    assert catalog_entry_from_record
+    assert plan_archive_reload
+    assert plan_archive_run_again
+    for name in (
+        "ArchiveCatalogEntry",
+        "ArchiveReloadPlan",
+        "ArchiveRunAgainPlan",
+        "ArchivedSessionRecord",
+        "SessionArchiveValidationError",
+        "TranscriptAccessHandle",
+        "archive_record_from_close_result",
+        "authorize_transcript_access",
+        "plan_archive_reload",
+        "plan_archive_run_again",
+    ):
+        assert name in meridian_core.__all__, f"{name} missing from __all__"
+
+
 def test_cockpit_state_exports():
     from meridian_core import (
         CockpitStatus,
