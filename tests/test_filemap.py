@@ -541,19 +541,29 @@ def test_harness_stage_html_dashboard_tracks_core_stages():
         assert expected in html
 
 
-def test_v2_tracker_contract_baseline_count_matches_detail_rows():
+def test_v2_tracker_records_converted_baseline_provenance_without_open_baselines():
     tracker = Path("docs/v2-progress-tracker.md").read_text(encoding="utf-8")
     summary_line = next(
         line for line in tracker.splitlines()
         if line.startswith("| **Total V2** |")
     )
+    summary_built_count = int(summary_line.split("|")[2].strip().strip("*"))
     summary_contract_count = int(summary_line.split("|")[4].strip().strip("*"))
-    baseline_section = tracker.split("## Contract Baselines Complete", 1)[1]
+    assert summary_built_count == 45
+    assert summary_contract_count == 0
+
+    baseline_section = tracker.split("## Converted Contract Baseline Provenance", 1)[1]
     baseline_section = baseline_section.split("## In Progress / Stabilizing", 1)[0]
     detail_count = sum(
         1 for line in baseline_section.splitlines()
         if line.startswith("- [x] **")
     )
-    assert detail_count == summary_contract_count == 9
+    assert detail_count == 9
+    assert "do not authorize live operations" in baseline_section
+
+    audit = Path("docs/v2-backend-completion-audit-20260608.md").read_text(encoding="utf-8")
+    assert "45/45 reviewed implementation/provenance items" in audit
+    assert "0/45 accepted contract baselines" in audit
+    assert "baseline count at 2" not in audit
 
 

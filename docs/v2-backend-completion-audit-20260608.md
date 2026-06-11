@@ -4,22 +4,27 @@
 
 This audit records the current backend-owned V2 build state after the June 8 backend restart wave. It is not a declaration that all of Meridian V2 is complete. It separates reviewed backend closure from UI-owned Runtime Logic wiring, live operations, and post-V2/V3 work.
 
+**2026-06-10 update:** The later backend restart/promotion wave converted the
+remaining tracker baselines into reviewed implementation/provenance closure.
+Use the count below for current backend build reports; the historical June 8
+`36/45 + 9 baseline` line is superseded.
+
 ## Current Count
 
 Authoritative count source: `docs/v2-progress-tracker.md`.
 
 | Measure | Count |
 |---|---:|
-| Built and review-cleared | 36 |
+| Built and review-cleared | 45 |
 | Built awaiting review | 0 |
-| Contract baseline | 9 |
+| Contract baseline | 0 |
 | Needs build | 0 |
 | Total V2 tracker items | 45 |
 
 Status line for reports:
 
 ```text
-V2 backend tracker: 36/45 built and review-cleared, 0 awaiting review, 9/45 contract baseline, 0 remaining V2 backend build items.
+V2 backend tracker: 45/45 built and review-cleared, 0 awaiting review, 0/45 contract baseline, 0 remaining V2 backend build items.
 ```
 
 ## What This Proves
@@ -37,11 +42,17 @@ V2 backend tracker: 36/45 built and review-cleared, 0 awaiting review, 9/45 cont
 - It does not authorize backend sessions to edit `index.html`, `scripts/meridian-model-bridge.js`, Bifrost/Electron renderer wiring, bridge routes, or UI implementation files.
 - It does not convert post-V2 Prime/live orchestration, live Echo/Atlas query wiring, live provider telemetry, live workflow execution, or operations-gated controls into V2 backend scope.
 
-## Contract Baseline Disposition
+## Converted Contract Baseline Disposition
 
-The V2 tracker intentionally keeps 9 items as `Contract Baseline`. Those baselines are complete documentation/architecture artifacts unless the tracker moves a specific item into `Needs Build` or `Built-Awaiting-Review`.
+The V2 tracker now keeps 0 items as open `Contract Baseline`. The 9 former
+baseline rows remain in `docs/v2-progress-tracker.md` as converted provenance:
+they are accepted V2 backend/tracker closure, not duplicate open build tasks.
 
-Several baseline areas already have reviewed runtime work represented under `Built and Review-Cleared V2 Capabilities`; the baseline rows remain as provenance records, not duplicate open build tasks. Do not count baseline rows as backend implementation blockers without an explicit tracker update that names the runtime requirement.
+Several baseline areas already have reviewed runtime work represented under
+`Built and Review-Cleared V2 Capabilities`; the converted provenance rows
+record why no additional backend worker is implied. Do not count those rows as
+backend implementation blockers without an explicit tracker update that names a
+new runtime requirement.
 
 | Baseline item | Tracker owner | Current disposition | Backend action |
 |---|---|---|---|
@@ -51,7 +62,7 @@ Several baseline areas already have reviewed runtime work represented under `Bui
 | Session Lifecycle + Workflow Contract | Session Lifecycle Harness | Contract is represented by reviewed Workflow Dispatch and Atlas Workflow Adapter capabilities plus Session Lifecycle runtime/proof slices. | No backend worker unless tracker names a new workflow/runtime requirement. |
 | Compass + Project Boundary Contract | Compass Harness | Contract is represented by reviewed Compass project definition, bounds/scope, project difference, and cross-project handoff runtime slices. | No backend worker unless tracker reopens Compass runtime build. |
 | Model Harness + DeepSeek Validation Gate | Relay/Model Harness | Baseline remains the trust/authority contract; DeepSeek validation/transport authority runtime is review-cleared, with autonomous coding/review/branch authority still denied. | No backend worker to expand DeepSeek authority without new proof/tracker entry. |
-| Model Harness + Metadata Contract, including Per-Call GOAL/Intent disposition | Relay/Model Harness | Contract is represented by reviewed model metadata binding and Relay/Model evidence surfaces. The per-call GOAL/Intent line is a sub-disposition of this metadata baseline, preserving the Relay/Model baseline count at 2. | No backend worker unless tracker names a new metadata runtime gap; do not move per-call dispatch intent into Prime. |
+| Model Harness + Metadata Contract, including Per-Call GOAL/Intent disposition | Relay/Model Harness | Contract is represented by reviewed model metadata binding and Relay/Model evidence surfaces. The per-call GOAL/Intent line is a sub-disposition of this converted provenance row, preserving the open Relay/Model baseline count at 0. | No backend worker unless tracker names a new metadata runtime gap; do not move per-call dispatch intent into Prime. |
 | Bifrost + Voice Command Contract | Bifrost Harness | Contract is review-cleared and FileMap-registered; visible voice surface work belongs to UI/Bifrost ownership unless tracker names a backend data-model gap. | Backend reports dependency only; does not edit UI. |
 | Bifrost + Balance/Payload Contract | Bifrost Harness | Contract is review-cleared and FileMap-registered; reviewed backend/view-model proof covers provider balance and prompt payload visibility above. | No backend worker unless tracker names a new backend evidence gap. |
 
@@ -92,5 +103,5 @@ No new backend implementation worker should be launched solely from stale histor
 If Scott asks whether backend V2 is complete, answer:
 
 ```text
-The tracked backend build has 36/45 reviewed implementation items plus 9/45 accepted contract baselines and no current Needs Build item. Full V2 is not proven complete because UI-owned Runtime Logic wiring and visible operation dependencies remain outside this backend lane.
+The tracked backend build has 45/45 reviewed implementation/provenance items, 0/45 accepted contract baselines, and no current Needs Build item. Full V2 product completion still requires checking UI-owned Runtime Logic wiring and visible operation dependencies outside this backend lane.
 ```
