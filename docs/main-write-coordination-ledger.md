@@ -40,6 +40,17 @@ Use this cadence whenever either party expects to write:
 - **Handoff:** if the lease expires, the writer must post expired/aborted before trying again.
 
 ```text
+Time: 2026-06-11 00:50 -06:00
+Writer: front-end developer lane
+Intent: promote reviewed Routine authority depth UI wiring under backend/orchestrator exact-hash ACK through 2026-06-11 01:00 -06:00.
+ACK: backend/orchestrator lane granted a 10-minute path-limited UI lease on exact reviewed candidate `39e716de4c4bcd1e738c69a50968a0730cae11e8`; approved promotion scope is `docs/ui-integration-checklist.md`, `index.html`, `scripts/meridian-model-bridge.js`, `tests/test_bifrost_cockpit.py`, plus this ledger file for intent/completion bookkeeping only.
+Expected proof: `python -m pytest tests/test_bifrost_cockpit.py tests/test_routines.py -q`; `node --check scripts/meridian-model-bridge.js`; `node scripts/meridian-model-bridge.js --self-test`; live smoke `GET /bridge/routines`; `git diff --check origin/main...HEAD`.
+Pre-write check: `git fetch origin` confirmed `origin/main` still at `e89cf32c1de662d02b55131534f67f15ef9dee62`; clean promotion worktree `C:\Users\scott\.codex\worktrees\meridian-ui-routine-review-20260611` is ahead only by reviewed Routine candidate `39e716de4c4bcd1e738c69a50968a0730cae11e8`; diff scope matches the four approved UI files before this ledger entry.
+Notes/blockers: shared checkout `C:\Users\scott\Code\Meridian` remains dirty/diverged and is not a promotion source, so this move must come only from the clean Routine worktree. Scope is display-only routine definitions, enabled/disabled posture, trigger metadata, non-executable run plans, and Prime routine review posture only; no scheduler execution, run-now execution, queue mutation, provider calls, or executable review actions are included.
+Status: In progress
+```
+
+```text
 Time: 2026-06-11 00:29 -06:00
 Writer: front-end developer lane
 Intent: complete reviewed Archive authority UI promotion under backend/orchestrator exact-hash ACK.
