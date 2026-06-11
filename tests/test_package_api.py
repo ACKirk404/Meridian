@@ -67,6 +67,238 @@ def test_risk_relay_aegis_review_console_exports():
     assert route_from_tier
 
 
+def test_evidence_safety_exports():
+    from meridian_core import (
+        EvidenceSafetyCategory,
+        EvidenceSafetyFinding,
+        EvidenceSafetyProof,
+        EvidenceSafetySeverity,
+        EvidenceSafetyStatus,
+        scan_evidence_artifact,
+        scan_evidence_artifacts,
+    )
+
+    assert EvidenceSafetyCategory
+    assert EvidenceSafetyFinding
+    assert EvidenceSafetyProof
+    assert EvidenceSafetySeverity
+    assert EvidenceSafetyStatus
+    assert scan_evidence_artifact
+    assert scan_evidence_artifacts
+
+    for name in (
+        "EvidenceSafetyCategory",
+        "EvidenceSafetyFinding",
+        "EvidenceSafetyProof",
+        "EvidenceSafetySeverity",
+        "EvidenceSafetyStatus",
+        "scan_evidence_artifact",
+        "scan_evidence_artifacts",
+    ):
+        assert name in meridian_core.__all__, f"{name} missing from __all__"
+
+
+def test_v25_backend_hardening_exports():
+    from meridian_core import (
+        BackendSnapshotDrift,
+        BackendSnapshotProof,
+        BoundaryAdvisory,
+        BoundaryAdvisoryStatus,
+        BranchLeaseStatus,
+        CapabilityNavigationLink,
+        CapabilityOwnershipRecord,
+        CommitIntentVerificationStatus,
+        DuplicateFindingGroup,
+        FileMapFreshnessRecord,
+        FileMapFreshnessStatus,
+        FileMapMetadata,
+        HarnessDiagnosticInput,
+        HarnessDiagnosticRecord,
+        HarnessDiagnosticSnapshot,
+        HeartbeatAnomaly,
+        ProofFreshnessState,
+        ProofQualityResult,
+        ProofQualityStatus,
+        ProofRef,
+        ProofSnapshot,
+        PromotionProvenance,
+        PromotionStage,
+        RegressionRiskLabel,
+        RelatedTestHint,
+        ReliabilityScore,
+        RepairVerification,
+        RepairVerificationState,
+        ReviewFindingFingerprint,
+        ReviewFindingInput,
+        ReviewFindingSeverity,
+        ReviewIntelligenceReport,
+        RollbackBundlePlan,
+        SessionFreshnessStatus,
+        SessionProvenance,
+        SeverityCalibration,
+        SnapshotDriftClassification,
+        StaleWorkerClassification,
+        WaiverVisibility,
+        advise_architecture_boundary,
+        build_capability_navigation_links,
+        build_capability_ownership_map,
+        build_harness_diagnostic_snapshot,
+        build_promotion_provenance,
+        build_review_intelligence,
+        build_session_provenance,
+        classify_heartbeat_anomaly,
+        classify_stale_worker,
+        detect_backend_snapshot_drift,
+        display_safe_path,
+        evaluate_filemap_freshness,
+        evaluate_proof_quality,
+        fingerprint_finding,
+        infer_related_test_hint,
+    )
+
+    exported = (
+        BackendSnapshotDrift,
+        BackendSnapshotProof,
+        BoundaryAdvisory,
+        BoundaryAdvisoryStatus,
+        BranchLeaseStatus,
+        CapabilityNavigationLink,
+        CapabilityOwnershipRecord,
+        CommitIntentVerificationStatus,
+        DuplicateFindingGroup,
+        FileMapFreshnessRecord,
+        FileMapFreshnessStatus,
+        FileMapMetadata,
+        HarnessDiagnosticInput,
+        HarnessDiagnosticRecord,
+        HarnessDiagnosticSnapshot,
+        HeartbeatAnomaly,
+        ProofFreshnessState,
+        ProofQualityResult,
+        ProofQualityStatus,
+        ProofRef,
+        ProofSnapshot,
+        PromotionProvenance,
+        PromotionStage,
+        RegressionRiskLabel,
+        RelatedTestHint,
+        ReliabilityScore,
+        RepairVerification,
+        RepairVerificationState,
+        ReviewFindingFingerprint,
+        ReviewFindingInput,
+        ReviewFindingSeverity,
+        ReviewIntelligenceReport,
+        RollbackBundlePlan,
+        SessionFreshnessStatus,
+        SessionProvenance,
+        SeverityCalibration,
+        SnapshotDriftClassification,
+        StaleWorkerClassification,
+        WaiverVisibility,
+        advise_architecture_boundary,
+        build_capability_navigation_links,
+        build_capability_ownership_map,
+        build_harness_diagnostic_snapshot,
+        build_promotion_provenance,
+        build_review_intelligence,
+        build_session_provenance,
+        classify_heartbeat_anomaly,
+        classify_stale_worker,
+        detect_backend_snapshot_drift,
+        display_safe_path,
+        evaluate_filemap_freshness,
+        evaluate_proof_quality,
+        fingerprint_finding,
+        infer_related_test_hint,
+    )
+    assert all(exported)
+
+    for name in (
+        "ProofQualityStatus",
+        "evaluate_proof_quality",
+        "PromotionProvenance",
+        "build_promotion_provenance",
+        "HarnessDiagnosticSnapshot",
+        "build_harness_diagnostic_snapshot",
+        "ReviewIntelligenceReport",
+        "build_review_intelligence",
+        "FileMapFreshnessRecord",
+        "evaluate_filemap_freshness",
+    ):
+        assert name in meridian_core.__all__, f"{name} missing from __all__"
+
+
+def test_v25_backend_transparency_dispatch_and_release_exports():
+    from meridian_core import (
+        BrowserEvidence,
+        ChunkLineage,
+        CitationRankingMetadata,
+        DispatchEvidence,
+        DriftStatus,
+        DryRunReviewState,
+        EvidenceBackedRationale,
+        FailureRecoveryRecommendation,
+        MemoryProvenance,
+        NextActionRationale,
+        ProofPackageManifest,
+        ReleaseReadinessSnapshot,
+        RetrievalEvidence,
+        RouteSimulation,
+        ToolDryRunPlan,
+        WorkflowIntelligenceReport,
+        build_dispatch_evidence,
+        build_evidence_backed_rationale,
+        build_release_readiness_snapshot,
+        build_tool_dry_run_plan,
+        hash_prompt_payload,
+        ingest_task_results,
+        plan_workflow_tasks,
+        simulate_route_dispatch,
+    )
+
+    exported = (
+        BrowserEvidence,
+        ChunkLineage,
+        CitationRankingMetadata,
+        DispatchEvidence,
+        DriftStatus,
+        DryRunReviewState,
+        EvidenceBackedRationale,
+        FailureRecoveryRecommendation,
+        MemoryProvenance,
+        NextActionRationale,
+        ProofPackageManifest,
+        ReleaseReadinessSnapshot,
+        RetrievalEvidence,
+        RouteSimulation,
+        ToolDryRunPlan,
+        WorkflowIntelligenceReport,
+        build_dispatch_evidence,
+        build_evidence_backed_rationale,
+        build_release_readiness_snapshot,
+        build_tool_dry_run_plan,
+        hash_prompt_payload,
+        ingest_task_results,
+        plan_workflow_tasks,
+        simulate_route_dispatch,
+    )
+    assert all(exported)
+
+    for name in (
+        "RetrievalEvidence",
+        "MemoryProvenance",
+        "NextActionRationale",
+        "RouteSimulation",
+        "DispatchEvidence",
+        "ToolDryRunPlan",
+        "BrowserEvidence",
+        "WorkflowIntelligenceReport",
+        "ReleaseReadinessSnapshot",
+    ):
+        assert name in meridian_core.__all__, f"{name} missing from __all__"
+
+
 def test_prompt_metrics_bridge_exports():
     from meridian_core import make_prompt_metrics_finding
 
