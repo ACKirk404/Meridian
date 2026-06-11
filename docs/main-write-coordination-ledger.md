@@ -48,13 +48,13 @@ Approved implementation files: docs/FileMap.md, docs/routine-authority-contract.
 Guardrails: no index.html, no Electron/renderer/Bifrost UI files, no bridge routes, no scripts/meridian-model-bridge.js, no docs/ui-integration-checklist.md, no UI wiring, and no dirty shared-checkout promotion source.
 Pre-write check: `origin/main` fetched at `4260ba07a8ba8ef0741fdaa1a78ac56737deb194`; ROU9 branch is clean and one commit ahead; diff scope matches approved backend files before this ledger entry.
 Proof expected before push: focused Routine/package/FileMap pytest, full pytest suite, and diff-check across approved files plus this ledger.
-Action completed: pending.
-Commit(s): pending
-Pushed to origin/main: pending
+Action completed: pushed reviewed ROU9 Prime routine review backend authority candidate and required ledger record to `origin/main`.
+Commit(s): `8235eb4c1`, `06bc4d465`
+Pushed to origin/main: yes
 Files changed: docs/FileMap.md, docs/routine-authority-contract.md, meridian_core/__init__.py, meridian_core/filemap.py, meridian_core/routines.py, tests/test_package_api.py, tests/test_routines.py, docs/main-write-coordination-ledger.md
-Proof run: pending
-Final shared main status: pending
-Status: In progress
+Proof run: `python -m pytest tests/test_routines.py tests/test_package_api.py tests/test_filemap.py -q` -> 97 passed; `python -m pytest -q` -> 3522 passed; scoped `git diff --check` -> LF/CRLF warning only for this ledger file.
+Final shared main status: clean/aligned with `origin/main` at `06bc4d465f470881a852e913bd3e809ac74e41a1` before this completion ledger write.
+Status: Complete
 ```
 
 ```text
