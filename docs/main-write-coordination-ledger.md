@@ -48,13 +48,13 @@ Approved implementation files: docs/v2-progress-tracker.md, docs/v2-backend-comp
 Guardrails: no index.html, no Electron/renderer/Bifrost UI files, no bridge routes, no scripts/meridian-model-bridge.js, no docs/ui-integration-checklist.md, no UI wiring, no provider/model transport changes, no runtime code changes, and no dirty shared-checkout promotion source.
 Pre-write check: `origin/main` fetched at `7583eaf00c9350042bafb85d9a45ef32634cc484`; tracker branch is clean and one commit ahead; diff scope matches approved docs/test files before this ledger entry.
 Proof expected before push: focused FileMap/Bifrost tracker pytest, full pytest suite, and diff-check across approved files plus this ledger.
-Action completed: pending.
-Commit(s): pending
-Pushed to origin/main: pending
+Action completed: pushed reviewed final V2 backend tracker/baseline disposition and required ledger record to `origin/main`.
+Commit(s): `9a99420e8`, `72b18cefd`
+Pushed to origin/main: yes
 Files changed: docs/v2-progress-tracker.md, docs/v2-backend-completion-audit-20260608.md, tests/test_filemap.py, docs/main-write-coordination-ledger.md
-Proof run: pending
-Final shared main status: pending
-Status: In progress
+Proof run: `python -m pytest tests/test_filemap.py tests/test_bifrost_cockpit.py -q` -> 514 passed; `python -m pytest -q` -> 3548 passed; scoped `git diff --check` -> LF/CRLF warning only for this ledger file.
+Final shared main status: clean/aligned with `origin/main` at `72b18cefd7547684049a2cf84c88e09daabbec93` before this completion ledger write.
+Status: Complete
 ```
 
 ```text
