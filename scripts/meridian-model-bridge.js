@@ -1429,14 +1429,20 @@ function voiceIoSnapshot() {
   return pythonJsonSnapshot('Voice I/O', String.raw`
 import json
 from bifrost.cockpit import sample_cockpit_view_model
+from meridian_core.voice_io import recognize_voice_command_intent
 
 voice = sample_cockpit_view_model().voice
+command_intent = recognize_voice_command_intent(
+    "Open Review Console",
+    confidence=0.93,
+    evidence_refs=("proof://voice/voc10",),
+)
 print(json.dumps({
     "ok": True,
-    "source": "bifrost.cockpit.VoiceIOState",
-    "version": "bifrost-voice-io-display-2026-06-07",
+    "source": "bifrost.cockpit.VoiceIOState + meridian_core.voice_io",
+    "version": "bifrost-voice-io-command-intent-2026-06-10",
     "harness": "Bifrost / Spark",
-    "summary": "Display-safe Voice I/O state from the reviewed Bifrost view model.",
+    "summary": "Display-safe Voice I/O state plus preview-only VOC10 command intent authority.",
     "display_only": True,
     "mutation_authorized": False,
     "microphone_authorized": False,
@@ -1455,7 +1461,23 @@ print(json.dumps({
         "output_mode": voice.output_mode,
         "permission_state": voice.permission_state,
         "status_call": voice.status_call,
-        "last_intent_ref": voice.last_intent_ref,
+        "last_intent_ref": command_intent.intent_id,
+    },
+    "command_intent": command_intent.to_dict(),
+    "command_families": [
+        "harness_panel",
+        "project_lane",
+        "dictation",
+        "speech_output",
+        "proof",
+        "unknown",
+    ],
+    "command_preview_boundary": {
+        "execution_authorized": False,
+        "microphone_capture_authorized": False,
+        "speech_output_authorized": False,
+        "prompt_submit_authorized": False,
+        "mute_control_authorized": False,
     },
     "controls": [
         {"id": "input-status", "label": "Mic", "aria_disabled": True},

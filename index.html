@@ -6268,6 +6268,9 @@ body {
       ]), true);
     }
     const voice = snapshot.voice || {};
+    const commandIntent = snapshot.command_intent || {};
+    const commandFamilies = Array.isArray(snapshot.command_families) ? snapshot.command_families : [];
+    const commandPreviewBoundary = snapshot.command_preview_boundary || {};
     const controls = Array.isArray(snapshot.controls) ? snapshot.controls : [];
     const mutationAllowed = Boolean(snapshot.mutation_authorized);
     return [
@@ -6296,6 +6299,25 @@ body {
         ['status', voice.status_call || 'standing by'],
         ['intent', voice.last_intent_ref || 'none'],
       ]), true),
+      relaySection('Voice intent summary', relayGrid([
+        ['status call', voice.status_call || 'standing by'],
+        ['last intent ref', voice.last_intent_ref || 'none'],
+        ['command family', commandIntent.command_family || 'unknown'],
+        ['command action', commandIntent.action || 'unknown'],
+        ['command target', commandIntent.target_ref || 'none'],
+        ['command confidence', Number.isFinite(commandIntent.confidence) ? commandIntent.confidence.toFixed(2) : 'unknown'],
+        ['confirmation required', commandIntent.requires_confirmation ? 'yes' : 'no'],
+        ['summary boundary', 'display-only voice intent/status summary; VOC10 command-family recognition is preview-only and does not execute commands, capture audio, or submit prompts'],
+      ]), false),
+      relaySection('Voice command preview boundary', relayGrid([
+        ['recognized families', commandFamilies.length ? commandFamilies.join(' | ') : 'none reported'],
+        ['execution authorized', commandIntent.execution_authorized ? 'yes' : 'no'],
+        ['microphone capture authorized', commandPreviewBoundary.microphone_capture_authorized ? 'yes' : 'no'],
+        ['speech output authorized', commandPreviewBoundary.speech_output_authorized ? 'yes' : 'no'],
+        ['prompt submit authorized', commandPreviewBoundary.prompt_submit_authorized ? 'yes' : 'no'],
+        ['mute control authorized', commandPreviewBoundary.mute_control_authorized ? 'yes' : 'no'],
+        ['boundary', 'preview-only command intent authority; no reset, reload, open, close, filter, crosscheck, dictation, speech-output, or proof command is executed'],
+      ]), false),
       relaySection('Voice privacy indicator', relayGrid([
         ['microphone capture', snapshot.microphone_authorized && voice.listening ? 'active' : 'inactive'],
         ['capture can start', snapshot.microphone_authorized && !snapshot.controls_disabled ? 'yes' : 'no'],

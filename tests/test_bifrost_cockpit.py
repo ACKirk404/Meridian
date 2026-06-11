@@ -2953,6 +2953,7 @@ def test_index_settings_surface_controls_risk_tier_override_locally():
 
 def test_index_voice_io_surface_shows_public_setup_guidance_without_voice_mutation():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
     render_start = doc.index("const renderVoiceIoSnapshot = (snapshot) =>")
     render_end = doc.index("const renderSparkModelsSnapshot = (snapshot) =>", render_start)
     voice_surface = doc[render_start:render_end]
@@ -2965,6 +2966,19 @@ def test_index_voice_io_surface_shows_public_setup_guidance_without_voice_mutati
     assert "speech output authorized" in voice_surface
     assert "read aloud authorized" in voice_surface
     assert "controls disabled" in voice_surface
+    assert "Voice intent summary" in voice_surface
+    assert "['command family', commandIntent.command_family || 'unknown']" in voice_surface
+    assert "['command action', commandIntent.action || 'unknown']" in voice_surface
+    assert "['command target', commandIntent.target_ref || 'none']" in voice_surface
+    assert "['command confidence', Number.isFinite(commandIntent.confidence) ? commandIntent.confidence.toFixed(2) : 'unknown']" in voice_surface
+    assert "['confirmation required', commandIntent.requires_confirmation ? 'yes' : 'no']" in voice_surface
+    assert "VOC10 command-family recognition is preview-only and does not execute commands, capture audio, or submit prompts" in voice_surface
+    assert "Voice command preview boundary" in voice_surface
+    assert "['recognized families', commandFamilies.length ? commandFamilies.join(' | ') : 'none reported']" in voice_surface
+    assert "['execution authorized', commandIntent.execution_authorized ? 'yes' : 'no']" in voice_surface
+    assert "['prompt submit authorized', commandPreviewBoundary.prompt_submit_authorized ? 'yes' : 'no']" in voice_surface
+    assert "['mute control authorized', commandPreviewBoundary.mute_control_authorized ? 'yes' : 'no']" in voice_surface
+    assert "preview-only command intent authority; no reset, reload, open, close, filter, crosscheck, dictation, speech-output, or proof command is executed" in voice_surface
     assert "Voice privacy indicator" in voice_surface
     assert "microphone capture" in voice_surface
     assert "capture can start" in voice_surface
@@ -2988,6 +3002,29 @@ def test_index_voice_io_surface_shows_public_setup_guidance_without_voice_mutati
     assert "speechButton.disabled = true" in speech_button
     assert "MediaRecorder" not in voice_surface
     assert "method: 'POST'" not in voice_surface
+    assert "| VOC10 | Voice command intents | Shows preview-only recognized command families such as reset, reload, open, close, filter, and crosscheck before any executable voice route exists. | wired | Voice I/O renders a display-only Voice intent summary plus Voice command preview boundary from `/bridge/voice-io`, surfacing reviewed VOC10 command family, action, target ref, confidence, confirmation posture, and non-executable command coverage from `meridian_core.voice_io` so recognized voice-command intent is visible without capturing audio, executing commands, submitting prompts, reading aloud, muting output, or exposing raw prompt/response/history. |" in checklist
+
+
+def test_voice_io_bridge_snapshot_uses_preview_only_voc10_command_authority():
+    doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
+    snapshot = doc[
+        doc.index("function voiceIoSnapshot() {"):
+        doc.index("function primeAutonomyReleaseSnapshot()", doc.index("function voiceIoSnapshot() {"))
+    ]
+
+    assert "from meridian_core.voice_io import recognize_voice_command_intent" in snapshot
+    assert 'command_intent = recognize_voice_command_intent(' in snapshot
+    assert '"Open Review Console"' in snapshot
+    assert '"source": "bifrost.cockpit.VoiceIOState + meridian_core.voice_io"' in snapshot
+    assert '"version": "bifrost-voice-io-command-intent-2026-06-10"' in snapshot
+    assert '"last_intent_ref": command_intent.intent_id' in snapshot
+    assert '"command_intent": command_intent.to_dict()' in snapshot
+    assert '"command_families": [' in snapshot
+    assert '"command_preview_boundary": {' in snapshot
+    assert '"execution_authorized": False' in snapshot
+    assert '"microphone_capture_authorized": False' in snapshot
+    assert '"prompt_submit_authorized": False' in snapshot
+    assert '"mute_control_authorized": False' in snapshot
 
 
 def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wired():
