@@ -40,6 +40,20 @@ Use this cadence whenever either party expects to write:
 - **Handoff:** if the lease expires, the writer must post expired/aborted before trying again.
 
 ```text
+Time: 2026-06-11 00:51 -06:00
+Writer: front-end developer lane
+Intent: complete reviewed Routine authority depth UI promotion under backend/orchestrator exact-hash ACK.
+Action completed: landed the reviewed Routine authority depth UI slice on `origin/main` from the clean Routine worktree, adding display-only routine definitions, enabled/disabled posture, trigger metadata, non-executable run plans, and Prime routine review posture sourced from reviewed backend routine authority.
+Commit(s): `39e716de4c4bcd1e738c69a50968a0730cae11e8`, `b8216cd80429260c00060d93f29c8598787be398`, this commit
+Pushed to origin/main: yes
+Files changed: docs/ui-integration-checklist.md, index.html, scripts/meridian-model-bridge.js, tests/test_bifrost_cockpit.py, docs/main-write-coordination-ledger.md
+Proof run: `python -m pytest tests/test_bifrost_cockpit.py tests/test_routines.py -q` -> 497 passed; `node --check scripts/meridian-model-bridge.js` passed; `node scripts/meridian-model-bridge.js --self-test` returned `ok: true` with `routineOk: true`; live smoke `GET /bridge/routines` -> 200 with `ok: true`, `display_only: true`, mutation/scheduler execution false, 2 routines, 3 run plans, 3 Prime reviews, and no checked raw/local sentinel leaks; `git diff --check origin/main...HEAD` passed cleanly before push.
+Final shared main status: reviewed Routine UI candidate and intent landed on `origin/main` at `b8216cd80429260c00060d93f29c8598787be398` before this completion write; authoritative promoted UI checklist state is now `243/305 wired`, `4 partial`, `58 planned`, `0 blocked`.
+Notes/blockers: scope stayed path-limited to the four approved UI files plus this ledger. No backend code moved, no scheduler/run-now/create/toggle mutation authority landed, and no queue/provider/executable review action authority was added. Next separate V2 UI gate is harness closeout for `HMS5` and `HMS10`.
+Status: Complete
+```
+
+```text
 Time: 2026-06-11 00:50 -06:00
 Writer: front-end developer lane
 Intent: promote reviewed Routine authority depth UI wiring under backend/orchestrator exact-hash ACK through 2026-06-11 01:00 -06:00.
