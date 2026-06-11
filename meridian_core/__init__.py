@@ -69,6 +69,15 @@ from .aegis import (
     ProofTrail,
     evidence_from_cross_check,
 )
+from .evidence_safety import (
+    EvidenceSafetyCategory,
+    EvidenceSafetyFinding,
+    EvidenceSafetyProof,
+    EvidenceSafetySeverity,
+    EvidenceSafetyStatus,
+    scan_evidence_artifact,
+    scan_evidence_artifacts,
+)
 from .cross_check import (
     CrossCheckDisposition,
     CrossCheckDispositionAction,
@@ -335,6 +344,13 @@ __all__ = [
     "AegisEvidence",
     "ProofTrail",
     "evidence_from_cross_check",
+    "EvidenceSafetyCategory",
+    "EvidenceSafetyFinding",
+    "EvidenceSafetyProof",
+    "EvidenceSafetySeverity",
+    "EvidenceSafetyStatus",
+    "scan_evidence_artifact",
+    "scan_evidence_artifacts",
     # -- Cross-check authority ----------------------------------------------
     "CrossCheckDisposition",
     "CrossCheckDispositionAction",
