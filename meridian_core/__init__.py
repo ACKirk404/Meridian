@@ -198,6 +198,18 @@ from .voice_io import (
     mute_output_job,
     normalize_voice_intent,
 )
+from .routines import (
+    RoutineDefinition,
+    RoutineRunPlan,
+    RoutineRunPlanStatus,
+    RoutineState,
+    RoutineTrigger,
+    RoutineTriggerKind,
+    RoutineValidationError,
+    create_routine,
+    plan_routine_run,
+    set_routine_enabled,
+)
 
 from .cockpit_state import (
     CockpitStatus,
@@ -426,6 +438,17 @@ __all__ = [
     "interrupt_output_job",
     "mute_output_job",
     "normalize_voice_intent",
+    # -- Routine Authority --------------------------------------------------
+    "RoutineDefinition",
+    "RoutineRunPlan",
+    "RoutineRunPlanStatus",
+    "RoutineState",
+    "RoutineTrigger",
+    "RoutineTriggerKind",
+    "RoutineValidationError",
+    "create_routine",
+    "plan_routine_run",
+    "set_routine_enabled",
     # -- Cockpit state --------------------------------------------------------
     "CockpitStatus",
     "QueuePolicy",

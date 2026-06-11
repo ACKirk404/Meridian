@@ -353,6 +353,43 @@ def test_voice_io_authority_exports():
         assert name in meridian_core.__all__, f"{name} missing from __all__"
 
 
+def test_routine_authority_exports():
+    from meridian_core import (
+        RoutineDefinition,
+        RoutineRunPlan,
+        RoutineRunPlanStatus,
+        RoutineState,
+        RoutineTrigger,
+        RoutineTriggerKind,
+        RoutineValidationError,
+        create_routine,
+        plan_routine_run,
+        set_routine_enabled,
+    )
+
+    assert RoutineDefinition
+    assert RoutineRunPlan
+    assert RoutineRunPlanStatus
+    assert RoutineState
+    assert RoutineTrigger
+    assert RoutineTriggerKind
+    assert RoutineValidationError
+    assert create_routine
+    assert plan_routine_run
+    assert set_routine_enabled
+    for name in (
+        "RoutineDefinition",
+        "RoutineRunPlan",
+        "RoutineState",
+        "RoutineTrigger",
+        "RoutineValidationError",
+        "create_routine",
+        "plan_routine_run",
+        "set_routine_enabled",
+    ):
+        assert name in meridian_core.__all__, f"{name} missing from __all__"
+
+
 def test_cockpit_state_exports():
     from meridian_core import (
         CockpitStatus,

@@ -52,6 +52,7 @@ class FileArea:
     GOAL_RUNTIME     = "Goal Runtime / Goal Harness"
     BACKLOG          = "Backlog Authority"
     VOICE_IO         = "Voice I/O Authority"
+    ROUTINES         = "Routine Authority"
     PROVIDER_BALANCE = "Provider Balance / Usage"
     WORKFLOW_DISPATCH = "Workflow Sub-Agent Harness / Dispatch"
     WORKFLOW_ATLAS    = "Atlas Workflow Adapter"
@@ -1158,6 +1159,27 @@ def make_default_map() -> FileMap:
             purpose="Test suite for meridian_core/voice_io.py: fail-closed runtime defaults, capability-gated authorization, transcript/output metadata privacy, correction metadata, command confirmation gates, mute/interrupt state, and unsafe text/ref rejection.",
             related_tests=[],
             notes="Run before changing meridian_core/voice_io.py or Voice I/O Authority behavior.",
+        ),
+        FileMapEntry(
+            path="docs/routine-authority-contract.md",
+            area=FileArea.ROUTINES,
+            purpose="Routine Authority backend contract for ROU2-ROU4: routine definitions, enable/disable state, and non-executable run plans with display-safe evidence.",
+            related_tests=["tests/test_routines.py"],
+            notes="Backend-only contract. Read before adding routine scheduler mutation, workflow execution, run history, UI routes, or bridge controls.",
+        ),
+        FileMapEntry(
+            path="meridian_core/routines.py",
+            area=FileArea.ROUTINES,
+            purpose="Routine Authority domain slice: typed routine triggers, definitions, enable/disable transitions, and display-safe non-executable run plans.",
+            related_tests=["tests/test_routines.py"],
+            notes="Pure backend authority only: no scheduler, no workflow execution, no provider calls, no queue mutation, no bridge route, and no UI wiring.",
+        ),
+        FileMapEntry(
+            path="tests/test_routines.py",
+            area=FileArea.ROUTINES,
+            purpose="Test suite for meridian_core/routines.py: routine creation, enable/disable transitions, disabled-run blocking, enabled-run non-executable planning, trigger validation, and display-safety rejection.",
+            related_tests=[],
+            notes="Run before changing meridian_core/routines.py or Routine Authority behavior.",
         ),
         FileMapEntry(
             path="meridian_core/provider_balance.py",
