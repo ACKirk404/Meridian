@@ -120,7 +120,18 @@ Status: Complete | Aborted | Blocked
 
 ## Active Coordination
 
-No active write lease.
+```text
+Time: 2026-06-10 22:38 -06:00
+Writer: Meridian coordinator
+Requested action: push
+Target base: origin/main 648a651d5421da843b42299b700480ef8130a1a6
+Path-limited scope: docs/FileMap.md; docs/routine-authority-contract.md; meridian_core/__init__.py; meridian_core/filemap.py; meridian_core/routines.py; tests/test_filemap.py; tests/test_package_api.py; tests/test_routines.py; docs/main-write-coordination-ledger.md
+Reason: land Review A/B-cleared backend-only Routine authority boundary for ROU2-ROU4 planning/state.
+Proof to run: python -m pytest tests/test_routines.py tests/test_package_api.py tests/test_filemap.py -q; python -m pytest -q; scoped git diff --check.
+Expected duration: 10 minutes
+Requires other party ACK: yes
+Status: ACK granted by frontend lane in thread 019ea586-a296-7833-b4cd-fdab7683a8a8 for this exact scope and hash 8609c0d67ca2b0b783794b431493d190012b725b.
+```
 
 ## Standing Acknowledgements
 
