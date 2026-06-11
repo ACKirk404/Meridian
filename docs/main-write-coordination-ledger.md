@@ -40,6 +40,24 @@ Use this cadence whenever either party expects to write:
 - **Handoff:** if the lease expires, the writer must post expired/aborted before trying again.
 
 ```text
+Time: 2026-06-10 23:45 -06:00
+Writer: Meridian backend lane
+Intent: promote reviewed final V2 backend tracker/baseline disposition candidate `9a99420e8` to `origin/main` under frontend ACK from the UI lane.
+ACK: frontend lane granted a 10-minute backend-only lease after the 2026-06-10 23:45 coordination request; approved scope is the two reviewed tracker/audit docs, one tracker guard test, plus this ledger record required by the protocol.
+Approved implementation files: docs/v2-progress-tracker.md, docs/v2-backend-completion-audit-20260608.md, tests/test_filemap.py
+Guardrails: no index.html, no Electron/renderer/Bifrost UI files, no bridge routes, no scripts/meridian-model-bridge.js, no docs/ui-integration-checklist.md, no UI wiring, no provider/model transport changes, no runtime code changes, and no dirty shared-checkout promotion source.
+Pre-write check: `origin/main` fetched at `7583eaf00c9350042bafb85d9a45ef32634cc484`; tracker branch is clean and one commit ahead; diff scope matches approved docs/test files before this ledger entry.
+Proof expected before push: focused FileMap/Bifrost tracker pytest, full pytest suite, and diff-check across approved files plus this ledger.
+Action completed: pending.
+Commit(s): pending
+Pushed to origin/main: pending
+Files changed: docs/v2-progress-tracker.md, docs/v2-backend-completion-audit-20260608.md, tests/test_filemap.py, docs/main-write-coordination-ledger.md
+Proof run: pending
+Final shared main status: pending
+Status: In progress
+```
+
+```text
 Time: 2026-06-10 23:36 -06:00
 Writer: Meridian backend lane
 Intent: promote reviewed backend BR7 Auto routing display-safety repair candidate `2c8cb0337` to `origin/main` under frontend ACK from the UI lane.
