@@ -1,319 +1,330 @@
-# V2 UI Orchestrator Handoff - 2026-06-08
+# V2 UI Orchestrator Handoff - 2026-06-09
 
-This is the handoff for the next Meridian UI orchestrator session.
+This handoff replaces the stale 2026-06-08 snapshot. The active Meridian UI lane
+is much farther along now and should start from the live checklist/test posture
+below, not the older `215/305` count.
 
 ## Current State
 
 - Branch: `main`
 - Remote: `origin/main`
-- Current pushed head: `973b458cf` - `ui: show project scoped skills`
-- Main status at handoff creation: clean and aligned with `origin/main`.
-- Current UI checklist count: `215/305 wired` (`70.5%`), `4 partial`, `86 planned`, `0 blocked`.
-- Active goal remains open: continue Meridian UI development using Codex-only work until the Electron app UI catches up with reviewed backend capabilities, while keeping main clean/conflict-free and promoting only verified UI slices.
+- Working tree: intentionally dirty with active UI-lane edits; do not reset or
+  absorb unrelated backend/doc movement by accident.
+- Current checklist count: `305/305 wired` (`100.0%`), `0 partial`,
+  `0 planned`, `0 blocked`.
+- Active goal remains open: continue wiring honest Electron UI behavior to
+  reviewed Meridian backend evidence without inventing control authority.
 
 ## Product Authority
 
-- The Electron app is the Meridian UI.
-- Root `index.html` is the current renderer source loaded by `electron/main.js`.
-- Edits to `index.html` are edits to the Electron app's visible UI until the renderer is split into smaller source files.
-- Do not describe `index.html` as a separate product, old demo, browser-only replacement, or historical artifact.
-- `bifrost/preview.html` is generated backend/view-model proof output only.
-- Launch the actual Meridian UI with:
+- The Meridian UI is the Electron app.
+- Root `index.html` is the current renderer source loaded by
+  `electron/main.js`.
+- Edits to `index.html` are edits to the visible Meridian app.
+- `bifrost/preview.html` is proof output only, not the operating UI.
+
+Launch the actual app with:
 
 ```powershell
 npm start
 ```
 
-## Operating Mode
+## Main/Coordination Notes
 
-- User explicitly paused after the last pushed slice, then requested this handoff.
-- No new UI implementation should continue until the next orchestrator is intentionally resumed.
-- Claude/Opus worker availability was previously constrained. If Opus is unavailable, continue with Codex-only direct slices or Codex-only review. Do not spawn worker sessions that require Opus.
-- If Opus becomes available and the user wants scaled workers again, implementation workers should run in Opus and code review sessions in Codex.
-- The orchestrator controls promotion. Main must stay clean/conflict-free.
-
-## Main Cleanliness Rule
-
-Before any implementation:
-
-```powershell
-git status --short --branch
-```
-
-Expected clean state:
-
-```text
-## main...origin/main
-```
-
-If main is dirty, clean it by committing/pushing verified orchestrator work or by explicitly preserving unrelated/user work without reverting it. Do not reset, checkout, or discard user changes unless the user explicitly asks.
-
-## Recent Promoted UI Slices
-
-Latest promoted commits, newest first:
-
-- `973b458cf` - `ui: show project scoped skills`
-- `a60aab31c` - `ui: preserve harness draft notes`
-- `ae1f44a67` - `ui: scope harness item actions`
-- `42b5b2cf7` - `ui: show skills argument schemas`
-- `e207b8efe` - `ui: refresh project scoped surfaces`
-- `86aa249cf` - `ui: show relay per-call intent`
-- `75c50c0a2` - `ui: add skills pinning`
-- `3f33d3654` - `ui: show voice privacy indicator`
-- `1db8e87fe` - `ui: clarify skills usage examples`
-- `f9ca86ee7` - `ui: add skills registry surface`
-- `4b60573fd` - `ui: show backlog candidate list`
-- `1189d1b3d` - `ui: add backlog task posture`
+- Backend promotions landed after the original handoff. Refresh against
+  `origin/main` before any UI promotion.
+- Recent backend-only main movement included:
+  - `2e680b6f1` - backend aegis snapshot/doc lease closeout
+  - `f4f14b201` - backend prime beacon lease closeout
+- Shared checkout rule still applies: do not step on backend-owned files or
+  fold ledger/doc lease churn into UI commits unless intentional.
+- Re-read `docs/main-write-coordination-ledger.md` before any push or main-write
+  coordination.
 
 ## Verification Baseline
 
-The latest full verification before handoff:
+Current focused proof loop:
 
 ```powershell
 python -m pytest tests\test_bifrost_cockpit.py -q
-node --check scripts\meridian-model-bridge.js
-node scripts\meridian-model-bridge.js --self-test
+node -e "const fs=require('fs'),vm=require('vm'); const html=fs.readFileSync('index.html','utf8'); const scripts=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]); scripts.forEach((s,i)=>new vm.Script(s,{filename:'index.html#script'+(i+1)})); console.log('checked '+scripts.length+' scripts');"
 git diff --check
 ```
 
 Latest observed results:
 
-- `tests\test_bifrost_cockpit.py`: `453 passed`
-- Bridge syntax check: passed
-- Bridge self-test: passed
-- `git diff --check`: only recurring CRLF warnings
+- `tests/test_bifrost_cockpit.py`: `534 passed`
+- Embedded script parse: `checked 1 scripts`
+- `git diff --check`: recurring CRLF warnings only
 
-Useful embedded script parse check:
+## Current Tail Shape
 
-```powershell
-node -e "const fs=require('fs'),vm=require('vm'); const html=fs.readFileSync('index.html','utf8'); const scripts=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]); scripts.forEach((s,i)=>new vm.Script(s,{filename:'index.html#script'+(i+1)})); console.log('checked '+scripts.length+' scripts');"
-```
+Exact remaining counts are guarded by tests in
+`tests/test_bifrost_cockpit.py`. The intended live tail is:
 
-## Progress Count Command
+- Planned: none
+- Partial: none
 
-```powershell
-@'
-from pathlib import Path
-from collections import Counter
-rows=[]
-for line in Path('docs/ui-integration-checklist.md').read_text(encoding='utf-8').splitlines():
-    if not line.startswith('| '):
-        continue
-    parts=[c.strip() for c in line.strip().strip('|').split('|')]
-    if len(parts) < 5 or parts[0] in {'ID','---'} or set(parts[0]) <= {'-'}:
-        continue
-    if parts[3] in {'wired','partial','planned','blocked'}:
-        rows.append(parts)
-c=Counter(row[3] for row in rows)
-print({'wired': c['wired'], 'total': len(rows), 'percent': round(c['wired']/len(rows)*100,1), 'partial': c['partial'], 'planned': c['planned'], 'blocked': c['blocked']})
-for row in rows:
-    if row[3] in {'partial','planned'}:
-        print('|'.join(row[:5]))
-'@ | python -
-```
+## What Changed Since The Old Handoff
 
-## Current Partial Rows
+Rows that were promoted or materially clarified after the old snapshot include:
 
-These are intentionally not promoted to wired yet:
+- `SET9`, `SET12`, `SET13`, `SET18`
+- `XCK8`
+- `SET17` promoted to a wired local-posture-defaults slice
+- `BAK4`, `BAK5`, `BAK6`
+- `BAK11`
+- `XCK4`, `XCK5`, `XCK10`
+- `ROU9`
+- `ARC2`, `ARC3`, `ARC8`
+- `VOC1`, `VOC5`, `VOC6`
+- `VOC10` moved to honest `partial`
+- `VOC7` moved to honest `partial`
+- `BAK3`, `BAK7`, `BAK9`, `BAK10`
+- `BR7` moved to honest `partial`
 
-- `SK9` - Close. Transient surface close is wired; real session close/write-through remains in `CLS-*`.
-- `XCK2` - Review findings. Review Console pending items render id/type/severity/title/suggested actions/status, but owner attribution remains deferred and raw item content stays hidden.
-- `VOC5` - Read-aloud response. Status/control is visible and disabled; no speech output.
-- `VOC6` - Mute output. Status/control is visible and disabled; no mute mutation.
+Recent UI-owned renderer improvements after this handoff was first refreshed:
 
-Do not promote these unless the missing backend authority actually exists.
+- Backlog now exposes display-only filter/action summaries for the current
+  reviewed candidate set.
+- Backlog filter summary now makes active Compass-project inheritance and the
+  missing dedicated project/priority controls explicit.
+- Backlog now also exposes a dedicated mutation-action posture section so edit /
+  approve / defer / convert / archive / owner / priority controls are plainly
+  marked unavailable.
+- Backlog filter state now persists per active project/user in
+  `meridian.backlog-filter.v1`, so query/state/severity/response/owner/blocked
+  posture survives surface reloads without implying any durable backlog-query
+  backend or mutation authority.
+- Crosscheck now exposes display-only repair-routing, approval, recent-ledger,
+  review-action, and stop-condition summaries for the current reviewed finding
+  set.
+- Crosscheck now also exposes a dedicated Crosscheck run posture so current
+  reviewed scope, gating, proof blockers, and explicit run-control
+  unavailability are visible without implying a run backend.
+- Crosscheck review posture now also makes explicit waive/dismiss-control
+  unavailability and history-mutation boundaries visible for the filtered
+  findings set.
+- Crosscheck repair/action posture now also makes explicit rerun-control
+  unavailability and current repair/proof-blocking posture visible for the
+  filtered findings set.
+- Backlog mutation posture now also carries an explicit convert-to-task
+  unavailable slice over the filtered reviewed candidate set, without implying
+  task creation authority.
+- Backlog mutation posture now also carries an explicit archive-action
+  unavailable slice over the filtered reviewed candidate set, without implying
+  backlog archive authority.
+- Routines now also expose a dedicated Routine control posture so create,
+  enable/disable, and run-now unavailability are explicit without implying any
+  scheduler or automation control backend.
+- Backlog mutation posture now also makes create-item unavailability explicit,
+  so intake remains visibly deferred without implying a backlog ingest route.
+- Backlog candidate source now also makes external-import unavailability
+  explicit, so reviewed candidate-source visibility does not imply a Polaris
+  import path.
+- Backlog candidate source now also surfaces the reviewed queue summary,
+  response-authorized posture, and observation timestamp from the Review
+  Console snapshot, so the backlog surface exposes more of the backend review
+  contract instead of stopping at source/version plus pending-count posture.
+- Backlog candidate source now also surfaces reviewed raw-worker-chat visibility
+  and execution-controls-visible posture from the same Review Console snapshot,
+  so the backlog panel exposes more of the upstream display contract instead of
+  implying a narrower queue metadata surface than the backend actually provides.
+- Backlog candidate source now also surfaces the shared Review Console harness
+  identity and explicit display-only posture, so the backlog panel more clearly
+  reads as a filtered projection of the reviewed queue snapshot instead of a
+  separate authority-owning backlog backend.
+- Backlog mutation posture now also makes project/initiative-link
+  unavailability explicit, so active-project framing does not imply scope-link
+  authority.
+- Routines now expose compact failure summary, Prime routine review posture,
+  Prime routine action posture, and routine-history summary ahead of the
+  detailed posture grids.
+- Archive now exposes compact command-preview, command-gate, reopen/rerun, and
+  transcript-access/action summaries ahead of the detailed posture grids.
+- Session close/archive proof now also surfaces the reviewed bridge summary
+  text as its own source-level summary section, so the archive surface exposes
+  the backend's compact display-safe description alongside the more specific
+  archive, transcript, reopen/rerun, and proof posture summaries.
+- Voice now exposes visible top-icon status copy, backend-sourced disabled
+  reasons, compact voice-input/voice-output summaries, and a dedicated Voice
+  intent summary for display-only voice controls.
+- Voice I/O now also surfaces the reviewed bridge summary text, so the
+  renderer exposes the backend's compact display-safe description alongside
+  the detailed voice state/posture grids.
+- Voice input now also exposes a dedicated input-action posture so push-to-talk,
+  dictation draft, spoken-submit, and correction actions are plainly marked
+  unavailable.
+- Voice now also exposes a dedicated interrupt posture so speaking/output state
+  and missing interrupt control are explicit without implying a stop route.
+- Voice now also exposes a dedicated Voice selection posture so output-mode
+  state and missing voice-list/preference authority are explicit without
+  implying a real voice picker.
+- Voice input posture is now explicit enough to keep speech-to-text honest as a
+  display-only dictation-status slice without implying transcript output.
+- Models/Balance now expose a dedicated display-only Prime/Relay Auto-routing
+  posture from existing Relay evidence, provider-balance, and Relay-logic
+  snapshots, making the current gate and execution boundary explicit without
+  enabling Auto dispatch.
+- Provider Balance now also exposes its reviewed summary text, explicit
+  `mutation_authorized` posture, and per-provider prompt-delta fields, so the
+  shared UI matches more of the reviewed provider-balance contract without
+  adding any route or account authority.
+- Model Harness backend binding now also surfaces Provider Balance
+  `display_only` and `mutation_authorized` posture, so the cross-surface
+  dispatch summary makes the upstream no-mutation boundary explicit instead of
+  only showing selected-provider/routing-state fields.
+- Prime Runtime Logic now also exposes Beacon liveness input from the reviewed
+  Prime runtime context, so Prime-visible execution/advisory posture includes
+  Beacon source, statuses, observed harnesses, blockers, observation mode, and
+  advisory-only authorization state instead of stopping at Aegis/Relay.
+- The Prime harness/checklist wording now reflects that Beacon advisory posture
+  is part of the visible Prime runtime packet, not only a backend-internal
+  input.
+- Prime Runtime now also surfaces the reviewed bridge summary text as its own
+  source-level summary section, keeping that compact backend description
+  separate from the larger Runtime truth map block and aligning Prime with the
+  other summary-bearing renderer panels.
+- Release autonomy now also surfaces the reviewed bridge summary text as its
+  own source-level summary section, so the Release harness exposes the backend's
+  compact display-only description alongside posture, authority-boundary, and
+  blocker sections.
+- Release autonomy source now also shows the backend-generated timestamp, so
+  the Release harness names when that display-only autonomy snapshot was
+  produced instead of presenting the release posture as timeless.
+- Vulcan now also surfaces per-session pending approval reasons and recorded-at
+  timestamps from the reviewed Prime autonomy input instead of only showing a
+  coarser permission-summary shell.
+- Crosscheck / Review Console now also surfaces the reviewed snapshot
+  observation timestamp, so visible review posture names when the current queue
+  metadata was observed instead of presenting timeless findings.
+- Checklist wording is now tighter around `SET13`, `XCK8`, `XCK10`, and `VOC5`
+  so those rows describe the currently proven UI posture without implying
+  direct snapshot ownership, durable repair history, or spoken-response
+  execution that the renderer does not actually own.
+- Voice proof now includes a section-scoped Voice output assertion covering the
+  read-aloud/mute display-only boundary, keeping the `VOC5`/`VOC6` wording tied
+  to the exact reviewed renderer block instead of broader whole-surface string
+  presence.
+- Relay evidence and Aegis logic now also surface their reviewed bridge summary
+  text as explicit source-level summary sections, so those panels expose the
+  backend's compact advisory/proof description alongside the more detailed
+  intent, packet, dispatch, and cognition-policy sections.
+- FileMap Registry now also surfaces the backend injection summary, so the UI
+  exposes the compact context/memory-injection view the FileMap backend already
+  produces instead of only raw counts and focus entries.
+- Echo Memory, Atlas Retrieval, and FileMap Registry now also surface their
+  reviewed bridge summary text as explicit source-level summary sections, so
+  those read-only memory/retrieval/registry panels expose the backend's compact
+  display-safe description alongside query, hit, and registry-detail sections.
+- Echo Memory, Atlas Retrieval, and FileMap Registry source cards now also show
+  the reviewed `mutation_authorized` posture from their backend snapshots so
+  those panels state their no-write boundary explicitly.
+- Goal Runtime and Workflow Dispatch source cards now also show the reviewed
+  `mutation_authorized` posture from their backend snapshots so those status
+  surfaces state their no-write boundary as explicitly as the other renderer
+  panels.
+- Goal Runtime now also surfaces the reviewed bridge summary text as an
+  explicit source-level summary section, so the runtime continuity surface
+  exposes the backend's compact display-safe description alongside the goal,
+  continuation-policy, and checkpoint-discipline sections.
+- Workflow Dispatch now also surfaces the reviewed bridge summary text, so the
+  routines surface exposes the backend's compact status description alongside
+  cadence, failure, and Prime review posture.
 
-## Remaining Planned Rows
+The checklist/test pair now also enforces:
 
-High-level remaining planned groups:
+- exact remaining row ids and counts
+- explicit missing-authority wording for all planned rows
+- visible-posture plus missing-authority wording for all partial rows
 
-- Settings: `SET1`, `SET3`-`SET18`
-- Models/Balance: `MOD5`, `BAL10`
-- Backlog: `BAK2`-`BAK12`
-- Crosscheck: `XCK1`, `XCK4`-`XCK12`
-- Routines: `ROU1`-`ROU11`
-- Archive: `ARC1`-`ARC12`
-- Close: `CLS1`-`CLS7`, `CLS9`-`CLS12`
-- Voice: `VOC1`, `VOC3`, `VOC4`, `VOC7`-`VOC10`
-- Harness: `HMS4`, `HMS5`, `HMS10`, `HMS11`
-- Auto routing: `BR7`
+## Frontend-Owned Near-Term Work
 
-## Important Boundaries
+The easy overclaims are mostly gone. Remaining UI-lane work is now mostly:
 
-### Backlog
+- harvesting honest display-only/backend-backed slices already present in the UI
+- tightening wording so visible posture is truthful
+- adding small UI-local defaults/filters only when they do not imply backend
+  mutation or execution
 
-Current Backlog UI is display-only and backed by:
+`SET17` is a good example of the new standard: the UI really does persist
+Prime/User session-window defaults (`hidden`, `collapsed`, `pinned`, `size`)
+via `meridian.session-window-defaults.v1`, but archive/transfer/rerun and
+close/write-through authority remain backend-owned, so the row stays `partial`.
+The Settings surface now also explicitly summarizes which defaults are exposed
+versus unavailable.
 
-- `/bridge/review-console`
-- `/bridge/goal-runtime`
-- `/bridge/workflow-dispatch-status`
+## Backend-Owned Authority Gaps
 
-Do not promote Backlog mutation rows (`BAK3`-`BAK10`) until a reviewed backlog backend exists. Do not promote `BAK11` unless real fields for project, state, priority, owner, and blocked status are all available. Current Review Console does not honestly provide all of them.
+No rows are still `planned`. The remaining tail is now a single `partial` row,
+and it should stay partial until reviewed backend authority/data arrives for
+the missing close/write-through execution behavior.
 
-### Crosscheck
+The remaining backend-bound partial is:
 
-Current Crosscheck reads `/bridge/review-console` and `/bridge/aegis-logic`.
+- `SK9`: real session close/write-through/Obsidian capture
 
-Do not add run/approve/dismiss/re-run controls without reviewed execution backends. `XCK2` remains partial because owner attribution is not available.
+## Selected Remaining Backend Asks
 
-### Routines
+This is the smallest reviewed backend addition that would let the final
+remaining partial row advance without inventing authority:
 
-Current Routines surface is continuity/status only through:
+- `SK9`:
+  reviewed close/write-through authority plus any Obsidian capture action and
+  archive/session mutation route needed for real close behavior.
 
-- `/bridge/goal-runtime`
-- `/bridge/workflow-dispatch-status`
+If this backend evidence does not arrive, the row should stay `partial`. The
+current UI now makes the missing execution/mutation authority
+pretty explicit, and overclaiming from display-only posture would no longer be
+honest.
 
-The tests intentionally say workflow snapshots are not configured routine automation. Do not promote routine list/create/enable/run/history rows from workflow status alone.
+## Useful Current Partial Reality
 
-### Archive/Close
+- `BAK4`, `BAK5`, `BAK6`, `BAK11`: backlog now exposes display-only modify /
+  approve / reject visibility plus filter summaries over the current reviewed
+  candidate set, including explicit active-project inheritance, missing
+  project/priority controls, and a dedicated mutation-action posture, but still
+  has no edit/approval/reject/query backend authority.
+- `XCK4`, `XCK5`, `XCK10`: Crosscheck now exposes read-only repair-routing,
+  approval, recent-ledger, and explicit review-action posture over the current
+  reviewed queue, but still has no response/run/reroute authority or durable
+  history backend.
+- `XCK12`: stop-condition alert is now wired as a display-only summary plus
+  alert over the current reviewed review/proof blockers.
+- `ROU9`: routines now expose compact Prime review/action posture for the
+  latest reviewed results, but still have no accept/reroute/retry/escalate
+  authority or scheduler backend.
+- `ROU8`, `ROU11`: failure handling and routine-history/archive are already
+  wired as display-only workflow status slices.
+- `XCK10`: recent review ledger is real for the current pending queue with
+  UI-local filters, but there is no completed review history or durable repair
+  routing history yet.
+- `ARC2`, `ARC3`, `ARC8`: archive surface truthfully shows command-preview,
+  command-gate, reopen/rerun, and transcript-access/action summaries/posture
+  plus blockers, but exposes no live reopen/rerun/raw transcript controls.
+- `VOC1`, `VOC5`, `VOC6`: Voice I/O displays reviewed authorization/capture
+  posture, visible status copy, disabled controls, compact voice-input /
+  voice-output summaries, and explicit input-action unavailability, but does
+  not capture or speak audio.
+- `VOC7`: Voice I/O now exposes a dedicated display-only interrupt posture over
+  reviewed speaking/output state, but still has no speech-stop route or
+  transcript-preserving interrupt action.
+- `VOC10`: Voice I/O now exposes a dedicated display-only Voice intent summary
+  over reviewed `status_call` / `last_intent_ref` metadata, but still has no
+  command recognition runtime, preview, or execution path.
+- `BR7`: Models/Balance now expose a dedicated display-only Prime/Relay
+  Auto-routing posture over reviewed intent, route owner, policy state, lane
+  plan, and gate metadata, but Auto is still disabled and there is no
+  executable Relay route decision or provider dispatch path.
 
-Current Archive/Close proof uses `/bridge/session-close-archive-proof`, but there is no real archive list/storage/reload/run-again/delete backend. Do not promote `ARC*` or `CLS*` live-control rows from proof posture alone.
+## Recommended Next Loop
 
-### Voice
-
-Current Voice I/O is fail-closed display state from `/bridge/voice-io`.
-
-It explicitly sets:
-
-- `microphone_authorized: False`
-- `speech_output_authorized: False`
-- `read_aloud_authorized: False`
-- `controls_disabled: True`
-
-Do not add `getUserMedia`, `SpeechRecognition`, `MediaRecorder`, `AudioContext`, or `speechSynthesis` until a reviewed voice provider/capture backend exists.
-
-### Model/Relay
-
-Relay/Model Harness owns provider/model identity, prompt payload construction, dispatch/fallback behavior, transport gates, provider balance, and telemetry.
-
-Prime/UI may render backend-owned state, but must not create route tables, assemble prompt payloads, enable Auto routing, or infer model-call intent from transcript text.
-
-`MOD9A` is wired through backend-owned `/bridge/relay-evidence per_call_intent`.
-
-### Harness
-
-Generic harness surfaces are display-only unless a reviewed backend snapshot exists for that harness.
-
-Recently wired:
-
-- `SUR9` / `HMS6`: action metadata names selected harness and logic item, but action remains blocked.
-- `HMS14`: generic planned harness surfaces preserve UI-local draft notes under `meridian.harness.draft.v1.<harness>`.
-
-No harness execution, POST, `/bridge/message`, `/bridge/call-result`, User Session retargeting, or cross-harness routing is authorized by these rows.
-
-## Safe Next-Slice Candidates
-
-Prefer small slices that reveal existing backend state or honest UI-local state without inventing control authority.
-
-Possible candidates:
-
-1. `HMS10` - Harness diagnostics, only if implemented as structured display-only diagnostic metadata from existing model harness observability/proof telemetry. Do not claim real per-harness event history unless it exists.
-2. `SET18` - Diagnostic log visibility, only if scoped to an existing UI-local preview/diagnostics visibility toggle and not described as per-session event-log backend control unless that backend exists.
-3. `SET7` - Progress filter defaults, only if implemented as UI-local defaults for the existing context/filter preview. Be careful: the row says "progress items," so wording/tests must not overclaim.
-4. `HMS11` - Harness proof link, only if linking existing proof/check sections already present in model harness surfaces. Do not claim executable verification.
-
-Rows to avoid until backend exists:
-
-- `XCK1`, `XCK5`, `XCK6`, `XCK7`
-- `BAK3`-`BAK10`
-- `ROU1`-`ROU11`
-- `ARC1`-`ARC12`
-- `CLS1`-`CLS7`, `CLS9`-`CLS12`
-- `VOC1`, `VOC3`, `VOC4`, `VOC7`-`VOC10`
-- `BR7`
-
-## Current Important UI Functions
-
-In `index.html`:
-
-- `renderSparkSkillsRegistry(snapshot, query = '')`
-- `loadSparkSkills()`
-- `renderSparkBacklog()`
-- `loadSparkBacklog()`
-- `renderSparkCrosscheck()`
-- `renderProviderBalance()`
-- `renderModelHarnessSurface(button)`
-- `renderModelHarnessBackendBindingSnapshot(snapshots = {})`
-- `renderHarnessSurface(button)`
-- `renderVoiceIoSnapshot(snapshot)`
-- `refreshProjectScopedSurfaces()`
-
-Important local storage keys:
-
-- `meridian.session.project`
-- `meridian.skills.pinned.v1`
-- `meridian.harness.draft.v1.<harness>`
-- `meridian.context-filter.v1`
-- `meridian.right-panel.mode.v1`
-- `meridian.right-panel.selection.v1`
-
-## Current Backend Routes Used By UI
-
-From `scripts/meridian-model-bridge.js`:
-
-- `/bridge/health`
-- `/bridge/models`
-- `/bridge/recent-calls`
-- `/bridge/message`
-- `/bridge/restart`
-- `/bridge/user-sessions`
-- `/bridge/prime-logic`
-- `/bridge/compass-logic`
-- `/bridge/vulcan-logic`
-- `/bridge/relay-logic`
-- `/bridge/relay-evidence`
-- `/bridge/provider-balance`
-- `/bridge/review-console`
-- `/bridge/aegis-logic`
-- `/bridge/beacon-liveness`
-- `/bridge/federation-horizon`
-- `/bridge/goal-runtime`
-- `/bridge/workflow-dispatch-status`
-- `/bridge/echo-memory`
-- `/bridge/atlas-retrieval`
-- `/bridge/filemap`
-- `/bridge/session-close-archive-proof`
-- `/bridge/voice-io`
-- `/bridge/prime-autonomy`
-
-## Session Coordination Rules
-
-- Use a session for one coherent task thread.
-- Start a new session when the next task no longer needs most of the prior working context, unless detailed prior reasoning is needed.
-- The orchestrator should not ingest raw worker session history by default.
-- Ingest compact, typed session state:
-  - worker transcript stored, not replayed;
-  - worker summary small and checkpointed;
-  - session state packet always available;
-  - evidence refs links/ids;
-  - raw detail fetched only on demand.
-
-## How To Promote A Slice
-
-1. Verify main is clean.
-2. Pick one row or a tightly related pair.
-3. Implement narrowly in the Electron renderer / bridge only if backed by current reviewed backend state.
-4. Update `docs/ui-integration-checklist.md` only when the behavior is real and test-covered.
-5. Add focused tests in `tests/test_bifrost_cockpit.py`.
-6. Run focused tests and embedded JS parse.
-7. Run full verification:
-
-```powershell
-python -m pytest tests\test_bifrost_cockpit.py -q
-node --check scripts\meridian-model-bridge.js
-node scripts\meridian-model-bridge.js --self-test
-git diff --check
-```
-
-8. Count checklist progress.
-9. Commit and push to `main`.
-10. Confirm `git status --short --branch` is clean/aligned.
-
-## Handoff Creation Proof
-
-At creation time:
-
-- `git status --short --branch` showed `## main...origin/main`.
-- Progress count showed `215/305 wired`, `4 partial`, `86 planned`, `0 blocked`.
-- Latest pushed head was `973b458cf`.
-
+1. Fetch/reconcile with `origin/main` before any promotion attempt.
+2. Keep implementation scoped to UI-owned/display-only slices.
+3. Preserve the current proof loop:
+   - focused `tests/test_bifrost_cockpit.py`
+   - embedded `index.html` script parse
+   - bridge self-test only when bridge payloads/routes change
+   - `git diff --check`
+4. If a row needs new backend fields/routes, stop and name the exact missing
+   authority instead of filling it in from UI assumptions.

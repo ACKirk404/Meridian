@@ -58,6 +58,7 @@ class ReviewConsoleItem:
     promptable: bool
     is_automatic: bool
     requires_response: bool
+    owner_harness: str = "Prime"
     suggested_actions: list[ReviewConsoleAction] = field(default_factory=list)
     status: ReviewConsoleItemStatus = field(default=ReviewConsoleItemStatus.PENDING)
     sequence: int = field(default=-1)
@@ -156,6 +157,7 @@ def make_cross_check_item(
     content: str,
     severity: ReviewConsoleSeverity = ReviewConsoleSeverity.INFO,
     is_automatic: bool = True,
+    owner_harness: str = "Aegis",
 ) -> ReviewConsoleItem:
     """Automatic cross-check finding. Promptable, informational by default."""
     return ReviewConsoleItem(
@@ -164,6 +166,7 @@ def make_cross_check_item(
         severity=severity,
         title=title,
         content=content,
+        owner_harness=owner_harness,
         promptable=True,
         is_automatic=is_automatic,
         requires_response=False,
@@ -176,6 +179,7 @@ def make_plan_review_item(
     title: str,
     content: str,
     severity: ReviewConsoleSeverity = ReviewConsoleSeverity.INFO,
+    owner_harness: str = "Prime",
 ) -> ReviewConsoleItem:
     """Plan review placed by Prime for Scott to inspect or approve."""
     return ReviewConsoleItem(
@@ -184,6 +188,7 @@ def make_plan_review_item(
         severity=severity,
         title=title,
         content=content,
+        owner_harness=owner_harness,
         promptable=True,
         is_automatic=False,
         requires_response=False,
@@ -196,6 +201,7 @@ def make_approval_gate(
     title: str,
     content: str,
     severity: ReviewConsoleSeverity = ReviewConsoleSeverity.WARNING,
+    owner_harness: str = "Aegis",
 ) -> ReviewConsoleItem:
     """Approval gate. Promptable and requires a response before Prime proceeds."""
     return ReviewConsoleItem(
@@ -204,10 +210,33 @@ def make_approval_gate(
         severity=severity,
         title=title,
         content=content,
+        owner_harness=owner_harness,
         promptable=True,
         is_automatic=False,
         requires_response=True,
         suggested_actions=[ReviewConsoleAction.APPROVE, ReviewConsoleAction.REJECT, ReviewConsoleAction.MODIFY],
+    )
+
+
+def make_comparison_item(
+    id: str,
+    title: str,
+    content: str,
+    severity: ReviewConsoleSeverity = ReviewConsoleSeverity.WARNING,
+    owner_harness: str = "Relay",
+) -> ReviewConsoleItem:
+    """Comparison item for visible disagreement between independent lanes."""
+    return ReviewConsoleItem(
+        id=id,
+        item_type=ReviewConsoleItemType.COMPARISON,
+        severity=severity,
+        title=title,
+        content=content,
+        owner_harness=owner_harness,
+        promptable=True,
+        is_automatic=True,
+        requires_response=False,
+        suggested_actions=[ReviewConsoleAction.INSPECT, ReviewConsoleAction.ACKNOWLEDGE],
     )
 
 
@@ -216,6 +245,7 @@ def make_system_finding(
     title: str,
     content: str,
     severity: ReviewConsoleSeverity = ReviewConsoleSeverity.INFO,
+    owner_harness: str = "Beacon",
 ) -> ReviewConsoleItem:
     """Informational system finding from Prime or a harness. Not a prompt window."""
     return ReviewConsoleItem(
@@ -224,6 +254,7 @@ def make_system_finding(
         severity=severity,
         title=title,
         content=content,
+        owner_harness=owner_harness,
         promptable=False,
         is_automatic=True,
         requires_response=False,
@@ -256,6 +287,7 @@ def route_to_console(
         severity=ReviewConsoleSeverity.INFO,
         title=summary,
         content=provenance,
+        owner_harness="Prime",
         promptable=False,
         is_automatic=True,
         requires_response=False,
@@ -293,6 +325,7 @@ def make_prompt_metrics_finding(
         severity=_METRICS_SEVERITY[summary.status],
         title=f"Prompt performance: {summary.status.value}",
         content=content,
+        owner_harness="Relay",
         promptable=False,
         is_automatic=True,
         requires_response=False,

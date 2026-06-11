@@ -84,7 +84,18 @@ Status: Complete | Aborted | Blocked
 
 ## Active Coordination
 
-No active write lease.
+```text
+Time: 2026-06-11 05:18 -06:00
+Writer: Meridian coordinator
+Requested action: merge
+Target base: origin/main at 15009de74a1da3268f9f14c50060d254e4690336 after PR #2 UI salvage merge
+Path-limited scope: merge backend PR #3 (`codex/v25-evidence-safety-20260611` at 033531dfa841267c023af190fd41e920f427d262) only; backend modules, backend tests, FileMap/package exports; no UI-owned files or dirty shared-checkout artifacts.
+Reason: complete Meridian backend V2.5 harness hardening after final Codex review and post-UI integration proof.
+Proof to run: verify PR #3 mergeability; after merge fetch origin/main; run V2.5 backend subset and full `python -m pytest -q`; run `python -m compileall -q meridian_core`; verify final main clean/aligned.
+Expected duration: 10 minutes after ACK.
+Requires other party ACK: yes
+Status: Intent posted; awaiting explicit ACK before merge.
+```
 
 ## Standing Acknowledgements
 

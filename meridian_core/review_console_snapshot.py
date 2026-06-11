@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from .review_console import (
     ReviewConsoleQueue,
     make_approval_gate,
+    make_comparison_item,
     make_cross_check_item,
     make_plan_review_item,
     make_system_finding,
@@ -76,6 +77,13 @@ def _sample_queue() -> ReviewConsoleQueue:
         )
     )
     queue.enqueue(
+        make_comparison_item(
+            "rc-compare-ui",
+            "Reviewer disagrees with builder on route-confidence posture",
+            "comparison-ref:relay-independent-review",
+        )
+    )
+    queue.enqueue(
         make_system_finding(
             "rc-system-ui",
             "Beacon liveness route is display-only",
@@ -92,6 +100,7 @@ def _safe_item(item) -> dict:
         "item_type": item.item_type.value,
         "severity": item.severity.value,
         "title": item.title,
+        "owner_harness": item.owner_harness,
         "content_present": content_present,
         "content_label": "<review_content>" if content_present else "none",
         "content_length": len(item.content) if content_present else 0,

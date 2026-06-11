@@ -21,6 +21,7 @@ from .session_lifecycle import (
     build_session_live_state_evidence,
     evaluate_live_control_permission_gate,
     export_session_runtime_state_for_workflow_recovery,
+    gather_prime_autonomy_input,
     summarize_recovery_readiness,
     summarize_session_permission_state,
     summarize_workflow_work_order_recovery,
@@ -180,6 +181,14 @@ def _runtime_sample() -> dict:
         recovery_readiness,
         now=observed_at,
     )
+    autonomy_input = gather_prime_autonomy_input(
+        sessions=(session,),
+        queues_by_harness={session.harness_role.value: (session.assigned_queue_file,)},
+        approvals_pending=(("session-ui-live-build-2", "aegis-command-plan-review"),),
+        restart_resteer_findings=tuple(permission_summary.restart_resteer_findings),
+        recent_completions=("session-ui-prev-build-1:archived", "session-ui-prev-build-0:closed"),
+        timestamp=observed_at,
+    )
 
     return {
         "session_live_state_evidence": live_evidence.to_dict(),
@@ -197,6 +206,32 @@ def _runtime_sample() -> dict:
         },
         "workflow_recovery": workflow_summary.to_dict(),
         "runtime_state_export": runtime_export.to_dict(),
+        "prime_autonomy_input": {
+            "current_session_ids": [session.session_id for session in autonomy_input.current_sessions],
+            "queues_by_harness": {harness: list(queue_files) for harness, queue_files in autonomy_input.queues_by_harness},
+            "approvals_pending": list(autonomy_input.approvals_pending),
+            "restart_resteer_findings": [
+                finding.finding_type.value for finding in autonomy_input.restart_resteer_findings
+            ],
+            "recent_completions": list(autonomy_input.recent_completions),
+            "permission_summaries": [
+                {
+                    "session_id": summary.session_id,
+                    "permission_state": summary.permission_state.value,
+                    "approved_operations": [operation.value for operation in summary.approved_operations],
+                    "blockers": list(summary.blockers),
+                    "approvals_pending": list(summary.approvals_pending),
+                    "review_gate_blockers": list(summary.review_gate_blockers),
+                    "restart_resteer_findings": [
+                        finding.finding_type.value for finding in summary.restart_resteer_findings
+                    ],
+                    "can_accept_work": summary.can_accept_work,
+                    "timestamp": summary.timestamp.isoformat(),
+                }
+                for summary in autonomy_input.permission_summaries
+            ],
+            "timestamp": autonomy_input.timestamp.isoformat(),
+        },
         "live_control_permission_gate": permission_gate.to_dict(),
         "recovery_readiness": recovery_readiness.to_dict(),
         "beacon_advisories": [

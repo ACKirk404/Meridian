@@ -1012,11 +1012,36 @@ print(json.dumps({
     "workflow": {
         "success_summary": safe(success),
         "error_summary": safe(failure),
+        "recent_runs": [
+            {
+                "run_ref": "workflow-run:atlas-success-001",
+                "harness": WorkflowHarness.ATLAS.value,
+                "status": "completed",
+                "summary": success.summary,
+                "proof_trail": list(success.proof_trail),
+                "observed_at": "2026-06-07T18:58:00+00:00",
+            },
+            {
+                "run_ref": "workflow-run:atlas-gate-002",
+                "harness": WorkflowHarness.ATLAS.value,
+                "status": "blocked",
+                "summary": failure.summary,
+                "proof_trail": list(failure.proof_trail),
+                "observed_at": "2026-06-07T19:00:00+00:00",
+            },
+        ],
         "status_policy": {
             "dispatch_surface": "display_only",
             "heartbeat_history_visible": False,
             "raw_artifacts_visible": False,
             "tier_three_gate_required": True,
+            "cadence_view": {
+                "cadence_kind": "on_review_gate_clear",
+                "trigger_type": "event_gate",
+                "trigger_ref": "review_console_pass + gate_context",
+                "next_expected_check_at": "2026-06-07T19:05:00+00:00",
+                "heartbeat_policy": "history_hidden_status_only",
+            },
         },
     },
 }))
@@ -1183,6 +1208,7 @@ print(json.dumps({
     "mutation_authorized": False,
     "entry_count": len(entries),
     "with_tests_count": len(fm.with_tests()),
+    "injection_summary": fm.injection_summary(),
     "area_counts": [
         {"area": area, "count": count}
         for area, count in sorted(areas.items())
@@ -1294,6 +1320,9 @@ from datetime import datetime, timedelta, timezone
 from meridian_core.session_lifecycle import (
     CloseArchiveWriteThroughAction,
     CommandIntent,
+    GoalRuntimeCheckpointCadence,
+    GoalRuntimeCheckpointSurface,
+    GoalRuntimeContinuationState,
     HarnessRole,
     HealthState,
     OperationScope,
@@ -1304,8 +1333,10 @@ from meridian_core.session_lifecycle import (
     SessionCommandPlan,
     SessionLifecycleState,
     SessionStatus,
+    build_v3_goal_runtime_checkpoint_proof_packet,
     build_close_archive_write_through_proof,
     build_v2_command_plan_preview_proof,
+    gather_prime_autonomy_input,
 )
 
 observed_at = datetime(2026, 6, 7, 18, 0, tzinfo=timezone.utc)
@@ -1398,6 +1429,34 @@ command_preview = build_v2_command_plan_preview_proof(
     archive_command_plan,
     timestamp=observed_at,
 )
+obsidian_capture = build_v3_goal_runtime_checkpoint_proof_packet(
+    checkpoint_id="checkpoint-close-archive-001",
+    goal_id="goal-close-archive-proof",
+    goal_title="close archive durability review",
+    owning_lane="spark_archive",
+    owning_session_label=stopped_session.session_name,
+    update_surface=GoalRuntimeCheckpointSurface.OBSIDIAN,
+    checkpoint_cadence=GoalRuntimeCheckpointCadence.BEFORE_BLOCKER_HANDOFF,
+    token_budget_summary="not_applicable",
+    time_budget_summary="within_window",
+    latest_git_ref="git-checkpoint:close-archive-proof-001",
+    latest_obsidian_ref="obsidian-checkpoint:close-archive-proof-001",
+    reviewer_gate_refs=("review:close-archive-proof",),
+    lease_gate_refs=("lease:close-archive-proof",),
+    blocker_tags=("close_archive.awaiting_human_review",),
+    continuation_state=GoalRuntimeContinuationState.READY_FOR_HANDOFF,
+    evidence_refs=(
+        "proof:close-archive-write-through",
+        "proof:obsidian-checkpoint-close-archive",
+    ),
+    timestamp=observed_at,
+)
+archive_history = gather_prime_autonomy_input(
+    sessions=(stopped_session,),
+    queues_by_harness={stopped_session.harness_role.value: (stopped_session.assigned_queue_file,)},
+    recent_completions=("session-close-archive-proof:archived", "session-close-archive-proof:closed"),
+    timestamp=observed_at,
+)
 print(json.dumps({
     "ok": True,
     "source": "meridian_core.session_lifecycle",
@@ -1426,6 +1485,15 @@ print(json.dumps({
         "source_session_id": running_session.session_id,
         "observed_at": observed_at.isoformat(),
     },
+    "archive_sessions": [
+        {
+            "session_ref": session_ref,
+            "status": "archived" if session_ref.endswith(":archived") else "closed",
+        }
+        for session_ref in archive_history.recent_completions
+    ],
+    "recent_close_refs": list(archive_history.recent_completions),
+    "obsidian_capture": obsidian_capture.to_dict(),
     "proofs": {
         "archive": archive_proof.to_dict(),
         "close": close_proof.to_dict(),

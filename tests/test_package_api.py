@@ -67,6 +67,37 @@ def test_risk_relay_aegis_review_console_exports():
     assert route_from_tier
 
 
+def test_evidence_safety_exports():
+    from meridian_core import (
+        EvidenceSafetyCategory,
+        EvidenceSafetyFinding,
+        EvidenceSafetyProof,
+        EvidenceSafetySeverity,
+        EvidenceSafetyStatus,
+        scan_evidence_artifact,
+        scan_evidence_artifacts,
+    )
+
+    assert EvidenceSafetyCategory
+    assert EvidenceSafetyFinding
+    assert EvidenceSafetyProof
+    assert EvidenceSafetySeverity
+    assert EvidenceSafetyStatus
+    assert scan_evidence_artifact
+    assert scan_evidence_artifacts
+
+    for name in (
+        "EvidenceSafetyCategory",
+        "EvidenceSafetyFinding",
+        "EvidenceSafetyProof",
+        "EvidenceSafetySeverity",
+        "EvidenceSafetyStatus",
+        "scan_evidence_artifact",
+        "scan_evidence_artifacts",
+    ):
+        assert name in meridian_core.__all__, f"{name} missing from __all__"
+
+
 def test_prompt_metrics_bridge_exports():
     from meridian_core import make_prompt_metrics_finding
 

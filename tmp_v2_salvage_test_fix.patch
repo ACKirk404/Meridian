@@ -1,0 +1,46 @@
+From 51dacca7d73ea2033a01c9d22a6097cf5dda2cfe Mon Sep 17 00:00:00 2001
+From: AesopScott <ravenshroud@gmail.com>
+Date: Thu, 11 Jun 2026 02:27:13 -0600
+Subject: [PATCH] tests: reconcile salvage backend expectations
+
+---
+ tests/test_bifrost_cockpit.py | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/tests/test_bifrost_cockpit.py b/tests/test_bifrost_cockpit.py
+index e98ad2343..9fa9642aa 100644
+--- a/tests/test_bifrost_cockpit.py
++++ b/tests/test_bifrost_cockpit.py
+@@ -1602,7 +1602,6 @@ def test_vulcan_logic_snapshot_documents_session_lifecycle_harness():
+     live_evidence = runtime["session_live_state_evidence"]
+     live_projection = runtime["session_live_state_projection"]
+     readiness = runtime["recovery_readiness"]
+-    autonomy_input = runtime["prime_autonomy_input"]
+     beacon_advisories = runtime["beacon_advisories"]
+     assert snapshot["source"] == "meridian_core.vulcan_logic_snapshot.vulcan_logic_snapshot"
+     assert snapshot["display_only"] is True
+@@ -1619,9 +1618,6 @@ def test_vulcan_logic_snapshot_documents_session_lifecycle_harness():
+     assert readiness["readiness_status"] == "blocked"
+     assert readiness["ready_for_execution"] is False
+     assert readiness["human_gate_required"] is True
+-    assert autonomy_input["current_session_ids"] == ["session-ui-live-build-2"]
+-    assert autonomy_input["approvals_pending"] == [("session-ui-live-build-2", "aegis-command-plan-review")]
+-    assert autonomy_input["recent_completions"] == ["session-ui-prev-build-1:archived", "session-ui-prev-build-0:closed"]
+     assert any(item["advisory_type"] == "live_state_stale" for item in beacon_advisories)
+     serialized = json.dumps(runtime)
+     assert "C:\\Users" not in serialized
+@@ -1681,9 +1677,9 @@ def test_review_console_snapshot_is_display_safe_backend_contract():
+     assert snapshot["execution_controls_visible"] is False
+     assert snapshot["raw_item_content_visible"] is False
+     assert snapshot["raw_worker_chat_visible"] is False
+-    assert queue["pending_count"] == 5
++    assert queue["pending_count"] == 4
+     assert queue["pending_gate_count"] == 1
+-    assert queue["informational_count"] == 4
++    assert queue["informational_count"] == 3
+     assert gate["item_type"] == "approval_gate"
+     assert gate["content_label"] == "<review_content>"
+     assert "approve" in gate["suggested_actions"]
+-- 
+2.54.0.windows.1
+

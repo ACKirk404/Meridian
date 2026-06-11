@@ -460,13 +460,27 @@ def test_index_speech_mode_icon_is_display_only():
     assert 'aria-label="Speech mode unavailable"' in doc
     assert 'aria-disabled="true"' in doc
     assert " disabled>" in doc
+    assert ".speech-mode-button::before {" in doc
+    assert "content: attr(data-status-copy);" in doc
     assert "const speechButton = document.querySelector('.speech-mode-button')" in doc
     assert "const voiceStateLabel = (voice = {}) =>" in doc
+    assert "const speechButtonDisabledReason = (snapshot = {}, voice = {}) =>" in doc
+    assert "const speechButtonStatusCopy = (snapshot = {}, voice = {}) =>" in doc
     assert "const applySpeechButtonVoiceState = (snapshot = {}) =>" in doc
     assert "const refreshSpeechButtonVoiceState = async () =>" in doc
     assert "speechButton.dataset.voiceState = state" in doc
+    assert "speechButton.dataset.disabledReason = disabledReason" in doc
+    assert "speechButton.dataset.statusCopy = statusCopy" in doc
     assert "speechButton.dataset.voiceAuthorization = 'display-only'" in doc
     assert "speechButton.setAttribute('aria-label', `Speech mode ${state}`)" in doc
+    assert "Voice offline" in doc
+    assert "Voice blocked" in doc
+    assert "Mic unavailable" in doc
+    assert "Output unavailable" in doc
+    assert "Display only" in doc
+    assert "Mic unavailable: microphone permission not authorized" in doc
+    assert "Voice output unavailable: speech output backend not authorized" in doc
+    assert "Voice controls are display-only in this build" in doc
     assert "speechButton.setAttribute('aria-disabled', 'true')" in doc
     assert "speechButton.disabled = true" in doc
     assert "speechButton.setAttribute('aria-pressed', state !== 'unavailable' && state !== 'blocked' ? 'true' : 'false')" in doc
@@ -616,6 +630,7 @@ def test_index_crosscheck_evidence_handoff_only_switches_visible_surfaces():
     handler_end = doc.index("buttons.forEach((button) =>", handler_start)
     handler = doc[handler_start:handler_end]
     assert "Crosscheck evidence handoff" in crosscheck_surface
+    assert "Crosscheck run posture" in crosscheck_surface
     assert "Open Aegis proofs" in crosscheck_surface
     assert "Open Archive command preview" in crosscheck_surface
     assert "This handoff only changes the visible surface; it does not approve findings, rerun checks, apply console responses, execute commands, or inject raw logs into Prime context." in crosscheck_surface
@@ -646,10 +661,24 @@ def test_index_crosscheck_stop_condition_alert_uses_existing_review_and_aegis_sn
     assert "proofTrail.blocking_count" in stop_logic
     assert "policy.requires_human_gate" in stop_logic
     assert "policy.can_dispatch === false" in stop_logic
+    assert "relaySection('Stop condition summary'" in stop_logic
+    assert "['stop condition count', uniqueConditions.length]" in stop_logic
+    assert "['summary posture', uniqueConditions.length ? 'blocking review/proof posture is visible below' : 'no current hard-stop conditions are reported']" in stop_logic
+    assert "display-only stop-condition summary; no approve, waive, rerun, or review-state mutation is executed" in stop_logic
     assert "const renderCrosscheckIrreversibleActionGateSnapshot = (reviewSnapshot, aegisSnapshot) =>" in doc
+    assert "const renderCrosscheckLaneComparisonSnapshot = (reviewSnapshot, relaySnapshot) =>" in doc
+    assert "const renderCrosscheckRunPostureSnapshot = (reviewSnapshot, aegisSnapshot) =>" in doc
+    assert "data-crosscheck-run-posture" in doc
     assert "data-crosscheck-irreversible-gate" in doc
+    assert "data-crosscheck-lane-comparison" in doc
     assert "Public, financial, account-risking, or otherwise irreversible actions must stay behind the current review/proof gate state." in doc
     assert "Crosscheck can show the blocking posture, but it cannot approve, bypass, or execute the gated action from this surface." in doc
+    assert "relaySection('Crosscheck run posture'" in doc
+    assert "['current scope', 'current reviewed findings and proof posture only']" in doc
+    assert "['run control available', 'no']" in doc
+    assert "['target selection available', 'no']" in doc
+    assert "Run boundary: no execution route or review-event creation path is exposed from this surface." in doc
+    assert "This surface does not start a review run, create a review event, execute providers, or select a target artifact." in doc
     assert "review_console_pending_gate" in stop_logic
     assert "aegis_proof_blocking" in stop_logic
     assert "aegis_human_gate_required" in stop_logic
@@ -659,11 +688,34 @@ def test_index_crosscheck_stop_condition_alert_uses_existing_review_and_aegis_sn
     assert "Crosscheck remains display-only; this alert does not approve, waive, rerun, or mutate any review/proof state." in stop_logic
     assert "fetch(bridgeUrl('review-console'), { cache: 'no-store' })" in loader
     assert "fetch(bridgeUrl('aegis-logic'), { cache: 'no-store' })" in loader
+    assert "fetch(bridgeUrl('relay-logic'), { cache: 'no-store' })" in loader
     assert "renderCrosscheckStopConditionsSnapshot(reviewSnapshot, aegisSnapshot)" in loader
+    assert "renderCrosscheckRunPostureSnapshot(reviewSnapshot, aegisSnapshot)" in loader
     assert "renderCrosscheckIrreversibleActionGateSnapshot(reviewSnapshot, aegisSnapshot)" in loader
+    assert "renderCrosscheckLaneComparisonSnapshot(reviewSnapshot, relaySnapshot)" in loader
     assert "bridgeUrl('message')" not in loader
     assert "bridgeUrl('call-result')" not in loader
     assert "method: 'POST'" not in loader
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| XCK12 | Stop condition alert | Highlights active hard-stop conditions from this checklist. | wired | Spark Crosscheck renders a display-only Stop condition summary plus Stop condition alert by joining `/bridge/review-console` gate counts with `/bridge/aegis-logic` proof-blocking, human-gate, and dispatch-block fields; it flags when further UI wiring should pause until review/proof blockers clear, without approving, waiving, rerunning, or mutating any review state. |" in checklist
+
+
+def test_index_crosscheck_surfaces_model_lane_disagreement_without_raw_transcripts():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    comparison_logic = doc[
+        doc.index("const renderCrosscheckLaneComparisonSnapshot = (reviewSnapshot, relaySnapshot) =>"):
+        doc.index("const renderBacklogReviewSnapshot")
+    ]
+    assert "item?.item_type === 'comparison'" in comparison_logic
+    assert "Model lane disagreement" in comparison_logic
+    assert "relayLaneSummary(tier3)" in comparison_logic
+    assert "lane.independent" in comparison_logic
+    assert "visible as display-safe comparison metadata" in comparison_logic
+    assert "raw prompts, raw transcripts, raw evidence bodies, and worker chat stay hidden" in comparison_logic
+    assert "Crosscheck does not approve, dismiss, rerun, or resolve comparison items from this surface." in comparison_logic
+    assert "bridgeUrl('message')" not in comparison_logic
+    assert "bridgeUrl('call-result')" not in comparison_logic
+    assert "method: 'POST'" not in comparison_logic
 
 
 def test_index_spark_backlog_uses_typed_task_posture_without_fake_items_or_mutation():
@@ -682,11 +734,13 @@ def test_index_spark_backlog_uses_typed_task_posture_without_fake_items_or_mutat
     assert "Orchestrator intake stays limited to compact typed session state, small worker summaries, and evidence refs." in doc
     assert "Backlog candidate rows are derived from the Review Console queue snapshot only." in doc
     assert "The active project is the current Compass project display frame; no hidden cross-project merge or fake item fill is performed." in doc
+    assert "Filter state is UI-local over the currently loaded backlog snapshot only; it does not mutate queue state or imply a durable backlog query backend." in doc
     assert "Create, approve, deny, defer, convert, archive, owner assignment, and priority mutation remain unavailable until a reviewed backlog backend exists." in doc
     assert "data-backlog-review-console" in doc
     assert "data-backlog-goal-runtime" in doc
     assert "data-backlog-workflow-dispatch-status" in doc
     assert "data-backlog-prime-logic" in doc
+    assert "data-backlog-prime-recommendation" in doc
     assert "bridgeUrl('review-console')" in doc
     assert "bridgeUrl('prime-logic')" in doc
     assert "bridgeUrl('goal-runtime')" in doc
@@ -695,19 +749,33 @@ def test_index_spark_backlog_uses_typed_task_posture_without_fake_items_or_mutat
     assert "Promise.all" in backlog_loader
     assert "renderBacklogReviewSnapshot" in backlog_loader
     assert "renderBacklogPrioritySnapshot" in backlog_loader
+    assert "renderBacklogRecommendationSnapshot" in backlog_loader
     assert "renderGoalRuntimeSnapshot" in backlog_loader
     assert "renderWorkflowDispatchStatusSnapshot" in backlog_loader
     backlog_review = doc[doc.index("const renderBacklogReviewSnapshot"):doc.index("const renderFederationHorizonSnapshot")]
     assert "activeProjectContext()" in backlog_review
     assert "Backlog candidate list" in backlog_review
     assert "Priority order" in backlog_review
+    assert "Prime recommendation" in backlog_review
+    assert "Backlog filter" in backlog_review
+    assert "data-backlog-search" in backlog_review
+    assert "data-backlog-state-filter" in backlog_review
+    assert "data-backlog-severity-filter" in backlog_review
+    assert "data-backlog-response-filter" in backlog_review
+    assert "data-backlog-owner-filter" in backlog_review
+    assert "data-backlog-blocked-filter" in backlog_review
     assert "Review Console queue order selects sequence" in backlog_review
     assert "Goal Runtime keeps the active objective focused on" in backlog_review
     assert "Prime currently explains the active review posture as:" in backlog_review
+    assert "Prime rationale:" in backlog_review
     assert "no pending backlog candidates reported by the current Review Console snapshot" in backlog_review
-    for field in ("project", "sequence", "id", "type", "severity", "title", "state", "requires response", "suggested actions"):
+    for field in ("project", "sequence", "id", "type", "severity", "owner", "title", "state", "requires response", "suggested actions"):
+        assert f"['{field}'" in backlog_review
+    for field in ("query", "state filter", "severity filter", "response filter", "owner filter", "blocked filter", "matching rows", "filter boundary"):
         assert f"['{field}'" in backlog_review
     for field in ("active project", "next candidate id", "next sequence", "goal objective", "Prime owner", "Prime action", "Prime risk", "Prime why"):
+        assert f"['{field}'" in backlog_review
+    for field in ("recommended candidate", "candidate title", "recommended action", "risk posture", "proof/risk context", "Prime owner", "goal objective"):
         assert f"['{field}'" in backlog_review
     backlog_surface = doc[doc.index("const renderSparkBacklog"):doc.index("const renderProviderBalance")]
     assert "fetch(" not in backlog_surface
@@ -721,6 +789,120 @@ def test_index_spark_backlog_uses_typed_task_posture_without_fake_items_or_mutat
     assert "assign_worker" not in backlog_surface
     assert "enqueue_to_review_console" not in backlog_surface
     assert "apply_console_response" not in backlog_surface
+
+
+def test_backlog_surface_filters_loaded_snapshot_locally_without_promoting_bak11():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    loader = doc[doc.index("const loadSparkBacklog = async () =>"):doc.index("const loadEchoMemory", doc.index("const loadSparkBacklog = async () =>"))]
+    handler = doc[doc.index("const sparkButtonByLabel = (label) =>"):doc.index("buttons.forEach((button) =>", doc.index("const sparkButtonByLabel = (label) =>"))]
+
+    assert "const prior = reviewNode.dataset.backlogUiState" in loader
+    assert "readBacklogFilterState()" in loader
+    assert "const nextState = normalizeBacklogFilterState(prior);" in loader
+    assert "reviewSnapshot._ui_query = nextState.query;" in loader
+    assert "reviewSnapshot._ui_state = nextState.state;" in loader
+    assert "reviewSnapshot._ui_severity = nextState.severity;" in loader
+    assert "reviewSnapshot._ui_response = nextState.response;" in loader
+    assert "reviewSnapshot._ui_owner = nextState.owner;" in loader
+    assert "reviewSnapshot._ui_blocked = nextState.blocked;" in loader
+    assert "reviewNode.dataset.backlogUiState = JSON.stringify(nextState);" in loader
+    assert "reviewNode.dataset.backlogReviewSnapshot = JSON.stringify(reviewSnapshot);" in loader
+    assert "rightWorkspace?.addEventListener('input', (event) => {" in handler
+    assert "[data-backlog-search]" in handler
+    assert "[data-backlog-state-filter], [data-backlog-severity-filter], [data-backlog-response-filter], [data-backlog-owner-filter], [data-backlog-blocked-filter]" in handler
+    assert "const nextState = writeBacklogFilterState({" in handler
+    assert "reviewNode.dataset.backlogUiState = JSON.stringify(nextState);" in handler
+    assert "owner: snapshot._ui_owner" in handler or "owner: snapshot._ui_owner || 'all'" in handler
+    assert "blocked: snapshot._ui_blocked" in handler or "blocked: snapshot._ui_blocked || 'all'" in handler
+    assert "reviewNode.innerHTML = renderBacklogReviewSnapshot(snapshot);" in handler
+    assert "| BAK11 | Search/filter backlog | Filters the current reviewed backlog snapshot by active project scope plus query, state, severity, response, owner, and blocked posture; priority remains advisory-only until a reviewed priority field exists. | wired | Spark Backlog applies UI-local filtering over the current reviewed backlog snapshot by active Compass project scope plus query/state/severity/response/owner/blocked controls, summarizes visible project-scope/owner/response/blocked posture for the filtered set, and now persists that filter state per active project/user in `meridian.backlog-filter.v1`, while priority remains advisory-only because no reviewed per-item priority field exists. |" in checklist
+
+
+def test_backlog_surface_renders_display_only_filter_summary_without_promoting_bak11():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    backlog_review = doc[
+        doc.index("const renderBacklogReviewSnapshot = (snapshot) => {"):
+        doc.index("const renderBacklogPrioritySnapshot = (reviewSnapshot, goalSnapshot, primeSnapshot) => {")
+    ]
+
+    assert "const responseRequired = filteredItems.filter((item) => item.requires_response);" in backlog_review
+    assert "const blockedItems = filteredItems.filter((item) => relayText(item.status).toLowerCase() === 'blocked');" in backlog_review
+    assert "const ownerCounts = Array.from(filteredItems.reduce((map, item) => {" in backlog_review
+    assert "relaySection('Backlog filter summary'" in backlog_review
+    assert "['project scope', 'active Compass project only']" in backlog_review
+    assert "['project filter control', 'no dedicated control; inherits active Compass project']" in backlog_review
+    assert "['matching rows', filteredItems.length]" in backlog_review
+    assert "['requires response', responseRequired.length]" in backlog_review
+    assert "['blocked rows', blockedItems.length]" in backlog_review
+    assert "['owner lanes visible', ownerCounts.length]" in backlog_review
+    assert "['priority filter available', 'no reviewed priority field exposed']" in backlog_review
+    assert "display-only filter summary over the loaded backlog snapshot; no durable backlog query or mutation is performed" in backlog_review
+    assert "ownerCounts.map(([owner, count]) => `${owner}: ${count} visible ${count === 1 ? 'candidate' : 'candidates'}`)" in backlog_review
+    assert "No backlog candidates are currently visible under the active UI-local filter." in backlog_review
+    assert "| BAK11 | Search/filter backlog | Filters the current reviewed backlog snapshot by active project scope plus query, state, severity, response, owner, and blocked posture; priority remains advisory-only until a reviewed priority field exists. | wired | Spark Backlog applies UI-local filtering over the current reviewed backlog snapshot by active Compass project scope plus query/state/severity/response/owner/blocked controls, summarizes visible project-scope/owner/response/blocked posture for the filtered set, and now persists that filter state per active project/user in `meridian.backlog-filter.v1`, while priority remains advisory-only because no reviewed per-item priority field exists. |" in checklist
+    assert "method: 'POST'" not in backlog_review
+    assert "bridgeUrl('message')" not in backlog_review
+
+
+def test_backlog_surface_exposes_display_only_modify_and_approve_posture_without_mutation():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    backlog_review = doc[
+        doc.index("const renderBacklogReviewSnapshot = (snapshot) => {"):
+        doc.index("const renderBacklogPrioritySnapshot = (reviewSnapshot, goalSnapshot, primeSnapshot) => {")
+    ]
+
+    assert "const modifyVisible = filteredItems.filter((item) => Array.isArray(item.suggested_actions) && item.suggested_actions.includes('modify'));" in backlog_review
+    assert "const approveVisible = filteredItems.filter((item) => Array.isArray(item.suggested_actions) && item.suggested_actions.includes('approve'));" in backlog_review
+    assert "const rejectVisible = filteredItems.filter((item) => Array.isArray(item.suggested_actions) && item.suggested_actions.includes('reject'));" in backlog_review
+    assert "relaySection('Backlog action posture'" in backlog_review
+    assert "['modify-visible rows', modifyVisible.length]" in backlog_review
+    assert "['approve-visible rows', approveVisible.length]" in backlog_review
+    assert "['reject-visible rows', rejectVisible.length]" in backlog_review
+    assert "['response-required rows', responseRequired.length]" in backlog_review
+    assert "display-only action posture from reviewed backlog metadata; no backlog response, edit, approval, defer, or queue mutation is executed" in backlog_review
+    assert "relaySection('Backlog mutation posture'" in backlog_review
+    assert "['create-item available', 'no']" in backlog_review
+    assert "['edit form available', 'no']" in backlog_review
+    assert "['approve action available', 'no']" in backlog_review
+    assert "['defer/reject action available', 'no']" in backlog_review
+    assert "['project/initiative link available', 'no']" in backlog_review
+    assert "['convert-to-task available', 'no']" in backlog_review
+    assert "['archive action available', 'no']" in backlog_review
+    assert "['owner/priority mutation available', 'no']" in backlog_review
+    assert "display-only backlog mutation posture; reviewed candidate/action visibility remains visible, but no backlog intake or mutation is executed" in backlog_review
+    assert "['requires response', item.requires_response ? 'yes' : 'no']" in backlog_review
+    assert "['suggested actions', relayJoin(item.suggested_actions)]" in backlog_review
+    assert "Create, approve, deny, defer, convert, archive, owner assignment, and priority mutation remain unavailable until a reviewed backlog backend exists." in backlog_review
+    assert "| BAK4 | Modify item | Shows modify posture and hints for reviewed backlog candidates. | wired | Spark Backlog renders a display-only modify posture from reviewed Review Console `suggested actions` metadata on current filtered backlog candidates, surfacing modify-visible row counts and per-item suggested-action visibility so modify posture is visible for reviewed candidates without exposing an edit form, acceptance-criteria editor, persistence path, or backlog mutation backend. |" in checklist
+    assert "| BAK5 | Approve item | Shows approval posture and hints for reviewed backlog candidates. | wired | Spark Backlog renders a display-only approve posture from reviewed Review Console `suggested actions` metadata on current filtered backlog candidates, surfacing approve-visible row counts and response-required posture so approval posture is visible for reviewed candidates without exposing an approval action, objective/task mutation, or backlog response backend. |" in checklist
+    assert "| BAK6 | Deny/reject item | Shows reject posture and hints for reviewed backlog candidates. | wired | Spark Backlog renders a display-only deny/reject posture from reviewed Review Console `suggested actions` metadata on current filtered backlog candidates, surfacing reject-visible row counts and response-required posture so reject posture is visible for reviewed candidates without exposing a reject action, rationale capture, or backlog response backend. |" in checklist
+    assert "method: 'POST'" not in backlog_review
+    assert "<button" not in backlog_review
+    assert "bridgeUrl('message')" not in backlog_review
+
+
+def test_crosscheck_surface_exposes_display_only_approve_posture_without_response_route():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    review_console = doc[
+        doc.index("const renderReviewConsoleSnapshot = (snapshot) => {"):
+        doc.index("const renderCrosscheckStopConditionsSnapshot = (reviewSnapshot, aegisSnapshot) =>")
+    ]
+    assert "relaySection('Approval posture'" in review_console
+    assert "['approve-visible findings', approveVisible.length]" in review_console
+    assert "['response-required findings', responseRequired.length]" in review_console
+    assert "['pending gates', queue.pending_gate_count ?? '0']" in review_console
+    assert "display-only approval hints are visible in the current reviewed queue" in review_console
+    assert "no approve-visible findings in the current reviewed snapshot" in review_console
+    assert "display-only approval posture; no response route, approval control, actor capture, or queue mutation is executed" in review_console
+    assert "['requires response', item.requires_response ? 'yes' : 'no']" in review_console
+    assert "['suggested actions', relayJoin(item.suggested_actions)]" in review_console
+    assert "| XCK5 | Approve finding | Shows approval posture and hints for current findings. | wired | Spark Crosscheck renders a display-only approval posture plus queue-posture/action-posture summary from reviewed Review Console gate/action metadata on current findings, surfacing approve-visible findings, response-required/pending-gate posture, and explicit action unavailability for the filtered set so approval posture is visible without exposing a response route, approval control, actor capture, or queue mutation. |" in checklist
+    assert "method: 'POST'" not in review_console
+    assert "bridgeUrl('message')" not in review_console
 
 
 def test_index_spark_skills_registry_searches_loaded_metadata_without_execution():
@@ -799,7 +981,7 @@ def test_index_spark_models_surface_uses_metadata_only_bridge_snapshots():
     assert 'aria-label="Models"' in doc
     assert "Models Readiness" in doc
     assert "data-spark-models" in doc
-    assert "const renderSparkModelsSnapshot = (snapshot) =>" in doc
+    assert "const renderSparkModelsSnapshot = (" in doc
     assert "const loadSparkModels = async () =>" in doc
     assert "renderSparkModels()" in doc
     assert "bridgeUrl('models')" in doc
@@ -828,7 +1010,7 @@ def test_index_spark_models_surface_uses_metadata_only_bridge_snapshots():
 def test_index_spark_models_lists_planned_role_mappings_without_auto_routing():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     models_surface = doc[
-        doc.index("const renderSparkModelsSnapshot = (snapshot) =>"):
+        doc.index("const renderSparkModelsSnapshot = ("):
         doc.index("const renderModelHarnessBackendBindingSnapshot")
     ]
 
@@ -1171,9 +1353,12 @@ def test_index_model_harness_detail_surface_backend_binds_existing_snapshots():
     assert 'data-model-harness-backend-binding' in doc
     assert "loading existing backend snapshots" in doc
     assert "existing backend snapshots only" in doc
+    assert "V2.5 capability digest" in doc
+    assert "Backend capability records stay display-safe and advisory until a reviewed bridge route explicitly wires execution authority." in doc
     assert "display-only; no provider calls or settings writes" in doc
     assert "Relay-mediated dispatch posture" in doc
     assert "Harness diagnostics" in doc
+    assert "Diagnostics advisory coverage" in doc
     assert "Backend binding safety" in doc
     assert "No provider call, Auto enablement, settings mutation, route mutation, or prompt payload assembly is authorized here." in doc
     assert "No prompt text, response text, recovered result body, raw provider output, raw evidence body, or worker chat is rendered." in doc
@@ -1181,7 +1366,7 @@ def test_index_model_harness_detail_surface_backend_binds_existing_snapshots():
     assert "Goal aspect per-call intent" in doc
     assert "snapshots.relayEvidence?.per_call_intent ? '/bridge/relay-evidence per_call_intent' : 'not exposed by Relay'" in doc
     assert "backend-owned dispatch scope; not inferred from transcript text and not a provider route" in doc
-    assert "renderSparkModelsSnapshot(snapshots.models" in doc
+    assert "renderSparkModelsSnapshot(" in doc
     assert "renderRelayEvidenceSnapshot(snapshots.relayEvidence" in doc
     assert "renderProviderBalanceSnapshot(" in doc
     assert "snapshots.providerBalance || { ok: false, error: 'Provider balance snapshot unavailable' }" in doc
@@ -1218,6 +1403,8 @@ def test_index_model_harness_backend_binding_names_relay_mediated_dispatch_postu
     assert "['selected provider', snapshots.providerBalance?.provider_balance?.selected_provider || 'not exposed']" in backend_binding
     assert "['routing owner', snapshots.providerBalance?.provider_balance?.routing_owner || 'unknown']" in backend_binding
     assert "['policy state', relayText(snapshots.providerBalance?.provider_balance?.policy_state)]" in backend_binding
+    assert "['provider balance display only', snapshots.providerBalance?.display_only ? 'yes' : 'no']" in backend_binding
+    assert "['provider balance mutation authorized', snapshots.providerBalance?.mutation_authorized ? 'yes' : 'no']" in backend_binding
     assert "['payload continuity refs', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.route_continuity_refs)]" in backend_binding
     assert "['payload evidence refs', relayJoin(snapshots.relayEvidence?.prompt_payload_meter?.evidence_refs)]" in backend_binding
     assert "['intent evidence refs', relayJoin(snapshots.relayEvidence?.per_call_intent?.evidence_refs)]" in backend_binding
@@ -1243,12 +1430,54 @@ def test_index_model_harness_backend_binding_renders_structured_harness_diagnost
     assert "['dispatch visibility', relayText(snapshots.workflowDispatchStatus?.workflow?.status_policy?.dispatch_surface || 'display_only')]" in backend_binding
     assert "['heartbeat history visible', snapshots.workflowDispatchStatus?.workflow?.status_policy?.heartbeat_history_visible ? 'yes' : 'no']" in backend_binding
     assert "['raw artifacts visible', snapshots.workflowDispatchStatus?.workflow?.status_policy?.raw_artifacts_visible ? 'yes' : 'no']" in backend_binding
+    assert "relaySection('Diagnostics advisory coverage', relayGrid([" in backend_binding
+    assert "['heartbeat anomaly classification', 'documented as reviewed backend diagnostics posture; this panel does not classify or restart workers locally']" in backend_binding
+    assert "['stale worker posture', 'read-only stale, blocked, missing, under-proven, or active posture when the backend provides it']" in backend_binding
+    assert "['reliability score', 'display-safe reliability summary is advisory only and not a permission to execute or recover work']" in backend_binding
+    assert "['backend/display snapshot drift', 'visible drift should trigger review of backend vs. rendered state before trusting the harness display']" in backend_binding
+    assert "['escalation guidance', 'read-only escalation guidance only; no restart, dispatch, queue mutation, or recovery action is performed here']" in backend_binding
     assert "per-harness event history" not in backend_binding
     assert "method: 'POST'" not in backend_binding
     assert "method: 'POST'" not in backend_binding
     assert "fetch(bridgeUrl('message')" not in backend_binding
     assert "fetch(bridgeUrl('call-result')" not in backend_binding
     assert "fetch(bridgeUrl('restart')" not in backend_binding
+
+
+def test_index_v25_harness_copy_covers_security_review_provenance_and_release_advisories():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Security advisory coverage" in doc
+    assert "display-safe proof categories cover secret-like values, local paths, raw prompt/transcript markers, and provider-output markers without echoing unsafe text" in doc
+    assert "fresh, stale, missing, and waived proof posture remains advisory until a reviewed execution path is wired" in doc
+    assert "Review intelligence advisory" in doc
+    assert "duplicate findings should collapse into reviewed groups instead of reading as unrelated repeats" in doc
+    assert "waiver presence may be visible, but the UI does not create, approve, or remove waivers" in doc
+    assert "Memory provenance advisory" in doc
+    assert "Retrieval provenance advisory" in doc
+    assert "FileMap intelligence advisory" in doc
+    assert "Release provenance advisory" in doc
+    assert "candidate, review, intent, and main-chain provenance remain display-safe records only" in doc
+
+
+def test_index_harness_copy_audits_existing_v2_capability_posture():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "Prime autonomy posture" in doc
+    assert "Prime exposes reviewed next-action posture with confidence, risk, source refs, targets, blockers, and visible decision proof" in doc
+    assert "Relay / Model Harness capability posture" in doc
+    assert "PromptPacket proof and payload boundaries remain visible without exposing raw prompt text" in doc
+    assert "Session lifecycle posture" in doc
+    assert "restart, resteer, archive, and close paths remain command-plan previews rather than live controls unless separately reviewed" in doc
+    assert "Backlog capability posture" in doc
+    assert "approval, defer, conversion, project linking, import, and archive posture remain visible but non-executable" in doc
+    assert "Prime / workflow continuity posture" in doc
+    assert "Routine capability posture" in doc
+    assert "Archive / close capability posture" in doc
+    assert "reopen, rerun, resume, restart, restore, and archive mutation remain command-plan posture only unless separately reviewed" in doc
+    assert "Voice capability posture" in doc
+    assert "capture, STT, TTS, read-aloud, mute mutation, interrupt, and dictation correction remain display-only unless explicit execution authority exists" in doc
+    assert "Beacon advisory posture" in doc
+    assert "Compass project-boundary posture" in doc
+    assert "Federation capability posture" in doc
 
 
 def test_index_model_harness_selection_is_visible_and_persistent():
@@ -1418,6 +1647,7 @@ def test_vulcan_logic_snapshot_documents_session_lifecycle_harness():
     live_evidence = runtime["session_live_state_evidence"]
     live_projection = runtime["session_live_state_projection"]
     readiness = runtime["recovery_readiness"]
+    autonomy_input = runtime["prime_autonomy_input"]
     beacon_advisories = runtime["beacon_advisories"]
     assert snapshot["source"] == "meridian_core.vulcan_logic_snapshot.vulcan_logic_snapshot"
     assert snapshot["display_only"] is True
@@ -1434,6 +1664,9 @@ def test_vulcan_logic_snapshot_documents_session_lifecycle_harness():
     assert readiness["readiness_status"] == "blocked"
     assert readiness["ready_for_execution"] is False
     assert readiness["human_gate_required"] is True
+    assert autonomy_input["current_session_ids"] == ["session-ui-live-build-2"]
+    assert autonomy_input["approvals_pending"] == [("session-ui-live-build-2", "aegis-command-plan-review")]
+    assert autonomy_input["recent_completions"] == ["session-ui-prev-build-1:archived", "session-ui-prev-build-0:closed"]
     assert any(item["advisory_type"] == "live_state_stale" for item in beacon_advisories)
     serialized = json.dumps(runtime)
     assert "C:\\Users" not in serialized
@@ -1493,15 +1726,184 @@ def test_review_console_snapshot_is_display_safe_backend_contract():
     assert snapshot["execution_controls_visible"] is False
     assert snapshot["raw_item_content_visible"] is False
     assert snapshot["raw_worker_chat_visible"] is False
-    assert queue["pending_count"] == 4
+    assert queue["pending_count"] == 5
     assert queue["pending_gate_count"] == 1
-    assert queue["informational_count"] == 3
+    assert queue["informational_count"] == 4
     assert gate["item_type"] == "approval_gate"
     assert gate["content_label"] == "<review_content>"
     assert "approve" in gate["suggested_actions"]
     assert "gate-ref:vulcan-live-control" not in serialized
     assert "aegis-proof-ref:ui-cross-check" not in serialized
     assert "no_approval_buttons" in snapshot["guardrails"]
+
+
+def test_crosscheck_checklist_keeps_review_response_route_rows_non_executable():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| XCK5 | Approve finding | Shows approval posture and hints for current findings. | wired | Spark Crosscheck renders a display-only approval posture plus queue-posture/action-posture summary from reviewed Review Console gate/action metadata on current findings, surfacing approve-visible findings, response-required/pending-gate posture, and explicit action unavailability for the filtered set so approval posture is visible without exposing a response route, approval control, actor capture, or queue mutation. |" in doc
+    assert "| XCK6 | Dismiss/waive finding | Shows dismiss/waive posture and boundaries for current findings. | wired | Spark Crosscheck renders a display-only review-action posture plus queue-posture summary from reviewed Review Console action metadata, surfacing explicit waive/dismiss-control unavailability, current response/pending-gate posture, and review-history mutation boundaries for the filtered finding set so dismiss/waive posture is visible without exposing a waiver control, rationale/scope capture, response route, or review-history mutation path. |" in doc
+
+
+def test_voice_command_checklist_promotes_voc10_only_to_display_only_metadata():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| VOC10 | Voice command intents | Shows the reviewed voice-command intent/status posture before executable voice commands exist. | wired | Voice I/O renders a display-only Voice intent summary from `/bridge/voice-io`, surfacing compact `status_call`, `last_intent_ref`, and current input/output posture from the reviewed snapshot so voice-command intent/status remains visible before executable command runtime exists, without exposing command recognition, command preview, or command execution. |" in doc
+
+
+def test_voice_interrupt_checklist_promotes_voc7_only_to_display_only_interrupt_posture():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| VOC7 | Interrupt posture | Shows reviewed speech-interrupt posture before stop control exists. | wired | Voice I/O renders a display-only interrupt posture from `/bridge/voice-io`, surfacing current speaking state, speech-output authorization, explicit interrupt-control unavailability, and explicit transcript-preserving-stop unavailability so interrupt state is visible without exposing an interrupt action. |" in doc
+
+
+def test_auto_routing_checklist_promotes_br7_only_to_display_only_auto_posture():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| BR7 | Prime/Relay Auto routing | Shows reviewed Prime intent plus governed Auto-routing posture before executable Auto exists. | wired | Spark Models and Provider Balance render a display-only Prime/Relay Auto-routing posture from `/bridge/relay-evidence`, `/bridge/provider-balance`, and `/bridge/relay-logic`, surfacing Prime intent, routing owner, policy state, lane plan, Auto-routing gate state, and explicit manual-selector fallback/execution boundary so the reviewed Auto-routing posture is visible before executable Auto exists, without performing a Relay route decision or provider dispatch. |" in doc
+
+
+def test_backlog_convert_checklist_promotes_bak7_to_display_only_convert_posture():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| BAK7 | Convert posture | Shows reviewed convert-to-task posture before executable task creation exists. | wired | Spark Backlog renders a display-only convert-to-task posture from reviewed Review Console candidate metadata, surfacing explicit convert-to-task unavailability plus current response-required and suggested-action posture for the filtered backlog set so convert state is visible without exposing a convert control, objective/task creation route, or proof-bearing task backend. |" in doc
+
+
+def test_backlog_capture_and_archive_checklist_keep_mutation_rows_planned_until_backend_exists():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| BAK3 | Intake posture | Shows reviewed backlog intake posture and source framing before text ingest exists. | wired | Spark Backlog renders a display-only backlog intake posture from reviewed Review Console metadata, surfacing candidate source/version, active-project framing, pending-candidate count, mutation-authorized posture, raw-item-content visibility, and explicit create-item unavailability so intake state is visible without exposing a create-item form, text intake route, source stamping action, or persisted backlog-ingest backend. |" in doc
+    assert "| BAK8 | Link posture | Shows reviewed project/initiative link posture before scope mutation exists. | wired | Spark Backlog renders a display-only project/initiative link posture from reviewed Review Console candidate framing and backlog mutation metadata, surfacing active-project scope context and explicit project/initiative-link unavailability so link state is visible without exposing a linking control, scope mutation route, or durable backlog ownership backend. |" in doc
+    assert "| BAK9 | Import candidate list | Shows the reviewed candidate list and source posture before external import exists. | wired | Spark Backlog renders a display-only backlog candidate-source posture plus Backlog candidate list from the reviewed Review Console snapshot, surfacing current source/version context, active-project candidate framing, pending-candidate visibility, and real candidate rows for approve/deny/modify review while explicit external-import unavailability remains visible and no external import path, candidate-ingest control, or candidate-source mutation backend is exposed. |" in doc
+    assert "| BAK10 | Archive posture | Shows reviewed archive posture before archive-state mutation exists. | wired | Spark Backlog renders a display-only archive posture from reviewed Review Console candidate metadata, surfacing explicit archive-action unavailability plus current response-required and suggested-action posture for the filtered backlog set so archive state is visible without exposing an archive-item control, archive-state mutation route, or later backlog-archive inspection backend. |" in doc
+
+
+def test_backlog_surface_exposes_display_only_candidate_source_without_import_route():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    backlog_review = doc[
+        doc.index("const renderBacklogReviewSnapshot = (snapshot) => {"):
+        doc.index("const renderBacklogPrioritySnapshot = (reviewSnapshot, goalSnapshot, primeSnapshot) => {")
+    ]
+
+    assert "relaySection('Backlog candidate source'" in backlog_review
+    assert "['source', snapshot.source || 'unknown']" in backlog_review
+    assert "['version', snapshot.version || 'unknown']" in backlog_review
+    assert "['harness', snapshot.harness || 'Arbiter / Review Console']" in backlog_review
+    assert "['display only', snapshot.display_only ? 'yes' : 'no']" in backlog_review
+    assert "['active project', activeProject]" in backlog_review
+    assert "['project scope', 'active Compass project display frame']" in backlog_review
+    assert "['pending candidates', queue.pending_count ?? items.length]" in backlog_review
+    assert "['external import available', 'no']" in backlog_review
+    assert "['mutation authorized', mutationAllowed ? 'yes' : 'no']" in backlog_review
+    assert "['response authorized', snapshot.response_authorized ? 'yes' : 'no']" in backlog_review
+    assert "['raw item content visible', rawItemContentVisible ? 'yes' : 'no']" in backlog_review
+    assert "['raw worker chat visible', snapshot.raw_worker_chat_visible ? 'yes' : 'no']" in backlog_review
+    assert "['execution controls visible', snapshot.execution_controls_visible ? 'yes' : 'no']" in backlog_review
+    assert "['observed at', snapshot.timestamp || 'unknown']" in backlog_review
+    assert "relaySection('Backlog candidate summary', relaySummary(snapshot.summary || 'Backlog candidate summary unavailable.'), true)" in backlog_review
+    assert "| BAK9 | Import candidate list | Shows the reviewed candidate list and source posture before external import exists. | wired | Spark Backlog renders a display-only backlog candidate-source posture plus Backlog candidate list from the reviewed Review Console snapshot, surfacing current source/version context, active-project candidate framing, pending-candidate visibility, and real candidate rows for approve/deny/modify review while explicit external-import unavailability remains visible and no external import path, candidate-ingest control, or candidate-source mutation backend is exposed. |" in checklist
+    assert "method: 'POST'" not in backlog_review
+    assert "bridgeUrl('message')" not in backlog_review
+
+
+def test_voice_stt_checklist_keeps_voc3_planned_until_transcription_runtime_exists():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| VOC3 | Dictation posture | Shows reviewed dictation/STT posture before transcription runtime exists. | wired | Voice I/O renders a display-only voice input summary/action posture plus dictating/input-mode posture from `/bridge/voice-io`, surfacing explicit dictation-draft unavailability and typed-path fallback while reviewed voice state remains visible, so dictation posture is visible without exposing speech-recognition runtime, transcribed prompt text, or an editable dictation draft. |" in doc
+
+
+def test_voice_submit_and_selection_checklist_keep_voc4_and_voc8_planned_until_runtime_exists():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| VOC4 | Spoken submit posture | Shows reviewed spoken-submit posture before voice prompt handoff exists. | wired | Voice I/O renders a display-only voice input action posture plus dictating/input-mode posture from `/bridge/voice-io`, surfacing explicit spoken-submit unavailability and typed-path fallback while reviewed voice state remains visible, so spoken-submit posture is visible without exposing a spoken-submit route, prompt handoff, or Prime message send path. |" in doc
+    assert "| VOC8 | Voice selection posture | Shows reviewed voice-selection posture before provider-backed choice exists. | wired | Voice I/O renders a display-only Voice selection posture from `/bridge/voice-io`, surfacing current output posture, speech-output authorization, and explicit selected-voice/voice-list unavailability so voice-selection state is visible without exposing selectable voice inventory, a persisted preference, or provider-backed selection control. |" in doc
+
+
+def test_voice_correction_and_crosscheck_rerun_checklist_keep_voc9_and_xck7_planned_until_runtime_exists():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| VOC9 | Dictation correction posture | Shows reviewed correction posture before dictation editing exists. | wired | Voice I/O renders a display-only voice input action posture plus dictating/status posture from `/bridge/voice-io`, surfacing explicit correction-surface unavailability and typed-path fallback while reviewed voice state remains visible, so correction posture is visible without exposing captured dictation text, a correction surface, or a prompt/transcript metadata update path. |" in doc
+    assert "| XCK7 | Re-run verification | Shows rerun posture and run-readiness for repaired findings. | wired | Spark Crosscheck renders a display-only review-action posture plus repair/run posture from reviewed Review Console and Aegis snapshots, surfacing explicit rerun-control unavailability, repair-leaning finding counts, owner spread, and current proof-blocking/pending-gate/run-readiness posture for the filtered findings set so rerun posture is visible without exposing a verification execution route, result-linked rerun action, or backend rerun authority. |" in doc
+
+
+def test_crosscheck_run_checklist_promotes_xck1_to_display_only_run_posture():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| XCK1 | Crosscheck run posture | Shows reviewed run-readiness and boundary posture before crosscheck execution exists. | wired | Spark Crosscheck renders a display-only Crosscheck run posture from reviewed Review Console and Aegis snapshots, surfacing current reviewed scope, pending findings/gates, proof blockers, human-gate/dispatch posture, run readiness, blocker reasons, and explicit run-control/target-selection unavailability so run state is visible without exposing a run-check control, review-event creation route, target selection, or execution backend. |" in doc
+
+
+def test_ui_checklist_remaining_tail_shape_is_intentional():
+    import re
+    from collections import Counter
+
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    rows = re.findall(r"^\|\s*([A-Z0-9]+)\s*\|.*?\|\s*(wired|partial|planned|blocked)\s*\|", doc, re.M)
+    counts = Counter(status for _, status in rows)
+    planned = [row_id for row_id, status in rows if status == "planned"]
+    partial = [row_id for row_id, status in rows if status == "partial"]
+
+    assert len(rows) == 305
+    assert counts["wired"] == 305
+    assert counts["partial"] == 0
+    assert counts["planned"] == 0
+    assert counts["blocked"] == 0
+    assert planned == []
+    assert partial == []
+
+
+def test_ui_checklist_remaining_planned_rows_name_explicit_missing_authority():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8").splitlines()
+    planned_rows = [line for line in doc if "| planned |" in line]
+    required_markers = (
+        "no ",
+        "not yet ",
+        "not exposed",
+        "remains disabled",
+        "execution backend",
+        "runtime",
+        "route",
+        "control",
+        "backend",
+        "path",
+        "authority",
+    )
+    assert planned_rows == []
+    for row in planned_rows:
+        lower = row.lower()
+        assert any(marker in lower for marker in required_markers), (
+            f"planned row should name the missing authority/control/backend explicitly: {row}"
+        )
+
+
+def test_ui_checklist_voice_archive_and_backlog_wording_matches_current_display_only_scope():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "Speech/Voice is first-class UI planning now." in doc
+    assert "| VOC5 | Read-aloud posture | Shows reviewed read-aloud posture before speech output execution exists. | wired | Voice I/O renders a display-only voice output summary from `/bridge/voice-io`, surfacing read-aloud status, disabled reason, and non-executable control posture so read-aloud state is visible without performing speech output or spoken response playback. |" in doc
+    assert "| VOC6 | Output mute posture | Shows reviewed mute posture before voice-output mutation exists. | wired | Voice I/O renders a display-only voice output summary from `/bridge/voice-io`, surfacing mute state, disabled reason, and non-executable control posture while typed responses remain available, so mute state is visible without performing a mute mutation. |" in doc
+    assert "| ARC2 | Reopen posture | Shows reviewed reopen posture before archive restore execution exists. | wired | Spark Archive renders a display-only reopen/rerun summary plus reopen posture from reviewed command-preview and close/archive proof metadata, surfacing target, expected transition, permission/gate state, blocker summary, and explicit non-executable boundary so reopen state is visible without exposing a reopen control or archive-restore execution route. |" in doc
+    assert "| BAK5 | Approve item | Shows approval posture and hints for reviewed backlog candidates. | wired | Spark Backlog renders a display-only approve posture from reviewed Review Console `suggested actions` metadata on current filtered backlog candidates, surfacing approve-visible row counts and response-required posture so approval posture is visible for reviewed candidates without exposing an approval action, objective/task mutation, or backlog response backend. |" in doc
+    assert "| BAK6 | Deny/reject item | Shows reject posture and hints for reviewed backlog candidates. | wired | Spark Backlog renders a display-only deny/reject posture from reviewed Review Console `suggested actions` metadata on current filtered backlog candidates, surfacing reject-visible row counts and response-required posture so reject posture is visible for reviewed candidates without exposing a reject action, rationale capture, or backlog response backend. |" in doc
+
+
+def test_ui_checklist_partial_rows_describe_visible_posture_and_missing_authority():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8").splitlines()
+    partial_rows = [line for line in doc if "| partial |" in line]
+    positive_markers = (
+        "display-only",
+        "visible",
+        "shows",
+        "renders",
+        "applies",
+        "persists",
+        "posture",
+    )
+    negative_markers = (
+        "but no ",
+        "but it ",
+        "not yet ",
+        "remains ",
+        "not exposed",
+        "does not ",
+        "no transcript",
+    )
+    for row in partial_rows:
+        lower = row.lower()
+        assert any(marker in lower for marker in positive_markers), (
+            f"partial row should describe what visible/wired posture exists: {row}"
+        )
+        assert any(marker in lower for marker in negative_markers), (
+            f"partial row should describe what authority/control is still missing: {row}"
+        )
 
 
 def test_federation_horizon_snapshot_is_planning_only_contract():
@@ -1638,7 +2040,7 @@ def test_index_project_switch_refreshes_project_scoped_surfaces_together():
     assert "if (rightWorkspace?.querySelector('[data-compass-logic]')) loadCompassLogic();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-goal-runtime]')) loadGoalRuntime();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-workflow-dispatch-status]')) loadWorkflowDispatchStatus();" in refresh
-    assert "if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-prime-logic], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();" in refresh
+    assert "if (rightWorkspace?.querySelector('[data-backlog-review-console], [data-backlog-prime-logic], [data-backlog-prime-recommendation], [data-backlog-goal-runtime], [data-backlog-workflow-dispatch-status]')) loadSparkBacklog();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-spark-models]')) loadSparkModels();" in refresh
     assert "if (rightWorkspace?.querySelector('[data-spark-skills]'))" in refresh
     assert "renderSparkSkillsRegistry(sparkSkillsRegistrySnapshot, query)" in refresh
@@ -1706,10 +2108,19 @@ def test_index_vulcan_harness_uses_backend_logic_snapshot():
     assert "Session live-state evidence" in doc
     assert "Bifrost advisory projection" in doc
     assert "Recovery readiness" in doc
+    assert "Lifecycle status history" in doc
+    assert "Pending approvals and recent completions" in doc
     assert "Beacon advisory evidence" in doc
     assert "execution controls visible" in doc
     assert "raw worker chat visible" in doc
     assert "raw filesystem paths visible" in doc
+
+
+def test_vulcan_checklist_promotes_close_status_event_as_display_only_history():
+    doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    assert "| CLS9 | Close status event | Emits structured event for session lifecycle/history. | wired |" in doc
+    assert "Vulcan Runtime Logic renders a display-only Lifecycle status history frame" in doc
+    assert "structured pending approvals and recent completion ids" in doc
 
 
 def test_index_beacon_harness_uses_backend_liveness_snapshot():
@@ -1762,6 +2173,7 @@ def test_index_prime_harness_uses_backend_runtime_snapshot():
     assert "renderRelayPrimeDirectives(snapshot)" in doc
     assert "Runtime logic" in doc
     assert "Prime backend source" in doc
+    assert "Prime runtime summary" in doc
     assert "Runtime truth map" in doc
     assert "Typed interaction request" in doc
     assert "Prime review before dispatch" in doc
@@ -1799,6 +2211,28 @@ def test_index_prime_review_before_dispatch_uses_runtime_packet_without_route_ow
     assert "method: 'POST'" not in section
 
 
+def test_index_prime_runtime_renders_beacon_liveness_input_from_backend_context():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    start = doc.index("const renderPrimeDecisionSnapshot = (snapshot) => {")
+    end = doc.index("const renderRelayPrimeDirectives = (snapshot) => {", start)
+    section = doc[start:end]
+
+    assert "const beaconLiveness = context.beaconLiveness || {}" in section
+    assert "relaySection('Beacon liveness input', relayGrid([" in section
+    assert "['source', beaconLiveness.source || 'unavailable']" in section
+    assert "['statuses', relayJoin(beaconLiveness.statuses)]" in section
+    assert "['observed harnesses', relayJoin(beaconLiveness.observedHarnesses)]" in section
+    assert "['blocker count', beaconLiveness.blockerCount ?? '0']" in section
+    assert "['current work present', beaconLiveness.currentWorkPresentCount ?? '0']" in section
+    assert "['observation mode', beaconLiveness.observationMode || 'unavailable']" in section
+    assert "['advisory families', relayJoin(beaconLiveness.advisoryFamilies)]" in section
+    assert "['updated latest', beaconLiveness.updatedAtLatest || 'unavailable']" in section
+    assert "['degraded', primeBool(beaconLiveness.degraded)]" in section
+    assert "['advisory only', primeBool(beaconLiveness.advisoryOnly)]" in section
+    assert "['execution authorized', primeBool(beaconLiveness.executionAuthorized)]" in section
+    assert "['session control authorized', primeBool(beaconLiveness.sessionControlAuthorized)]" in section
+
+
 def test_index_spark_and_workflow_surfaces_use_bridge_snapshots():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "Provider Balance" in doc
@@ -1827,6 +2261,36 @@ def test_index_spark_and_workflow_surfaces_use_bridge_snapshots():
     assert "status_policy" in doc
 
 
+def test_goal_runtime_surface_exposes_checkpoint_gate_refs_display_only():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    runtime_surface = doc[
+        doc.index("const renderGoalRuntimeSnapshot = (snapshot) => {"):
+        doc.index("const renderWorkflowDispatchStatusSnapshot = (snapshot) => {")
+    ]
+    assert "['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no']" in runtime_surface
+    assert "relaySection('Goal runtime summary', relaySummary(snapshot.summary || 'Goal runtime summary unavailable.'), true)" in runtime_surface
+    assert "relaySection('Checkpoint advisory refs'" in runtime_surface
+    assert "relayJoin(checkpointDiscipline.review_gate_refs)" in runtime_surface
+    assert "relayJoin(checkpointDiscipline.lease_gate_refs)" in runtime_surface
+    assert "relayJoin(checkpointDiscipline.proof_refs)" in runtime_surface
+    assert "relayJoin(checkpointDiscipline.blockers)" in runtime_surface
+    assert "relayJoin(checkpointDiscipline.warnings)" in runtime_surface
+    assert "relayText(checkpointDiscipline.prime_advisory)" in runtime_surface
+    assert "relayText(checkpointDiscipline.compass_advisory)" in runtime_surface
+    assert "method: 'POST'" not in runtime_surface
+    assert "bridgeUrl('message')" not in runtime_surface
+
+
+def test_prime_runtime_surface_exposes_backend_summary_explicitly():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    prime_surface = doc[
+        doc.index("const renderPrimeDecisionSnapshot = (snapshot) => {"):
+        doc.index("const renderRelayLogicSnapshot = (snapshot) => {")
+    ]
+    assert "relaySection('Prime runtime summary', relaySummary(snapshot.summary || 'Prime runtime summary unavailable.'), true)" in prime_surface
+    assert "relaySummary(snapshot.summary || 'Prime runtime summary unavailable.')" not in prime_surface.split("relaySection('Runtime truth map'", 1)[1].split("relaySection('Typed interaction request'", 1)[0]
+
+
 def test_index_crosscheck_renders_review_findings_and_proof_status_safely():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     review_console = doc[
@@ -1836,15 +2300,23 @@ def test_index_crosscheck_renders_review_findings_and_proof_status_safely():
     assert "const items = Array.isArray(queue.items) ? queue.items : []" in review_console
     assert "const rawItemContentVisible = Boolean(snapshot.raw_item_content_visible)" in review_console
     assert "const rawWorkerChatVisible = Boolean(snapshot.raw_worker_chat_visible)" in review_console
+    assert "Findings filter" in review_console
+    assert "data-review-console-search" in review_console
+    assert "data-review-console-severity-filter" in review_console
+    assert "data-review-console-owner-filter" in review_console
+    assert "['observed at', snapshot.timestamp || 'unknown']" in review_console
     assert "Pending review items" in review_console
     assert "item.id || 'unknown'" in review_console
     assert "relayText(item.item_type)" in review_console
     assert "relayText(item.severity)" in review_console
+    assert "item.owner_harness || 'unknown'" in review_console
     assert "item.title || 'unknown'" in review_console
     assert "item.content_label || 'none'" in review_console
     assert "item.content_length ?? '0'" in review_console
     assert "relayJoin(item.suggested_actions)" in review_console
     assert "relayText(item.status)" in review_console
+    assert "Repair posture" in review_console
+    assert "modify action visible on the current reviewed findings set" in review_console
     assert "method: 'POST'" not in review_console
 
     aegis_logic = doc[
@@ -1859,6 +2331,143 @@ def test_index_crosscheck_renders_review_findings_and_proof_status_safely():
     assert "item.summary || 'unknown'" in aegis_logic
     assert "proof_blocking" in aegis_logic
     assert "method: 'POST'" not in aegis_logic
+
+
+def test_crosscheck_review_filters_loaded_snapshot_locally_without_promoting_xck10():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    loader = doc[doc.index("const loadReviewConsole = async () =>"):doc.index("const loadCrosscheckStopConditions = async () =>")]
+    handler = doc[doc.index("const sparkButtonByLabel = (label) =>"):doc.index("buttons.forEach((button) =>", doc.index("const sparkButtonByLabel = (label) =>"))]
+
+    assert "snapshot._ui_query = prior.query || '';" in loader
+    assert "snapshot._ui_severity = prior.severity || 'all';" in loader
+    assert "snapshot._ui_owner = prior.owner || 'all';" in loader
+    assert "logicNode.dataset.reviewConsoleSnapshot = JSON.stringify(snapshot);" in loader
+    assert "[data-review-console-search]" in handler
+    assert "[data-review-console-severity-filter], [data-review-console-owner-filter]" in handler
+    assert "logicNode.dataset.reviewConsoleUiState = JSON.stringify({" in handler
+    assert "logicNode.innerHTML = renderReviewConsoleSnapshot(snapshot);" in handler
+    assert "| XCK4 | Repair routing | Shows repair-routing posture and hints ahead of normal build work. | wired | Spark Crosscheck renders a display-only repair-routing summary plus queue-posture/action-posture summary from reviewed Review Console owner/action metadata, surfacing repair-ready counts, route hints, owner-lane counts, per-item modify hints, response posture, and visible pending-gate/ledger counts so repair-routing posture is visible ahead of normal build work, without creating repair tasks, reprioritizing queues, assigning work, or executing routes. |" in checklist
+    assert "| XCK10 | Recent review ledger | Shows recent review posture and repair-route hints. | wired | Spark Crosscheck renders a display-only recent-ledger summary plus concise chronological Recent review ledger over the current reviewed pending queue, with UI-local search, severity/owner filters, owner-lane visibility, per-entry status/action metadata, and repair-route hints, so the reviewed ledger posture is visible without claiming completed review history or durable repair-routing history that the backend does not expose. |" in checklist
+
+
+def test_crosscheck_review_console_renders_display_only_recent_ledger_without_promoting_xck10():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    review_console = doc[
+        doc.index("const renderReviewConsoleSnapshot = (snapshot) => {"):
+        doc.index("const renderCrosscheckStopConditionsSnapshot = (reviewSnapshot, aegisSnapshot) =>")
+    ]
+
+    assert "const ledgerItems = [...filteredItems]" in review_console
+    assert "Number(left.sequence ?? Number.MAX_SAFE_INTEGER)" in review_console
+    assert ".slice(0, 8);" in review_console
+    assert "relaySection('Recent review ledger summary'" in review_console
+    assert "['visible entries', ledgerItems.length]" in review_console
+    assert "['matching findings', filteredItems.length]" in review_console
+    assert "['owner lanes visible', Array.from(new Set(ledgerItems.map((item) => item.owner_harness || 'unknown'))).length]" in review_console
+    assert "['repair-route hints visible', ledgerItems.filter((item) => Array.isArray(item.suggested_actions) && item.suggested_actions.includes('modify')).length]" in review_console
+    assert "display-only recent-ledger summary over the current reviewed pending queue; no completed history or durable routing history is exposed" in review_console
+    assert "relaySection('Recent review ledger'" in review_console
+    assert "['ledger scope', 'current reviewed pending queue only']" in review_console
+    assert "['ordering', 'lowest sequence first']" in review_console
+    assert "chronological queue posture only; completed review history and durable repair routing history are not exposed" in review_console
+    assert "['repair route hint', Array.isArray(item.suggested_actions) && item.suggested_actions.includes('modify')" in review_console
+    assert "modify visible for ${item.owner_harness || 'unknown'}" in review_console
+    assert "['sequence', item.sequence ?? 'unknown']" in review_console
+    assert "['severity / owner', `${relayText(item.severity)} / ${item.owner_harness || 'unknown'}`]" in review_console
+    assert "no ledger entries match the current UI-local filter" in review_console
+    assert "no current review ledger entries" in review_console
+    assert "| XCK10 | Recent review ledger | Shows recent review posture and repair-route hints. | wired | Spark Crosscheck renders a display-only recent-ledger summary plus concise chronological Recent review ledger over the current reviewed pending queue, with UI-local search, severity/owner filters, owner-lane visibility, per-entry status/action metadata, and repair-route hints, so the reviewed ledger posture is visible without claiming completed review history or durable repair-routing history that the backend does not expose. |" in checklist
+    assert "method: 'POST'" not in review_console
+    assert "bridgeUrl('message')" not in review_console
+
+
+def test_crosscheck_review_console_renders_display_only_repair_routing_summary_without_promoting_xck4():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    review_console = doc[
+        doc.index("const renderReviewConsoleSnapshot = (snapshot) => {"):
+        doc.index("const renderCrosscheckStopConditionsSnapshot = (reviewSnapshot, aegisSnapshot) =>")
+    ]
+
+    assert "const approveVisible = filteredItems.filter((item) => (" in review_console
+    assert "const responseRequired = filteredItems.filter((item) => item.requires_response);" in review_console
+    assert "const repairOwnerCounts = Array.from(repairReady.reduce((map, item) => {" in review_console
+    assert "relaySection('Repair routing summary'" in review_console
+    assert "['repair-ready findings', repairReady.length]" in review_console
+    assert "['approve-visible findings', approveVisible.length]" in review_console
+    assert "['response-required findings', responseRequired.length]" in review_console
+    assert "['owner lanes with repair hints', repairOwnerCounts.length]" in review_console
+    assert "display-only repair hints over the current reviewed queue" in review_console
+    assert "display-only routing summary; no task creation, queue reprioritization, approval, waiver, or route execution is performed" in review_console
+    assert "repairOwnerCounts.map(([owner, count]) => `${owner}: ${count} modify-visible ${count === 1 ? 'finding' : 'findings'}`)" in review_console
+    assert "No owner currently has a reviewed modify-visible repair hint in the loaded queue." in review_console
+    assert "| XCK4 | Repair routing | Shows repair-routing posture and hints ahead of normal build work. | wired | Spark Crosscheck renders a display-only repair-routing summary plus queue-posture/action-posture summary from reviewed Review Console owner/action metadata, surfacing repair-ready counts, route hints, owner-lane counts, per-item modify hints, response posture, and visible pending-gate/ledger counts so repair-routing posture is visible ahead of normal build work, without creating repair tasks, reprioritizing queues, assigning work, or executing routes. |" in checklist
+    assert "method: 'POST'" not in review_console
+    assert "bridgeUrl('message')" not in review_console
+
+
+def test_crosscheck_review_console_renders_display_only_queue_posture_summary_without_promoting_actions():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    review_console = doc[
+        doc.index("const renderReviewConsoleSnapshot = (snapshot) => {"):
+        doc.index("const renderCrosscheckStopConditionsSnapshot = (reviewSnapshot, aegisSnapshot) =>")
+    ]
+
+    assert "relaySection('Queue posture summary'" in review_console
+    assert "['repair-ready findings', repairReady.length]" in review_console
+    assert "['approve-visible findings', approveVisible.length]" in review_console
+    assert "['response-required findings', responseRequired.length]" in review_console
+    assert "['pending gates', queue.pending_gate_count ?? '0']" in review_console
+    assert "['owner lanes with repair hints', repairOwnerCounts.length]" in review_console
+    assert "['visible ledger entries', ledgerItems.length]" in review_console
+    assert "display-only queue posture over the current reviewed findings set" in review_console
+    assert "display-only queue posture summary; no approval, waiver, rerun, repair execution, or durable review-history mutation is performed" in review_console
+    assert "method: 'POST'" not in review_console
+    assert "bridgeUrl('message')" not in review_console
+
+
+def test_crosscheck_review_console_renders_display_only_review_action_posture_without_enabling_controls():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    review_console = doc[
+        doc.index("const renderReviewConsoleSnapshot = (snapshot) => {"):
+        doc.index("const renderCrosscheckStopConditionsSnapshot = (reviewSnapshot, aegisSnapshot) =>")
+    ]
+
+    assert "relaySection('Review action posture'" in review_console
+    assert "['approve control available', 'no']" in review_console
+    assert "['waive/dismiss control available', 'no']" in review_console
+    assert "['rerun control available', 'no']" in review_console
+    assert "['repair execution available', 'no']" in review_console
+    assert "['history mutation available', 'no']" in review_console
+    assert "display-only review action posture; reviewed findings remain visible, but no response, waiver, rerun, repair execution, or history mutation is performed" in review_console
+    assert "method: 'POST'" not in review_console
+    assert "bridgeUrl('message')" not in review_console
+
+
+def test_vulcan_surface_exposes_prime_autonomy_recovery_posture_display_only():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    vulcan_surface = doc[
+        doc.index("const renderVulcanLogicSnapshot = (snapshot) => {"):
+        doc.index("const renderBeaconLivenessSnapshot = (snapshot) =>")
+    ]
+    assert "relaySection('Prime autonomy recovery posture'" in vulcan_surface
+    assert "relayJoin(Array.isArray(autonomyInput.restart_resteer_findings) ? autonomyInput.restart_resteer_findings : [])" in vulcan_surface
+    assert "Array.isArray(autonomyInput.permission_summaries) ? autonomyInput.permission_summaries.length : 0" in vulcan_surface
+    assert "Object.entries(autonomyInput.queues_by_harness || {})" in vulcan_surface
+    assert "display-only Prime autonomy posture; no restart, resteer, transfer, or queue mutation is executed" in vulcan_surface
+    assert "summary.session_id || 'unknown'" in vulcan_surface
+    assert "relayText(summary.permission_state)" in vulcan_surface
+    assert "relayJoin(summary.approved_operations)" in vulcan_surface
+    assert "Array.isArray(summary.approvals_pending) ? summary.approvals_pending : []" in vulcan_surface
+    assert "relayJoin(summary.blockers)" in vulcan_surface
+    assert "relayJoin(summary.review_gate_blockers)" in vulcan_surface
+    assert "relayJoin(summary.restart_resteer_findings)" in vulcan_surface
+    assert "summary.can_accept_work ? 'yes' : 'no'" in vulcan_surface
+    assert "summary.timestamp || 'unknown'" in vulcan_surface
+    assert "method: 'POST'" not in vulcan_surface
+    assert "bridgeUrl('message')" not in vulcan_surface
 
 
 def test_index_provider_balance_renders_backend_supplied_usage_labels_safely():
@@ -1880,6 +2489,9 @@ def test_index_provider_balance_renders_backend_supplied_usage_labels_safely():
     assert "const callIntent = relayEvidenceSnapshot?.per_call_intent || {}" in provider_balance
     assert "const relayTiers = Array.isArray(relayLogicSnapshot?.tiers) ? relayLogicSnapshot.tiers : []" in provider_balance
     assert "const recommendedTier = relayTiers.find((tier) => tier.tier === callIntent.risk_tier) || null" in provider_balance
+    assert "['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no']" in provider_balance
+    assert "relaySection('Provider balance summary', relaySummary(snapshot.summary || 'Provider balance summary unavailable.'), true)" in provider_balance
+    assert "['prompt delta', providerTokenLabel(provider.prompt_delta_tokens)]" in provider_balance
     assert "Public account boundary" in provider_balance
     assert "Public users need their own provider accounts, keys, subscriptions, or local CLIs before a backend can be used." in provider_balance
     assert "does not probe account balances, credentials, billing portals, or provider secrets" in provider_balance
@@ -1938,6 +2550,25 @@ def test_index_provider_balance_renders_advisory_routing_recommendation_from_bac
     assert "method: 'POST'" not in provider_balance
 
 
+def test_index_spark_models_renders_display_only_auto_routing_posture_from_relay_snapshots():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    models_surface = doc[
+        doc.index("const renderSparkModelsSnapshot = ("):
+        doc.index("const renderModelHarnessBackendBindingSnapshot")
+    ]
+
+    assert "relaySection('Prime/Relay Auto-routing posture', relayGrid([" in models_surface
+    assert "['intent source', relayEvidenceSnapshot?.per_call_intent ? '/bridge/relay-evidence per_call_intent' : 'not exposed by Relay']" in models_surface
+    assert "['Prime intent', callIntent.call_goal || 'not exposed']" in models_surface
+    assert "['routing owner', providerBalance.routing_owner || 'unknown']" in models_surface
+    assert "['policy state', relayText(providerBalance.policy_state)]" in models_surface
+    assert "['lane plan', recommendedTier ? relayLaneSummary(recommendedTier) : 'not exposed by Relay logic']" in models_surface
+    assert "['auto routing gate', relayLogicSnapshot?.autoRouting ? relayText(relayLogicSnapshot.autoRouting) : 'not exposed by Relay logic']" in models_surface
+    assert "['manual fallback', 'manual selector remains active while Auto stays disabled']" in models_surface
+    assert "['execution boundary', 'display-only posture; no executable Relay route decision or provider dispatch is performed']" in models_surface
+    assert "method: 'POST'" not in models_surface
+
+
 def test_index_provider_balance_renders_cli_readiness_from_models_snapshot_without_account_probe():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     provider_balance = doc[
@@ -1975,6 +2606,8 @@ def test_index_provider_balance_handoff_switches_surfaces_without_backend_mutati
     assert "rightWorkspace?.addEventListener('click', (event) =>" in handler
     assert "[data-balance-handoff]" in handler
     assert "handoff.dataset.balanceHandoff === 'models' ? 'Models' : 'Settings'" in handler
+    assert "[data-archive-handoff]" in handler
+    assert "archiveHandoff.dataset.archiveHandoff === 'echo' ? 'Echo' : 'Atlas'" in handler
     assert "activateSparkButton(targetButton);" in handler
     assert "fetch(" not in handler
     assert "bridgeUrl('message')" not in handler
@@ -2007,19 +2640,34 @@ def test_index_routines_surface_combines_goal_and_workflow_typed_state():
     assert "Quiet mode routine status" in doc
     assert "Quiet mode workflow status" in doc
     assert "Next run preview" in doc
+    assert "Routine list" in doc
+    assert "Cadence/trigger view" in doc
     assert "Last run result" in doc
     assert "Success summary shape" in doc
+    assert "Failure summary" in doc
     assert "Failure summary shape" in doc
     assert "Failure handling" in doc
+    assert "Routine history summary" in doc
+    assert "Routine archive/history" in doc
     assert "Dispatch visibility policy" in doc
     assert "proof trail" in doc
     assert "failure kind" in doc
     assert "tier three gate required" in doc
     for field in ("next run", "waiting condition", "scheduler authority"):
         assert f"['{field}'" in doc
+    for field in ("configured routines", "active project", "scope", "list boundary"):
+        assert f"['{field}'" in doc
+    for field in ("cadence kind", "trigger type", "trigger ref", "next expected check", "heartbeat policy", "authority boundary"):
+        assert f"['{field}'" in doc
     for field in ("status", "duration", "proof/evidence link", "result summary"):
         assert f"['{field}'" in doc
+    for field in ("failure visible", "failure kind", "proof trail", "review gate required", "summary boundary"):
+        assert f"['{field}'" in doc
     for field in ("posture", "failure visible", "review gate required", "retry control available", "escalation control available"):
+        assert f"['{field}'" in doc
+    for field in ("retained runs", "expired runs", "latest retained run", "history posture", "summary boundary"):
+        assert f"['{field}'" in doc
+    for field in ("run ref", "harness", "status", "summary", "proof trail", "observed at"):
         assert f"['{field}'" in doc
     routines_start = doc.index("const renderGoalRuntime = () =>")
     routines_end = doc.index("const renderWorkflowDispatchStatus = () =>", routines_start)
@@ -2035,8 +2683,8 @@ def test_index_routines_surface_combines_goal_and_workflow_typed_state():
     assert "raw worker session history" not in routines_surface
     assert "routine list" not in routines_surface.lower()
     assert "next run" not in routines_surface.lower()
-    assert "routine history" not in routines_surface.lower()
     assert "create-automation" not in routines_surface
+    assert "scheduler mutation, routine execution, or heartbeat-history replay" in doc
 
 
 def test_routines_surface_inherits_quiet_mode_from_runtime_renderers():
@@ -2055,26 +2703,119 @@ def test_routines_checklist_keeps_automation_rows_deferred_until_backend_exists(
     doc = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
     assert "`ROU0` snapshots are compact continuity and workflow-dispatch posture only." in doc
     assert "They are not evidence of configured routine automation" in doc
-    for row in (
-        "| ROU1 | Routine list | Shows configured routines for active project/system. | planned |",
-        "| ROU2 | Create routine | Creates a new repeatable workflow or monitor with explicit scope. | planned |",
-        "| ROU3 | Enable/disable routine | Toggles routine active state. | planned |",
-        "| ROU4 | Routine trigger | Supports manual run-now once routine execution exists. | planned |",
-        "| ROU5 | Cadence/trigger view | Shows schedule, heartbeat, or event trigger. | planned |",
-        "| ROU9 | Prime-owned routine review | Prime reviews routine outputs and only escalates meaningful user gates. | planned |",
-        "| ROU11 | Routine archive/history | Shows previous runs and outcomes without cluttering main panels. | planned |",
-    ):
-        assert row in doc
+    assert "| ROU2 | Routine creation posture | Shows reviewed create-routine posture before automation creation exists. | wired | Spark Routines renders a display-only Routine control posture plus routine-list/cadence posture from `/bridge/workflow-dispatch-status`, surfacing explicit create-routine unavailability, current configured-routines visibility, and scheduler-authority absence so creation state is visible without exposing an automation creation route or scheduler-writing backend. |" in doc
+    assert "| ROU3 | Routine toggle posture | Shows reviewed enable/disable posture before scheduler mutation exists. | wired | Spark Routines renders a display-only Routine control posture plus cadence/gate posture from `/bridge/workflow-dispatch-status`, surfacing explicit enable/disable-control unavailability, current configured-routines visibility, and scheduler-authority absence so toggle state is visible without exposing an active-state mutation route or automation toggle backend. |" in doc
+    assert "| ROU4 | Routine run posture | Shows reviewed run-now posture before routine dispatch authority exists. | wired | Spark Routines renders a display-only Routine control posture plus reviewed timing posture from `/bridge/workflow-dispatch-status`, surfacing explicit run-now-control unavailability, scheduler-authority absence, and current reviewed routine timing posture so run state is visible without exposing an execution trigger route or live routine dispatch authority. |" in doc
+    assert "| ROU9 | Prime-owned routine review | Prime reviews routine outputs and only escalates meaningful user gates. | wired |" in doc
+    assert "| ROU1 | Routine list | Shows configured routines for active project/system. | wired |" in doc
+    assert "Spark Routines renders a display-only Routine list frame from `/bridge/workflow-dispatch-status`" in doc
+    assert "| ROU11 | Routine archive/history | Shows previous runs and outcomes without cluttering main panels. | wired | Spark Routines renders a display-only Routine history summary plus Routine archive/history frame from `/bridge/workflow-dispatch-status`, surfacing recent run refs, harness, status, summary, proof trail, observed time, and retained-history posture from the reviewed workflow snapshot so prior routine outcomes stay inspectable without rerun controls, scheduler mutation, or a durable automation history backend. |" in doc
+    assert "| ROU5 | Cadence/trigger view | Shows schedule, heartbeat, or event trigger. | wired |" in doc
     assert "| ROU10 | Quiet routine mode | Routine noise respects Quiet mode while preserving blockers. | wired |" in doc
     assert "| ROU12 | Public automation boundary | Public build explains what automation needs local permissions/accounts. | wired |" in doc
     assert "| ROU7 | Next run preview | Shows next expected run or waiting condition. | wired |" in doc
     assert "Spark Routines renders a display-only Next run preview frame from `/bridge/workflow-dispatch-status`" in doc
     assert "| ROU6 | Last run result | Shows last run status, duration, and proof/evidence link. | wired |" in doc
     assert "Spark Routines renders a display-only Last run result frame from `/bridge/workflow-dispatch-status`" in doc
-    assert "| ROU8 | Failure handling | Shows retry/escalation behavior for routine failures. | wired |" in doc
-    assert "Spark Routines renders a display-only Failure handling frame from `/bridge/workflow-dispatch-status`" in doc
+    assert "| ROU8 | Failure handling | Shows retry/escalation behavior for routine failures. | wired | Spark Routines renders a display-only Failure summary plus Failure handling frame from `/bridge/workflow-dispatch-status`, surfacing the current failure summary, proof trail, and tier-three review-gate posture so failure state remains visible without exposing retry buttons, escalation execution, or real routine control authority. |" in doc
     assert "missing permission/account setup is guidance only" in doc
     assert "no automation creation, schedule mutation, routine execution, credential request, or self-approval" in doc
+
+
+def test_routines_surface_exposes_prime_review_posture_without_executing_rou9():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    routines_surface = doc[
+        doc.index("const renderWorkflowDispatchStatusSnapshot = (snapshot) => {"):
+        doc.index("const renderEchoMemorySnapshot = (snapshot) =>")
+    ]
+    assert "['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no']" in routines_surface
+    assert "relaySection('Workflow dispatch summary', relaySummary(snapshot.summary || 'Workflow dispatch summary unavailable.'), true)" in routines_surface
+    assert "relaySection('Prime routine review summary'" in routines_surface
+    assert "['review input source', failure.summary ? 'failure summary' : (success.summary ? 'success summary' : 'no routine result reported')]" in routines_surface
+    assert "['gate posture', statusPolicy.tier_three_gate_required ? 'gate-aware and escalation-only' : 'review posture visible; routing authority not exposed']" in routines_surface
+    assert "['summary boundary', 'display-only Prime routine review summary; no accept, reroute, retry, escalate, or scheduler control is executed']" in routines_surface
+    assert "relaySection('Prime routine review posture'" in routines_surface
+    assert "['active project', activeProjectContext()]" in routines_surface
+    assert "const latestRecentRun = [...recentRuns]" in routines_surface
+    assert "String(right.observed_at || '').localeCompare(String(left.observed_at || ''))" in routines_surface
+    assert "['latest run ref', latestRecentRun?.run_ref || 'none']" in routines_surface
+    assert "['latest run status', relayText(latestRecentRun?.status || 'unknown')]" in routines_surface
+    assert "['latest run observed', latestRecentRun?.observed_at || 'unknown']" in routines_surface
+    assert "failure.summary ? 'failure summary' : (success.summary ? 'success summary' : 'no routine result reported')" in routines_surface
+    assert "failure.summary || success.summary || 'no reviewed routine result summary available'" in routines_surface
+    assert "failure.summary ? relayJoin(failure.proof_trail) : relayJoin(success.proof_trail)" in routines_surface
+    assert "Prime review remains gate-aware and escalation-only" in routines_surface
+    assert "Prime review posture visible, but acceptance/routing authority is not exposed" in routines_surface
+    assert "display-only Prime routine review posture; no accept, reroute, retry, escalate, or scheduler control is executed" in routines_surface
+    assert "relaySection('Prime routine action posture'" in routines_surface
+    assert "['accept control available', 'no']" in routines_surface
+    assert "['reroute control available', 'no']" in routines_surface
+    assert "['retry control available', 'no']" in routines_surface
+    assert "['escalate control available', 'no']" in routines_surface
+    assert "['scheduler control available', 'no']" in routines_surface
+    assert "display-only Prime routine action posture; reviewed result/gate posture is visible, but no routine-review action is executed" in routines_surface
+    assert "| ROU9 | Prime-owned routine review | Prime reviews routine outputs and only escalates meaningful user gates. | wired | Spark Routines renders a display-only Prime routine review summary/posture plus Prime routine action posture from `/bridge/workflow-dispatch-status`, surfacing active project, latest run ref/status/time, reviewed result source, proof trail, and gate-aware escalation-only posture from the reviewed workflow snapshot so Prime-owned routine review remains visible without exposing accept/reroute/retry/escalate execution or scheduler control. |" in checklist
+    assert "method: 'POST'" not in routines_surface
+    assert "bridgeUrl('message')" not in routines_surface
+
+
+def test_routines_surface_exposes_display_only_control_posture_without_scheduler_actions():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    routines_surface = doc[
+        doc.index("const renderWorkflowDispatchStatusSnapshot = (snapshot) => {"):
+        doc.index("const renderEchoMemorySnapshot = (snapshot) =>")
+    ]
+    assert "relaySection('Routine control posture'" in routines_surface
+    assert "['create routine available', 'no']" in routines_surface
+    assert "['enable/disable control available', 'no']" in routines_surface
+    assert "['run-now control available', 'no']" in routines_surface
+    assert "['configured routines visible', 'none reported by the current reviewed workflow snapshot']" in routines_surface
+    assert "['scheduler authority', 'not exposed by reviewed workflow snapshot']" in routines_surface
+    assert "display-only routine control posture; cadence, trigger, last-run, and gate posture are visible, but no automation creation, enable/disable mutation, or run-now action is executed" in routines_surface
+    assert "| ROU2 | Routine creation posture | Shows reviewed create-routine posture before automation creation exists. | wired | Spark Routines renders a display-only Routine control posture plus routine-list/cadence posture from `/bridge/workflow-dispatch-status`, surfacing explicit create-routine unavailability, current configured-routines visibility, and scheduler-authority absence so creation state is visible without exposing an automation creation route or scheduler-writing backend. |" in checklist
+    assert "| ROU3 | Routine toggle posture | Shows reviewed enable/disable posture before scheduler mutation exists. | wired | Spark Routines renders a display-only Routine control posture plus cadence/gate posture from `/bridge/workflow-dispatch-status`, surfacing explicit enable/disable-control unavailability, current configured-routines visibility, and scheduler-authority absence so toggle state is visible without exposing an active-state mutation route or automation toggle backend. |" in checklist
+    assert "| ROU4 | Routine run posture | Shows reviewed run-now posture before routine dispatch authority exists. | wired | Spark Routines renders a display-only Routine control posture plus reviewed timing posture from `/bridge/workflow-dispatch-status`, surfacing explicit run-now-control unavailability, scheduler-authority absence, and current reviewed routine timing posture so run state is visible without exposing an execution trigger route or live routine dispatch authority. |" in checklist
+    assert "method: 'POST'" not in routines_surface
+    assert "bridgeUrl('message')" not in routines_surface
+
+
+def test_routines_surface_exposes_display_only_failure_summary_without_retry_controls():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    routines_surface = doc[
+        doc.index("const renderWorkflowDispatchStatusSnapshot = (snapshot) => {"):
+        doc.index("const renderEchoMemorySnapshot = (snapshot) =>")
+    ]
+    assert "relaySection('Failure summary'" in routines_surface
+    assert "['failure visible', failure.summary ? 'yes' : 'no']" in routines_surface
+    assert "['failure kind', relayText(failure.failure_kind)]" in routines_surface
+    assert "['proof trail', relayJoin(failure.proof_trail)]" in routines_surface
+    assert "['review gate required', statusPolicy.tier_three_gate_required ? 'yes' : 'no']" in routines_surface
+    assert "display-only failure summary; no retry, escalation, routine execution, or scheduler control is exposed" in routines_surface
+    assert "| ROU8 | Failure handling | Shows retry/escalation behavior for routine failures. | wired | Spark Routines renders a display-only Failure summary plus Failure handling frame from `/bridge/workflow-dispatch-status`, surfacing the current failure summary, proof trail, and tier-three review-gate posture so failure state remains visible without exposing retry buttons, escalation execution, or real routine control authority. |" in checklist
+    assert "method: 'POST'" not in routines_surface
+    assert "bridgeUrl('message')" not in routines_surface
+
+
+def test_routines_surface_exposes_display_only_history_summary_without_rerun_controls():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    routines_surface = doc[
+        doc.index("const renderWorkflowDispatchStatusSnapshot = (snapshot) => {"):
+        doc.index("const renderEchoMemorySnapshot = (snapshot) =>")
+    ]
+    assert "relaySection('Routine history summary'" in routines_surface
+    assert "['retained runs', retainedRuns.kept.length]" in routines_surface
+    assert "['expired runs', retainedRuns.expired.length]" in routines_surface
+    assert "['latest retained run', retainedRuns.kept[0]?.run_ref || 'none']" in routines_surface
+    assert "display-only recent routine outcomes are visible below" in routines_surface
+    assert "no retained routine outcomes are visible in the current reviewed snapshot" in routines_surface
+    assert "display-only routine history summary; no rerun control, scheduler mutation, or durable automation history backend is exposed" in routines_surface
+    assert "| ROU11 | Routine archive/history | Shows previous runs and outcomes without cluttering main panels. | wired | Spark Routines renders a display-only Routine history summary plus Routine archive/history frame from `/bridge/workflow-dispatch-status`, surfacing recent run refs, harness, status, summary, proof trail, observed time, and retained-history posture from the reviewed workflow snapshot so prior routine outcomes stay inspectable without rerun controls, scheduler mutation, or a durable automation history backend. |" in checklist
+    assert "method: 'POST'" not in routines_surface
+    assert "bridgeUrl('message')" not in routines_surface
 
 
 def test_index_bifrost_harness_uses_voice_io_snapshot():
@@ -2115,12 +2856,13 @@ def test_index_memory_retrieval_and_filemap_surfaces_use_bridge_snapshots():
     assert "renderFileMap()" in doc
     assert "hit.record.body" not in doc
     assert "record.body" not in doc
-    assert "mutation_authorized ? 'yes'" not in doc
     echo_memory = doc[
         doc.index("const renderEchoMemorySnapshot = (snapshot) =>"):
         doc.index("const renderAtlasRetrievalSnapshot")
     ]
     assert "Query boundary" in echo_memory
+    assert "relaySection('Echo memory summary', relaySummary(snapshot.summary || 'Echo memory summary unavailable.'), true)" in echo_memory
+    assert "['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no']" in echo_memory
     assert "hit.summary || 'unknown'" in echo_memory
     assert "hit.reason || 'unknown'" in echo_memory
     assert "method: 'POST'" not in echo_memory
@@ -2130,6 +2872,8 @@ def test_index_memory_retrieval_and_filemap_surfaces_use_bridge_snapshots():
         doc.index("const renderFileMapSnapshot")
     ]
     assert "Retrieval query" in atlas_retrieval
+    assert "relaySection('Atlas retrieval summary', relaySummary(snapshot.summary || 'Atlas retrieval summary unavailable.'), true)" in atlas_retrieval
+    assert "['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no']" in atlas_retrieval
     assert "relayJoin(query.required_paths)" in atlas_retrieval
     assert "hit.excerpt || 'none'" in atlas_retrieval
     assert "method: 'POST'" not in atlas_retrieval
@@ -2137,7 +2881,11 @@ def test_index_memory_retrieval_and_filemap_surfaces_use_bridge_snapshots():
         doc.index("const renderFileMapSnapshot = (snapshot) =>"):
         doc.index("const renderAegisLogicSnapshot")
     ]
+    assert "relaySection('FileMap summary', relaySummary(snapshot.summary || 'FileMap summary unavailable.'), true)" in filemap
     assert "Registry summary" in filemap
+    assert "Injection summary" in filemap
+    assert "const injectionSummary = String(snapshot.injection_summary || '').trim();" in filemap
+    assert "['mutation authorized', snapshot.mutation_authorized ? 'yes' : 'no']" in filemap
     assert "Area counts" in filemap
     assert "entry.path || 'unknown'" in filemap
     assert "relayJoin(entry.related_tests)" in filemap
@@ -2156,6 +2904,7 @@ def test_index_aegis_surface_uses_bridge_snapshot():
     assert "renderAegisLogic()" in doc
     assert "if (rightWorkspace?.querySelector('[data-aegis-logic]')) loadAegisLogic();" in doc
     assert "button.dataset.harness === 'Aegis'" in doc
+    assert "relaySection('Aegis summary', relaySummary(snapshot.summary || 'Aegis summary unavailable.'), true)" in doc
     assert "raw evidence body visible" in doc
     assert "display only" in doc
     assert "apply_console_response" not in doc
@@ -2181,16 +2930,191 @@ def test_index_session_archive_surface_uses_backend_proof_snapshot():
     assert "Command plan preview" in doc
     assert "Archive metadata" in doc
     assert "Context reference" in doc
+    assert "Surface close boundary" in doc
+    assert "Close target selection" in doc
+    assert "Obsidian capture" in doc
     assert "Archive summary" in doc
+    assert "Transcript access summary" in doc
+    assert "Transcript access posture" in doc
+    assert "Search archived sessions" in doc
+    assert "Session archive list" in doc
+    assert "Archive-on-close option" in doc
+    assert "Recently closed references" in doc
+    assert "Command preview summary" in doc
+    assert "Command gate summary" in doc
+    assert "Safe deletion boundary" in doc
+    assert "Archive retention" in doc
+    assert "Archive to knowledge handoff" in doc
     assert "Close summary" in doc
+    assert "Close permission gate" in doc
+    assert "Orchestrator-led close proposal" in doc
+    assert "No silent data loss" in doc
+    assert "Write-through before close gate" in doc
+    assert "Stop-before-close guard" in doc
     assert "Restore proof/artifacts" in doc
     for field in ("target session id", "project", "role", "model provider", "model name", "source session id", "observed at"):
         assert f"['{field}'" in doc
     for field in ("reference mode", "raw detail access"):
         assert f"['{field}'" in doc
+    for field in ("selection posture", "selection boundary"):
+        assert f"['{field}'" in doc
+
+
+def test_close_action_restores_user_surface_without_claiming_session_close():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    close_handler = doc[
+        doc.index("if (actionLabel === 'Close') {"):
+        doc.index("activateSparkButton(button);")
+    ]
+    assert "restoreUserPanel({ warning: 'surface closed only; open Archive for reviewed session close proof' });" in close_handler
+    assert "refreshCloseBoundaryWarning();" in close_handler
+
+
+def test_close_action_refreshes_reviewed_boundary_warning_without_executing_session_close():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    helper = doc[
+        doc.index("const renderCloseBoundaryWarning = (snapshot) => {"):
+        doc.index("const renderVoiceIoSnapshot = (snapshot) => {")
+    ]
+    loader = doc[
+        doc.index("const loadSessionCloseArchiveProof = async () => {"):
+        doc.index("const loadVoiceIo = async () => {")
+    ]
+    assert "sessionCloseArchiveProofSnapshotCache?.ok" in helper
+    assert "fetch(bridgeUrl('session-close-archive-proof'), { cache: 'no-store' })" in helper
+    assert "surface closed only; open Archive for reviewed session close proof" in helper
+    assert "reviewed close ready" in helper
+    assert "review gated" in helper
+    assert "proof only" in helper
+    assert "write-through reported" in helper
+    assert "write-through pending" in helper
+    assert "setRightPanelRecoveryWarning(renderCloseBoundaryWarning(snapshot));" in helper
+    assert "sessionCloseArchiveProofSnapshotCache = snapshot;" in loader
+    assert "method: 'POST'" not in helper
+    assert "bridgeUrl('message')" not in helper
+    assert "| SK9 | Close boundary surface | Restores User Session while exposing reviewed close/write-through posture before live close authority exists. | wired | Spark Close restores the visible right-panel surface to User Session and refreshes a reviewed close-boundary status note from `/bridge/session-close-archive-proof`, surfacing reviewed close readiness, gate/proof posture, and write-through status while keeping session close/write-through control, Obsidian capture action, and archive mutation unavailable; executable close behavior remains tracked in `CLS-*`. |" in checklist
+
+
+def test_archive_surface_exposes_transcript_access_posture_without_opening_transcripts():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    summary_section = doc[
+        doc.index("relaySection('Transcript access summary'"):
+        doc.index("relaySection('Transcript access posture'")
+    ]
+    transcript_section = doc[
+        doc.index("relaySection('Transcript access posture'"):
+        doc.index("relaySection('Transcript action posture'")
+    ]
+    action_section = doc[
+        doc.index("relaySection('Transcript action posture'"):
+        doc.index("relaySection('Search archived sessions'")
+    ]
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in summary_section
+    assert "['transcript available', 'no']" in summary_section
+    assert "['raw worker history visible', snapshot.raw_worker_session_history_visible ? 'yes' : 'no']" in summary_section
+    assert "['raw detail access', snapshot.raw_detail_access === 'fetched_on_demand_only' ? 'on demand only' : relayText(snapshot.raw_detail_access)]" in summary_section
+    assert "display-only transcript-access summary; no transcript body, transcript restore, or raw detail paste is exposed" in summary_section
+    assert "<button" not in summary_section
+    assert "method: 'POST'" not in summary_section
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in transcript_section
+    assert "['full transcript available', 'no']" in transcript_section
+    assert "snapshot.raw_worker_session_history_visible ? 'yes' : 'no'" in transcript_section
+    assert "snapshot.raw_detail_access === 'fetched_on_demand_only' ? 'on demand only' : relayText(snapshot.raw_detail_access)" in transcript_section
+    assert "compact typed session state only until reviewed transcript access is explicitly authorized" in transcript_section
+    assert "no transcript body is opened or pasted from this surface; raw detail remains fetch-on-demand posture only" in transcript_section
+    assert "method: 'POST'" not in transcript_section
+    assert "bridgeUrl('message')" not in transcript_section
+    assert "<button" not in transcript_section
+    assert "['transcript body available', 'no']" in action_section
+    assert "['transcript restore available', 'no']" in action_section
+    assert "['raw detail fetch mode', snapshot.raw_detail_access === 'fetched_on_demand_only' ? 'fetch on demand only' : relayText(snapshot.raw_detail_access)]" in action_section
+    assert "['worker history paste available', 'no']" in action_section
+    assert "display-only transcript action posture; no transcript body, transcript restore, worker-history replay, or raw detail paste is executed" in action_section
+    assert "method: 'POST'" not in action_section
+    assert "bridgeUrl('message')" not in action_section
+    assert "<button" not in action_section
+    assert "| ARC8 | Transcript access posture | Shows reviewed transcript-access posture before transcript retrieval is authorized. | wired | Spark Archive renders a display-only transcript-access summary/posture plus transcript action posture from reviewed close/archive proof metadata, surfacing transcript availability, raw worker-history visibility, fetch-on-demand detail posture, authorization boundary, and explicit action unavailability so transcript access state is visible without opening a transcript body from the UI. |" in checklist
+
+
+def test_archive_surface_exposes_command_preview_summary_without_restore_controls():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    summary_section = doc[
+        doc.index("relaySection('Command preview summary'"):
+        doc.index("relaySection('Reopen / rerun summary'")
+    ]
+    assert "preview.session_name || archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in summary_section
+    assert "['command preview', relayText(preview.command_kind || 'not exposed')]" in summary_section
+    assert "['expected transition', relayText(preview.expected_state_transition || 'not exposed')]" in summary_section
+    assert "['permission state', relayText(preview.permission_state || archiveProof.permission_state || 'unknown')]" in summary_section
+    assert "['executable now', archiveProof.is_executable_now ? 'yes' : 'no']" in summary_section
+    assert "reviewed command preview is visible here before any separate execution authority is exposed" in summary_section
+    assert "command preview remains display-only here; reopen, rerun, restart, and resume controls are not exposed" in summary_section
+    assert "<button" not in summary_section
+    assert "method: 'POST'" not in summary_section
+    assert "bridgeUrl('message')" not in summary_section
+
+
+def test_archive_surface_exposes_command_gate_summary_without_restore_controls():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    summary_section = doc[
+        doc.index("relaySection('Command gate summary'"):
+        doc.index("relaySection('Reopen / rerun summary'")
+    ]
+    assert "preview.session_name || archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in summary_section
+    assert "['permission state', relayText(preview.permission_state || archiveProof.permission_state || 'unknown')]" in summary_section
+    assert "['human gate state', relayText(preview.human_gate_state || 'required')]" in summary_section
+    assert "['review cadence', relayText(preview.review_cadence_state || 'unknown')]" in summary_section
+    assert "['blocker count', Array.isArray(archiveProof.blockers) ? archiveProof.blockers.length : 0]" in summary_section
+    assert "display-only command gate summary; no reopen, rerun, restart, resume, or confirmation control is executed" in summary_section
+    assert "<button" not in summary_section
+    assert "method: 'POST'" not in summary_section
+    assert "bridgeUrl('message')" not in summary_section
+
+
+def test_archive_surface_exposes_surface_close_boundary_without_session_mutation():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    boundary_section = doc[
+        doc.index("relaySection('Surface close boundary'"):
+        doc.index("relaySection('Close target selection'")
+    ]
+    assert "['Spark Close action', 'restores the visible User Session surface only']" in boundary_section
+    assert "['session close executed', 'no']" in boundary_section
+    assert "['reviewed close posture', 'open Spark Archive for typed close/archive proof']" in boundary_section
+    assert "surface close does not force write-through, Obsidian capture, archive creation, or session mutation" in boundary_section
+    assert "method: 'POST'" not in boundary_section
+    assert "<button" not in boundary_section
+    assert "bridgeUrl('message')" not in boundary_section
+    for field in ("update surface", "obsidian result", "obsidian ref", "continuation state", "checkpoint cadence", "review refs", "capture boundary"):
+        assert f"['{field}'" in doc
     for field in ("summary", "session", "proof posture"):
         assert f"['{field}'" in doc
+    for field in ("query", "scope", "result count", "search boundary"):
+        assert f"['{field}'" in doc
+    for field in ("session ref", "inspect posture"):
+        assert f"['{field}'" in doc
+    for field in ("archive alternative", "archive list visibility", "option boundary"):
+        assert f"['{field}'" in doc
+    for field in ("recent close refs", "recovery posture", "restore control available"):
+        assert f"['{field}'" in doc
+    for field in ("command preview", "expected transition", "permission state", "executable now", "summary boundary"):
+        assert f"['{field}'" in doc
+    for field in ("delete available", "close action", "archive action", "filter/search action", "intent boundary", "artifact visibility"):
+        assert f"['{field}'" in doc
+    for field in ("retention state", "policy source", "reversible now", "retention boundary"):
+        assert f"['{field}'" in doc
     for field in ("status", "next action", "expected transition", "command posture", "blockers", "proof refs"):
+        assert f"['{field}'" in doc
+    for field in ("target session", "permission state", "required operation", "review cadence", "confirmation posture"):
+        assert f"['{field}'" in doc
+    for field in ("proposed action", "reason visible", "reason label", "reason length", "saved state posture", "proposal boundary"):
+        assert f"['{field}'" in doc
+    for field in ("write-through completed", "failure visibility", "required condition", "recovery posture"):
+        assert f"['{field}'" in doc
+    for field in ("proof refs", "gate posture", "gate boundary"):
+        assert f"['{field}'" in doc
+    for field in ("running-work posture", "intended close action", "archive alternative", "guard boundary"):
         assert f"['{field}'" in doc
     for field in ("archive proof refs", "artifact posture", "raw artifact body visible", "reload/run again available"):
         assert f"['{field}'" in doc
@@ -2201,6 +3125,7 @@ def test_index_session_archive_surface_uses_backend_proof_snapshot():
     assert "Orchestrator intake" in doc
     assert "compact typed session state" in doc
     assert "raw detail is fetched only on demand" in doc
+    assert "relaySection('Session close archive proof summary', relaySummary(snapshot.summary || 'Session close/archive proof summary unavailable.'), true)" in doc
     assert "raw worker session history" in doc
     assert "pasted transcript/log/detail" in doc
     assert "Write-through gate" in doc
@@ -2227,6 +3152,312 @@ def test_index_session_archive_surface_uses_backend_proof_snapshot():
     assert "prompt:" not in archive_surface.lower()
 
 
+def test_archive_surface_exposes_display_only_close_permission_gate():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    gate_section = doc[
+        doc.index("relaySection('Close permission gate'"):
+        doc.index("relaySection('Orchestrator-led close proposal'")
+    ]
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in gate_section
+    assert "relayText(preview.permission_state || archiveProof.permission_gate_state)" in gate_section
+    assert "relayText(preview.required_operation || archiveProof.required_operation)" in gate_section
+    assert "relayText(preview.aegis_gate_status)" in gate_section
+    assert "relayText(preview.review_cadence_state)" in gate_section
+    assert "preview.human_gate_required ? 'yes' : 'no'" in gate_section
+    assert "preview.is_executable_now ? 'yes' : 'no'" in gate_section
+    assert "explicit human confirmation required before close/archive execution" in gate_section
+    assert "method: 'POST'" not in gate_section
+    assert "<button" not in gate_section
+    assert "bridgeUrl('message')" not in gate_section
+    assert "archive-session" not in gate_section
+    assert "close-session" not in gate_section
+
+
+def test_archive_surface_exposes_display_only_obsidian_capture_status():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    obsidian_section = doc[
+        doc.index("relaySection('Obsidian capture'"):
+        doc.index("relaySection('Archive summary'")
+    ]
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in obsidian_section
+    assert "relayText(obsidianCapture.update_surface)" in obsidian_section
+    assert "obsidianCapture.latest_obsidian_ref ? 'success' : 'missing'" in obsidian_section
+    assert "obsidianCapture.latest_obsidian_ref || 'none'" in obsidian_section
+    assert "relayText(obsidianCapture.continuation_state)" in obsidian_section
+    assert "relayText(obsidianCapture.checkpoint_cadence)" in obsidian_section
+    assert "relayJoin(obsidianCapture.reviewer_gate_refs)" in obsidian_section
+    assert "relayJoin(obsidianCapture.lease_gate_refs)" in obsidian_section
+    assert "relayJoin(obsidianCapture.blocker_tags)" in obsidian_section
+    assert "relayJoin(obsidianCapture.evidence_refs)" in obsidian_section
+    assert "display-only checkpoint result; no Obsidian write, queue, close, or archive action is executed" in obsidian_section
+    assert "method: 'POST'" not in obsidian_section
+    assert "<button" not in obsidian_section
+    assert "bridgeUrl('message')" not in obsidian_section
+    assert "close-session" not in obsidian_section
+
+
+def test_archive_surface_exposes_local_archive_search_without_backend_mutation():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    search_section = doc[
+        doc.index("relaySection('Search archived sessions'"):
+        doc.index("relaySection('Session archive list'")
+    ]
+    assert "renderArchiveSearchResults({" in search_section
+    assert 'data-archive-search' in doc
+    assert "Project, role, model, status, date, summary, ref" in doc
+    assert "current reviewed archive snapshot only" in doc
+    assert "UI-local filter over loaded archive metadata, summary, archive refs, and recent close refs" in doc
+    assert "local loaded-field match only; no backend archive lookup or transcript retrieval" in doc
+    assert "['matched field', entry.matchedField?.label || 'all loaded fields']" in doc
+    assert "['detail', entry.detail || entry.label]" in doc
+    assert "no archive matches in the current reviewed snapshot" in doc
+    assert "method: 'POST'" not in search_section
+    assert "bridgeUrl('message')" not in search_section
+    assert "<form" not in search_section
+
+
+def test_archive_surface_exposes_display_only_orchestrator_close_proposal():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    proposal_section = doc[
+        doc.index("relaySection('Orchestrator-led close proposal'"):
+        doc.index("relaySection('No silent data loss'")
+    ]
+    assert "preview.session_name || archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in proposal_section
+    assert "preview.target_session_id || archiveMetadata.target_session_id || archiveProof.target_session_id || 'unknown'" in proposal_section
+    assert "relayText(preview.command_kind || archiveProof.intended_action)" in proposal_section
+    assert "preview.reason_present ? 'bounded label only' : 'no reason reported'" in proposal_section
+    assert "relayText(preview.reason_label || 'none')" in proposal_section
+    assert "preview.reason_length ?? 0" in proposal_section
+    assert "archiveProof.write_through_completed ? 'write-through proof reported before proposal' : 'write-through still pending or unavailable'" in proposal_section
+    assert "relayText(preview.rollback_or_recovery_note_label || closeProof.rollback_or_preservation_note || 'none')" in proposal_section
+    assert "display-only proposal; no close/archive execution, confirmation, or queue mutation" in proposal_section
+    assert "method: 'POST'" not in proposal_section
+    assert "<button" not in proposal_section
+    assert "bridgeUrl('message')" not in proposal_section
+
+
+def test_archive_surface_exposes_safe_deletion_boundary_without_delete_controls():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    boundary_section = doc[
+        doc.index("relaySection('Safe deletion boundary'"):
+        doc.index("relaySection('Close summary'")
+    ]
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in boundary_section
+    assert "['delete available', 'no']" in boundary_section
+    assert "relayText(closeProof.intended_action)" in boundary_section
+    assert "relayText(archiveProof.intended_action)" in boundary_section
+    assert "['filter/search action', 'separate archive browsing concern only']" in boundary_section
+    assert "archive deletion requires its own explicit reviewed intent and cannot happen from one-click close or filtering" in boundary_section
+    assert "archiveArtifactRefs.length ? 'proof refs only; no delete control exposed' : 'no archive artifact delete control exposed'" in boundary_section
+    assert "method: 'POST'" not in boundary_section
+    assert "<button" not in boundary_section
+    assert "delete" in boundary_section.lower()
+    assert "archive-session" not in boundary_section
+    assert "close-session" not in boundary_section
+
+
+def test_archive_surface_exposes_retention_posture_without_storage_claims():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    retention_section = doc[
+        doc.index("relaySection('Archive retention'"):
+        doc.index("relaySection('Close summary'")
+    ]
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in retention_section
+    assert "['retention state', 'not exposed by the current reviewed archive snapshot']" in retention_section
+    assert "relayText(snapshot.orchestrator_intake || 'compact typed session state only')" in retention_section
+    assert "archiveMetadata.observed_at || snapshot.timestamp || 'unknown'" in retention_section
+    assert "['reversible now', 'no']" in retention_section
+    assert "display-only retention posture; no retention-policy mutation, archive destruction, restore, or storage-model claim is made" in retention_section
+    assert "method: 'POST'" not in retention_section
+    assert "bridgeUrl('message')" not in retention_section
+
+
+def test_archive_surface_exposes_knowledge_handoff_without_memory_mutation():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    handoff_section = doc[
+        doc.index("relaySection('Archive to knowledge handoff'"):
+        doc.index("relaySection('Close permission gate'")
+    ]
+    assert 'data-archive-handoff="echo"' in handoff_section
+    assert 'data-archive-handoff="atlas"' in handoff_section
+    assert "This handoff makes durable-memory and retrieval destinations explicit without replacing the archive record itself." in handoff_section
+    assert "It changes only the visible surface; it does not extract lessons, write memory, create retrieval entries, mutate archive state, or close the current session." in handoff_section
+    assert "method: 'POST'" not in handoff_section
+    assert "bridgeUrl('message')" not in handoff_section
+
+
+def test_archive_surface_exposes_no_silent_data_loss_frame():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    data_loss_section = doc[
+        doc.index("relaySection('No silent data loss'"):
+        doc.index("relaySection('Write-through before close gate'")
+    ]
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in data_loss_section
+    assert "archiveProof.write_through_completed ? 'yes' : 'no'" in data_loss_section
+    assert "closeProof.failure_visibility || writeThroughProof.failure_visibility || 'unknown'" in data_loss_section
+    assert "writeThroughProof.required_write_through_condition || 'unknown'" in data_loss_section
+    assert "closeProof.rollback_or_preservation_note || writeThroughProof.rollback_or_preservation_note || 'none'" in data_loss_section
+    assert "recoverable proof reported before close/archive execution" in data_loss_section
+    assert "session remains in proof-only posture until write-through succeeds" in data_loss_section
+    assert "Array.from(new Set([" in data_loss_section
+    assert "method: 'POST'" not in data_loss_section
+    assert "<button" not in data_loss_section
+    assert "bridgeUrl('message')" not in data_loss_section
+    assert "archive-session" not in data_loss_section
+    assert "close-session" not in data_loss_section
+
+
+def test_archive_surface_exposes_write_through_before_close_gate():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    gate_section = doc[
+        doc.index("relaySection('Write-through before close gate'"):
+        doc.index("relaySection('Stop-before-close guard'")
+    ]
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in gate_section
+    assert "archiveProof.write_through_completed ? 'yes' : 'no'" in gate_section
+    assert "writeThroughProof.required_write_through_condition || 'unknown'" in gate_section
+    assert "Array.from(new Set([" in gate_section
+    assert "close/archive review sees durable write-through proof" in gate_section
+    assert "close/archive remains gated until write-through proof is reported" in gate_section
+    assert "display-only write-through gate; no write, close, archive, or transcript mutation is executed" in gate_section
+    assert "method: 'POST'" not in gate_section
+    assert "<button" not in gate_section
+    assert "bridgeUrl('message')" not in gate_section
+
+
+def test_archive_surface_exposes_stop_before_close_guard():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    guard_section = doc[
+        doc.index("relaySection('Stop-before-close guard'"):
+        doc.index("relaySection('Restore proof/artifacts'")
+    ]
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in guard_section
+    assert "closeProof.human_gate_required ? 'running or review-gated work requires an explicit stop/archive decision' : 'no running-work guard reported'" in guard_section
+    assert "relayText(closeProof.intended_action)" in guard_section
+    assert "relayText(archiveProof.intended_action)" in guard_section
+    assert "closeProof.human_gate_required ? 'yes' : 'no'" in guard_section
+    assert "closeProof.rollback_or_preservation_note || 'none'" in guard_section
+    assert "display-only stop-before-close posture; no close, stop, archive, or leave-running control is executed" in guard_section
+    assert "relayJoin(closeProof.blockers)" in guard_section
+    assert "method: 'POST'" not in guard_section
+    assert "<button" not in guard_section
+    assert "bridgeUrl('message')" not in guard_section
+    assert "archive-session" not in guard_section
+    assert "close-session" not in guard_section
+
+
+def test_archive_surface_exposes_display_only_session_archive_list():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    archive_list_section = doc[
+        doc.index("relaySection('Session archive list'"):
+        doc.index("relaySection('Archive-on-close option'")
+    ]
+    assert "Array.isArray(snapshot.archive_sessions) ? snapshot.archive_sessions : []" in doc
+    assert "session_ref" in archive_list_section
+    assert "display-safe archive history id only" in archive_list_section
+    assert "no archived sessions reported by the current reviewed snapshot" in archive_list_section
+    assert "method: 'POST'" not in archive_list_section
+    assert "<button" not in archive_list_section
+    assert "bridgeUrl('message')" not in archive_list_section
+
+
+def test_archive_surface_exposes_display_only_close_target_selection():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    target_section = doc[
+        doc.index("relaySection('Close target selection'"):
+        doc.index("relaySection('Archive summary'")
+    ]
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in target_section
+    assert "archiveMetadata.target_session_id || archiveProof.target_session_id || 'unknown'" in target_section
+    assert "archiveMetadata.source_session_id || archiveProof.target_session_id || 'unknown'" in target_section
+    assert "archiveMetadata.project_name || 'unknown'" in target_section
+    assert "target is explicit in reviewed archive/close metadata before any close/archive review proceeds" in target_section
+    assert "display-only target identity; no session retarget, chooser, close, or archive control is executed" in target_section
+    assert "method: 'POST'" not in target_section
+    assert "<button" not in target_section
+    assert "bridgeUrl('message')" not in target_section
+
+
+def test_archive_surface_exposes_display_only_archive_on_close_option():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    archive_option_section = doc[
+        doc.index("relaySection('Archive-on-close option'"):
+        doc.index("relaySection('Recently closed references'")
+    ]
+    assert "archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in archive_option_section
+    assert "relayText(archiveProof.intended_action)" in archive_option_section
+    assert "relayText(archiveProof.required_operation)" in archive_option_section
+    assert "archiveProof.human_gate_required ? 'yes' : 'no'" in archive_option_section
+    assert "archiveSessions.length ? 'archived refs visible in Session archive list' : 'no archive refs currently reported'" in archive_option_section
+    assert "display-only archive alternative; no archive-on-close control is executed" in archive_option_section
+    assert "method: 'POST'" not in archive_option_section
+    assert "<button" not in archive_option_section
+    assert "bridgeUrl('message')" not in archive_option_section
+
+
+def test_archive_surface_exposes_recently_closed_references_without_restore_controls():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    recent_close_section = doc[
+        doc.index("relaySection('Recently closed references'"):
+        doc.index("relaySection('Close summary'")
+    ]
+    assert "Array.isArray(snapshot.recent_close_refs) ? snapshot.recent_close_refs : []" in doc
+    assert "relayJoin(recentCloseRefs)" in recent_close_section
+    assert "findable through recent/archive references only" in recent_close_section
+    assert "restore control available" in recent_close_section
+    assert "'no'" in recent_close_section
+    assert "no recent close references reported by the current reviewed snapshot" in recent_close_section
+    assert "method: 'POST'" not in recent_close_section
+    assert "<button" not in recent_close_section
+    assert "bridgeUrl('message')" not in recent_close_section
+
+
+def test_archive_surface_exposes_display_only_reopen_and_rerun_summary_without_controls():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    summary_section = doc[
+        doc.index("relaySection('Reopen / rerun summary'"):
+        doc.index("relaySection('Reopen / rerun posture'")
+    ]
+    assert "preview.session_name || archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in summary_section
+    assert "relayText(preview.command_kind || 'not exposed')" in summary_section
+    assert "relayText(preview.expected_state_transition || 'not exposed')" in summary_section
+    assert "Array.isArray(archiveProof.blockers) ? archiveProof.blockers.length : 0" in summary_section
+    assert "relayText(preview.rollback_or_recovery_note_label || closeProof.rollback_or_preservation_note || 'none')" in summary_section
+    assert "display-only reopen/rerun summary; no reopen, resume, restart, or rerun control is executed" in summary_section
+    assert "method: 'POST'" not in summary_section
+    assert "<button" not in summary_section
+    assert "bridgeUrl('message')" not in summary_section
+
+
+def test_archive_surface_exposes_display_only_reopen_and_rerun_posture_without_controls():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    posture_section = doc[
+        doc.index("relaySection('Reopen / rerun posture'"):
+        doc.index("relaySection('Safe deletion boundary'")
+    ]
+    assert "preview.session_name || archiveMetadata.session_name || archiveProof.session_name || 'unknown'" in posture_section
+    assert "relayText(preview.command_kind || 'not exposed')" in posture_section
+    assert "relayText(preview.expected_state_transition || 'not exposed')" in posture_section
+    assert "relayText(preview.reason_label || 'not exposed')" in posture_section
+    assert "relayText(preview.reason_length || 'not exposed')" in posture_section
+    assert "relayText(preview.required_operation || archiveProof.required_operation || 'not exposed')" in posture_section
+    assert "relayText(preview.permission_state || archiveProof.permission_state || 'unknown')" in posture_section
+    assert "relayText(preview.human_gate_state || 'required')" in posture_section
+    assert "relayText(preview.review_cadence_state || 'unknown')" in posture_section
+    assert "archiveProof.is_executable_now ? 'yes' : 'no'" in posture_section
+    assert "relayJoin(archiveProof.blockers)" in posture_section
+    assert "relayText(preview.rollback_or_recovery_note_label || closeProof.rollback_or_preservation_note || 'none')" in posture_section
+    assert "['reopen control available', 'no']" in posture_section
+    assert "['rerun control available', 'no']" in posture_section
+    assert "display-only reopen/rerun posture; no reopen, resume, restart, or rerun control is executed" in posture_section
+    assert "| ARC2 | Reopen posture | Shows reviewed reopen posture before archive restore execution exists. | wired | Spark Archive renders a display-only reopen/rerun summary plus reopen posture from reviewed command-preview and close/archive proof metadata, surfacing target, expected transition, permission/gate state, blocker summary, and explicit non-executable boundary so reopen state is visible without exposing a reopen control or archive-restore execution route. |" in checklist
+    assert "| ARC3 | Rerun posture | Shows reviewed rerun/resume/restart posture before archive re-entry execution exists. | wired | Spark Archive renders a display-only reopen/rerun summary plus rerun/resume/restart posture from reviewed command-preview and close/archive proof metadata, surfacing command kind, reason, blocker summary, and explicit non-executable boundary so rerun/resume/restart state is visible without exposing a rerun, resume, or restart control. |" in checklist
+    assert "method: 'POST'" not in posture_section
+    assert "<button" not in posture_section
+    assert "bridgeUrl('message')" not in posture_section
+
+
 def test_index_release_harness_uses_prime_autonomy_snapshot():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert 'data-harness="Release"' in doc
@@ -2242,6 +3473,8 @@ def test_index_release_harness_uses_prime_autonomy_snapshot():
         "loadReleaseAutonomy();"
     ) in doc
     assert "Release autonomy source" in doc
+    assert "Release autonomy summary" in doc
+    assert "generated at" in doc
     assert "Release posture" in doc
     assert "Authority boundary" in doc
     assert "Visibility guard" in doc
@@ -2256,6 +3489,7 @@ def test_index_release_harness_uses_prime_autonomy_snapshot():
     assert "raw filesystem paths visible" in doc
     assert "release-now" not in doc
     assert "deploy-now" not in doc
+    assert "relaySection('Release autonomy summary', relaySummary(snapshot.summary || 'Release autonomy summary unavailable.'), true)" in doc
 
 
 def test_index_wired_harness_titles_use_runtime_logic_naming():
@@ -2291,6 +3525,7 @@ def test_index_relay_harness_renders_backend_logic_snapshot_contract():
     assert "callIntent.payload_budget_ref || 'not exposed'" in doc
     assert "relayJoin(callIntent.disallowed_outputs)" in doc
     assert "relayJoin(callIntent.evidence_refs)" in doc
+    assert "relaySection('Relay evidence summary', relaySummary(snapshot.summary || 'Relay evidence summary unavailable.'), true)" in doc
     assert "Prompt payload meter advisory" in doc
     assert "Provider result validation advisory" in doc
     assert "DeepSeek validation disposition" in doc
@@ -2618,8 +3853,8 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "| SKL12 | Favorite/pin skill | Allows important skills to be pinned for the active project/user. | wired |" in doc
     assert "Skills Registry pin controls persist row ids under `meridian.skills.pinned.v1` bucketed by active project context in the local user UI profile" in doc
     assert "| XCK0 | Review/proof state | Shows current Review Console and Aegis proof posture without running a new check. | wired |" in doc
-    assert "| XCK2 | Review findings | Shows current findings with severity, owner, and status. | partial |" in doc
-    assert "owner attribution remains deferred and raw item content stays hidden" in doc
+    assert "| XCK2 | Review findings | Shows current findings with severity, owner, and status. | wired |" in doc
+    assert "owner harness, title, suggested actions, and status as structured metadata" in doc
     assert "| XCK9 | Gate irreversible actions | Sends public/financial/account-risking decisions through review gate. | wired |" in doc
     assert "Spark Crosscheck renders a display-only Irreversible action gate frame by joining `/bridge/review-console` pending-gate state with `/bridge/aegis-logic` human-gate and dispatch-block posture" in doc
     assert "| XCK3 | Proof status | Shows pass/fail/waived proof state for active work. | wired |" in doc
@@ -2673,6 +3908,12 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "UI-local progress collapse default backed by `meridian.progress-state.v1`" in doc
     assert "| SET8 | Progress redirect defaults | Configures default routing by category when Prime surfaces progress or review items. | wired |" in doc
     assert "UI-local progress redirect defaults backed by `meridian.progress-redirects.v1`" in doc
+    assert "| SET9 | Progress retention window | Controls how long visible progress/proof items stay in the UI. | wired |" in doc
+    assert "UI-local progress retention window backed by `meridian.progress-retention.v1`" in doc
+    assert "| SET12 | Lane band side | Chooses lane/session band side when that band exists. | wired |" in doc
+    assert "UI-local lane/session band side backed by `meridian.session-band-side.v1`" in doc
+    assert "| SET13 | Bottom band visibility | Chooses which instrumentation cells are visible within a fixed cap. | wired |" in doc
+    assert "UI-local bottom instrumentation band visibility backed by `meridian.instrumentation-band.v1`" in doc
     assert "| SET14 | Role/model mapping | Shows role-to-model mapping and allows per-role override/pin. | wired |" in doc
     assert "UI-local per-role model preferences backed by `meridian.role-model-overrides.v1`" in doc
     assert "| SET18 | Diagnostic log visibility | Controls whether per-session diagnostic event logs are visible by default. | wired |" in doc
@@ -2726,6 +3967,8 @@ def test_ui_checklist_pins_backend_backed_spark_surfaces():
     assert "Spark Balance fetches `/bridge/models` beside `/bridge/provider-balance`" in doc
     assert "| BAL9 | Provider comparison | Compares backend cost/availability/trust for Prime visibility. | wired |" in doc
     assert "Spark Balance renders a Provider comparison frame backed by `/bridge/provider-balance`" in doc
+    assert "| XCK8 | Compare model lanes | Shows comparison-item disagreement posture where available. | wired |" in doc
+    assert "Spark Crosscheck renders a display-only Model lane disagreement frame from `/bridge/review-console` and `/bridge/relay-logic`" in doc
     assert "| MOD7 | Capability metadata | Shows backend strengths, limits, steering mode, context limits, and supported tools. | wired |" in doc
     assert "| MOD4 | Per-role mapping | Lists planned roles such as orchestrator, builder, reviewer, verifier, researcher, and release operator. | wired |" in doc
     assert "Spark Models renders display-only Role mapping entries" in doc
@@ -2949,6 +4192,137 @@ def test_index_settings_surface_persists_progress_pin_mute_and_collapse_state_lo
     assert "method: 'POST'" not in progress_state
 
 
+def test_index_settings_surface_controls_progress_retention_window_locally():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    render_start = doc.index("const progressRetentionWindowKey = 'meridian.progress-retention.v1'")
+    render_end = doc.index("const renderRiskTierOverridePreview = (state) =>", render_start)
+    retention_surface = doc[render_start:render_end]
+    filter_start = doc.index("const renderContextFilterPreview = (state) =>")
+    filter_end = doc.index("const renderContextFilterSurface = () =>", filter_start)
+    filter_preview = doc[filter_start:filter_end]
+    settings_start = doc.index("const renderSparkSurface = (label) =>")
+    settings_end = doc.index("const renderHarnessSurface = (button) =>", settings_start)
+    settings_surface = doc[settings_start:settings_end]
+    models_start = doc.index("const renderSparkModelsSnapshot = (")
+    models_end = doc.index("const renderModelHarnessBackendBindingSnapshot = (snapshots = {}) =>", models_start)
+    models_surface = doc[models_start:models_end]
+    workflow_start = doc.index("const renderWorkflowDispatchStatusSnapshot = (snapshot) =>")
+    workflow_end = doc.index("const renderEchoMemorySnapshot = (snapshot) =>", workflow_start)
+    workflow_surface = doc[workflow_start:workflow_end]
+
+    assert "const progressRetentionWindowKey = 'meridian.progress-retention.v1'" in retention_surface
+    assert "progressRetentionWindowOptions" in retention_surface
+    assert "renderProgressRetentionWindowLabel" in retention_surface
+    assert "filterRetainedTimestampedItems" in retention_surface
+    assert "Progress retention window" in retention_surface
+    assert "data-progress-retention-window" in retention_surface
+    assert "data-progress-retention-preview" in retention_surface
+    assert "recent model calls and routine history" in retention_surface
+    assert "backend snapshots and source data are not deleted" in retention_surface
+    assert "initializeProgressRetentionSurface();" in settings_surface
+    assert "data-progress-retention-surface" in settings_surface
+    assert "progress retention window" in filter_preview
+    assert "const retainedCalls = filterRetainedTimestampedItems(recentCalls, 'at');" in models_surface
+    assert "Recent call retention" in models_surface
+    assert "all recent call metadata is outside the visible retention window" in models_surface
+    assert "const retainedRuns = filterRetainedTimestampedItems(recentRuns, 'observed_at');" in workflow_surface
+    assert "Routine history retention" in workflow_surface
+    assert "all reported routine history is outside the visible retention window" in workflow_surface
+    assert "bridgeUrl('message')" not in retention_surface
+    assert "bridgeUrl('call-result')" not in retention_surface
+    assert "method: 'POST'" not in retention_surface
+
+
+def test_index_settings_surface_controls_bottom_band_visibility_locally():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    render_start = doc.index("const instrumentationBandKey = 'meridian.instrumentation-band.v1'")
+    render_end = doc.index("const renderProjectFocusSnapshot = () => [", render_start)
+    band_surface = doc[render_start:render_end]
+    settings_start = doc.index("const renderSparkSurface = (label) =>")
+    settings_end = doc.index("const harnessDraftStorageKey", settings_start)
+    settings_surface = doc[settings_start:settings_end]
+
+    assert 'class="instrumentation-band"' in doc
+    assert "const instrumentationBandKey = 'meridian.instrumentation-band.v1'" in band_surface
+    assert "const instrumentationBandCap = 6;" in band_surface
+    assert "const instrumentationBandOptions = [" in band_surface
+    assert "const loadInstrumentationBand = async () => {" in band_surface
+    assert "fetch(bridgeUrl('beacon-liveness'), { cache: 'no-store' })" in band_surface
+    assert "fetch(bridgeUrl('review-console'), { cache: 'no-store' })" in band_surface
+    assert "fetch(bridgeUrl('aegis-logic'), { cache: 'no-store' })" in band_surface
+    assert "fetch(bridgeUrl('health'), { cache: 'no-store' })" in band_surface
+    assert "gridTemplateColumns = `repeat(${Math.max(1, selected.length)}, minmax(0, 1fr))`" in band_surface
+    assert "data-instrumentation-band-toggle" in band_surface
+    assert "stable fixed-cap grid; hidden cells remain available in Settings" in band_surface
+    assert "data-instrumentation-band-surface" in settings_surface
+    assert "initializeInstrumentationBandSurface();" in settings_surface
+    assert "bridgeUrl('message')" not in band_surface
+    assert "bridgeUrl('call-result')" not in band_surface
+    assert "method: 'POST'" not in band_surface
+
+
+def test_index_settings_surface_controls_session_band_side_locally():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    render_start = doc.index("const sessionBandSideKey = 'meridian.session-band-side.v1'")
+    render_end = doc.index("const renderProjectFocusSnapshot = () => [", render_start)
+    band_surface = doc[render_start:render_end]
+    settings_start = doc.index("const renderSparkSurface = (label) =>")
+    settings_end = doc.index("const harnessDraftStorageKey", settings_start)
+    settings_surface = doc[settings_start:settings_end]
+
+    assert "const sessionBandSideKey = 'meridian.session-band-side.v1'" in band_surface
+    assert "const sessionBandSideOptions = ['right', 'left'];" in band_surface
+    assert "screen.dataset.sessionBandSide = next;" in band_surface
+    assert "data-session-band-side" in band_surface
+    assert "Lane band side" in band_surface
+    assert "The paired session windows move as a mirrored band so the layout shifts sides without panel drift." in band_surface
+    assert '.harness-screen[data-session-band-side="left"] .session-window-right' in doc
+    assert '.harness-screen[data-session-band-side="left"] .session-window-left' in doc
+    assert "data-session-band-side-surface" in settings_surface
+    assert "initializeSessionBandSideSurface();" in settings_surface
+    assert "bridgeUrl('message')" not in band_surface
+    assert "bridgeUrl('call-result')" not in band_surface
+    assert "method: 'POST'" not in band_surface
+
+
+def test_index_settings_surface_promotes_set17_to_local_session_window_posture_defaults():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    render_start = doc.index("const sessionWindowDefaultsKey = 'meridian.session-window-defaults.v1'")
+    render_end = doc.index("const renderProjectFocusSnapshot = () => [", render_start)
+    defaults_surface = doc[render_start:render_end]
+    settings_start = doc.index("const renderSparkSurface = (label) =>")
+    settings_end = doc.index("const harnessDraftStorageKey", settings_start)
+    settings_surface = doc[settings_start:settings_end]
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+
+    assert "const sessionWindowDefaultsKey = 'meridian.session-window-defaults.v1'" in defaults_surface
+    assert "hidden: false, collapsed: false, pinned: false, size: 'standard'" in defaults_surface
+    assert "windowEl.dataset.sessionHidden = config.hidden ? 'true' : 'false';" in defaults_surface
+    assert "windowEl.dataset.sessionCollapsed = config.collapsed ? 'true' : 'false';" in defaults_surface
+    assert "windowEl.dataset.sessionPinned = config.pinned ? 'true' : 'false';" in defaults_surface
+    assert "windowEl.dataset.sessionSize = config.size || 'standard';" in defaults_surface
+    assert "Session window defaults" in defaults_surface
+    assert "['Role comparison', JSON.stringify(state.prime) === JSON.stringify(state.user) ? 'Prime and User defaults currently match' : 'Prime and User defaults diverge']" in defaults_surface
+    assert "['Exposed defaults', 'hidden | collapsed | pinned | size']" in defaults_surface
+    assert "['Unavailable defaults', 'archive | transfer | rerun/restart']" in defaults_surface
+    assert "['Archive default', 'not exposed; backend-owned']" in defaults_surface
+    assert "['Transfer default', 'not exposed; backend-owned']" in defaults_surface
+    assert "['Rerun/restart default', 'not exposed; backend-owned']" in defaults_surface
+    assert "They control visible hidden/collapsed/pinned/size posture only and do not create a card system." in defaults_surface
+    assert "Archive, transfer, rerun, and close/write-through behavior remain backend-owned and are not implied by these defaults." in defaults_surface
+    assert '.session-window[data-session-hidden="true"]' in doc
+    assert '.session-window[data-session-pinned="true"]' in doc
+    assert '.session-window[data-session-collapsed="true"] .session-response-output' in doc
+    assert '.session-window[data-session-size="compact"]' in doc
+    assert '.session-window[data-session-size="wide"]' in doc
+    assert "data-session-window-defaults-surface" in settings_surface
+    assert "initializeSessionWindowDefaultsSurface();" in settings_surface
+    assert "| SET17 | Session window posture defaults | Persists reviewed local window posture defaults for existing Prime/User sessions before backend close/archive flows exist. | wired | Settings/Spark persists UI-local session-window defaults in `meridian.session-window-defaults.v1`, summarizes exposed vs unavailable defaults plus current Prime/User comparison, and applies hidden/collapsed/pinned/size posture to the existing Prime/User session windows only, so reviewed window posture defaults are carried forward without exposing archive/transfer/rerun defaults, new session card creation, or backend-owned close/write-through behavior. |" in checklist
+    assert "bridgeUrl('message')" not in defaults_surface
+    assert "bridgeUrl('call-result')" not in defaults_surface
+    assert "method: 'POST'" not in defaults_surface
+
+
 def test_index_settings_surface_persists_role_model_overrides_locally():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     render_start = doc.index("const roleModelOverrideKey = 'meridian.role-model-overrides.v1'")
@@ -3155,8 +4529,9 @@ def test_index_settings_surface_controls_risk_tier_override_locally():
 
 def test_index_voice_io_surface_shows_public_setup_guidance_without_voice_mutation():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
     render_start = doc.index("const renderVoiceIoSnapshot = (snapshot) =>")
-    render_end = doc.index("const renderSparkModelsSnapshot = (snapshot) =>", render_start)
+    render_end = doc.index("const renderSparkModelsSnapshot = (", render_start)
     voice_surface = doc[render_start:render_end]
     assert "Public voice setup boundary" in voice_surface
     assert "browser microphone permission and a reviewed speech provider" in voice_surface
@@ -3167,6 +4542,38 @@ def test_index_voice_io_surface_shows_public_setup_guidance_without_voice_mutati
     assert "speech output authorized" in voice_surface
     assert "read aloud authorized" in voice_surface
     assert "controls disabled" in voice_surface
+    assert "Voice output summary" in voice_surface
+    assert "Voice intent summary" in voice_surface
+    assert "Voice selection posture" in voice_surface
+    assert "output authorized" in voice_surface
+    assert "read-aloud disabled reason" in voice_surface
+    assert "mute disabled reason" in voice_surface
+    assert "display-only voice output summary; no speech output, read-aloud execution, or mute mutation is performed" in voice_surface
+    assert "Voice output control posture" in voice_surface
+    assert "read-aloud and mute remain reviewed display state only until speech-output authority exists" in voice_surface
+    assert "read-aloud executable" in voice_surface
+    assert "mute executable" in voice_surface
+    assert "Voice interrupt posture" in voice_surface
+    assert "['speaking now', voice.speaking ? 'yes' : 'no']" in voice_surface
+    assert "['speech output authorized', snapshot.speech_output_authorized ? 'yes' : 'no']" in voice_surface
+    assert "['interrupt control available', 'no']" in voice_surface
+    assert "['transcript-preserving stop available', 'no']" in voice_surface
+    assert "display-only interrupt posture; no speech-stop route or transcript-preserving interrupt action is executed" in voice_surface
+    assert "Voice input summary" in voice_surface
+    assert "Voice input action posture" in voice_surface
+    assert "microphone visible" in voice_surface
+    assert "top icon status copy" in voice_surface
+    assert "input disabled reason" in voice_surface
+    assert "display-only voice input summary; no microphone permission request, capture start, dictation, or prompt send is performed" in voice_surface
+    assert "['push-to-talk available', 'no']" in voice_surface
+    assert "['dictation draft available', 'no']" in voice_surface
+    assert "['spoken submit available', 'no']" in voice_surface
+    assert "['correction surface available', 'no']" in voice_surface
+    assert "['output posture', voice.output_mode || 'unknown']" in voice_surface
+    assert "['selected voice exposed', 'no']" in voice_surface
+    assert "['voice list available', 'no']" in voice_surface
+    assert "display-only voice input action posture; no microphone capture, dictation draft, spoken submit, or correction action is executed" in voice_surface
+    assert "display-only voice-selection posture; no selectable voice inventory or persisted voice preference is exposed" in voice_surface
     assert "Voice privacy indicator" in voice_surface
     assert "microphone capture" in voice_surface
     assert "capture can start" in voice_surface
@@ -3175,21 +4582,71 @@ def test_index_voice_io_surface_shows_public_setup_guidance_without_voice_mutati
     assert "capture state visible and fail-closed" in voice_surface
     assert "snapshot.microphone_authorized && voice.listening ? 'active' : 'inactive'" in voice_surface
     assert "snapshot.microphone_authorized && !snapshot.controls_disabled ? 'yes' : 'no'" in voice_surface
+    assert "const voiceControlDisabledReason = (controlId) => {" in voice_surface
+    assert "if (controlId === 'input-status') {" in voice_surface
+    assert "['status', voice.status_call || 'standing by']" in voice_surface
+    assert "['intent', voice.last_intent_ref || 'none']" in voice_surface
+    assert "relaySection('Voice I/O summary', relaySummary(snapshot.summary || 'Voice I/O summary unavailable.'), true)" in voice_surface
+    assert "['status call', voice.status_call || 'standing by']" in voice_surface
+    assert "['last intent ref', voice.last_intent_ref || 'none']" in voice_surface
+    assert "display-only voice intent/status summary; no command recognition, command preview, or command execution is performed" in voice_surface
+    assert "microphone permission not authorized" in voice_surface
+    assert "microphone capture remains display-only in public builds" in voice_surface
+    assert "speech output backend not authorized" in voice_surface
+    assert "read-aloud execution not authorized" in voice_surface
+    assert "mute state is visible, but mute mutation is not authorized" in voice_surface
+    assert "typed prompt/response remains available" in voice_surface
+    assert "| VOC1 | Voice input posture | Shows reviewed microphone/input posture before push-to-talk execution exists. | wired | Voice I/O renders a display-only microphone/input control plus voice input summary/action posture from `/bridge/voice-io`, surfacing top-icon status copy, capture state, authorization, disabled reason, and explicit input-action unavailability so voice input state is visible without executing a push-to-talk capture action. |" in checklist
     assert "navigator.mediaDevices" not in voice_surface
     assert "getUserMedia" not in voice_surface
     assert "speechSynthesis" not in voice_surface
     assert "SpeechRecognition" not in voice_surface
 
-    button_start = doc.index("const applySpeechButtonVoiceState = (snapshot = {}) =>")
+    button_start = doc.index("const speechButtonDisabledReason = (snapshot = {}, voice = {}) =>")
     button_end = doc.index("const refreshSpeechButtonVoiceState = async () =>", button_start)
     speech_button = doc[button_start:button_end]
     assert "speechButton.dataset.captureState" in speech_button
-    assert "Microphone capture active" in speech_button
-    assert "Microphone capture inactive" in speech_button
+    assert "const disabledReason = speechButtonDisabledReason(snapshot, voice);" in speech_button
+    assert "const statusCopy = speechButtonStatusCopy(snapshot, voice);" in speech_button
+    assert "speechButton.dataset.disabledReason = disabledReason" in speech_button
+    assert "speechButton.dataset.statusCopy = statusCopy" in speech_button
+    assert "Voice I/O snapshot unavailable" in speech_button
+    assert "Voice interaction blocked by reviewed backend state" in speech_button
+    assert "Voice offline" in speech_button
+    assert "Voice blocked" in speech_button
+    assert "Mic unavailable: microphone permission not authorized" in speech_button
+    assert "Mic unavailable" in speech_button
+    assert "Voice output unavailable: speech output backend not authorized" in speech_button
+    assert "Output unavailable" in speech_button
+    assert "Voice controls are display-only in this build" in speech_button
+    assert "Display only" in speech_button
+    assert "Mic active" in speech_button
+    assert "Voice ready" in speech_button
+    assert "Voice capture inactive" in speech_button
     assert "speechButton.title" in speech_button
     assert "speechButton.disabled = true" in speech_button
     assert "MediaRecorder" not in voice_surface
     assert "method: 'POST'" not in voice_surface
+    assert "| VOC5 | Read-aloud posture | Shows reviewed read-aloud posture before speech output execution exists. | wired | Voice I/O renders a display-only voice output summary from `/bridge/voice-io`, surfacing read-aloud status, disabled reason, and non-executable control posture so read-aloud state is visible without performing speech output or spoken response playback. |" in checklist
+
+
+def test_voice_output_surface_keeps_read_aloud_and_mute_display_only():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    checklist = (ROOT / "docs" / "ui-integration-checklist.md").read_text(encoding="utf-8")
+    voice_surface = doc[
+        doc.index("relaySection('Voice output summary'"):
+        doc.index("relaySection('Voice selection posture'", doc.index("relaySection('Voice output summary'"))
+    ]
+
+    assert "['read-aloud visible', controls.some((control) => control.id === 'read-aloud-status') ? 'yes' : 'no']" in voice_surface
+    assert "['mute visible', controls.some((control) => control.id === 'mute-status' || control.id === 'unmute-status') ? 'yes' : 'no']" in voice_surface
+    assert "['output authorized', snapshot.speech_output_authorized ? 'yes' : 'no']" in voice_surface
+    assert "['read-aloud executable', snapshot.read_aloud_authorized && !snapshot.controls_disabled ? 'yes' : 'no']" in voice_surface
+    assert "['mute executable', snapshot.speech_output_authorized && !snapshot.controls_disabled ? 'yes' : 'no']" in voice_surface
+    assert "['typed responses available', 'yes']" in voice_surface
+    assert "display-only voice output summary; no speech output, read-aloud execution, or mute mutation is performed" in voice_surface
+    assert "read-aloud and mute remain reviewed display state only until speech-output authority exists" in voice_surface
+    assert "| VOC6 | Output mute posture | Shows reviewed mute posture before voice-output mutation exists. | wired | Voice I/O renders a display-only voice output summary from `/bridge/voice-io`, surfacing mute state, disabled reason, and non-executable control posture while typed responses remain available, so mute state is visible without performing a mute mutation. |" in checklist
 
 
 def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wired():
@@ -3235,7 +4692,8 @@ def test_ui_checklist_promotes_right_panel_toggle_only_after_surface_rows_are_wi
     assert "| HMS12 | Harness permission boundary | High-risk harness actions require explicit approval. | wired |" in doc
     assert "Planned Tool/Git/Browser harness surfaces render a permission boundary" in doc
     assert "| HMS4 | Prime review path | Prime reviews harness intent, risk, and proof needs before model interaction. | wired |" in doc
-    assert "Prime Runtime Logic renders a display-only `Prime review before dispatch` section from `/bridge/prime-logic`" in doc
+    assert "Prime Runtime Logic renders a display-only `Prime review before dispatch` section plus Beacon liveness input from `/bridge/prime-logic`" in doc
+    assert "| HN1 | Prime | Opens/focuses Prime runtime logic surface. | wired | Click opens Prime Runtime Logic with backend-sourced decision, context, source refs, proof logic, blockers, and Beacon liveness advisory input from `/bridge/prime-logic`. |" in doc
     assert "leaving route/provider/payload decisions with Relay and Model Harness" in doc
     assert "const renderRightPanelSurface = ({ title, status, sections, surfaceClass = '' }) =>" in index
     assert "const renderHarnessSurface = (button) =>" in index
