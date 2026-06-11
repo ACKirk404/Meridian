@@ -73,6 +73,54 @@ def test_prompt_metrics_bridge_exports():
     assert make_prompt_metrics_finding
 
 
+def test_cross_check_authority_exports():
+    from meridian_core import (
+        CrossCheckDisposition,
+        CrossCheckDispositionAction,
+        CrossCheckFinding,
+        CrossCheckFindingStatus,
+        CrossCheckRepairRoute,
+        CrossCheckRunRequest,
+        CrossCheckRunResult,
+        CrossCheckRunStatus,
+        CrossCheckSeverity,
+        CrossCheckValidationError,
+        CrossCheckVerificationRequest,
+        CrossCheckVerificationResult,
+        dispose_finding,
+        execute_cross_check,
+        rerun_verification,
+        route_finding_for_repair,
+    )
+
+    assert CrossCheckDisposition
+    assert CrossCheckDispositionAction
+    assert CrossCheckFinding
+    assert CrossCheckFindingStatus
+    assert CrossCheckRepairRoute
+    assert CrossCheckRunRequest
+    assert CrossCheckRunResult
+    assert CrossCheckRunStatus
+    assert CrossCheckSeverity
+    assert CrossCheckValidationError
+    assert CrossCheckVerificationRequest
+    assert CrossCheckVerificationResult
+    assert dispose_finding
+    assert execute_cross_check
+    assert rerun_verification
+    assert route_finding_for_repair
+
+    for name in (
+        "CrossCheckDisposition",
+        "CrossCheckFinding",
+        "CrossCheckRunRequest",
+        "CrossCheckVerificationResult",
+        "execute_cross_check",
+        "rerun_verification",
+    ):
+        assert name in meridian_core.__all__, f"{name} missing from __all__"
+
+
 def test_build_and_filemap_exports():
     from meridian_core import BuildRegistry, FileArea, FileMap, FileMapEntry
     from meridian_core import HarnessBuild, HarnessMaturity, make_default_map

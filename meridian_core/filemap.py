@@ -698,6 +698,13 @@ def make_default_map() -> FileMap:
             notes="Proof-blocking is severity + status aware; ESCALATED is always blocking.",
         ),
         FileMapEntry(
+            path="meridian_core/cross_check.py",
+            area=FileArea.AEGIS,
+            purpose="Backend cross-check authority: typed run requests/results, findings, repair routes, approve/dismiss/waive disposition, and repair verification reruns.",
+            related_tests=["tests/test_cross_check.py"],
+            notes="Pure domain authority for XCK rows; no UI, bridge, model/provider calls, persistence, process/session control, or repair execution.",
+        ),
+        FileMapEntry(
             path="meridian_core/aegis_logic_snapshot.py",
             area=FileArea.AEGIS,
             purpose="Display-safe backend Aegis Runtime Logic snapshot: ProofTrail evidence counts, cognition-policy gate result, Relay route posture, non-executable guardrails, and source refs.",
@@ -711,11 +718,25 @@ def make_default_map() -> FileMap:
             related_tests=[],
         ),
         FileMapEntry(
+            path="tests/test_cross_check.py",
+            area=FileArea.AEGIS,
+            purpose="Test suite for meridian_core/cross_check.py: covers cross-check execution, repair routing, approve/dismiss/waive disposition, verification reruns, and display-safety boundaries.",
+            related_tests=[],
+            notes="Run before changing backend cross-check authority or XCK row semantics.",
+        ),
+        FileMapEntry(
             path="tests/test_aegis_logic_snapshot.py",
             area=FileArea.AEGIS,
             purpose="Regression tests for the backend-owned Aegis Runtime Logic snapshot, including display-only guardrails, proof trail serialization, and cognition-policy blocking behavior.",
             related_tests=[],
             notes="Run before changing meridian_core/aegis_logic_snapshot.py or the backend Aegis Runtime Logic payload.",
+        ),
+        FileMapEntry(
+            path="docs/cross-check-authority-contract.md",
+            area=FileArea.AEGIS,
+            purpose="Backend contract for V2 cross-check authority: execution, repair routing, disposition, rerun verification, and display-safety guardrails.",
+            related_tests=["tests/test_cross_check.py"],
+            notes="Read before wiring XCK authority into Prime, Aegis, Review Console, or Bifrost-visible display surfaces.",
         ),
         FileMapEntry(
             path="docs/aegis-relay-summary-handoff-contract.md",
