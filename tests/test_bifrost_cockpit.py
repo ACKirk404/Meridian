@@ -1172,27 +1172,35 @@ def test_session_prompt_supports_pasted_image_attachments_for_bridge_context():
     bridge = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
 
     assert '<div class="session-attachment-tray"' in index
+    assert 'class="session-attachment-upload"' in index
+    assert 'class="session-attachment-input" type="file" multiple' in index
+    assert '.pdf,.doc,.docx' in index
     assert "input.addEventListener('paste'" in index
+    assert "querySelector('.session-attachment-upload')" in index
+    assert "querySelector('.session-attachment-input')" in index
     assert "event.clipboardData?.items" in index
     assert "item.kind === 'file'" in index
     assert "String(file.type || '').startsWith('image/')" in index
+    assert "acceptedAttachmentTypes" in index
+    assert "acceptedAttachmentExtensions" in index
     assert "reader.readAsDataURL(file)" in index
-    assert "file.size > 4 * 1024 * 1024" in index
-    assert "Please review the attached image." in index
+    assert "const attachmentMaxBytes = 8 * 1024 * 1024" in index
+    assert "Please review the attached context files." in index
     assert "messagePayload = {" in index
     assert "attachments," in index
     assert "data-attachment-remove" in index
     assert "session-output-attachments" in index
+    assert "session-attachment-file-icon" in index
 
-    assert "const BRIDGE_VERSION = 'local-bridge-routes-v3';" in bridge
-    assert "const REQUEST_BODY_LIMIT = Number(process.env.MERIDIAN_MODEL_REQUEST_BODY_LIMIT || 8_000_000);" in bridge
+    assert "const BRIDGE_VERSION = 'local-bridge-routes-v4';" in bridge
+    assert "const REQUEST_BODY_LIMIT = Number(process.env.MERIDIAN_MODEL_REQUEST_BODY_LIMIT || 24_000_000);" in bridge
     assert "if (raw.length > REQUEST_BODY_LIMIT)" in bridge
-    assert "pastedImageAttachments: true" in bridge
-    assert "function materializeImageAttachments" in bridge
+    assert "contextFileAttachments: true" in bridge
+    assert "function materializeContextAttachments" in bridge
     assert "path.join(cwd || DEFAULT_CWD, '.meridian', 'attachments')" in bridge
     assert "Buffer.from(match[2], 'base64')" in bridge
     assert "promptWithAttachments(prompt, materializedAttachments)" in bridge
-    assert "Attached image files saved by Meridian for this request:" in bridge
+    assert "Attached context files saved by Meridian for this request:" in bridge
     assert "result.attachments = materializedAttachments" in bridge
 
 

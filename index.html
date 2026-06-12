@@ -1573,8 +1573,35 @@ body {
 .session-attachment-tray {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
   min-height: 0;
+}
+
+.session-attachment-upload {
+  min-height: 30px;
+  border: 1px solid rgba(var(--session-electric), 0.38);
+  background: rgba(0, 0, 0, 0.44);
+  color: rgb(var(--session-electric-soft));
+  font: inherit;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.session-attachment-upload:hover,
+.session-attachment-upload:focus-visible,
+.session-attachment-remove:hover,
+.session-attachment-remove:focus-visible {
+  border-color: rgba(var(--session-electric), 0.76);
+  color: rgb(var(--session-electric));
+}
+
+.session-attachment-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .session-attachment-chip {
@@ -1594,6 +1621,17 @@ body {
   height: 38px;
   object-fit: cover;
   border: 1px solid rgba(var(--session-electric), 0.3);
+}
+
+.session-attachment-file-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(var(--session-electric), 0.3);
+  color: rgb(var(--session-electric));
+  font-size: 0.72rem;
+  text-transform: uppercase;
 }
 
 .session-attachment-name {
@@ -4235,7 +4273,10 @@ body {
     workspace.insertAdjacentHTML('afterbegin', `
       <div class="session-interface" aria-label="${isUser ? 'User' : 'Prime'} session interface">
         <textarea class="session-prompt-input" aria-label="${isUser ? 'User prompt input' : 'Prime prompt input'}" spellcheck="false"></textarea>
-        <div class="session-attachment-tray" aria-label="${isUser ? 'User attachments' : 'Prime attachments'}"></div>
+        <div class="session-attachment-tray" aria-label="${isUser ? 'User attachments' : 'Prime attachments'}">
+          <button class="session-attachment-upload" type="button">Upload</button>
+          <input class="session-attachment-input" type="file" multiple accept="image/*,.txt,.md,.markdown,.json,.csv,.tsv,.log,.pdf,.doc,.docx,.rtf,.html,.htm" aria-label="${isUser ? 'Upload User context files' : 'Upload Prime context files'}">
+        </div>
         <div class="session-response-output" aria-label="${isUser ? 'User response output' : 'Prime response output'}"></div>
         <div class="session-model-status" aria-live="polite"></div>
       </div>
@@ -4352,7 +4393,7 @@ body {
   const userSessionSelect = document.querySelector('.session-target-select');
   const localBridgeBase = 'http://127.0.0.1:8767/bridge';
   const bridgeUrl = (path) => `${localBridgeBase}/${String(path || '').replace(/^\/+/, '')}`;
-  const expectedBridgeVersion = 'local-bridge-routes-v3';
+  const expectedBridgeVersion = 'local-bridge-routes-v4';
   const pathPattern = /((?:[A-Za-z]:\\|\.{0,2}[\\/])(?:[\w .()@%+=~-]+[\\/])*[\w .()@%+=~-]+\.[A-Za-z0-9]{1,12}|(?:[\w@%+=~-]+[\\/])+(?:[\w .()@%+=~-]+)(?:\.[A-Za-z0-9]{1,12})?|\b[\w@%+=~-]+\.[A-Za-z0-9]{1,12}\b)/g;
   const speechButton = document.querySelector('.speech-mode-button');
   const voiceStateLabel = (voice = {}) => {
@@ -4609,10 +4650,26 @@ body {
     renderTranscript(userInput());
   };
   const pendingAttachments = new Map();
+  const attachmentLimit = 6;
+  const attachmentMaxBytes = 8 * 1024 * 1024;
+  const acceptedAttachmentTypes = new Set([
+    'text/plain',
+    'text/markdown',
+    'text/csv',
+    'text/tab-separated-values',
+    'application/json',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/rtf',
+    'text/rtf',
+    'text/html',
+  ]);
+  const acceptedAttachmentExtensions = new Set(['txt', 'md', 'markdown', 'json', 'csv', 'tsv', 'log', 'pdf', 'doc', 'docx', 'rtf', 'html', 'htm']);
   const attachmentScope = (input) => sessionScope(input);
   const readPendingAttachments = (input) => pendingAttachments.get(attachmentScope(input)) || [];
   const writePendingAttachments = (input, attachments) => {
-    pendingAttachments.set(attachmentScope(input), attachments.slice(0, 4));
+    pendingAttachments.set(attachmentScope(input), attachments.slice(0, attachmentLimit));
     renderPendingAttachments(input);
   };
   const attachmentSizeLabel = (size) => {
@@ -4624,13 +4681,21 @@ body {
   const renderAttachmentChip = (attachment, { removable = false, index = -1 } = {}) => {
     const chip = document.createElement('div');
     chip.className = 'session-attachment-chip';
-    const img = document.createElement('img');
-    img.alt = attachment.name || 'Pasted image';
-    img.src = attachment.dataUrl || '';
+    if (String(attachment.type || '').startsWith('image/')) {
+      const img = document.createElement('img');
+      img.alt = attachment.name || 'Attached image';
+      img.src = attachment.dataUrl || '';
+      chip.append(img);
+    } else {
+      const icon = document.createElement('div');
+      icon.className = 'session-attachment-file-icon';
+      icon.textContent = attachment.kind === 'document' ? 'doc' : 'file';
+      chip.append(icon);
+    }
     const name = document.createElement('div');
     name.className = 'session-attachment-name';
-    name.textContent = `${attachment.name || 'pasted-image'} (${attachmentSizeLabel(attachment.size)})`;
-    chip.append(img, name);
+    name.textContent = `${attachment.name || 'attachment'} (${attachmentSizeLabel(attachment.size)})`;
+    chip.append(name);
     if (removable) {
       const remove = document.createElement('button');
       remove.type = 'button';
@@ -4646,45 +4711,58 @@ body {
     const tray = attachmentTrayFor(input);
     if (!tray) return;
     const attachments = readPendingAttachments(input);
+    const uploadButton = tray.querySelector('.session-attachment-upload');
+    const uploadInput = tray.querySelector('.session-attachment-input');
     tray.replaceChildren(...attachments.map((attachment, index) => renderAttachmentChip(attachment, { removable: true, index })));
+    if (uploadButton) tray.append(uploadButton);
+    if (uploadInput) tray.append(uploadInput);
   };
   const clearPendingAttachments = (input) => writePendingAttachments(input, []);
   const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(reader.error || new Error('Could not read pasted image'));
+    reader.onerror = () => reject(reader.error || new Error('Could not read attachment'));
     reader.readAsDataURL(file);
   });
-  const addPastedImages = async (input, files) => {
-    const imageFiles = files.filter((file) => String(file.type || '').startsWith('image/'));
-    if (!imageFiles.length) return false;
+  const isAcceptedAttachmentFile = (file) => {
+    const type = String(file.type || '').toLowerCase();
+    const extension = String(file.name || '').split('.').pop().toLowerCase();
+    return type.startsWith('image/') || acceptedAttachmentTypes.has(type) || acceptedAttachmentExtensions.has(extension);
+  };
+  const addAttachmentFiles = async (input, files, source = 'upload') => {
+    const acceptedFiles = files.filter(isAcceptedAttachmentFile);
+    if (!acceptedFiles.length) return false;
     const current = readPendingAttachments(input);
-    const remainingSlots = Math.max(0, 4 - current.length);
-    const accepted = imageFiles.slice(0, remainingSlots);
+    const remainingSlots = Math.max(0, attachmentLimit - current.length);
+    const accepted = acceptedFiles.slice(0, remainingSlots);
     if (!accepted.length) {
       setStatus(input, 'attachment limit reached');
       return true;
     }
     const attachments = [];
     for (const file of accepted) {
-      if (file.size > 4 * 1024 * 1024) {
-        setStatus(input, 'pasted image too large');
+      if (file.size > attachmentMaxBytes) {
+        setStatus(input, 'attachment too large');
         continue;
       }
       const dataUrl = await readFileAsDataUrl(file);
+      const type = file.type || 'application/octet-stream';
       attachments.push({
-        name: file.name || `pasted-image-${Date.now()}.png`,
-        type: file.type || 'image/png',
+        name: file.name || `${source}-attachment-${Date.now()}`,
+        type,
         size: file.size || 0,
+        kind: String(type).startsWith('image/') ? 'image' : 'document',
+        source,
         dataUrl,
       });
     }
     if (attachments.length) {
       writePendingAttachments(input, [...current, ...attachments]);
-      setStatus(input, `${attachments.length} image${attachments.length === 1 ? '' : 's'} attached`);
+      setStatus(input, `${attachments.length} file${attachments.length === 1 ? '' : 's'} attached`);
     }
     return true;
   };
+  const addPastedImages = async (input, files) => addAttachmentFiles(input, files.filter((file) => String(file.type || '').startsWith('image/')), 'paste');
   const renderTranscript = (input) => {
     const output = outputFor(input);
     if (!output) return;
@@ -4799,7 +4877,7 @@ body {
     if (input.dataset.sessionSending === 'true') return;
     let prompt = input.value.trim();
     const attachments = readPendingAttachments(input);
-    if (!prompt && attachments.length) prompt = 'Please review the attached image.';
+    if (!prompt && attachments.length) prompt = 'Please review the attached context files.';
     if (!prompt) return;
     if (handleLocalSessionCommand(input, prompt)) return;
     const selectedBackend = modelSelect?.value || 'codex';
@@ -4970,6 +5048,15 @@ body {
         event.preventDefault();
         sendPrompt(input);
       }
+    });
+    attachmentTrayFor(input)?.querySelector('.session-attachment-upload')?.addEventListener('click', () => {
+      attachmentTrayFor(input)?.querySelector('.session-attachment-input')?.click();
+    });
+    attachmentTrayFor(input)?.querySelector('.session-attachment-input')?.addEventListener('change', async (event) => {
+      const files = Array.from(event.target?.files || []);
+      await addAttachmentFiles(input, files, 'upload');
+      if (event.target) event.target.value = '';
+      input.focus();
     });
     attachmentTrayFor(input)?.addEventListener('click', (event) => {
       const target = event.target;

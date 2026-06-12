@@ -14,8 +14,8 @@ const RECENT_RESULT_TTL_MS = Number(process.env.MERIDIAN_MODEL_RESULT_TTL_MS || 
 const RECENT_RESULT_TEXT_LIMIT = Number(process.env.MERIDIAN_MODEL_RESULT_TEXT_LIMIT || 80000);
 const SESSION_TRANSCRIPT_LIMIT = Number(process.env.MERIDIAN_SESSION_TRANSCRIPT_LIMIT || 6);
 const SESSION_TRANSCRIPT_CHAR_LIMIT = Number(process.env.MERIDIAN_SESSION_TRANSCRIPT_CHAR_LIMIT || 6000);
-const REQUEST_BODY_LIMIT = Number(process.env.MERIDIAN_MODEL_REQUEST_BODY_LIMIT || 8_000_000);
-const BRIDGE_VERSION = 'local-bridge-routes-v3';
+const REQUEST_BODY_LIMIT = Number(process.env.MERIDIAN_MODEL_REQUEST_BODY_LIMIT || 24_000_000);
+const BRIDGE_VERSION = 'local-bridge-routes-v4';
 const BRIDGE_CAPABILITIES = {
   visibleTranscriptContext: true,
   recentCallContextDiagnostics: true,
@@ -40,7 +40,7 @@ const BRIDGE_CAPABILITIES = {
   voiceIoSnapshot: true,
   primeAutonomyReleaseSnapshot: true,
   userSessionTargets: true,
-  pastedImageAttachments: true,
+  contextFileAttachments: true,
 };
 const BRIDGE_ROUTES = Object.freeze({
   health: '/bridge/health',
@@ -145,7 +145,7 @@ if (process.argv.includes('--self-test')) {
     hiddenSession?.status === 'hidden' &&
     sharedMainSession === null
   );
-  const versionOk = BRIDGE_VERSION === 'local-bridge-routes-v3';
+  const versionOk = BRIDGE_VERSION === 'local-bridge-routes-v4';
   const routeNamesOk = Object.values(BRIDGE_ROUTES).every((route) => route.startsWith('/bridge/') && !route.startsWith('/api/'));
   const originOk = isAllowedOrigin({ headers: { origin: 'http://127.0.0.1:5500' } }) && !isAllowedOrigin({ headers: { origin: 'https://example.com' } });
   const restartGuardOk = beginRestartRequest() && !beginRestartRequest();
@@ -278,7 +278,7 @@ function promptWithVisibleSession(prompt, transcript) {
   };
 }
 
-function safeAttachmentName(value, fallback = 'pasted-image') {
+function safeAttachmentName(value, fallback = 'context-file') {
   const name = String(value || fallback)
     .replace(/[^a-zA-Z0-9._-]+/g, '-')
     .replace(/^-+|-+$/g, '')
@@ -291,31 +291,44 @@ function extensionForMime(type) {
   if (normalized === 'image/jpeg') return '.jpg';
   if (normalized === 'image/webp') return '.webp';
   if (normalized === 'image/gif') return '.gif';
-  return '.png';
+  if (normalized === 'image/png') return '.png';
+  if (normalized === 'text/plain') return '.txt';
+  if (normalized === 'text/markdown') return '.md';
+  if (normalized === 'text/csv') return '.csv';
+  if (normalized === 'text/tab-separated-values') return '.tsv';
+  if (normalized === 'application/json') return '.json';
+  if (normalized === 'application/pdf') return '.pdf';
+  if (normalized === 'application/msword') return '.doc';
+  if (normalized === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return '.docx';
+  if (normalized === 'application/rtf' || normalized === 'text/rtf') return '.rtf';
+  if (normalized === 'text/html') return '.html';
+  return '.bin';
 }
 
-function materializeImageAttachments(attachments, requestId, cwd = DEFAULT_CWD) {
+function materializeContextAttachments(attachments, requestId, cwd = DEFAULT_CWD) {
   if (!Array.isArray(attachments) || !attachments.length) return [];
   const root = path.join(cwd || DEFAULT_CWD, '.meridian', 'attachments');
   fs.mkdirSync(root, { recursive: true });
   return attachments
-    .filter((attachment) => String(attachment?.type || '').startsWith('image/'))
-    .slice(0, 4)
+    .slice(0, 6)
     .map((attachment, index) => {
       const dataUrl = String(attachment.dataUrl || '');
-      const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([a-zA-Z0-9+/=]+)$/);
+      const match = dataUrl.match(/^data:([a-zA-Z0-9.+/-]+);base64,([a-zA-Z0-9+/=]+)$/);
       if (!match) return null;
       const type = match[1].toLowerCase();
       const buffer = Buffer.from(match[2], 'base64');
-      if (!buffer.length || buffer.length > 4 * 1024 * 1024) return null;
+      if (!buffer.length || buffer.length > 8 * 1024 * 1024) return null;
       const original = String(attachment.name || '');
-      const baseName = safeAttachmentName(path.basename(original, path.extname(original)), `pasted-image-${index + 1}`);
+      const originalExtension = safeAttachmentName(path.extname(original).replace(/^\./, ''), '').toLowerCase();
+      const extension = originalExtension ? `.${originalExtension}` : extensionForMime(type);
+      const baseName = safeAttachmentName(path.basename(original, path.extname(original)), `context-file-${index + 1}`);
       const requestPart = safeAttachmentName(requestId || String(Date.now()), 'request');
-      const filePath = path.join(root, `${requestPart}-${index + 1}-${baseName}${extensionForMime(type)}`);
+      const filePath = path.join(root, `${requestPart}-${index + 1}-${baseName}${extension}`);
       fs.writeFileSync(filePath, buffer);
       return {
         name: attachment.name || path.basename(filePath),
         type,
+        kind: attachment.kind || (type.startsWith('image/') ? 'image' : 'document'),
         size: buffer.length,
         path: filePath,
       };
@@ -330,9 +343,9 @@ function promptWithAttachments(prompt, attachments) {
   ));
   return [
     prompt,
-    'Attached image files saved by Meridian for this request:',
+    'Attached context files saved by Meridian for this request:',
     ...attachmentLines,
-    'Use these local file paths when the user asks about the pasted image.',
+    'Use these local file paths when the user asks about uploaded images, documents, or context files.',
   ].join('\n');
 }
 
@@ -2110,7 +2123,7 @@ const server = http.createServer(async (req, res) => {
         }
         cwd = sessionTarget.cwd;
       }
-      const materializedAttachments = materializeImageAttachments(attachments, requestId, cwd);
+      const materializedAttachments = materializeContextAttachments(attachments, requestId, cwd);
       const promptForModel = promptWithAttachments(prompt, materializedAttachments);
       const started = Date.now();
       const result = await runModel({ backend, prompt: promptForModel, cwd, transcript });
