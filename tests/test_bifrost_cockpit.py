@@ -1082,6 +1082,34 @@ def test_index_response_transcripts_render_bridge_model_labels_when_known():
     assert "Bridge completed ${completedCall.backend || backend} request" in send_prompt
 
 
+def test_clear_command_clears_active_session_window_without_bridge_message():
+    doc = (ROOT / "index.html").read_text(encoding="utf-8")
+    local_command = doc[
+        doc.index("const clearActiveSessionWindow = (input) =>"):
+        doc.index("const setStatus = (input, text) =>")
+    ]
+    assert "writeTranscript(input, [])" in local_command
+    assert "renderTranscript(input)" in local_command
+    assert "input.value = ''" in local_command
+    assert "localStorage.setItem(draftKey(input), '')" in local_command
+    assert "setStatus(input, 'cleared')" in local_command
+    assert "prompt.trim().toLowerCase() !== '/clear'" in local_command
+    assert "clearActiveSessionWindow(input)" in local_command
+    assert "bridgeUrl('message')" not in local_command
+    assert "pushEntry(" not in local_command
+
+    send_prompt = doc[
+        doc.index("const sendPrompt = async (input) =>"):
+        doc.index("const insertPromptToken = (input")
+    ]
+    assert "if (handleLocalSessionCommand(input, prompt)) return;" in send_prompt
+    assert (
+        send_prompt.index("if (handleLocalSessionCommand(input, prompt)) return;")
+        < send_prompt.index("if (!modelReadiness.length) await updateModelReadiness();")
+        < send_prompt.index("fetch(bridgeUrl('message')")
+    )
+
+
 def test_bridge_wraps_model_prompt_as_prime_through_spark():
     doc = (ROOT / "scripts" / "meridian-model-bridge.js").read_text(encoding="utf-8")
     assert "You are Prime, the core Meridian role, speaking through Spark on behalf of Meridian." in doc
