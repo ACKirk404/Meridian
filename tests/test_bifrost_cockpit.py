@@ -1,4 +1,4 @@
-"""Tests for the Bifrost cockpit static HTML renderer."""
+﻿"""Tests for the Bifrost cockpit static HTML renderer."""
 
 from __future__ import annotations
 
@@ -303,7 +303,7 @@ def test_index_generic_harness_surface_links_filemap_proof_checks_without_execut
     assert "do not execute tests, run workflow orders, move branches, write files, or call providers" in proof_renderer
     assert "const loadHarnessProofLink = async () =>" in doc
     assert "rightWorkspace?.querySelector('[data-harness-proof-link]')" in doc
-    assert "fetch(bridgeUrl('filemap'), { cache: 'no-store' })" in doc
+    assert "fetch(currentBridgeUrl('filemap'), { cache: 'no-store' })" in doc
     assert "data-harness-proof-link" in surface
     assert "loadHarnessProofLink();" in surface
     assert "method: 'POST'" not in proof_renderer
@@ -448,7 +448,7 @@ def test_index_harness_permission_boundary_blocks_high_risk_actions_until_approv
     assert "Browser: ['browser/vision', 'no fake browser state, page control, screenshot, or remote navigation is exposed']" in surface
     assert "release execution authorized" in doc
     assert "release controls visible" in doc
-    assert "bridgeUrl('prime-autonomy')" in doc
+    assert "currentBridgeUrl('prime-autonomy')" in doc
     assert "release-now" not in doc
     assert "method: 'POST'" not in surface
     assert "bridgeUrl('message')" not in surface
@@ -598,8 +598,8 @@ def test_index_spark_crosscheck_aggregates_typed_review_and_aegis_state():
     assert "data-aegis-logic" in doc
     assert "loadReviewConsole();" in doc
     assert "loadAegisLogic();" in doc
-    assert "bridgeUrl('review-console')" in doc
-    assert "bridgeUrl('aegis-logic')" in doc
+    assert "currentBridgeUrl('review-console')" in doc
+    assert "currentBridgeUrl('aegis-logic')" in doc
     assert "Open evidence" in doc
     assert "Irreversible action gate" in doc
     assert 'data-crosscheck-handoff="aegis"' in doc
@@ -686,9 +686,9 @@ def test_index_crosscheck_stop_condition_alert_uses_existing_review_and_aegis_sn
     assert "Stop condition: ${condition}" in stop_logic
     assert "Further UI wiring should pause until the blocking review/proof condition is cleared or explicitly waived by reviewed backend policy." in stop_logic
     assert "Crosscheck remains display-only; this alert does not approve, waive, rerun, or mutate any review/proof state." in stop_logic
-    assert "fetch(bridgeUrl('review-console'), { cache: 'no-store' })" in loader
-    assert "fetch(bridgeUrl('aegis-logic'), { cache: 'no-store' })" in loader
-    assert "fetch(bridgeUrl('relay-logic'), { cache: 'no-store' })" in loader
+    assert "fetch(currentBridgeUrl('review-console'), { cache: 'no-store' })" in loader
+    assert "fetch(currentBridgeUrl('aegis-logic'), { cache: 'no-store' })" in loader
+    assert "fetch(currentBridgeUrl('relay-logic'), { cache: 'no-store' })" in loader
     assert "renderCrosscheckStopConditionsSnapshot(reviewSnapshot, aegisSnapshot)" in loader
     assert "renderCrosscheckRunPostureSnapshot(reviewSnapshot, aegisSnapshot)" in loader
     assert "renderCrosscheckIrreversibleActionGateSnapshot(reviewSnapshot, aegisSnapshot)" in loader
@@ -741,10 +741,10 @@ def test_index_spark_backlog_uses_typed_task_posture_without_fake_items_or_mutat
     assert "data-backlog-workflow-dispatch-status" in doc
     assert "data-backlog-prime-logic" in doc
     assert "data-backlog-prime-recommendation" in doc
-    assert "bridgeUrl('review-console')" in doc
-    assert "bridgeUrl('prime-logic')" in doc
-    assert "bridgeUrl('goal-runtime')" in doc
-    assert "bridgeUrl('workflow-dispatch-status')" in doc
+    assert "currentBridgeUrl('review-console')" in doc
+    assert "currentBridgeUrl('prime-logic')" in doc
+    assert "currentBridgeUrl('goal-runtime')" in doc
+    assert "currentBridgeUrl('workflow-dispatch-status')" in doc
     backlog_loader = doc[doc.index("const loadSparkBacklog = async () =>"):doc.index("const loadEchoMemory", doc.index("const loadSparkBacklog = async () =>"))]
     assert "Promise.all" in backlog_loader
     assert "renderBacklogReviewSnapshot" in backlog_loader
@@ -753,7 +753,7 @@ def test_index_spark_backlog_uses_typed_task_posture_without_fake_items_or_mutat
     assert "renderGoalRuntimeSnapshot" in backlog_loader
     assert "renderWorkflowDispatchStatusSnapshot" in backlog_loader
     backlog_review = doc[doc.index("const renderBacklogReviewSnapshot"):doc.index("const renderFederationHorizonSnapshot")]
-    assert "activeProjectContext()" in backlog_review
+    assert "currentProjectContext()" in backlog_review
     assert "Backlog candidate list" in backlog_review
     assert "Priority order" in backlog_review
     assert "Prime recommendation" in backlog_review
@@ -926,7 +926,7 @@ def test_index_spark_skills_registry_searches_loaded_metadata_without_execution(
     assert "const readSparkSkillsPinned = () =>" in doc
     assert "const writeSparkSkillsPinned = (pins) =>" in doc
     assert "const skillRegistryRowId = (row) =>" in doc
-    assert "parsed[activeProjectContext()] = [...pins].sort()" in doc
+    assert "parsed[currentProjectContext()] = [...pins].sort()" in doc
     assert "localStorage.setItem(sparkSkillsPinKey, JSON.stringify(parsed))" in doc
     assert "aria-pressed" in doc
     assert "Pinned skills" in doc
@@ -965,8 +965,8 @@ def test_index_spark_skills_registry_searches_loaded_metadata_without_execution(
     assert "sparkSkillsRegistrySnapshot = { ok: false, rows: meridianLocalSkillRows() }" in doc
     assert "sparkSkillsRegistrySnapshot = { ok: false, rows: meridianLocalSkillRows(), error: error.message }" in doc
     assert "logicNode.innerHTML = renderSparkSkillsRegistry(sparkSkillsRegistrySnapshot, target.value)" in doc
-    assert "bridgeUrl('filemap')" in doc
-    assert "bridgeUrl('models')" in doc
+    assert "currentBridgeUrl('filemap')" in doc
+    assert "currentBridgeUrl('models')" in doc
     skills_loader = doc[doc.index("const loadSparkSkills = async () =>"):doc.index("const loadEchoMemory", doc.index("const loadSparkSkills = async () =>"))]
     assert "Promise.all" in skills_loader
     assert "skillRegistryRowsFromSnapshots(fileMapSnapshot, modelsSnapshot)" in skills_loader
@@ -1001,8 +1001,8 @@ def test_index_spark_models_surface_uses_metadata_only_bridge_snapshots():
     assert "const renderSparkModelsSnapshot = (" in doc
     assert "const loadSparkModels = async () =>" in doc
     assert "renderSparkModels()" in doc
-    assert "bridgeUrl('models')" in doc
-    assert "bridgeUrl('recent-calls')" in doc
+    assert "currentBridgeUrl('models')" in doc
+    assert "currentBridgeUrl('recent-calls')" in doc
     assert "Public setup boundary" in doc
     assert "Public builds use your locally installed Codex and Claude/Max CLIs or configured provider credentials." in doc
     assert "Missing CLIs or missing login state are shown as setup guidance from /bridge/models" in doc
@@ -2119,7 +2119,7 @@ def test_index_compass_harness_uses_backend_logic_snapshot():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "Compass Runtime Logic" in doc
     assert "data-compass-logic" in doc
-    assert "bridgeUrl('compass-logic')" in doc
+    assert "currentBridgeUrl('compass-logic')" in doc
     assert "renderCompassLogicSnapshot" in doc
     assert "renderCompassProjectLogic" in doc
     assert "Reviewed project definition" in doc
@@ -2141,7 +2141,7 @@ def test_index_project_metadata_handoff_uses_compass_state_without_source_contro
     compass_end = doc.index("const renderVulcanLogicSnapshot = (snapshot) =>", compass_start)
     compass_surface = doc[compass_start:compass_end]
     assert "Project metadata handoff" in compass_surface
-    assert "activeProjectContext()" in compass_surface
+    assert "currentProjectContext()" in compass_surface
     assert "project.project_id || 'unknown'" in compass_surface
     assert "project.title || 'unknown'" in compass_surface
     assert "relayText(identity.decision || scope.decision || 'unknown')" in compass_surface
@@ -2160,7 +2160,7 @@ def test_index_vulcan_harness_uses_backend_logic_snapshot():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "Vulcan Runtime Logic" in doc
     assert "data-vulcan-logic" in doc
-    assert "bridgeUrl('vulcan-logic')" in doc
+    assert "currentBridgeUrl('vulcan-logic')" in doc
     assert "renderVulcanLogicSnapshot" in doc
     assert "renderVulcanSessionLogic" in doc
     assert "Session live-state evidence" in doc
@@ -2185,7 +2185,7 @@ def test_index_beacon_harness_uses_backend_liveness_snapshot():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "Beacon Liveness" in doc
     assert "data-beacon-liveness" in doc
-    assert "bridgeUrl('beacon-liveness')" in doc
+    assert "currentBridgeUrl('beacon-liveness')" in doc
     assert "renderBeaconLivenessSnapshot" in doc
     assert "renderBeaconLiveness" in doc
     assert "Heartbeat observations" in doc
@@ -2198,7 +2198,7 @@ def test_index_review_harness_uses_backend_console_snapshot():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "Review Console" in doc
     assert "data-review-console" in doc
-    assert "bridgeUrl('review-console')" in doc
+    assert "currentBridgeUrl('review-console')" in doc
     assert "renderReviewConsoleSnapshot" in doc
     assert "renderReviewConsole" in doc
     assert "Queue status" in doc
@@ -2212,7 +2212,7 @@ def test_index_federation_harness_uses_backend_horizon_snapshot():
     doc = (ROOT / "index.html").read_text(encoding="utf-8")
     assert "Federation Horizon" in doc
     assert "data-federation-horizon" in doc
-    assert "bridgeUrl('federation-horizon')" in doc
+    assert "currentBridgeUrl('federation-horizon')" in doc
     assert "renderFederationHorizonSnapshot" in doc
     assert "renderFederationHorizon" in doc
     assert "Discovery and permission boundary" in doc
@@ -2246,7 +2246,7 @@ def test_index_prime_harness_uses_backend_runtime_snapshot():
     assert "demoted gates" in doc
     assert "visibleToUser" in doc
     assert "data-prime-logic" in doc
-    assert "bridgeUrl('prime-logic')" in doc
+    assert "currentBridgeUrl('prime-logic')" in doc
     assert "renderPrimeDecisionSnapshot" in doc
     assert "renderPrimeLogic" in doc
 
@@ -2265,7 +2265,7 @@ def test_index_prime_review_before_dispatch_uses_runtime_packet_without_route_ow
     assert "aegisRisk.blockedGates" in section
     assert "Prime reviews intent/risk/proof only" in section
     assert "Relay and Model Harness own route, provider, and payload decisions." in section
-    assert "bridgeUrl('prime-logic')" in doc
+    assert "currentBridgeUrl('prime-logic')" in doc
     assert "method: 'POST'" not in section
 
 
@@ -2309,9 +2309,9 @@ def test_index_spark_and_workflow_surfaces_use_bridge_snapshots():
     assert "data-provider-balance" in doc
     assert "data-goal-runtime" in doc
     assert "data-workflow-dispatch-status" in doc
-    assert "bridgeUrl('provider-balance')" in doc
-    assert "bridgeUrl('goal-runtime')" in doc
-    assert "bridgeUrl('workflow-dispatch-status')" in doc
+    assert "currentBridgeUrl('provider-balance')" in doc
+    assert "currentBridgeUrl('goal-runtime')" in doc
+    assert "currentBridgeUrl('workflow-dispatch-status')" in doc
     assert "renderProviderBalance()" in doc
     assert "renderGoalRuntime()" in doc
     assert "renderWorkflowDispatchStatus()" in doc
@@ -2645,8 +2645,8 @@ def test_index_provider_balance_renders_cli_readiness_from_models_snapshot_witho
     assert "model.setupHint || 'Install and sign in before use'" in provider_balance
     assert "account readiness" in provider_balance
     assert "informational only; no account probing" in provider_balance
-    assert "fetch(bridgeUrl('provider-balance'), { cache: 'no-store' })" in loader
-    assert "fetch(bridgeUrl('models'), { cache: 'no-store' })" in loader
+    assert "fetch(currentBridgeUrl('provider-balance'), { cache: 'no-store' })" in loader
+    assert "fetch(currentBridgeUrl('models'), { cache: 'no-store' })" in loader
     assert "const relayEvidenceSnapshot = await fetchBridgeSnapshot('relay-evidence', 'Relay evidence');" in loader
     assert "const relayLogicSnapshot = await fetchBridgeSnapshot('relay-logic', 'Relay logic');" in loader
     assert "renderProviderBalanceSnapshot(providerBalanceSnapshot, modelsSnapshot, relayEvidenceSnapshot, relayLogicSnapshot)" in loader
@@ -2692,8 +2692,8 @@ def test_index_routines_surface_combines_goal_and_workflow_typed_state():
     assert "data-workflow-dispatch-status" in doc
     assert "loadGoalRuntime();" in doc
     assert "loadWorkflowDispatchStatus();" in doc
-    assert "bridgeUrl('goal-runtime')" in doc
-    assert "bridgeUrl('workflow-dispatch-status')" in doc
+    assert "currentBridgeUrl('goal-runtime')" in doc
+    assert "currentBridgeUrl('workflow-dispatch-status')" in doc
     assert "renderWorkflowDispatchStatus()" in doc
     assert "Quiet mode routine status" in doc
     assert "Quiet mode workflow status" in doc
@@ -2794,7 +2794,7 @@ def test_routines_surface_exposes_prime_review_posture_without_executing_rou9():
     assert "['gate posture', statusPolicy.tier_three_gate_required ? 'gate-aware and escalation-only' : 'review posture visible; routing authority not exposed']" in routines_surface
     assert "['summary boundary', 'display-only Prime routine review summary; no accept, reroute, retry, escalate, or scheduler control is executed']" in routines_surface
     assert "relaySection('Prime routine review posture'" in routines_surface
-    assert "['active project', activeProjectContext()]" in routines_surface
+    assert "['active project', currentProjectContext()]" in routines_surface
     assert "const latestRecentRun = [...recentRuns]" in routines_surface
     assert "String(right.observed_at || '').localeCompare(String(left.observed_at || ''))" in routines_surface
     assert "['latest run ref', latestRecentRun?.run_ref || 'none']" in routines_surface
@@ -2906,9 +2906,9 @@ def test_index_memory_retrieval_and_filemap_surfaces_use_bridge_snapshots():
     assert "data-echo-memory" in doc
     assert "data-atlas-retrieval" in doc
     assert "data-filemap" in doc
-    assert "bridgeUrl('echo-memory')" in doc
-    assert "bridgeUrl('atlas-retrieval')" in doc
-    assert "bridgeUrl('filemap')" in doc
+    assert "currentBridgeUrl('echo-memory')" in doc
+    assert "currentBridgeUrl('atlas-retrieval')" in doc
+    assert "currentBridgeUrl('filemap')" in doc
     assert "renderEchoMemory()" in doc
     assert "renderAtlasRetrieval()" in doc
     assert "renderFileMap()" in doc
@@ -2958,7 +2958,7 @@ def test_index_aegis_surface_uses_bridge_snapshot():
     assert "data-aegis-logic" in doc
     assert "const renderAegisLogicSnapshot = (snapshot) =>" in doc
     assert "const loadAegisLogic = async () =>" in doc
-    assert "bridgeUrl('aegis-logic')" in doc
+    assert "currentBridgeUrl('aegis-logic')" in doc
     assert "renderAegisLogic()" in doc
     assert "if (rightWorkspace?.querySelector('[data-aegis-logic]')) loadAegisLogic();" in doc
     assert "button.dataset.harness === 'Aegis'" in doc
@@ -2975,7 +2975,7 @@ def test_index_session_archive_surface_uses_backend_proof_snapshot():
     assert "data-session-close-archive-proof" in doc
     assert "const renderSessionCloseArchiveProofSnapshot = (snapshot) =>" in doc
     assert "const loadSessionCloseArchiveProof = async () =>" in doc
-    assert "bridgeUrl('session-close-archive-proof')" in doc
+    assert "currentBridgeUrl('session-close-archive-proof')" in doc
     assert "renderSessionCloseArchiveProof()" in doc
     assert "actionLabel === 'Archive' ? renderSessionCloseArchiveProof()" in doc
     assert (
@@ -3040,7 +3040,7 @@ def test_close_action_refreshes_reviewed_boundary_warning_without_executing_sess
         doc.index("const loadVoiceIo = async () => {")
     ]
     assert "sessionCloseArchiveProofSnapshotCache?.ok" in helper
-    assert "fetch(bridgeUrl('session-close-archive-proof'), { cache: 'no-store' })" in helper
+    assert "fetch(currentBridgeUrl('session-close-archive-proof'), { cache: 'no-store' })" in helper
     assert "surface closed only; open Archive for reviewed session close proof" in helper
     assert "reviewed close ready" in helper
     assert "review gated" in helper
@@ -3523,7 +3523,7 @@ def test_index_release_harness_uses_prime_autonomy_snapshot():
     assert "data-release-autonomy" in doc
     assert "const renderReleaseAutonomySnapshot = (snapshot) =>" in doc
     assert "const loadReleaseAutonomy = async () =>" in doc
-    assert "bridgeUrl('prime-autonomy')" in doc
+    assert "currentBridgeUrl('prime-autonomy')" in doc
     assert "renderReleaseAutonomy()" in doc
     assert "button.dataset.harness === 'Release'" in doc
     assert (
@@ -3573,7 +3573,7 @@ def test_index_relay_harness_renders_backend_logic_snapshot_contract():
     assert "tier3.dispatch?.payloadPolicy" in doc
     assert "relayAuditRows(tier3)" in doc
     assert "data-relay-evidence" in doc
-    assert "bridgeUrl('relay-evidence')" in doc
+    assert "currentBridgeUrl('relay-evidence')" in doc
     assert "Prompt packet proof advisory" in doc
     assert "Per-call GOAL / Intent" in doc
     assert "const callIntent = snapshot.per_call_intent || {}" in doc
@@ -4105,7 +4105,7 @@ def test_index_settings_surface_reflects_project_focus_without_second_switch():
     refresh_surface = doc[refresh_start:refresh_end]
 
     assert "Project focus authority" in project_focus
-    assert "activeProjectContext()" in project_focus
+    assert "currentProjectContext()" in project_focus
     assert "projectSelectKey" in project_focus
     assert ".session-project-select" in project_focus
     assert "selected separately; project switch does not retarget sessions" in project_focus
@@ -4305,10 +4305,10 @@ def test_index_settings_surface_controls_bottom_band_visibility_locally():
     assert "const instrumentationBandCap = 6;" in band_surface
     assert "const instrumentationBandOptions = [" in band_surface
     assert "const loadInstrumentationBand = async () => {" in band_surface
-    assert "fetch(bridgeUrl('beacon-liveness'), { cache: 'no-store' })" in band_surface
-    assert "fetch(bridgeUrl('review-console'), { cache: 'no-store' })" in band_surface
-    assert "fetch(bridgeUrl('aegis-logic'), { cache: 'no-store' })" in band_surface
-    assert "fetch(bridgeUrl('health'), { cache: 'no-store' })" in band_surface
+    assert "fetch(currentBridgeUrl('beacon-liveness'), { cache: 'no-store' })" in band_surface
+    assert "fetch(currentBridgeUrl('review-console'), { cache: 'no-store' })" in band_surface
+    assert "fetch(currentBridgeUrl('aegis-logic'), { cache: 'no-store' })" in band_surface
+    assert "fetch(currentBridgeUrl('health'), { cache: 'no-store' })" in band_surface
     assert "gridTemplateColumns = `repeat(${Math.max(1, selected.length)}, minmax(0, 1fr))`" in band_surface
     assert "data-instrumentation-band-toggle" in band_surface
     assert "stable fixed-cap grid; hidden cells remain available in Settings" in band_surface
@@ -9883,7 +9883,7 @@ def test_provider_balance_view_from_summary_redacts_unsafe_per_provider_values()
     assert item.notes == "unsafe_metadata_redacted"
     assert item.estimated_spend_label == "unsafe_metadata_redacted"
     # Evidence refs route through _safe_handoff_value via _handoff_summary_list
-    # — direct-safe entries pass through, unsafe ones redacted.
+    # â€” direct-safe entries pass through, unsafe ones redacted.
     assert "adapter:claude" in item.evidence_refs
     assert "unsafe_metadata_redacted" in item.evidence_refs
 
@@ -9997,7 +9997,7 @@ def test_sample_backend_bound_cockpit_view_model_binds_provider_balance_from_sum
     assert openrouter.credit_status == "unknown"
     assert openrouter.remaining_credit_label == "credit: provider-hidden"
 
-    # Offline/local route — blocked cost pressure, unavailable credit
+    # Offline/local route â€” blocked cost pressure, unavailable credit
     assert local.health == "offline"
     assert local.cost_pressure == "blocked"
     assert local.credit_status == "unavailable"
@@ -10064,7 +10064,7 @@ def test_sample_backend_bound_cockpit_renders_provider_balance_evidence_refs():
 
 
 def test_provider_balance_view_from_summary_is_deterministic():
-    """Adapter is a pure projection of input data — repeated calls equal."""
+    """Adapter is a pure projection of input data â€” repeated calls equal."""
     summary = {
         "selected_provider": "claude",
         "providers": (
@@ -10297,7 +10297,7 @@ def test_merge_provider_balance_summary_skips_non_mapping_provider_entries():
             ),
         },
     )
-    # Only the valid mapping was applied — the others were skipped silently.
+    # Only the valid mapping was applied â€” the others were skipped silently.
     by_id = {p.provider_id: p for p in merged.providers}
     assert by_id["claude"].evidence_refs == ["backend:claude"]
     # OpenAI and DeepSeek still preserved
@@ -10371,7 +10371,7 @@ def test_provider_balance_view_level_evidence_refs_render_safely_escaped():
     doc = render_cockpit_html(base)
     assert 'aria-label="Provider Balance Provenance"' in doc
     assert '<span class="provider-balance-evidence-chip">snapshot:relay-2026</span>' in doc
-    # HTML escaping must apply to the raw script payload — no unescaped tag.
+    # HTML escaping must apply to the raw script payload â€” no unescaped tag.
     assert "<script>alert(1)</script>" not in doc
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in doc
 

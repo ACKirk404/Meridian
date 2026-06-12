@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -5000,7 +5000,9 @@ body {
     window.meridianRightPanelRecoveryWarning = rightPanelRecoveryWarning;
     if (rightWindow) rightWindow.dataset.panelWarning = rightPanelRecoveryWarning;
     if (rightWorkspace) rightWorkspace.dataset.panelWarning = rightPanelRecoveryWarning;
-    updateUserSessionStatus();
+    const input = document.querySelector('.session-window-right .session-prompt-input');
+    const status = input?.closest('.session-window')?.querySelector('.session-model-status');
+    if (status && rightPanelRecoveryWarning) status.textContent = rightPanelRecoveryWarning;
   };
   const setRightPanelAuthority = (mode, selection, { persist = true, warning = '' } = {}) => {
     const safeMode = validRightPanelModes.has(mode) ? mode : 'user';
@@ -5045,6 +5047,8 @@ body {
   const relaySummary = (value) => `<div class="relay-models-summary">${escapeHtml(value || '')}</div>`;
   const relayText = (value) => String(value || 'none').replaceAll('_', ' ').replaceAll('-', ' ');
   const relayJoin = (items) => (Array.isArray(items) ? items : []).map(relayText).join(' | ') || 'none';
+  const currentProjectContext = () => document.querySelector('.project-context-select')?.value || window.meridianActiveProject || 'Meridian';
+  const currentBridgeUrl = (path) => `http://127.0.0.1:8767/bridge/${String(path || '').replace(/^\/+/, '')}`;
   const primeBool = (value) => (value ? 'yes' : 'no');
   const primeLogicStrip = (items) => `<div class="prime-logic-strip">${items.map(([label, value]) => `
     <div class="prime-logic-cell">
@@ -5257,7 +5261,7 @@ body {
       ]), true),
       relaySection('Project metadata handoff', [
         relayGrid([
-          ['active Compass context', activeProjectContext()],
+          ['active Compass context', currentProjectContext()],
           ['definition source', project.project_id || 'unknown'],
           ['project title', project.title || 'unknown'],
           ['project status', relayText(identity.decision || scope.decision || 'unknown')],
@@ -5819,12 +5823,12 @@ body {
       return relaySection('Backlog candidate source', relayGrid([
         ['status', 'offline'],
         ['backend error', snapshot?.error || 'Review Console snapshot unavailable'],
-        ['active project', activeProjectContext()],
+        ['active project', currentProjectContext()],
       ]), true);
     }
     const queue = snapshot.queue || {};
     const items = Array.isArray(queue.items) ? queue.items : [];
-    const activeProject = activeProjectContext();
+    const activeProject = currentProjectContext();
     const rawItemContentVisible = Boolean(snapshot.raw_item_content_visible);
     const mutationAllowed = Boolean(snapshot.mutation_authorized);
     const query = String(snapshot._ui_query || '').trim().toLowerCase();
@@ -6019,7 +6023,7 @@ body {
     if (decision.why || request.why) reasons.push(`Prime currently explains the active review posture as: ${decision.why || request.why}`);
     return relaySection('Priority order', [
       relayGrid([
-        ['active project', activeProjectContext()],
+        ['active project', currentProjectContext()],
         ['next candidate id', nextItem.id || 'none'],
         ['next sequence', nextItem.sequence ?? 'none'],
         ['next title', nextItem.title || 'no pending backlog candidates'],
@@ -6056,7 +6060,7 @@ body {
     if (recommendationWhy !== 'unknown') proofContext.push(`Prime rationale: ${recommendationWhy}`);
     return relaySection('Prime recommendation', [
       relayGrid([
-        ['active project', activeProjectContext()],
+        ['active project', currentProjectContext()],
         ['recommended candidate', nextItem.id || 'none'],
         ['candidate title', nextItem.title || 'no pending backlog candidates'],
         ['recommended action', relayText(recommendedAction)],
@@ -6650,7 +6654,7 @@ body {
       ]), true),
       relaySection('Routine list', relayGrid([
         ['configured routines', 'none reported by the current reviewed workflow snapshot'],
-        ['active project', activeProjectContext()],
+        ['active project', currentProjectContext()],
         ['scope', 'display-only routine registry posture'],
         ['list boundary', 'real routine rows appear only when a reviewed automation backend exposes them; no fake routines are synthesized'],
       ]), true),
@@ -6709,7 +6713,7 @@ body {
         ['escalation control available', 'no'],
       ]), true),
       relaySection('Prime routine review summary', relayGrid([
-        ['active project', activeProjectContext()],
+        ['active project', currentProjectContext()],
         ['latest run ref', latestRecentRun?.run_ref || 'none'],
         ['review input source', failure.summary ? 'failure summary' : (success.summary ? 'success summary' : 'no routine result reported')],
         ['gate posture', statusPolicy.tier_three_gate_required ? 'gate-aware and escalation-only' : 'review posture visible; routing authority not exposed'],
@@ -6717,7 +6721,7 @@ body {
         ['summary boundary', 'display-only Prime routine review summary; no accept, reroute, retry, escalate, or scheduler control is executed'],
       ]), false),
       relaySection('Prime routine review posture', relayGrid([
-        ['active project', activeProjectContext()],
+        ['active project', currentProjectContext()],
         ['latest run ref', latestRecentRun?.run_ref || 'none'],
         ['latest run status', relayText(latestRecentRun?.status || 'unknown')],
         ['latest run observed', latestRecentRun?.observed_at || 'unknown'],
@@ -6963,7 +6967,7 @@ body {
   const readSparkSkillsPinned = () => {
     try {
       const parsed = JSON.parse(localStorage.getItem(sparkSkillsPinKey) || '{}');
-      const scoped = parsed && typeof parsed === 'object' ? parsed[activeProjectContext()] : [];
+      const scoped = parsed && typeof parsed === 'object' ? parsed[currentProjectContext()] : [];
       return new Set(Array.isArray(scoped) ? scoped.map((item) => String(item)) : []);
     } catch {
       return new Set();
@@ -6975,7 +6979,7 @@ body {
       const stored = JSON.parse(localStorage.getItem(sparkSkillsPinKey) || '{}');
       if (stored && typeof stored === 'object' && !Array.isArray(stored)) parsed = stored;
     } catch {}
-    parsed[activeProjectContext()] = [...pins].sort();
+    parsed[currentProjectContext()] = [...pins].sort();
     localStorage.setItem(sparkSkillsPinKey, JSON.stringify(parsed));
   };
   const skillRegistryRowId = (row) => [
@@ -7291,7 +7295,7 @@ body {
     return [
       relaySection('Local skills', relayGrid([
         ['source', 'Spark local registry'],
-        ['active project', activeProjectContext()],
+        ['active project', currentProjectContext()],
         ['local rows', localRows.length],
         ['model skills', modelRows.length],
         ['bridge metadata', snapshot?.ok ? 'loaded' : (snapshot?.error ? `unavailable: ${snapshot.error}` : 'not required')],
@@ -7311,7 +7315,7 @@ body {
         'Bridge metadata may add FileMap and model capability rows when the local bridge is available.',
       ]), true),
       relaySection('Active project skills', relayGrid([
-        ['active project', activeProjectContext()],
+        ['active project', currentProjectContext()],
         ['project-scoped pins', pinnedRows.length],
         ['available local skills', localRows.length],
         ['available model skills', modelRows.length],
@@ -7843,7 +7847,7 @@ body {
       return;
     }
     try {
-      const response = await fetch(bridgeUrl('session-close-archive-proof'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('session-close-archive-proof'), { cache: 'no-store' });
       const snapshot = await response.json();
       sessionCloseArchiveProofSnapshotCache = snapshot;
       setRightPanelRecoveryWarning(renderCloseBoundaryWarning(snapshot));
@@ -8179,7 +8183,7 @@ body {
   ].join('');
   const fetchBridgeSnapshot = async (path, label) => {
     try {
-      const response = await fetch(bridgeUrl(path), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl(path), { cache: 'no-store' });
       return await response.json();
     } catch (error) {
       return { ok: false, error: `${label} snapshot unavailable: ${error.message}` };
@@ -8301,7 +8305,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-relay-evidence]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('relay-evidence'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('relay-evidence'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderRelayEvidenceSnapshot(snapshot);
     } catch (error) {
@@ -8312,7 +8316,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-compass-logic]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('compass-logic'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('compass-logic'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderCompassLogicSnapshot(snapshot);
     } catch (error) {
@@ -8323,7 +8327,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-vulcan-logic]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('vulcan-logic'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('vulcan-logic'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderVulcanLogicSnapshot(snapshot);
     } catch (error) {
@@ -8334,7 +8338,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-beacon-liveness]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('beacon-liveness'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('beacon-liveness'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderBeaconLivenessSnapshot(snapshot);
     } catch (error) {
@@ -8345,7 +8349,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-review-console]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('review-console'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('review-console'), { cache: 'no-store' });
       const snapshot = await response.json();
       const prior = logicNode.dataset.reviewConsoleUiState ? JSON.parse(logicNode.dataset.reviewConsoleUiState) : {};
       snapshot._ui_query = prior.query || '';
@@ -8366,9 +8370,9 @@ body {
     if (!logicNode) return;
     try {
       const [reviewResponse, aegisResponse, relayResponse] = await Promise.all([
-        fetch(bridgeUrl('review-console'), { cache: 'no-store' }),
-        fetch(bridgeUrl('aegis-logic'), { cache: 'no-store' }),
-        fetch(bridgeUrl('relay-logic'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('review-console'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('aegis-logic'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('relay-logic'), { cache: 'no-store' }),
       ]);
       const [reviewSnapshot, aegisSnapshot, relaySnapshot] = await Promise.all([
         reviewResponse.json(),
@@ -8402,7 +8406,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-federation-horizon]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('federation-horizon'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('federation-horizon'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderFederationHorizonSnapshot(snapshot);
     } catch (error) {
@@ -8413,7 +8417,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-prime-logic]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('prime-logic'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('prime-logic'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderPrimeDecisionSnapshot(snapshot);
     } catch (error) {
@@ -8425,8 +8429,8 @@ body {
     if (!logicNode) return;
     try {
       const [providerBalanceResponse, modelsResponse] = await Promise.all([
-        fetch(bridgeUrl('provider-balance'), { cache: 'no-store' }),
-        fetch(bridgeUrl('models'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('provider-balance'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('models'), { cache: 'no-store' }),
       ]);
       const providerBalanceSnapshot = await providerBalanceResponse.json();
       const modelsSnapshot = await modelsResponse.json();
@@ -8441,7 +8445,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-goal-runtime]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('goal-runtime'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('goal-runtime'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.dataset.goalRuntimeSnapshot = JSON.stringify(snapshot);
       logicNode.innerHTML = renderGoalRuntimeSnapshot(snapshot);
@@ -8454,7 +8458,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-workflow-dispatch-status]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('workflow-dispatch-status'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('workflow-dispatch-status'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.dataset.workflowDispatchStatusSnapshot = JSON.stringify(snapshot);
       logicNode.innerHTML = renderWorkflowDispatchStatusSnapshot(snapshot);
@@ -8471,10 +8475,10 @@ body {
     const recommendationNode = rightWorkspace?.querySelector('[data-backlog-prime-recommendation]');
     try {
       const [reviewResponse, runtimeResponse, workflowResponse, primeResponse] = await Promise.all([
-        reviewNode ? fetch(bridgeUrl('review-console'), { cache: 'no-store' }) : Promise.resolve(null),
-        runtimeNode ? fetch(bridgeUrl('goal-runtime'), { cache: 'no-store' }) : Promise.resolve(null),
-        workflowNode ? fetch(bridgeUrl('workflow-dispatch-status'), { cache: 'no-store' }) : Promise.resolve(null),
-        primeNode ? fetch(bridgeUrl('prime-logic'), { cache: 'no-store' }) : Promise.resolve(null),
+        reviewNode ? fetch(currentBridgeUrl('review-console'), { cache: 'no-store' }) : Promise.resolve(null),
+        runtimeNode ? fetch(currentBridgeUrl('goal-runtime'), { cache: 'no-store' }) : Promise.resolve(null),
+        workflowNode ? fetch(currentBridgeUrl('workflow-dispatch-status'), { cache: 'no-store' }) : Promise.resolve(null),
+        primeNode ? fetch(currentBridgeUrl('prime-logic'), { cache: 'no-store' }) : Promise.resolve(null),
       ]);
       const reviewSnapshot = reviewResponse ? await reviewResponse.json() : null;
       const runtimeSnapshot = runtimeResponse ? await runtimeResponse.json() : null;
@@ -8525,8 +8529,8 @@ body {
     if (!logicNode) return;
     try {
       const [fileMapResponse, modelsResponse] = await Promise.all([
-        fetch(bridgeUrl('filemap'), { cache: 'no-store' }),
-        fetch(bridgeUrl('models'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('filemap'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('models'), { cache: 'no-store' }),
       ]);
       const fileMapSnapshot = await fileMapResponse.json();
       const modelsSnapshot = await modelsResponse.json();
@@ -8546,7 +8550,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-echo-memory]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('echo-memory'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('echo-memory'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderEchoMemorySnapshot(snapshot);
     } catch (error) {
@@ -8557,7 +8561,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-atlas-retrieval]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('atlas-retrieval'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('atlas-retrieval'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderAtlasRetrievalSnapshot(snapshot);
     } catch (error) {
@@ -8568,7 +8572,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-filemap]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('filemap'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('filemap'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderFileMapSnapshot(snapshot);
     } catch (error) {
@@ -8580,7 +8584,7 @@ body {
     if (!logicNode) return;
     const harness = logicNode.dataset.harness || 'Harness';
     try {
-      const response = await fetch(bridgeUrl('filemap'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('filemap'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderHarnessProofLinkSnapshot(snapshot, harness);
     } catch (error) {
@@ -8591,7 +8595,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-aegis-logic]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('aegis-logic'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('aegis-logic'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderAegisLogicSnapshot(snapshot);
     } catch (error) {
@@ -8602,7 +8606,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-session-close-archive-proof]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('session-close-archive-proof'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('session-close-archive-proof'), { cache: 'no-store' });
       const snapshot = await response.json();
       sessionCloseArchiveProofSnapshotCache = snapshot;
       logicNode.dataset.sessionCloseArchiveProofSnapshot = JSON.stringify(snapshot);
@@ -8617,7 +8621,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-voice-io]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('voice-io'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('voice-io'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderVoiceIoSnapshot(snapshot);
       applySpeechButtonVoiceState(snapshot);
@@ -8631,8 +8635,8 @@ body {
     if (!logicNode) return;
     try {
       const [modelsResponse, callsResponse] = await Promise.all([
-        fetch(bridgeUrl('models'), { cache: 'no-store' }),
-        fetch(bridgeUrl('recent-calls'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('models'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('recent-calls'), { cache: 'no-store' }),
       ]);
       const modelsSnapshot = await modelsResponse.json();
       let recentCalls = [];
@@ -8659,7 +8663,7 @@ body {
     const logicNode = rightWorkspace?.querySelector('[data-release-autonomy]');
     if (!logicNode) return;
     try {
-      const response = await fetch(bridgeUrl('prime-autonomy'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('prime-autonomy'), { cache: 'no-store' });
       const snapshot = await response.json();
       logicNode.innerHTML = renderReleaseAutonomySnapshot(snapshot);
     } catch (error) {
@@ -8676,7 +8680,7 @@ body {
     const bridgeNode = rightWorkspace?.querySelector('[data-relay-bridge-status]');
     if (!bridgeNode) return;
     try {
-      const response = await fetch(bridgeUrl('health'), { cache: 'no-store' });
+      const response = await fetch(currentBridgeUrl('health'), { cache: 'no-store' });
       const result = await response.json();
       const detail = {
         version: result.version,
@@ -10587,11 +10591,11 @@ body {
     return next;
   };
   const riskOverrideScopeEntries = () => {
-    const primeScope = `prime.${activeProjectContext()}`;
+    const primeScope = `prime.${currentProjectContext()}`;
     const userSessionId = selectedUserSessionId() || 'unselected';
     const userLabel = selectedUserSession()?.sessionName || 'selected User session';
     return [
-      { key: primeScope, label: `Prime (${activeProjectContext()})` },
+      { key: primeScope, label: `Prime (${currentProjectContext()})` },
       { key: `user.${userSessionId}`, label: `User (${userLabel})` },
     ];
   };
@@ -10734,7 +10738,7 @@ body {
     try {
       const stored = JSON.parse(localStorage.getItem(backlogFilterStateKey) || '{}');
       if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
-        const projectState = stored[activeProjectContext()];
+        const projectState = stored[currentProjectContext()];
         if (projectState && typeof projectState === 'object') return normalizeBacklogFilterState(projectState);
       }
     } catch {}
@@ -10747,7 +10751,7 @@ body {
       const parsed = JSON.parse(localStorage.getItem(backlogFilterStateKey) || '{}');
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) stored = parsed;
     } catch {}
-    stored[activeProjectContext()] = next;
+    stored[currentProjectContext()] = next;
     try { localStorage.setItem(backlogFilterStateKey, JSON.stringify(stored)); } catch {}
     return next;
   };
@@ -10892,7 +10896,7 @@ body {
       },
       compass: {
         label: 'Compass',
-        value: activeProjectContext(),
+        value: currentProjectContext(),
         detail: 'active project frame',
         status: 'online',
       },
@@ -10949,10 +10953,10 @@ body {
   const loadInstrumentationBand = async () => {
     try {
       const [beaconResponse, reviewResponse, aegisResponse, healthResponse] = await Promise.all([
-        fetch(bridgeUrl('beacon-liveness'), { cache: 'no-store' }),
-        fetch(bridgeUrl('review-console'), { cache: 'no-store' }),
-        fetch(bridgeUrl('aegis-logic'), { cache: 'no-store' }),
-        fetch(bridgeUrl('health'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('beacon-liveness'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('review-console'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('aegis-logic'), { cache: 'no-store' }),
+        fetch(currentBridgeUrl('health'), { cache: 'no-store' }),
       ]);
       instrumentationBandSnapshot.beacon = await beaconResponse.json();
       instrumentationBandSnapshot.review = await reviewResponse.json();
@@ -11220,11 +11224,11 @@ body {
   };
   const renderProjectFocusSnapshot = () => [
     relaySection('Project focus authority', relayGrid([
-      ['active project', activeProjectContext()],
+      ['active project', currentProjectContext()],
       ['selector owner', '.session-project-select'],
       ['storage key', projectSelectKey],
-      ['Prime context', primeWindow?.dataset.projectContext || activeProjectContext()],
-      ['screen context', screen?.dataset.projectContext || activeProjectContext()],
+      ['Prime context', document.querySelector('.session-window-left')?.dataset.projectContext || currentProjectContext()],
+      ['screen context', document.querySelector('.session-screen')?.dataset.projectContext || currentProjectContext()],
       ['User Session target', 'selected separately; project switch does not retarget sessions'],
     ]), true),
     relaySection('Project-scoped refresh path', relayGrid([
@@ -11496,7 +11500,7 @@ body {
   };
   const renderRiskTierOverridePreview = (state) => relayGrid([
     ['storage key', riskTierOverrideKey],
-    ['Prime override', riskTierScopeValue(state, `prime.${activeProjectContext()}`)],
+    ['Prime override', riskTierScopeValue(state, `prime.${currentProjectContext()}`)],
     ['User override', riskTierScopeValue(state, `user.${selectedUserSessionId() || 'unselected'}`)],
     ['routing effect', 'future routing/proof metadata preview only'],
     ['authority boundary', 'no backend route or proof gate mutation'],
@@ -11597,7 +11601,7 @@ body {
   const renderFocusModePreview = () => relayGrid([
     ['focus mode', readFocusMode() ? 'enabled' : 'disabled'],
     ['storage key', focusModeKey],
-    ['active project', activeProjectContext()],
+      ['active project', currentProjectContext()],
     ['session list effect', readFocusMode() ? 'active project sessions are the only prominent group' : 'all project groups remain visible'],
     ['routing effect', 'none; focus mode never retargets the selected session'],
   ]);
@@ -11814,7 +11818,7 @@ body {
       ['human gate route default', readProgressRedirectDefaults()['human gate']],
       ['system health route default', readProgressRedirectDefaults()['system health']],
       ['progress retention window', renderProgressRetentionWindowLabel()],
-      ['Prime risk override', riskTierScopeValue(readRiskTierOverrides(), `prime.${activeProjectContext()}`)],
+      ['Prime risk override', riskTierScopeValue(readRiskTierOverrides(), `prime.${currentProjectContext()}`)],
       ['User risk override', riskTierScopeValue(readRiskTierOverrides(), `user.${selectedUserSessionId() || 'unselected'}`)],
       ['quiet mode', readQuietMode() ? 'enabled for routine surfaces' : 'disabled'],
       ['wake mode', readWakeMode()],
@@ -12082,7 +12086,8 @@ body {
       loadRelayLogic();
       loadRelayEvidence();
       return true;
-    } catch {
+    } catch (error) {
+      console.error('Spark Skills render failed', error);
       restoreUserPanel({ warning: 'surface unavailable; User Session restored' });
       return false;
     }
@@ -13013,7 +13018,7 @@ body {
   const waitForModelBridge = async () => {
     for (let attempt = 0; attempt < 24; attempt += 1) {
       try {
-        const response = await fetch(bridgeUrl('models'), { cache: 'no-store' });
+        const response = await fetch(currentBridgeUrl('models'), { cache: 'no-store' });
         const result = await response.json();
         if (result?.version === expectedBridgeVersion && result?.capabilities?.visibleTranscriptContext) return true;
       } catch {
@@ -13025,7 +13030,7 @@ body {
   };
   const restartModelBridge = async () => {
     try {
-      await fetch(bridgeUrl('restart'), { method: 'POST', cache: 'no-store' });
+      await fetch(currentBridgeUrl('restart'), { method: 'POST', cache: 'no-store' });
       await waitForModelBridge();
     } catch {
       // Reset still reloads the UI; offline bridge status remains visible after reload.
@@ -13359,8 +13364,8 @@ body {
   };
   restoreStoredRightPanel();
   if (readWakeMode() === 'full wake') {
-    const input = primeWindow?.querySelector('.session-prompt-input');
-    if (input) {
+    const input = document.querySelector('.session-window-left .session-prompt-input');
+    if (input && typeof pushEntry === 'function') {
       const startupKind = window.meridianReloadMarkerPresent ? 'reload' : 'startup';
       pushEntry(
         input,
