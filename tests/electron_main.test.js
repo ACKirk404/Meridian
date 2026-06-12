@@ -130,6 +130,7 @@ test('ensureModelBridge starts the bridge with Electron-as-Node and log files', 
   assert.equal(calls[0].options.env.ELECTRON_RUN_AS_NODE, '1');
   assert.equal(calls[0].options.env.MERIDIAN_MODEL_HOST, '127.0.0.1');
   assert.equal(calls[0].options.env.MERIDIAN_MODEL_PORT, '8767');
+  assert.equal(path.basename(calls[0].options.env.MERIDIAN_MODEL_CWD), 'Meridian');
   assert.match(childPath, /appdata\\roaming\\npm/);
   assert.match(childPath, /microsoft\\windowsapps/);
   assert.equal(calls[0].options.windowsHide, true);
@@ -152,6 +153,15 @@ test('bridgeRuntimePath preserves existing PATH entries and appends Windows CLI 
   assert.equal(result.value.split(path.delimiter)[0], 'C:\\Existing');
   assert.match(result.value, /AppData\\Roaming\\npm/);
   assert.match(result.value, /Microsoft\\WindowsApps/);
+});
+
+test('resolveModelCwd maps a portable dist launch back to the repo root', () => {
+  const main = loadMainWithElectronMock();
+  const repoRoot = path.resolve(__dirname, '..');
+  const distDir = path.join(repoRoot, 'dist');
+  const resolved = main.resolveModelCwd({ PORTABLE_EXECUTABLE_DIR: distDir }, 'C:\\Temp\\extracted\\resources\\app');
+
+  assert.equal(resolved, repoRoot);
 });
 
 test('createCockpitWindow keeps the renderer sandboxed', () => {

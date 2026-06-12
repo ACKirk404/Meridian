@@ -31,6 +31,35 @@ const BRIDGE_SCRIPT = path.resolve(__dirname, '..', 'scripts', 'meridian-model-b
 
 let ownedBridgeProcess = null;
 
+function looksLikeMeridianRoot(candidate) {
+  if (!candidate) return false;
+  try {
+    return (
+      fs.existsSync(path.join(candidate, 'package.json')) &&
+      fs.existsSync(path.join(candidate, 'scripts', 'meridian-model-bridge.js')) &&
+      fs.existsSync(path.join(candidate, 'meridian_core'))
+    );
+  } catch {
+    return false;
+  }
+}
+
+function resolveModelCwd(baseEnv = process.env, appRoot = path.resolve(__dirname, '..')) {
+  if (baseEnv.MERIDIAN_MODEL_CWD && looksLikeMeridianRoot(baseEnv.MERIDIAN_MODEL_CWD)) {
+    return baseEnv.MERIDIAN_MODEL_CWD;
+  }
+
+  const candidates = [];
+  if (baseEnv.PORTABLE_EXECUTABLE_DIR) {
+    candidates.push(path.resolve(baseEnv.PORTABLE_EXECUTABLE_DIR, '..'));
+    candidates.push(baseEnv.PORTABLE_EXECUTABLE_DIR);
+  }
+  candidates.push(appRoot);
+  candidates.push(process.cwd());
+
+  return candidates.find(looksLikeMeridianRoot) || appRoot;
+}
+
 function createCockpitWindow() {
   const win = new BrowserWindow({
     width: 1280,
@@ -151,11 +180,13 @@ async function ensureModelBridge({
   const stdout = fs.openSync(stdoutPath, 'a');
   const stderr = fs.openSync(stderrPath, 'a');
   const runtimePath = bridgeRuntimePath(process.env);
+  const modelCwd = resolveModelCwd(process.env, path.resolve(__dirname, '..'));
   const childEnv = {
     ...process.env,
     ELECTRON_RUN_AS_NODE: '1',
     MERIDIAN_MODEL_HOST: BRIDGE_HOST,
     MERIDIAN_MODEL_PORT: String(BRIDGE_PORT),
+    MERIDIAN_MODEL_CWD: modelCwd,
     [runtimePath.pathKey]: runtimePath.value,
   };
   const child = spawnProcess(nodeRuntime, [bridgeScript], {
@@ -214,6 +245,8 @@ module.exports = {
   ensureModelBridge,
   getBridgeLogPaths,
   bridgeRuntimePath,
+  looksLikeMeridianRoot,
+  resolveModelCwd,
   startMeridianApp,
   stopOwnedBridge,
   UI_FILE,
