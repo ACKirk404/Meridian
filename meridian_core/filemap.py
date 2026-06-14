@@ -958,6 +958,27 @@ def make_default_map() -> FileMap:
             notes="Run before changing meridian_core/echo.py or Echo ranking semantics.",
         ),
         FileMapEntry(
+            path="docs/graphiti-sidecar-contract.md",
+            area=FileArea.ARCHITECTURE,
+            purpose="Graphiti sidecar contract: defines optional advisory context-graph use while Echo and Atlas remain authoritative deterministic memory and retrieval surfaces.",
+            related_tests=["tests/test_graphiti_memory.py"],
+            notes="Read before live Graphiti spikes, Neo4j/FalkorDB wiring, or any attempt to promote Graphiti results into Prime decisions.",
+        ),
+        FileMapEntry(
+            path="meridian_core/graphiti_memory.py",
+            area=FileArea.PRODUCT_RECALL,
+            purpose="Graphiti advisory memory sidecar boundary: projects Echo summaries and Atlas excerpts into safe episodes, preserves source refs, and projects Graphiti search results back as advisory hits only.",
+            related_tests=["tests/test_graphiti_memory.py", "tests/test_package_api.py"],
+            notes="Disabled by default; no hard Graphiti import, graph DB, provider key, network call, Echo write, Atlas write, or prompt injection.",
+        ),
+        FileMapEntry(
+            path="tests/test_graphiti_memory.py",
+            area=FileArea.PRODUCT_RECALL,
+            purpose="Test suite for Graphiti sidecar config, safe Echo/Atlas projection, superseded-memory skip behavior, optional async client boundary, and advisory-only search hits.",
+            related_tests=[],
+            notes="Run before changing Graphiti sidecar authority, source-ref, or prompt-drag boundaries.",
+        ),
+        FileMapEntry(
             path="docs/workflow-subagent-harness-contract.md",
             area=FileArea.ARCHITECTURE,
             purpose="Workflow subagent harness contract: expanded harness framework for V2. Defines multi-step workflows, tool orchestration, decision parallelism, and integration with Prime's stronger autonomy.",
