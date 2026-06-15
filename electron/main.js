@@ -215,13 +215,15 @@ function stopOwnedBridge() {
 }
 
 async function startMeridianApp() {
-  await ensureModelBridge();
+  // Show the cockpit window immediately; the model bridge starts in the
+  // background so window paint is never blocked on bridge health polling.
   createCockpitWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createCockpitWindow();
     }
   });
+  ensureModelBridge().catch(() => {});
 }
 
 app.on('window-all-closed', () => {
@@ -234,7 +236,7 @@ app.on('before-quit', () => {
   stopOwnedBridge();
 });
 
-if (require.main === module) {
+if (process.versions.electron && process.type === 'browser') {
   app.whenReady().then(startMeridianApp);
 }
 
